@@ -67,7 +67,7 @@ bool AMIEditorUI::init(LevelEditorLayer* editorLayer) {
     int hIndex = -1;
     int fIndex = -1;
 
-    for (const auto& [index, item] : buttonsExt | std::views::enumerate) {
+    for (const auto& [index, item] : asp::iter::from(buttonsExt).enumerate()) {
         if (!item) continue;
 
         if (item->m_objectID == 2866) {
