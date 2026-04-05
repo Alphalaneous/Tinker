@@ -1,6 +1,11 @@
 #include "FixTextObjectBounds.hpp"
+#include "ReferenceImage.hpp"
 
 void FTOBTextGameObject::fixBounds() {
+    if (ReferenceImage::isEnabled()) {
+        auto ref = static_cast<RITextGameObject*>(static_cast<TextGameObject*>(this));
+        if (ref->isReferenceImage()) return;
+    }
     m_width = getContentWidth();
     m_height = getContentHeight();
     updateOrientedBox();

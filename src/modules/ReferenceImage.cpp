@@ -3,18 +3,17 @@
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
 
-void ReferenceImage::onEditor() {
-    auto btn = m_editorUI->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
+bool RIEditorUI::init(LevelEditorLayer* editorLayer) {
+    if (!EditorUI::init(editorLayer)) return false;
+    auto btn = getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
     btn->setID("reference-import"_spr);
-    m_editorUI->m_editButtonBar->m_buttonArray->addObject(btn);
-    reloadButtonBar(m_editorUI->m_editButtonBar);
-}
+    m_editButtonBar->m_buttonArray->addObject(btn);
 
-void ReferenceImage::reloadButtonBar(EditButtonBar* buttonBar) {
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    buttonBar->reloadItems(cols, rows);
+    m_editButtonBar->reloadItems(cols, rows);
+    return true;
 }
 
 bool RICustomizeObjectLayer::init(GameObject* object, CCArray* objectArray) {
@@ -29,7 +28,7 @@ void RICustomizeObjectLayer::setTextBtn() {
     if (!textObject) return;
 
     auto pair = tinker::utils::splitIntoPair(textObject->m_text);
-    if (!(pair.first == "image" || pair.first == "image2")) return;
+    if (pair.first != "image") return;
 
     fields->m_isImageObject = true;
     if (!m_textButton) return;
@@ -56,7 +55,7 @@ void RICustomizeObjectLayer::onSelectMode(CCObject* sender) {
 
                 auto path = opt.value();
                 if (auto textObject = typeinfo_cast<TextGameObject*>(m_targetObject)) {
-                    textObject->updateTextObject("image2:" + utils::base64::encode(utils::string::pathToString(path)), false);
+                    textObject->updateTextObject("image:" + utils::base64::encode(utils::string::pathToString(path)), false);
                 }
             }
         );
@@ -97,6 +96,11 @@ void RITextGameObject::onImageFail() {
     m_width = getContentWidth();
     m_height = getContentHeight();
     updateOrientedBox();
+}
+
+
+bool RITextGameObject::isReferenceImage() {
+    return m_fields->m_isReferenceImage;
 }
 
 void RITextGameObject::setAttributes() {
@@ -150,6 +154,8 @@ void RITextGameObject::setupImage(const std::string& path) {
     if (!u16Res) return;
 
     std::filesystem::path decoded = u16Res.unwrap();
+
+    fields->m_isReferenceImage = true;
 
     if (std::filesystem::exists(decoded) && !std::filesystem::is_directory(decoded)) {
         fields->m_spr = LazySprite::create({60, 60}, true);
