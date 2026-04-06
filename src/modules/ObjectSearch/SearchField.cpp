@@ -154,7 +154,7 @@ void SearchField::focus() {
 
 void SearchField::onEnter() {
     CCNode::onEnter();
-    CCTouchDispatcher::get()->addTargetedDelegate(this, -128, true);
+    CCTouchDispatcher::get()->addTargetedDelegate(this, -120, true);
 }
 
 void SearchField::onExit() {
