@@ -368,7 +368,7 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
     for (auto child : fields->m_objectsMenu->getChildrenExt()) {
         bool visible;
 
-        if (visibleUntilX == -1.0f && idx % fields->m_cols == 0) {
+        if (visibleUntilX == -1.0f && idx % fields->m_rows == 0) {
             visible = child->getPositionX() + child->getContentWidth() > scaledX;
 
             if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.0f) + child->getContentWidth() / 2;
