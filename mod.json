@@ -60,7 +60,13 @@
 			"default": true,
 			"name": "Enable Canvas Rotation",
 			"description": "Allow you to rotate the editor canvas by right clicking and dragging.",
-			"platforms": ["win", "mac"]
+			"platforms": ["win", "mac"],
+			"default": {
+				"win": true,
+				"mac": true,
+				"android": false,
+				"ios": false
+			}
 		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",
