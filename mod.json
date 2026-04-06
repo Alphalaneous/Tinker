@@ -140,7 +140,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable Object Summary",
-			"description": "Add a button in the level settings to view an how many of each object there are."
+			"description": "Add a button in the level settings to view how many of each object there are."
 		},
 		"OldColorTriggers-enabled": {
 			"type": "bool",
