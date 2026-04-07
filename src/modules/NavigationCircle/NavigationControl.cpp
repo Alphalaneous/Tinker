@@ -69,8 +69,13 @@ bool NavigationControl::init(EditorUI* editorUI, float opacity, float scale) {
 
     scheduleUpdate();
 
+    if (JoystickNavigation::s_resetPosition) {
+        Mod::get()->setSavedValue("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
+        Mod::get()->setSavedValue("nav-joystick-pos-y", m_editorUI->m_toolbarHeight + getScaledContentHeight() / 2 + 20);
+    }
+
     auto posX = Mod::get()->getSavedValue<float>("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", m_editorUI->m_toolbarHeight + getScaledContentHeight() / 2 + 40);
+    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", m_editorUI->m_toolbarHeight + getScaledContentHeight() / 2 + 20);
 
     CCSize winSize = CCDirector::get()->getWinSize();
 
@@ -187,7 +192,10 @@ bool NavigationControl::clickBegan(TouchEvent* touch) {
         m_joystickRawDelta = CCPointZero;
         m_joystickRawLen = 0.f;
         m_joystick->setOpacity(CIRCLE_OPACITY * CLICK_MULTIPLIER * m_opacity);
-        scheduleOnce(schedule_selector(NavigationControl::waitForMove), 0.5f);
+        if (!JoystickNavigation::getSetting<bool, "lock-position">()) {
+            scheduleOnce(schedule_selector(NavigationControl::waitForMove), 0.5f);
+        }
+
         return true;
     }
     if (m_rotationHandle && alpha::utils::isPointInsideNode(m_rotationHandle, touch->getLocation())) {

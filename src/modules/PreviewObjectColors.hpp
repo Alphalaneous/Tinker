@@ -20,7 +20,7 @@ class $editorModule(PreviewObjectColors) {
 };
 
 class $modify(POCEditorUI, EditorUI) {
-    $registerEditorHooks(PreviewObjectColors)
+    $registerEditorHooks(PreviewObjectColors, true)
 
     void editObject(cocos2d::CCObject* sender);
     GameObject* createObject(int p0, cocos2d::CCPoint p1);
@@ -28,4 +28,8 @@ class $modify(POCEditorUI, EditorUI) {
 	bool isColorable(GameObject* object);
 	void updateButton(CCNode* btn);
 	void updateObjectColors(float dt);
+
+	static void _onModify(auto& self) {
+        (void) self.setHookPriorityBeforePre("EditorUI::editObject", "ninkaz.editor_utils"); 
+    }
 };

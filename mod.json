@@ -85,12 +85,6 @@
 			"name": "Preview Object Colors",
 			"description": "Preview a color channel on the object buttons in the build tab."
 		},
-		"QuickExtras-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Edit Extras Button",
-			"description": "A shortcut button to edit extra properties of objects, replaces Edit Special when it isn't needed."
-		},
 		"ReferenceImage-enabled": {
 			"type": "bool",
 			"default": true,
@@ -328,6 +322,19 @@
 			"name": "Controller Scale",
 			"description": "Scale of Joystick Controller."
 		},
+		"JoystickNavigation-lock-position": {
+			"type": "bool",
+			"name": "Lock Position",
+			"description": "Lock the Controller's position where you left it last.",
+			"default": false
+		},
+		"JoystickNavigation-reset-position": {
+			"type": "button",
+			"buttons": {
+				"reset-position": "Reset Position"
+			},
+			"description": "Reset the Controller's position to default."
+		},
 		"NegateInput-title": {
 			"type": "title",
 			"name": "Negate Input"
@@ -491,6 +498,26 @@
 			"description": "Always shows the warning even if you only have one object selected.",
 			"default": false,
 			"type": "bool"
+		},
+		"QuickExtras-title": {
+			"type": "title",
+			"name": "Quick Edit Extras Button"
+		},
+		"QuickExtras-description": {
+			"type": "info",
+			"description": "A shortcut button to edit extra properties of objects, replaces Edit Special when it isn't needed.",
+			"color": "#000000"
+		},
+		"QuickExtras-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"QuickExtras-always-show": {
+			"type": "bool",
+			"default": false,
+			"name": "Always show Edit Extras button.",
+			"description": "Make the Edit Extras button always visible instead of replacing Edit Special."
 		}
 	},
 	"api": {

@@ -15,4 +15,9 @@ class $modify(QEEditorUI, EditorUI) {
     $registerEditorHooks(QuickExtras)
 
     void showUI(bool show);
+    bool _isAllowedObjectID(int id);
+    bool _checkMultiSelection();
+    bool _editButton2Usable();
+
+    bool isSpecialEdit(GameObject* obj);
 };

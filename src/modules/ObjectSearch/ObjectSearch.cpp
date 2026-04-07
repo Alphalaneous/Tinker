@@ -40,7 +40,11 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
                 buildTabHeight = node->getScaledContentHeight();
                 scale = node->getScale();
             }
+
+            #ifndef GEODE_IS_MOBILE
             fields->m_searchField->focus();
+            #endif
+
             fields->m_searchField->setPosition({getContentWidth() / 2, m_toolbarHeight + 5.f + buildTabHeight});
             fields->m_searchField->setScale(0.6f * scale);
             addChild(fields->m_searchField);

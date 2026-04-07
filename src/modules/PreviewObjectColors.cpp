@@ -53,9 +53,6 @@ void PreviewObjectColors::onUpdateButtons() {
 void POCEditorUI::editObject(cocos2d::CCObject* sender) {
     if (ScrollableObjects::isEnabled()) return EditorUI::editObject(sender);
 
-    log::info("selected: {}", m_selectedObject);
-    log::info("selected arr: {}", m_selectedObjects);
-
     if (!m_selectedObject && (!m_selectedObjects || m_selectedObjects->count() == 0)) {
         auto customizeObjectLayer = CustomizeObjectLayer::create(PreviewObjectColors::get()->m_defaultObject, nullptr);
         customizeObjectLayer->show();

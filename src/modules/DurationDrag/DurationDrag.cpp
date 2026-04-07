@@ -180,7 +180,7 @@ DurationDrag::~DurationDrag() {
     }
 }
 
-$execute {
+$on_mod(Loaded) {
 	auto& api = DrawGridAPI::get();
     
 	api.addDraw<DurationDragDraw>("duration-drag");
