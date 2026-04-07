@@ -11,7 +11,7 @@ using namespace alpha::prelude;
 class OSEditorUI;
 
 namespace tinker::ui {
-    class SearchField : public CCNode, public TouchDelegate {
+    class SearchField : public CCNode, public TouchDelegate, public TextInputDelegate {
     public:
         struct ItemInformation {
             Ref<CreateMenuItem> item;
@@ -25,6 +25,8 @@ namespace tinker::ui {
 
         void onEnter() override;
         void onExit() override;
+
+        void textInputShouldOffset(CCTextInputNode* node, float yOffset) override;
 
         void defocus();
         void focus();

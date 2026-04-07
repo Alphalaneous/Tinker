@@ -353,6 +353,14 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
     auto& visibleNodes = fields->m_visibleNodes;
     visibleNodes.clear();
 
+    if (tinker::utils::getMod<"hjfod.betteredit">() && alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "edit") {
+        for (auto child : fields->m_objectsMenu->getChildrenExt()) {
+            child->setVisible(true);
+            visibleNodes.push_back(child);
+        }
+        return;
+    }
+
     if (fields->m_objectsMenu->getChildrenCount() <= fields->m_rows * fields->m_cols) {
         for (auto child : fields->m_objectsMenu->getChildrenExt()) {
             child->setVisible(true);

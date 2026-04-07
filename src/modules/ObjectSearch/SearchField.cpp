@@ -121,6 +121,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
             m_editorUI->m_fields->m_searchBar->loadFromItems(arr, cols, rows, false);
         }));
     });
+    m_searchInput->setDelegate(this);
     m_searchInput->setCommonFilter(CommonFilter::Any);
     m_searchInput->setPosition({6 + m_searchInput->getContentWidth() / 2, getContentHeight() / 2});
 
@@ -165,4 +166,8 @@ void SearchField::onExit() {
 bool SearchField::clickBegan(TouchEvent* touch) {
     if (!nodeIsVisible(this) || !alpha::utils::isPointInsideNode(this, touch->getLocation())) return false;
     return true;
+}
+
+void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
+    log::info("offset: {}", yOffset);
 }
