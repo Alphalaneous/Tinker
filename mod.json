@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.7",
+	"version": "v1.0.0-beta.8",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -18,6 +18,7 @@
 		"alphalaneous.alphas-ui-pack": "v1.0.8",
 		"alphalaneous.editortab_api": "v2.0.12",
 		"alphalaneous.level-storage-api": "v1.0.0",
+		"alk.better-touch-prio": "v1.0.15",
 		"spaghettdev.named-editor-groups": {
 			"version": "v2.4.1",
             "required": false

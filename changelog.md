@@ -1,3 +1,6 @@
+# 1.0.0-beta.8
+- <c-dddddd>Depend on Better Touch Prio
+
 # 1.0.0-beta.7
 - <c-dddddd>Fix BetterEdit's edit menu buttons being invisible</c>
 - <c-dddddd>Clean up Object Search UI on mobile</c>
