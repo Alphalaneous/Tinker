@@ -4,17 +4,9 @@
 
 using namespace tinker::ui;
 
-void CanvasRotate::onEditor() {
-    m_rotationNode = RotationNode::create(m_editorUI);
-    m_rotationNode->setID("rotation-node"_spr);
-    m_editorUI->addChild(m_rotationNode);
-
-    m_editorLoaded = true;
-
+void toggleBetterEditHook(bool enabled) {
     auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
     if (!betterEdit) return;
-
-    bool enabled = CanvasRotate::isEnabled();
 
     for (auto hook : betterEdit->getHooks()) {
         if (hook->getDisplayName() == "EditorUI::scrollWheel") {
@@ -22,6 +14,25 @@ void CanvasRotate::onEditor() {
             break;
         }
     }
+}
+
+void CanvasRotate::onEditor() {
+    toggleBetterEditHook(false);
+
+    m_rotationNode = RotationNode::create(m_editorUI);
+    m_rotationNode->setID("rotation-node"_spr);
+    m_editorUI->addChild(m_rotationNode);
+
+    m_editorLoaded = true;
+}
+
+$on_mod(Loaded) {
+    bool enabled = Mod::get()->getSettingValue<bool>("CanvasRotate-enabled");
+    toggleBetterEditHook(!enabled);
+
+    listenForSettingChanges<bool>("CanvasRotate-enabled", [] (bool enabled) {
+        toggleBetterEditHook(!enabled);
+    });
 }
 
 void CREditorUI::moveObject(GameObject* p0, CCPoint p1) {
