@@ -517,7 +517,7 @@
 		"QuickExtras-always-show": {
 			"type": "bool",
 			"default": false,
-			"name": "Always show Edit Extras button.",
+			"name": "Always show Edit Extras button",
 			"description": "Make the Edit Extras button always visible instead of replacing Edit Special."
 		}
 	},
