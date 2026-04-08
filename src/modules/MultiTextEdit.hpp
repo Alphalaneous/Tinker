@@ -23,4 +23,5 @@ class $modify(MTECustomizeObjectLayer, CustomizeObjectLayer) {
     void textChanged(CCTextInputNode* node);
     void sliderChanged(CCObject* sender);
     void onClose(CCObject* sender);
+    void onSelectMode(cocos2d::CCObject* sender);
 };

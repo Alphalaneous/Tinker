@@ -20,9 +20,13 @@ void AutoBuildHelper::onEditor() {
     autoBuildHelperSprOn->setContentSize({40, 40});
     autoBuildHelperSprOff->setContentSize({40, 40});
 
-    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOn, autoBuildHelperSprOff, m_editorUI, menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
+    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, m_editorUI, menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
-    m_bhToggler->toggle(true);
+
+    bool isToggled = Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false);
+
+    m_bhToggler->toggle(isToggled);
+    m_autoBuildHelperEnabled = isToggled;
 
     menu->addChild(m_bhToggler);
     menu->updateLayout();
@@ -48,16 +52,17 @@ void AutoBuildHelper::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
     autoBuildHelperSprOn->setContentSize({40, 40});
     autoBuildHelperSprOff->setContentSize({40, 40});
 
-    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOn, autoBuildHelperSprOff, EditorUI::get(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
+    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, EditorUI::get(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
-    m_bhToggler->toggle(true);
+    m_bhToggler->toggle(Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false));
     menu->addChild(m_bhToggler);
     menu->updateLayout();
 }
 
 void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {
     auto toggler = static_cast<CCMenuItemToggler*>(sender);
-    AutoBuildHelper::get()->m_autoBuildHelperEnabled = toggler->isOn();
+    AutoBuildHelper::get()->m_autoBuildHelperEnabled = !toggler->isOn();
+    Mod::get()->setSavedValue("auto-build-helper-toggle", !toggler->isOn());
 }
 
 CCArray* ABHEditorUI::pasteObjects(gd::string p0, bool p1, bool p2) {

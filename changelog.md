@@ -1,7 +1,9 @@
 # 1.0.0-beta.9
 - <c-dddddd>Fix Auto "Build Helper" not working</c>
+- <c-dddddd>Save Auto "Build Helper" toggle state</c>
 - <c-dddddd>Fix Paste Warnings showing when clicking the buttons while they are disabled</c>
 - <c-dddddd>Adjust scroll delta to prevent accidental scrolling when clicking an object in the build tab</c>
+- <c-dddddd>Remove broken Split button with Multi Text Edit as it crashes. May reimplement in the future</c>
 
 # 1.0.0-beta.8
 - <c-dddddd>Depend on Better Touch Prio

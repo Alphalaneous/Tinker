@@ -88,3 +88,14 @@ void MTECustomizeObjectLayer::onClose(CCObject* sender) {
     }
     CustomizeObjectLayer::onClose(sender);
 }
+
+void MTECustomizeObjectLayer::onSelectMode(cocos2d::CCObject* sender) {
+    CustomizeObjectLayer::onSelectMode(sender);
+    auto fields = m_fields.self();
+    if (fields->m_textObjects) {
+        auto textActionsMenu = m_mainLayer->getChildByID("text-actions-menu");
+        if (textActionsMenu) {
+            textActionsMenu->setVisible(false);
+        }
+    }
+}
