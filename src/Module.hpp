@@ -80,8 +80,8 @@ public:
         static constexpr auto enabledKey = tinker::utils::concat<Name, "-enabled">();
         static auto setting = Mod::get()->getSetting(enabledKey.data());
         if (!setting) return false;
-        bool settingEnabled = setting->shouldEnable();
-        return getSetting<bool, "enabled">() && settingEnabled;
+        static bool settingEnabled = setting->shouldEnable();
+        return settingEnabled && getSetting<bool, "enabled">();
     }
 
     template <class S, geode::utils::string::ConstexprString key>
