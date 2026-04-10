@@ -66,7 +66,6 @@ body:
         You can access these crashlogs from the launcher settings on iOS and Android
         Make sure that the mod list is in your crashlog. Do not submit incomplete crash logs or images of crash logs.
       placeholder: Place your crash log here...
-        ...
     validations:
       required: true
 
