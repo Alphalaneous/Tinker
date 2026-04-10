@@ -27,6 +27,7 @@ body:
       required: true
 
   - type: checkboxes
+    id: crash-type
     attributes:
       label: Crash Type
       description: The type of crash that occured
@@ -37,6 +38,7 @@ body:
       required: true
 
   - type: checkboxes
+    id: crash-replication
     attributes:
       label: Crash Replication
       description: Can you replicate the steps to cause this crash?
@@ -95,6 +97,7 @@ body:
       required: false
 
   - type: checkboxes
+    id: platform
     attributes:
       label: Platform
       description: What platform are you using?

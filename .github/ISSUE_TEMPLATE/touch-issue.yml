@@ -43,3 +43,20 @@ body:
         You can copy the mod list in Geode Settings by clicking "Copy Mods"
     validations:
       required: true
+
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform are you using?
+      options:
+      - label: Windows
+      - label: Mac (Intel)
+      - label: Mac (Arm)
+      - label: Android (32-bit)
+      - label: Android (64-bit)
+      - label: iOS
+      - label: iOS (Jitless)
+      - label: Linux
+    validations:
+      required: true

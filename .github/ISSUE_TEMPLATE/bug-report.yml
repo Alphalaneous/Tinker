@@ -54,6 +54,7 @@ body:
       required: false
 
   - type: checkboxes
+    id: platform
     attributes:
       label: Platform
       description: What platform are you using?
