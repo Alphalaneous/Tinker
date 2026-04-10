@@ -53,19 +53,19 @@ body:
     validations:
       required: false
 
-  - type: checkboxes
+  - type: dropdown
     id: platform
     attributes:
       label: Platform
       description: What platform are you using?
       options:
-      - label: Windows
-      - label: Mac (Intel)
-      - label: Mac (Arm)
-      - label: Android (32-bit)
-      - label: Android (64-bit)
-      - label: iOS
-      - label: iOS (Jitless)
-      - label: Linux
+      - "Windows"
+      - "Mac (Intel)"
+      - "Mac (Arm)"
+      - "Android (32-bit)"
+      - "Android (64-bit)"
+      - "iOS"
+      - "iOS (Jitless)"
+      - "Linux"
     validations:
       required: true
