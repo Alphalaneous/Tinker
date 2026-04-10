@@ -1,6 +1,7 @@
 #include "DurationThumb.hpp"
 #include "DurationControl.hpp"
 #include "Utils.hpp"
+#include "../../Utils.hpp"
 
 using namespace tinker::ui;
 
@@ -416,7 +417,10 @@ void DurationThumb::select(bool select) {
 }
 
 bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    CCPoint touchPos = getParent()->convertToNodeSpace(touch->getLocation());
+    auto winSize = CCDirector::get()->getWinSize();
+    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
+
+    CCPoint touchPos = getParent()->convertToNodeSpace(convertedPos);
     if (!isVisible() || m_disabled || !getTouchBounds().containsPoint(touchPos))
         return false;
 
@@ -518,6 +522,9 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (!m_dragging) return;
 
+    auto winSize = CCDirector::get()->getWinSize();
+    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
+
     CCPoint start;
 
     if (m_thumbType == ThumbType::Multi) {
@@ -533,7 +540,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     const float lineLen = std::sqrt(line.x * line.x + line.y * line.y);
     if (lineLen == 0.f) return;
 
-    const CCPoint touchPos = getParent()->convertToNodeSpace(touch->getLocation());
+    const CCPoint touchPos = getParent()->convertToNodeSpace(convertedPos);
 
     const CCPoint ap = touchPos - start;
     float percent;

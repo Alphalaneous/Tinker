@@ -37,7 +37,7 @@ bool TooltipHover::init() {
     setZOrder(500);
     setContentSize(CCDirector::get()->getWinSize());
 
-    m_tooltipBG = NineSlice::create("square02_001-uhd.png");
+    m_tooltipBG = NineSlice::create("square02_001.png");
     m_tooltipBG->setColor({0, 0, 0});
     m_tooltipBG->setAnchorPoint({0.5f, 0.f});
     m_tooltipBG->setScaleMultiplier(0.4f);
@@ -70,7 +70,11 @@ bool TooltipHover::init() {
 }
 
 void TooltipHover::resetTooltip() {
-    hideTooltip(m_activeItem);
+    #ifdef GEODE_IS_MOBILE
+    hideTooltip();
+    #else
+    m_tooltipBG->setVisible(false);
+    #endif
     m_activeItem = nullptr;
 }
 
@@ -87,9 +91,9 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
 void TooltipHover::clickEnded(TouchEvent* touch) {
     if (m_activeItem && m_activeItem->m_objectID > 0) {
         m_tooltipBG->setVisible(true);
-        auto bb = m_activeItem->boundingBox();
+        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
 
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), bb.getMaxY() + 2});
+        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HEIGHT_OFFSET});
         auto positionHere = convertToNodeSpace(positionWorld);
 
         m_tooltipBG->setPosition(positionHere);
@@ -135,6 +139,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         auto soEbbFields = scrollEditButtonBar->m_fields.self();
         bool inScrollBounds = alpha::utils::isPointInsideNode(soEbbFields->m_scrollLayer, touch->getLocation());
         if (!inScrollBounds && m_activeItem) {
+            hideTooltip();
             m_activeItem = nullptr;
         }
 
@@ -166,9 +171,9 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         m_tooltipBG->stopAllActions();
         m_tooltipBG->setOpacity(220);
 
-        auto bb = m_activeItem->boundingBox();
+        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
 
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), bb.getMaxY() + 2});
+        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HEIGHT_OFFSET});
         auto positionHere = convertToNodeSpace(positionWorld);
 
         m_tooltipBG->setPosition(positionHere);
@@ -179,7 +184,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         showTooltip(m_activeItem);
     }
     if (!m_activeItem && origItem) {
-        hideTooltip(origItem);
+        hideTooltip();
     }
 }
 
@@ -200,7 +205,7 @@ void TooltipHover::clickMoved(TouchEvent* touch) {
 }
 
 void TooltipHover::scheduleHide(float dt) {
-    hideTooltip(m_activeItem);
+    hideTooltip();
 }
 #endif
 
@@ -219,9 +224,9 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     if (!nameRes) return;
     auto name = nameRes.unwrap();
 
-    auto bb = item->boundingBox();
+    auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
 
-    auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), bb.getMaxY() + 2});
+    auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), y + HEIGHT_OFFSET});
     auto positionHere = convertToNodeSpace(positionWorld);
     m_tooltipLabel->setString(std::string(name).c_str());
 
@@ -251,12 +256,13 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     #endif
 }
 
-void TooltipHover::hideTooltip(CreateMenuItem* item) {
+void TooltipHover::hideTooltip() {
     #ifdef GEODE_IS_DESKTOP
     if (!m_clicking) {
         m_tooltipBG->setVisible(false);
     }
     #else
+    if (m_activeItem) setButtonOpacity(m_activeItem, 255);
     m_tooltipBG->runAction(CCSequence::createWithTwoActions(CCFadeOut::create(0.2f), CallFuncExt::create([this] {
         m_tooltipBG->setVisible(false);
         m_activeItem = nullptr;
@@ -273,4 +279,3 @@ void TooltipHover::onExit() {
     CCNode::onExit();
     CCTouchDispatcher::get()->removeDelegate(this);
 }
-

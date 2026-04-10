@@ -1,6 +1,5 @@
 #include "ScrollableObjects.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
     if (!EditorUI::init(editorLayer)) return false;

@@ -91,42 +91,44 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
         api.drawLine(p2, end, endColor, 2.f);
     };
 
-    auto center = tinker::utils::duration_drag::getCenter(dgl->m_editorLayer->m_editorUI);
-    if (center) {
+    if (dgl->m_editorLayer->m_editorUI->m_selectedObjects->count() <= 100) {
+        auto center = tinker::utils::duration_drag::getCenter(dgl->m_editorLayer->m_editorUI);
+        if (center) {
 
-        bool first = true;
-        int refChannel;
-        bool drawCenter = true;
+            bool first = true;
+            int refChannel;
+            bool drawCenter = true;
 
-        for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
-            if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
-            if (first) {
-                refChannel = object->m_channelValue;
-                first = false;
-            } else if (object->m_channelValue != refChannel) {
-                drawCenter = false;
-                break;
-            }
-        }
-
-        if (drawCenter) {
             for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
                 if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
-
-                auto centerPoint = center.unwrap().second;
-                auto start = object->getPosition();
-                auto end = object->m_endPosition;
-
-                if (end == CCPointZero) end = start;
-
-                bool isLesser = end.x < start.x;
-
-                if (!object->m_isSpawnTriggered && !isLesser) {
-                    start.x = std::max(start.x, 0.f);
-                    end.x = std::max(end.x, 0.f);
+                if (first) {
+                    refChannel = object->m_channelValue;
+                    first = false;
+                } else if (object->m_channelValue != refChannel) {
+                    drawCenter = false;
+                    break;
                 }
+            }
 
-                drawDottedLine(end, centerPoint, {145, 170, 255, 180});
+            if (drawCenter) {
+                for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
+                    if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
+
+                    auto centerPoint = center.unwrap().second;
+                    auto start = object->getPosition();
+                    auto end = object->m_endPosition;
+
+                    if (end == CCPointZero) end = start;
+
+                    bool isLesser = end.x < start.x;
+
+                    if (!object->m_isSpawnTriggered && !isLesser) {
+                        start.x = std::max(start.x, 0.f);
+                        end.x = std::max(end.x, 0.f);
+                    }
+
+                    drawDottedLine(end, centerPoint, {145, 170, 255, 180});
+                }
             }
         }
     }

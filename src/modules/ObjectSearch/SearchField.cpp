@@ -115,10 +115,12 @@ bool SearchField::init(OSEditorUI* editorUI) {
     m_searchInput->setDelegate(this);
     m_searchInput->setCommonFilter(CommonFilter::Any);
     m_searchInput->setPosition({6 + m_searchInput->getContentWidth() / 2, getContentHeight() / 2});
+    m_searchInput->setID("search-input"_spr);
 
     m_searchBG = geode::NineSlice::create("GJ_square02.png");
     m_searchBG->setAnchorPoint({0, 0});
     m_searchBG->setContentSize(getContentSize());
+    m_searchBG->setID("background"_spr);
 
     addChild(m_searchBG);
 
@@ -131,6 +133,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
         m_searchInput->setString("", true);
         m_searchInput->focus();
     });
+    m_clearButton->setID("clear-button"_spr);
 
     m_clearButton->setSelectCallback([this] (auto sender) {
         m_lockClose = true;
@@ -146,6 +149,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
     m_tabBG = geode::NineSlice::create("square02b_001.png");
     m_tabBG->setOpacity(127);
     m_tabBG->setColor({0, 0, 0});
+    m_tabBG->setID("floating-tab-background"_spr);
 
     return true;
 }

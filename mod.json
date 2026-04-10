@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.10",
+	"version": "v1.0.0-beta.11",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -95,8 +95,8 @@
 		"ScrollableObjects-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enable Scrollable Objects",
-			"description": "Scroll through objects instead of navigating per page in the build tab.",
+			"name": "Enable Scrollable Tabs",
+			"description": "Scroll through editor tabs instead of navigating per page.",
 			"enable-if": "!loaded:razoom.object_groups",
 			"enable-if-description": "This feature is not compatible with Object Groups."
 		},

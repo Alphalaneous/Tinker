@@ -27,6 +27,6 @@ namespace tinker::ui {
 		Ref<DurationThumb> m_multiSlider = nullptr;
 		CCMenu* m_buttonsMenu = nullptr;
 		CCMenuItemSpriteExtra* m_alignAllButton = nullptr;
-
+		bool m_lockUpdateObjects;
 	};
 }

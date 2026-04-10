@@ -45,7 +45,7 @@ bool ObjectItem::init(int objectID, int count) {
     object->setPosition({max / 2.f + gap / 2, max / 2.f + labelOffset + gap / 2});
     object->setZOrder(1);
 
-    auto bg = geode::NineSlice::create("geode.loader/white-square-uhd.png");
+    auto bg = geode::NineSlice::create("geode.loader/white-square.png");
     bg->setColor({0, 0, 0});
     bg->setOpacity(127);
     bg->setContentSize({max, max});

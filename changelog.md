@@ -1,3 +1,26 @@
+# 1.0.0-beta.11
+- <c-dddddd>Fix some broken sprites when not using high quality textures</c>
+- <c-dddddd>Tooltips are now higher on mobile</c>
+- <c-dddddd>Tooltips will now fade when button is scrolled outside of view</c>
+- <c-dddddd>Fix tooltips persisting when switching modes while clicked</c>
+- <c-dddddd>Fix tooltips instantly fading when not using scrollable objects on mobile</c>
+- <c-dddddd>Fix tooltips causing button opacity to stay lowered on mobile</c>
+- <c-dddddd>Fix tooltips height being inconsistent and changing if the button scales</c>
+- <c-dddddd>Add a selection limit of 100 to duration dragging</c>
+- <c-dddddd>Improve duration dragging performance</c>
+- <c-dddddd>Fix duration dragging breaking when the editor is rotated</c>
+- <c-dddddd>Fix duration drag slider not being visible after pasting objects</c>
+- <c-dddddd>Fix repeating editor buttons not working with BetterEdit's move menu</c>
+- <c-dddddd>Fix selection being broken when Canvas Rotate is enabled</c>
+- <c-dddddd>Add missing node IDs for object search</c>
+- <c-dddddd>Fix hold to swipe location being wrong when the editor is rotated</c>
+
+## Known Issues
+- <c-bfbf56>Scroll on Mac is inverted</c>
+- <c-bfbf56>Rotate and Zoom gestures do not work on mobile</c>
+- <c-bfbf56>Infinite Zoom hacks/mods do not work with Tinker currently</c>
+- <c-bfbf56>Edit tab organization is terrible with scrollable tabs enabled</c>
+
 # 1.0.0-beta.10
 - <c-dddddd>Fix Duration Dragging lines showing when disabled</c>
 - <c-dddddd>Fix Live Colors menu showing under search if you pause and unpause</c>

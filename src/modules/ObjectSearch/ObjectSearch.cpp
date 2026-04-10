@@ -22,6 +22,8 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
 
     fields->m_searchField = tinker::ui::SearchField::create(this);
     fields->m_searchField->defocus();
+    fields->m_searchField->setID("search-field"_spr);
+    
     m_uiItems->addObject(fields->m_searchField);
 
     alpha::editor_tabs::addTab("all-objects"_spr, alpha::editor_tabs::BUILD, [this, fields] () {

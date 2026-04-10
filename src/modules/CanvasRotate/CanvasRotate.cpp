@@ -86,6 +86,12 @@ void CREditorUI::clickOnPosition(CCPoint p0) {
     m_toolbarHeight = oldToolbarHeight;
 };
 
+void CREditorUI::triggerSwipeMode() {
+    auto winSize = CCDirector::get()->getWinSize();
+    m_swipeStart = tinker::utils::rotatePointAroundPivot(m_swipeStart, winSize/2, -m_editorLayer->m_gameState.m_cameraAngle);
+    EditorUI::triggerSwipeMode();
+}
+
 bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* p1) {
     auto module = CanvasRotate::get();
 
@@ -112,7 +118,7 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* p1) {
 
 void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* p1) {
     auto module = CanvasRotate::get();
-    if ((m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_selectedMode == 3) {
+    if (m_swipeActive) {
         return EditorUI::ccTouchMoved(touch, p1);
     }
     module->m_rotationNode->translate(touch);
@@ -135,8 +141,7 @@ void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* p1) {
 
 void CREditorUI::scrollWheel(float y, float x) {
     if (CCKeyboardDispatcher::get()->getShiftKeyPressed()) {
-        x = y;
-        y = 0;
+        std::swap(x, y);
     }
 
     auto module = CanvasRotate::get();
@@ -172,6 +177,7 @@ void CREditorUI::scrollWheel(float y, float x) {
 }
 
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
+    //return LevelEditorLayer::objectsInRect(rect, ignoreLayerCheck);
     auto result = CCArray::create();
 
     auto center = rect.origin + CCPoint(rect.size.width * 0.5f, rect.size.height * 0.5f);
@@ -188,7 +194,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
             if (!isOnCurrentEditorLayer1 && !isOnCurrentEditorLayer2 && m_currentLayer != -1) return;
         }
 
-        if (object->getOrientedBox() && selectionOBB->overlaps(rotatedOBB2D(object, centerInObjectLayer, m_gameState.m_cameraAngle))) {
+        if (selectionOBB->overlaps(rotatedOBB2D(object, centerInObjectLayer, m_gameState.m_cameraAngle))) {
             result->addObject(object);
         }
     });
@@ -197,18 +203,13 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
 }
 
 OBB2D* CRLevelEditorLayer::rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees) {
-    auto original = object->getOrientedBox();
-    if (!original) return nullptr;
+    auto obb = OBB2D::create(object->getPosition(), object->boundingBox().size.width, object->boundingBox().size.height, CC_DEGREES_TO_RADIANS(object->getRotation()));
 
-    auto center = original->m_center;
+    auto center = obb->m_center;
 
-    auto& c0 = original->m_corners[0];
-    auto& c1 = original->m_corners[1];
-    auto& c2 = original->m_corners[2]; 
-
-    float width = (c1 - c0).getLength();
-    float height = (c2 - c1).getLength();
-    float angle = CC_RADIANS_TO_DEGREES(std::atan2(c1.y - c0.y, c1.x - c0.x));
+    float width = object->boundingBox().size.width;
+    float height = object->boundingBox().size.height;
+    float angle = CC_DEGREES_TO_RADIANS(object->getRotation());
 
     float radians = -CC_DEGREES_TO_RADIANS(degrees);
     float dx = center.x - pivot.x;
@@ -219,5 +220,5 @@ OBB2D* CRLevelEditorLayer::rotatedOBB2D(GameObject* object, CCPoint pivot, float
         pivot.y + dx * std::sin(radians) + dy * std::cos(radians)
     };
 
-    return OBB2D::create(rotatedCenter, width, height, angle + degrees);
+    return OBB2D::create(rotatedCenter, width, height, angle + radians);
 }

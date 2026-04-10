@@ -1,4 +1,5 @@
 #include "RepeatingEditorButtons.hpp"
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 void REBCCMenuItemSpriteExtra::setRepeatable(bool repeatable) {
     auto fields = m_fields.self();
@@ -45,9 +46,11 @@ void REBCCMenuItemSpriteExtra::unselected() {
 }
 
 void RepeatingEditorButtons::onEditor() {
-    for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(m_editorUI->m_editButtonBar->m_buttonArray)) {
-        btn->setRepeatable(true);
-    }
+    m_editorUI->runAction(CallFuncExt::create([this] {
+        for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(m_editorUI->m_editButtonBar->m_buttonArray)) {
+            btn->setRepeatable(true);
+        }
+    }));
 
     static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_undoBtn)->setRepeatable(true);
     static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_redoBtn)->setRepeatable(true);
@@ -125,3 +128,15 @@ void REBEditButtonBar::loadFromItems(CCArray* p0, int p1, int p2, bool p3) {
         }
     }));
 }
+
+class $nodeModify(MyMoveGroup, MoveGroup) {
+
+    void modify() {
+        if (!RepeatingEditorButtons::isEnabled()) return;
+        for (auto node : getChildrenExt()) {
+            if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+                static_cast<REBCCMenuItemSpriteExtra*>(btn)->setRepeatable(true);
+            }
+        }
+    }
+};

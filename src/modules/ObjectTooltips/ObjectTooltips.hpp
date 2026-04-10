@@ -12,6 +12,12 @@ class $editorModule(ObjectTooltips) {
 };
 
 namespace tinker::ui {
+    #ifdef GEODE_IS_DESKTOP
+    static constexpr float HEIGHT_OFFSET = 5.f;
+    #else
+    static constexpr float HEIGHT_OFFSET = 15.f;
+    #endif
+
     class TooltipHover : public CCNode, public TouchDelegate {
     public:
         static TooltipHover* create();
@@ -37,7 +43,7 @@ namespace tinker::ui {
         void onExit() override;
 
         void showTooltip(CreateMenuItem* item);
-        void hideTooltip(CreateMenuItem* item);
+        void hideTooltip();
 
         void setButtonOpacity(CreateMenuItem* item, GLubyte opacity);
 

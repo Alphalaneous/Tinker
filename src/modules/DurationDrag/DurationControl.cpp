@@ -107,7 +107,7 @@ void DurationControl::onAlign(CCObject* obj) {
                 false
             );
 
-            for (auto [k, v] : m_objects) {
+            for (auto& [k, v] : m_objects) {
 
                 auto start = k->getPosition();
 				auto end = k->m_endPosition;
@@ -176,49 +176,70 @@ void DurationControl::setMenuPosition(const CCPoint& point, const CCPoint& ancho
 }
 
 void DurationControl::updateObjects(EditorUI* editorUI) {
-    for (auto [k, v] : m_objects) {
-        v->removeFromParent();
-    }
-    if (m_multiSlider) {
-        m_multiSlider->removeFromParent();
-    }
+    if (!editorUI || m_lockUpdateObjects) return;
 
-    hideAllButtons();
-
-    m_objects.clear();
-
-    if (auto object = editorUI->m_selectedObject) {
-        if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
-            addObject(static_cast<EffectGameObject*>(object));
+    if (editorUI->m_selectedObjects->count() > 100) {
+        for (auto& [k, v] : m_objects) {
+            v->removeFromParent();
         }
-    }
-
-    for (auto object : CCArrayExt<GameObject*>(editorUI->m_selectedObjects)) {
-        if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
-            addObject(static_cast<EffectGameObject*>(object));
+        if (m_multiSlider) {
+            m_multiSlider->removeFromParent();
         }
+
+        hideAllButtons();
+
+        m_objects.clear();
+        return;
     }
 
-    if (m_objects.size() > 1) {
+    m_lockUpdateObjects = true;
+    runAction(CallFuncExt::create([this, editorUI] {
+        m_lockUpdateObjects = false;
 
-        bool first = true;
-        int refChannel;
+        for (auto& [k, v] : m_objects) {
+            v->removeFromParent();
+        }
+        if (m_multiSlider) {
+            m_multiSlider->removeFromParent();
+        }
 
-        for (auto [k, v] : m_objects) {
-            if (first) {
-                refChannel = k->m_channelValue;
-                first = false;
-            } else if (k->m_channelValue != refChannel) {
-                return;
+        hideAllButtons();
+
+        m_objects.clear();
+
+        if (auto object = editorUI->m_selectedObject) {
+            if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
+                addObject(static_cast<EffectGameObject*>(object));
             }
         }
 
-        auto endObj = getEndObject();
+        for (auto object : CCArrayExt<GameObject*>(editorUI->m_selectedObjects)) {
+            if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
+                addObject(static_cast<EffectGameObject*>(object));
+            }
+        }
 
-        m_multiSlider = DurationThumb::create(this, endObj, ThumbType::Multi);
-        m_multiSlider->setID("multi-slider"_spr);
-        addChild(m_multiSlider);
+        if (m_objects.size() > 1) {
 
-        showMultiButtons();
-    }
+            bool first = true;
+            int refChannel;
+
+            for (auto& [k, v] : m_objects) {
+                if (first) {
+                    refChannel = k->m_channelValue;
+                    first = false;
+                } else if (k->m_channelValue != refChannel) {
+                    return;
+                }
+            }
+
+            auto endObj = getEndObject();
+
+            m_multiSlider = DurationThumb::create(this, endObj, ThumbType::Multi);
+            m_multiSlider->setID("multi-slider"_spr);
+            addChild(m_multiSlider);
+
+            showMultiButtons();
+        }
+    }));
 }
