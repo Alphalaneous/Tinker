@@ -12,6 +12,7 @@ body:
   - type: checkboxes
     id: verification
     attributes:
+      label: Tinker Issue
       options:
       - label: I verify that this bug report isn't a crash or related to touch related issues.
     validations:
