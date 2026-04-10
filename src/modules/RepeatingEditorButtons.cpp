@@ -48,6 +48,7 @@ void REBCCMenuItemSpriteExtra::unselected() {
 void RepeatingEditorButtons::onEditor() {
     m_editorUI->runAction(CallFuncExt::create([this] {
         for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(m_editorUI->m_editButtonBar->m_buttonArray)) {
+            if (btn->getID() == "alphalaneous.tinker/reference-import") continue;
             btn->setRepeatable(true);
         }
     }));

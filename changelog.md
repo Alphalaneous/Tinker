@@ -2,6 +2,7 @@
 - <c-dddddd>Infinite zoom now works with BetterEdit again</c>
 - <c-dddddd>Fix horizontal scroll breaking</c>
 - <c-dddddd>Fix scrolling on Mac</c>
+- <c-dddddd>Disable repeat on reference image button</c>
 
 # 1.0.0-beta.13
 - <c-dddddd>Hotfix for changing any setting causing a crash when opening the editor</c>
