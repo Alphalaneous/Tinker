@@ -65,7 +65,26 @@ body:
         Please include the latest crashlog from `.../Geometry Dash/geode/crashlogs`.
         You can access these crashlogs from the launcher settings on iOS and Android
         Make sure that the mod list is in your crashlog. Do not submit incomplete crash logs or images of crash logs.
-      placeholder: Place your crash log here...
+      placeholder: |
+        2026-04-10T14:06:41.0723206+0000
+        Whoopsies! An unhandled exception has occurred.
+
+        Please share the whole crash log when asking for help.
+
+        == Geode Information ==
+        Loader Version: v5.5.3
+        Platform: Windows x64 10.0.19045
+        Loader Commit: 3014a0e
+        Bindings Commit: a3c4d930
+        Installed mods: 353
+        Failed to load: 32
+
+        == Exception Information ==
+        Faulty Module: D:\SteamLibrary\steamapps\common\Geometry Dash\geode\unzipped\alphalaneous.tinker\alphalaneous.tinker.dll
+        Faulty Mod: alphalaneous.tinker
+        Exception Code: c0000005 (EXCEPTION_ACCESS_VIOLATION)
+        Exception Flags: 0
+        ...
     validations:
       required: true
 
