@@ -21,7 +21,7 @@ class $modify(HDEditLevelLayer, EditLevelLayer){
         (void) self.setHookPriority("EditLevelLayer::init", -10000);
     }
     
-    bool init(GJGameLevel* p0);
+    bool init(GJGameLevel* level);
     void setIDVisible(bool visible);
     void checkShift(float dt);
 };

@@ -30,13 +30,13 @@ void DDEditorUI::deselectObject(GameObject* object) {
 	DurationDrag::get()->updateObjects();
 }
 
-void DDEditorUI::selectObject(GameObject* object, bool p1) {
-	EditorUI::selectObject(object, p1);
+void DDEditorUI::selectObject(GameObject* object, bool ignoreFilter) {
+	EditorUI::selectObject(object, ignoreFilter);
 	DurationDrag::get()->updateObjects();
 }
 
-void DDEditorUI::selectObjects(CCArray* objects, bool p1) {
-	EditorUI::selectObjects(objects, p1);
+void DDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
+	EditorUI::selectObjects(objects, ignoreFilter);
 	DurationDrag::get()->updateObjects();
 }
 

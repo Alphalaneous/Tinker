@@ -9,7 +9,7 @@ class $modify(NECCTextInputNode, CCTextInputNode) {
     $registerEditorHooks(NegateInput)
 
 	bool allowedInput();
-    bool init(float p0, float p1, char const* p2, char const* p3, int p4, char const* p5);
+    bool init(float width, float height, char const* placeholder, char const* textFont, int fontSize, char const* labelFont);
     bool onTextFieldInsertText(CCTextFieldTTF* pSender, char const* text, int nLen, enumKeyCodes keyCodes);
 	void onNegate();
 };

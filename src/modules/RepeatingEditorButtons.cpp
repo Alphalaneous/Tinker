@@ -126,8 +126,8 @@ void RepeatingEditorButtons::recursivelySetRepeat(CCNode* node) {
     }
 }
 
-void REBEditButtonBar::loadFromItems(CCArray* p0, int p1, int p2, bool p3) {
-    EditButtonBar::loadFromItems(p0, p1, p2, p3);\
+void REBEditButtonBar::loadFromItems(CCArray* objects, int rows, int columns, bool keepPage) {
+    EditButtonBar::loadFromItems(objects, rows, columns, keepPage);
 
     runAction(CallFuncExt::create([this] {
         auto menu = getChildByType<CCMenu>(0);

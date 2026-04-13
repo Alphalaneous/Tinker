@@ -8,5 +8,5 @@ class $editorModule(ObjectSummary) {};
 class $modify(OSLevelSettingsLayer, LevelSettingsLayer) {
     $registerEditorHooks(ObjectSummary)
 
-	bool init(LevelSettingsObject* p0, LevelEditorLayer* p1);
+	bool init(LevelSettingsObject* object, LevelEditorLayer* layer);
 };

@@ -9,15 +9,18 @@ class $editorModule(SingleDeselect) {
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 	
 	bool m_keyHeld;
+	bool m_blockDeselect;
 };
 
 class $modify(SDEditorUI, EditorUI) {
 	$registerEditorHooks(SingleDeselect)
 
-	void deselectSpecificObject();
-	void selectObject(GameObject* p0, bool p1);
-    void selectObjects(CCArray* p0, bool p1);
-    void ccTouchEnded(CCTouch* p0, CCEvent* p1);
+	void deselectSpecificObject(CCPoint pos);
+	void selectObject(GameObject* object, bool ignoreFilter);
+    void selectObjects(CCArray* objects, bool ignoreFilter);
+    void ccTouchEnded(CCTouch* touch, CCEvent* event);
 	bool getKeyPressed();
+
+    CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
 };
 

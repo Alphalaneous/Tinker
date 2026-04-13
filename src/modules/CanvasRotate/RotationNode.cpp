@@ -2,6 +2,7 @@
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include "../../Utils.hpp"
+#include "CanvasRotate.hpp"
 
 using namespace tinker::ui;
 
@@ -22,7 +23,8 @@ bool RotationNode::init(EditorUI* editor) {
 
 bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getLocation().y < m_editorUI->m_toolbarHeight) return false;
-    if (m_editorUI->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return false;
+    if (!CanvasRotate::getSetting<bool, "use-modifier">()) return false;
+    if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return false;
     
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = true;
@@ -139,13 +141,13 @@ void RotationNode::onExit() {
 
 void RotationNode::translate(CCTouch* touch) {
     auto winSize = CCDirector::get()->getWinSize();
-    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, m_rotation);
+    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
     touch->setTouchInfo(touch->getID(), newPoint.x, winSize.height - newPoint.y);
 }
 
 void RotationNode::updateCanvasRotation(float deltaAngle) {
 
-    if (m_editorUI->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
+    if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return;
 
     const float snapIncrement = 45.0f;
     #ifdef GEODE_IS_DESKTOP

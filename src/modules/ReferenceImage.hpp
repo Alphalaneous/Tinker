@@ -33,8 +33,8 @@ class $modify(RITextGameObject, TextGameObject) {
 	bool setupInitial(const std::string& path);
 	void setupImage(const std::string& path);
 	void setupImageBackwardsCompat(const std::string& path);
-    void customObjectSetup(gd::vector<gd::string>& p0, gd::vector<void*>& p1);
-	void updateTextObject(gd::string p0, bool p1);
+    void customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists);
+	void updateTextObject(gd::string text, bool defaultFont);
 
 	bool isReferenceImage();
 };

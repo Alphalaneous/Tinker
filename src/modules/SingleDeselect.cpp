@@ -9,56 +9,61 @@ bool SingleDeselect::onSettingChanged(std::string_view key, const matjson::Value
     return true;
 }
 
-void SDEditorUI::deselectSpecificObject() {
-    auto pos = getMousePos();
+void SDEditorUI::deselectSpecificObject(CCPoint pos) {
     auto mousePosToNode = m_editorLayer->m_objectLayer->convertToNodeSpace(pos);
+    int currentLayer = m_editorLayer->m_currentLayer;
 
-    for (GameObject* obj : CCArrayExt<GameObject*>(m_selectedObjects)) {
-        auto objPos = obj->getPosition();
-        auto objSize = obj->getScaledContentSize();
-        auto objRect = CCRect {objPos.x - std::abs(objSize.width)/2, objPos.y - std::abs(objSize.height)/2, std::abs(objSize.width), std::abs(objSize.height)};
+    for (auto object : CCArrayExt<GameObject*>(m_selectedObjects)) {
+        bool isOnCurrentEditorLayer1 = object->m_editorLayer == m_editorLayer->m_currentLayer;
+        bool isOnCurrentEditorLayer2 = (object->m_editorLayer2 == m_editorLayer->m_currentLayer) && object->m_editorLayer2 != 0;
 
-        auto levelEditorLayer = this->m_editorLayer;
-        int currentLayer = levelEditorLayer->m_currentLayer;
+        bool locked = false;
 
-        bool isOnCurrentEditorLayer1 = obj->m_editorLayer == levelEditorLayer->m_currentLayer;
-        bool isOnCurrentEditorLayer2 = (obj->m_editorLayer2 == levelEditorLayer->m_currentLayer) && obj->m_editorLayer2 != 0;
+        auto max = std::max(object->m_editorLayer, object->m_editorLayer2);
 
-        if (objRect.containsPoint(mousePosToNode) && (currentLayer == -1 || (isOnCurrentEditorLayer1 || isOnCurrentEditorLayer2))) {
-            deselectObject(obj);
+        if (m_editorLayer->m_lockedLayers.size() > max) {
+            locked = m_editorLayer->m_lockedLayers[object->m_editorLayer] || (object->m_editorLayer2 != 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer2]);
+        }
+
+        if (object->boundingBox().containsPoint(mousePosToNode) && !locked && (currentLayer == -1 || (isOnCurrentEditorLayer1 || isOnCurrentEditorLayer2))) {
+            deselectObject(object);
             break;
         }
     }
 }
 
-void SDEditorUI::selectObject(GameObject* p0, bool p1) {
+void SDEditorUI::selectObject(GameObject* object, bool ignoreFilter) {
     if (!getKeyPressed()) {
-        EditorUI::selectObject(p0, p1);
+        EditorUI::selectObject(object, ignoreFilter);
     }
 }
 
-void SDEditorUI::selectObjects(CCArray* p0, bool p1) {
+void SDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
     if (!getKeyPressed()) {
-        EditorUI::selectObjects(p0, p1);
+        EditorUI::selectObjects(objects, ignoreFilter);
+        return;
     }
-    else {
-        for (GameObject* obj : geode::cocos::CCArrayExt<GameObject*>(p0)) {
-            deselectObject(obj);
-        }
+    for (auto obj : objects->asExt<GameObject>()) {
+        deselectObject(obj);
     }
 }
 
-void SDEditorUI::ccTouchEnded(CCTouch* p0, CCEvent* p1) {
-    if (m_selectedMode == 3) {
-        if (getKeyPressed()) {
-            deselectSpecificObject();
-        }
+void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
+    if (m_selectedMode == 3 && getKeyPressed()) {
+        deselectSpecificObject(touch->getLocation());
     }
-    EditorUI::ccTouchEnded(p0, p1);
+    EditorUI::ccTouchEnded(touch, event);
 }
 
 bool SDEditorUI::getKeyPressed() {
-    return SingleDeselect::get()->m_keyHeld;
+    return SingleDeselect::get()->m_keyHeld && !SingleDeselect::get()->m_blockDeselect;
+}
+
+CCArray* SDEditorUI::pasteObjects(gd::string str, bool withColor, bool noUndo) {
+    SingleDeselect::get()->m_blockDeselect = true;
+    auto ret = EditorUI::pasteObjects(str, withColor, noUndo);
+    SingleDeselect::get()->m_blockDeselect = false;
+    return ret;
 }
 
 void SingleDeselect::onEditor() {

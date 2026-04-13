@@ -3,10 +3,10 @@
 
 using namespace tinker::ui;
 
-bool OSLevelSettingsLayer::init(LevelSettingsObject* p0, LevelEditorLayer* p1) {
-    if (!LevelSettingsLayer::init(p0, p1)) return false;
+bool OSLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* layer) {
+    if (!LevelSettingsLayer::init(object, layer)) return false;
 
-    if (p0->m_startsWithStartPos) return true;
+    if (object->m_startsWithStartPos) return true;
 
     auto newMenu = CCMenu::create();
     newMenu->setID("object-summary-menu"_spr);

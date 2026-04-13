@@ -18,6 +18,7 @@ class $editorModule(CanvasRotate) {
     void toggleBetterEditHook(bool enabled);
 
     bool onToggled(bool state) override;
+    bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 };
 
 class $modify(CREditorUI, EditorUI) {
@@ -31,14 +32,14 @@ class $modify(CREditorUI, EditorUI) {
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre);
     }
 
-    void moveObject(GameObject* p0, CCPoint p1);
-    GameObject* createObject(int p0, CCPoint p1);
+    void moveObject(GameObject* object, CCPoint offset);
+    GameObject* createObject(int objectID, CCPoint position);
     void playtestStopped();
-    void clickOnPosition(CCPoint p0);
-    bool ccTouchBegan(CCTouch* touch, CCEvent* p1);
-    void ccTouchMoved(CCTouch* touch, CCEvent* p1);
-    void ccTouchEnded(CCTouch* touch, CCEvent* p1);
-    void ccTouchCancelled(CCTouch* touch, CCEvent* p1);
+    void clickOnPosition(CCPoint pos);
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event);
+    void ccTouchMoved(CCTouch* touch, CCEvent* event);
+    void ccTouchEnded(CCTouch* touch, CCEvent* event);
+    void ccTouchCancelled(CCTouch* touch, CCEvent* event);
     void triggerSwipeMode();
 };
 

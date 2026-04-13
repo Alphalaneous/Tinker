@@ -26,8 +26,8 @@ class $modify(DDEditorUI, EditorUI) {
 
     void deselectAll();
     void deselectObject(GameObject* object);
-    void selectObject(GameObject* object, bool p1);
-    void selectObjects(cocos2d::CCArray* objects, bool p1);
+    void selectObject(GameObject* object, bool ignoreFilter);
+    void selectObjects(cocos2d::CCArray* objects, bool ignoreFilter);
 };
 
 class DurationDragDraw : public DrawNode {

@@ -23,7 +23,7 @@ class $modify(POCEditorUI, EditorUI) {
     $registerEditorHooks(PreviewObjectColors, true)
 
     void editObject(cocos2d::CCObject* sender);
-    GameObject* createObject(int p0, cocos2d::CCPoint p1);
+    GameObject* createObject(int objectID, cocos2d::CCPoint position);
 	PreviewObjectColors::ColorData getActiveColor(int colorID);
 	bool isColorable(GameObject* object);
 	void updateButton(CCNode* btn);

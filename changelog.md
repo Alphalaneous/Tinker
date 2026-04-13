@@ -1,5 +1,9 @@
 # 1.0.0-beta.20
 - <c-dddddd>Fix crash with Named Editor Groups</c>
+- <c-dddddd>Fix crash with Joystick when Editor Rotation is disabled</c>
+- <c-dddddd>Fix `control` keybind conflict with pasting objects with Single Deselect</c>
+- <c-dddddd>Fix camera dragging with Editor Rotation when playtest is active but paused</c>
+- <c-dddddd>Add Editor Rotation right click drag toggle, in case right click just isn't your thing but still want the fixed movement or to use the joystick.</c>
 
 # 1.0.0-beta.19
 - <c-dddddd>Fix missing bounds for scrolling</c>

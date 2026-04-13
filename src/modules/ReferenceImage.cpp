@@ -183,13 +183,13 @@ void RITextGameObject::setupImage(const std::string& path) {
     }
 }
 
-void RITextGameObject::customObjectSetup(gd::vector<gd::string>& p0, gd::vector<void*>& p1) {
-    TextGameObject::customObjectSetup(p0, p1);
+void RITextGameObject::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
+    TextGameObject::customObjectSetup(values, exists);
     setupCustomSprite();
 }
 
-void RITextGameObject::updateTextObject(gd::string p0, bool p1) {
-    TextGameObject::updateTextObject(p0, p1);
+void RITextGameObject::updateTextObject(gd::string text, bool defaultFont) {
+    TextGameObject::updateTextObject(text, defaultFont);
     if (!LevelEditorLayer::get()) return;
     setupCustomSprite();
 }

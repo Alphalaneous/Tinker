@@ -135,10 +135,10 @@ void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {
     Mod::get()->setSavedValue("auto-build-helper-toggle", !toggler->isOn());
 }
 
-CCArray* ABHEditorUI::pasteObjects(gd::string p0, bool p1, bool p2) {
-    auto ret = EditorUI::pasteObjects(p0, p1, p2);
+CCArray* ABHEditorUI::pasteObjects(gd::string str, bool withColor, bool noUndo) {
+    auto ret = EditorUI::pasteObjects(str, withColor, noUndo);
 
-    if (!p1 && !p2 && AutoBuildHelper::get()->m_autoBuildHelperEnabled) {
+    if (!withColor && !noUndo && AutoBuildHelper::get()->m_autoBuildHelperEnabled) {
         dynamicGroupUpdate(false);
     }
     return ret;

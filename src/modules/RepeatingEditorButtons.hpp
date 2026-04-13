@@ -32,5 +32,5 @@ class $modify(REBCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 class $modify(REBEditButtonBar, EditButtonBar) {
 	$registerEditorHooks(RepeatingEditorButtons)
 
-	void loadFromItems(CCArray* p0, int p1, int p2, bool p3);
+	void loadFromItems(CCArray* objects, int rows, int columns, bool keepPage);
 };

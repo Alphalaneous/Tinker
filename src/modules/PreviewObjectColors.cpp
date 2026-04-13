@@ -62,8 +62,8 @@ void POCEditorUI::editObject(cocos2d::CCObject* sender) {
     }
 }
 
-GameObject* POCEditorUI::createObject(int p0, cocos2d::CCPoint p1) {
-    auto ret = EditorUI::createObject(p0, p1);
+GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
+    auto ret = EditorUI::createObject(objectID, position);
 
     if (!isColorable(ret)) return ret;
 

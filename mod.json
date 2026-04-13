@@ -56,12 +56,6 @@
 			"description": "Customize different aspects of the editor's interface.",
 			"color": "#000000"
 		},
-		"CanvasRotate-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Canvas Rotation",
-			"description": "Allow you to rotate the editor canvas by right clicking and dragging."
-		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",
 			"default": true,
@@ -298,6 +292,25 @@
 			"description": "Move the F block to be next to the other modifier blocks rather than separated by the force blocks.",
 			"type": "bool",
 			"default": true
+		},
+		"CanvasRotate-title": {
+			"type": "title",
+			"name": "Editor Rotation"
+		},
+		"CanvasRotate-description": {
+			"type": "info",
+			"description": "Allows the editor to rotate freely. Either with right clicking and dragging or with the Joystick. Also fixes panning while the editor is rotated during playtest.",
+			"color": "#000000"
+		},
+		"CanvasRotate-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable"
+		},
+		"CanvasRotate-use-modifier": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Right Click Dragging"
 		},
 		"ImprovedGroupView-title": {
 			"type": "title",

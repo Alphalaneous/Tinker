@@ -207,7 +207,7 @@ bool NavigationControl::clickBegan(TouchEvent* touch) {
 
         return true;
     }
-    if (m_rotationHandle && m_rotationHandle->isVisible() && alpha::utils::isPointInsideNode(m_rotationHandle, touch->getLocation())) {
+    if (CanvasRotate::isEnabled() && m_rotationHandle && m_rotationHandle->isVisible() && alpha::utils::isPointInsideNode(m_rotationHandle, touch->getLocation())) {
         m_touchActive = true;
         m_holdingRotationHandle = true;
         m_rotateGrabber->setOpacity(GRABBER_OPACITY * CLICK_MULTIPLIER * m_opacity);
@@ -273,7 +273,7 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
             m_joystick->setPosition(center + visualDelta);
         }
     }
-    else if (m_holdingRotationHandle) {
+    else if (m_holdingRotationHandle && CanvasRotate::isEnabled()) {
         CCPoint delta = pos - center;
         float touchAngle = std::atan2f(delta.y, delta.x);
         float angleRad = m_rotationDragOffset - touchAngle;
@@ -324,33 +324,40 @@ void NavigationControl::clickEnded(TouchEvent* touch) {
     auto inside = alpha::utils::isPointInsideNode(this, touch->getLocation());
 
     if (m_holdingRotationHandle) {
-        CanvasRotate::get()->m_rotationNode->realign();
+        if (CanvasRotate::isEnabled()) {
+            CanvasRotate::get()->m_rotationNode->realign();
+        }
     }
 
     if (m_rotateGrabber) m_rotateGrabber->setOpacity(GRABBER_OPACITY * m_opacity);
-    m_joystick->setOpacity(CIRCLE_OPACITY * m_opacity);
+    if (m_joystick) m_joystick->setOpacity(CIRCLE_OPACITY * m_opacity);
 
     if (m_movingControls) {
-        m_circle->stopAction(m_activeFade);
+        if (m_circle) {
+            m_circle->stopAction(m_activeFade);
+            m_activeFade = CCFadeTo::create(0.1, CIRCLE_OPACITY * m_opacity);
+            m_circle->runAction(m_activeFade);
+        }
         stopAction(m_activeScale);
-        m_activeFade = CCFadeTo::create(0.1, CIRCLE_OPACITY * m_opacity);
         m_activeScale = CCScaleTo::create(0.1f, 1.1f * m_scale);
-        m_circle->runAction(m_activeFade);
         runAction(m_activeScale);
 
         Mod::get()->setSavedValue("nav-joystick-pos-x", getPositionX());
         Mod::get()->setSavedValue("nav-joystick-pos-y", getPositionY());
     }
     else {
-        m_circle->setOpacity(CIRCLE_OPACITY * m_opacity);
+        if (m_circle) {
+            m_circle->setOpacity(CIRCLE_OPACITY * m_opacity);
+        }
     }
-
 
     if (m_hoverActive && !inside) {
         leaveHover();
     }
 
-    m_joystick->setPosition(m_circle->getContentSize() / 2);
+    if (m_joystick && m_circle) {
+        m_joystick->setPosition(m_circle->getContentSize() / 2);
+    }
 
     unschedule(schedule_selector(NavigationControl::waitForMove));
 

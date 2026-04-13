@@ -25,5 +25,5 @@ class $editorModule(AutoBuildHelper) {
 class $modify(ABHEditorUI, EditorUI) {
     $registerEditorHooks(AutoBuildHelper)
 
-    CCArray* pasteObjects(gd::string p0, bool p1, bool p2);
+    CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
 };

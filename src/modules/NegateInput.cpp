@@ -10,8 +10,8 @@ bool NECCTextInputNode::allowedInput() {
     return true;
 }
 
-bool NECCTextInputNode::init(float p0, float p1, char const* p2, char const* p3, int p4, char const* p5) {
-    if (!CCTextInputNode::init(p0, p1, p2, p3, p4, p5)) return false;
+bool NECCTextInputNode::init(float width, float height, char const* placeholder, char const* textFont, int fontSize, char const* labelFont) {
+    if (!CCTextInputNode::init(width, height, placeholder, textFont, fontSize, labelFont)) return false;
 
     runAction(CallFuncExt::create([this] {
         if (!allowedInput() || !NegateInput::getSetting<bool, "show-negate-button">()) return;

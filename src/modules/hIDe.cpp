@@ -8,8 +8,8 @@ bool hIDe::onSettingChanged(std::string_view key, const matjson::Value& value) {
     return true;
 }
 
-bool HDEditLevelLayer::init(GJGameLevel* p0) {
-    if (!EditLevelLayer::init(p0)) return false;
+bool HDEditLevelLayer::init(GJGameLevel* level) {
+    if (!EditLevelLayer::init(level)) return false;
     
     auto fields = m_fields.self();
 

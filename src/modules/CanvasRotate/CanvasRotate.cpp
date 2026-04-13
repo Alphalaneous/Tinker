@@ -26,6 +26,10 @@ bool CanvasRotate::onToggled(bool state) {
     return true;
 }
 
+bool CanvasRotate::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    return true;
+}
+
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);
@@ -34,29 +38,29 @@ void CanvasRotate::onEditor() {
     m_editorLoaded = true;
 }
 
-void CREditorUI::moveObject(GameObject* p0, CCPoint p1) {
+void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     auto module = CanvasRotate::get();
-    if (!module->m_editorLoaded) return EditorUI::moveObject(p0, p1);
+    if (!module->m_editorLoaded) return EditorUI::moveObject(object, offset);
 
     int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
     if (rot < 45 || rot >= 315) {
-        p1 = CCPoint{p1.x, p1.y};
+        offset = CCPoint{offset.x, offset.y};
     }
     else if (rot < 135) {
-        p1 = CCPoint{-p1.y, p1.x};
+        offset = CCPoint{-offset.y, offset.x};
     }
     else if (rot < 225) {
-        p1 = CCPoint{-p1.x, -p1.y};
+        offset = CCPoint{-offset.x, -offset.y};
     }
     else {
-        p1 = CCPoint{p1.y, -p1.x};
+        offset = CCPoint{offset.y, -offset.x};
     }
 
-    EditorUI::moveObject(p0, p1);
+    EditorUI::moveObject(object, offset);
 }
 
-GameObject* CREditorUI::createObject(int p0, CCPoint p1) {
-    auto ret = EditorUI::createObject(p0, p1);
+GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
+    auto ret = EditorUI::createObject(objectID, position);
     auto module = CanvasRotate::get();
     if (!module->m_editorLoaded) return ret;
     
@@ -89,13 +93,13 @@ void CREditorUI::playtestStopped() {
 }
 
 
-void CREditorUI::clickOnPosition(CCPoint p0) {
+void CREditorUI::clickOnPosition(CCPoint pos) {
     auto module = CanvasRotate::get();
     if (module->m_rotationNode->isRotating()) return;
 
     auto oldToolbarHeight = m_toolbarHeight;
     m_toolbarHeight = INT_MIN;
-    EditorUI::clickOnPosition(p0);
+    EditorUI::clickOnPosition(pos);
     m_toolbarHeight = oldToolbarHeight;
 };
 
@@ -105,15 +109,15 @@ void CREditorUI::triggerSwipeMode() {
     EditorUI::triggerSwipeMode();
 }
 
-bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* p1) {
+bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
 
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
-        return EditorUI::ccTouchBegan(touch, p1);
+        return EditorUI::ccTouchBegan(touch, event);
     }
     
     if ((m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_selectedMode == 3) {
-        return EditorUI::ccTouchBegan(touch, p1);
+        return EditorUI::ccTouchBegan(touch, event);
     }
     auto preTransform = touch->getLocation();
     module->m_rotationNode->translate(touch);
@@ -124,32 +128,32 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* p1) {
         m_toolbarHeight = oldToolbarHeight;
         return true;
     }
-    auto ret = EditorUI::ccTouchBegan(touch, p1);
+    auto ret = EditorUI::ccTouchBegan(touch, event);
     m_toolbarHeight = oldToolbarHeight;
     return ret;
 }
 
-void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* p1) {
+void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
     if (m_swipeActive) {
-        return EditorUI::ccTouchMoved(touch, p1);
+        return EditorUI::ccTouchMoved(touch, event);
     }
     module->m_rotationNode->translate(touch);
-    EditorUI::ccTouchMoved(touch, p1);
+    EditorUI::ccTouchMoved(touch, event);
 }
 
-void CREditorUI::ccTouchEnded(CCTouch* touch, CCEvent* p1) {
+void CREditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
 
     module->m_rotationNode->translate(touch);
-    EditorUI::ccTouchEnded(touch, p1);
+    EditorUI::ccTouchEnded(touch, event);
 }
 
-void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* p1) {
+void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
 
     module->m_rotationNode->translate(touch);
-    EditorUI::ccTouchCancelled(touch, p1);
+    EditorUI::ccTouchCancelled(touch, event);
 }
 
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
