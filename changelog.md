@@ -1,5 +1,8 @@
 # 1.0.0-beta.18
 - <c-dddddd>Fix transform control buttons in Improved Transform Controls not being clickable</c>
+- <c-dddddd>Fix a crash when Improved Transform Controls was clicked outside its bounds</c>
+- <c-dddddd>Fix a crash when scrolling on the toolbar with scrollable toolbar disabled</c>
+- <c-dddddd>Transform control buttons should now work with Canvas Rotation</c>
 
 # 1.0.0-beta.17
 - <c-dddddd>Fix some settings failing to apply</c>

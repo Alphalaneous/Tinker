@@ -95,8 +95,7 @@ void InputEditorUI::onScroll(float x, float y) {
         }
     }
 
-    auto scrollable = ScrollableObjects::get();
-    if (scrollable && !scrollable->canScroll()) {
+    if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll()) {
         for (auto child : getChildrenExt()) {
             if (!nodeIsVisible(child)) continue;
 
