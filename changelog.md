@@ -1,3 +1,6 @@
+# 1.0.0-beta.18
+- <c-dddddd>Fix transform control buttons in Improved Transform Controls not being clickable</c>
+
 # 1.0.0-beta.17
 - <c-dddddd>Fix some settings failing to apply</c>
 - <c-dddddd>Fix feature names being wrong when applying</c>

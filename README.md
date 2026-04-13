@@ -138,6 +138,16 @@ Changes Tinker can make to better integrate other mods with Tinker itself.
 
 ---
 
+### ​  Scrolling
+- <c-dddddd>Smooth scroll and scroll modifiers.</c>
+
+---
+
+### ​  Keybinds
+- <c-dddddd>Quick Extras keybind</c>
+
+---
+
 ## API
 Tools to interface with this mod as a mod developer.
 

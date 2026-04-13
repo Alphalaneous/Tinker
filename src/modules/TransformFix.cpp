@@ -8,7 +8,12 @@ CCMenu* TFGJTransformControl::getMenu() {
     auto fields = m_fields.self();
 
     if (fields->m_menu) return fields->m_menu;
-    auto node = m_mainNode->getChildByType<CCNode>(0);
+    CCNode* node = nullptr;
+    for (auto child : m_mainNode->getChildrenExt()) {
+        if (exact_cast<CCNode*>(node)) {
+            node = child;
+        }
+    }
     if (!node) return nullptr;
 
     auto menu = node->getChildByType<CCMenu>(0);
