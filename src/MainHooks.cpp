@@ -3,6 +3,7 @@
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
+#include <Geode/modify/GJRotationControl.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "ModuleRegistry.hpp"
 #include "Module.hpp"
@@ -104,8 +105,28 @@ class $modify(MainEditorUI, EditorUI) {
         }
     }
 
+    void deactivateScaleControl() {
+        for (auto child : m_scaleControl->getChildrenExt()) {
+            if (auto textInput = typeinfo_cast<geode::TextInput*>(child)) {
+                textInput->defocus();
+            }
+        }
+        EditorUI::deactivateScaleControl();
+    }
+    
     static MainEditorUI* get() {
         return static_cast<MainEditorUI*>(s_editorUI);
+    }
+};
+
+class $modify(MainGJRotationControl, GJRotationControl) {
+    void finishTouch() {
+        GJRotationControl::finishTouch();
+        for (auto child : getChildrenExt()) {
+            if (auto textInput = typeinfo_cast<geode::TextInput*>(child)) {
+                textInput->defocus();
+            }
+        }
     }
 };
 

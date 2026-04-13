@@ -1,3 +1,6 @@
+# 1.0.0-beta.21
+- <c-dddddd>Fix a BetterEdit bug with text inputs staying focused and blocking keybinds to prevent Tinker from being blamed for it</c>
+
 # 1.0.0-beta.20
 - <c-dddddd>Fix crash with Named Editor Groups</c>
 - <c-dddddd>Fix crash with Joystick when Editor Rotation is disabled</c>
