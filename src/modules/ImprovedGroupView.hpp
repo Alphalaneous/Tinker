@@ -31,7 +31,7 @@ class $modify(IGVSetGroupIDLayer, SetGroupIDLayer) {
     };
 
     static void _onModify(auto& self) {
-        (void) self.setHookPriorityBeforePost("SetGroupIDLayer::init", "spaghettdev.named-editor-groups");
+        (void) self.setHookPriorityAfterPost("SetGroupIDLayer::init", "spaghettdev.named-editor-groups");
     }
     
     void checkNamedIDs(float dt);

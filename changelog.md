@@ -1,3 +1,6 @@
+# 1.0.0-beta.20
+- <c-dddddd>Fix crash with Named Editor Groups</c>
+
 # 1.0.0-beta.19
 - <c-dddddd>Fix missing bounds for scrolling</c>
 - <c-dddddd>Fix potential divide by 0 issue with zoom</c>
