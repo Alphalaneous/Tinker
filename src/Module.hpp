@@ -133,18 +133,19 @@ public:
         static auto exitListener = EditorExitEvent().listen([] {
             auto valueRes = $queuedSettings.get(key.data());
             if (!valueRes) return;
+
             matjson::Value s = valueRes.unwrap();
+            log::debug("[{}]: {}", fullKey.data(), s.dump(4));
+
             setting = s.as<S>().unwrapOrDefault();
+            if constexpr (tinker::utils::equals<fullKey, tinker::utils::concat<Name, "-enabled">()>()) {
+                globalHookToggle();
+            }
+            $queuedSettings.erase(key.data());
         });
 
         return setting;
     }
-    static inline auto $exitListener = EditorExitEvent().listen([] {
-        queueInMainThread([] {
-            globalHookToggle();
-            $queuedSettings.clear();
-        });
-    });
 };
 
 struct ModuleBase {

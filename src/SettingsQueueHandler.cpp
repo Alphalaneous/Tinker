@@ -25,6 +25,15 @@ void SettingsQueueHandler::queueShow() {
                     auto setting = Mod::get()->getSetting(v);
                     if (!setting) continue;
                     auto name = setting->getDisplayName();
+                    if (name == "Enabled") {
+                        auto split = utils::string::split(v, "-");
+                        auto titleName = split[0] + "-title";
+                        auto titleSetting = Mod::get()->getSetting(titleName);
+                        name = "<unknown>";
+                        if (titleSetting) {
+                            name = titleSetting->getDisplayName();
+                        }
+                    }
                     utils::string::replaceIP(name, "Enable ", "");
                     content.append("- <c-dddddd>{}</c>\n", name);
                 }

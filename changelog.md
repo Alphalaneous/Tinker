@@ -1,3 +1,8 @@
+# 1.0.0-beta.17
+- <c-dddddd>Fix some settings failing to apply</c>
+- <c-dddddd>Fix feature names being wrong when applying</c>
+- <c-dddddd>Fix another crash with Improved Transform Controls</c>
+
 # 1.0.0-beta.16
 - <c-dddddd>Fix modifier icons letter never being hidden when the setting is off (again)</c>
 
