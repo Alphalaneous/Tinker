@@ -125,7 +125,7 @@
 		"ignore-natural-scrolling": {
 			"type": "bool",
 			"default": true,
-			"name": "Ignore Natural Scrolling",
+			"name": "Ignore Natural Scroll Setting",
 			"description": "Ignore MacOS natural scrolling setting.",
 			"platforms": ["mac"]
 		},

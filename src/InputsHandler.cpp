@@ -97,7 +97,7 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 void InputEditorUI::onScroll(float x, float y) {
     using namespace tinker::utils;
     auto fields = m_fields.self();
-    int naturalMult = isNaturalScrollEnabled() ? -1 : 1;
+    int naturalMult = isNaturalScrollEnabled() ? 1 : -1;
 
     #ifdef GEODE_IS_MACOS
     float xMult = 1;
