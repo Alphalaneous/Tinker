@@ -205,4 +205,13 @@ namespace tinker::utils {
         }
         return true;
     }
+
+    template<class S, geode::utils::string::ConstexprString key>
+    S getSetting() {
+        static auto setting = Mod::get()->getSettingValue<S>(key.data());
+        static auto listener = listenForSettingChanges<S>(key.data(), [] (S value) {
+            setting = std::move(value);
+        });
+        return setting;
+    }
 }

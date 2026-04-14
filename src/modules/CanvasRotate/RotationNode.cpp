@@ -18,6 +18,11 @@ RotationNode* RotationNode::create(EditorUI* editor) {
 
 bool RotationNode::init(EditorUI* editor) {
     m_editorUI = editor;
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "CanvasRotate-align-modifier"), [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        m_alignKeyDown = down;
+    });
+
     return true;
 }
 

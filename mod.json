@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.21",
+	"version": "v1.0.0-beta.22",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -106,6 +106,29 @@
 			"name": "Enable Zoom to Cursor",
 			"description": "Make scroll wheel zooming based on the cursor position."
 		},
+		"zoom-minimum": {
+			"type": "float",
+			"default": 0.1,
+			"name": "Minimum Scroll Zoom",
+			"description": "How far you can zoom out when scrolling.",
+			"min": 0.1,
+			"max": 2
+		},
+		"zoom-maximum": {
+			"type": "float",
+			"default": 10000000,
+			"name": "Maximum Scroll Zoom",
+			"description": "How far you can zoom in when scrolling.",
+			"min": 2,
+			"max": 10000000
+		},
+		"ignore-natural-scrolling": {
+			"type": "bool",
+			"default": true,
+			"name": "Ignore Natural Scrolling",
+			"description": "Ignore MacOS natural scrolling setting.",
+			"platforms": ["mac"]
+		},
 		"invert-vertical-scroll": {
 			"type": "bool",
 			"default": false,
@@ -117,6 +140,12 @@
 			"default": false,
 			"name": "Invert Horizontal Scroll",
 			"description": "Scroll wheel goes the opposite direction horizontally."
+		},
+		"invert-zoom-scroll": {
+			"type": "bool",
+			"default": false,
+			"name": "Invert Zoom Scroll",
+			"description": "Scroll wheel zooming goes the opposite direction."
 		},
 		"scroll-multiplier": {
 			"type": "float",
@@ -311,6 +340,13 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable Right Click Dragging"
+		},
+		"CanvasRotate-align-modifier": {
+			"name": "Align Modifier",
+			"description": "Align placed objects to your exact camera rotation when held.",
+			"type": "keybind",
+			"default": ["]"],
+			"category": "editor"
 		},
 		"ImprovedGroupView-title": {
 			"type": "title",

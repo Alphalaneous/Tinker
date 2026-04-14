@@ -65,24 +65,29 @@ GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     if (!module->m_editorLoaded) return ret;
     
     int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
+    float rotationValue;
     if (!module->m_rotationNode->isAlignKeyDown()) {
         if (rot < 45 || rot >= 315) {
-            ret->setRotation(0);
+            rotationValue = 0;
         }
         else if (rot < 135) {
-            ret->setRotation(270);
+            rotationValue = 270;
         }
         else if (rot < 225) {
-            ret->setRotation(180);
+            rotationValue = 180;
         }
         else {
-            ret->setRotation(90);
+            rotationValue = 90;
         }
     }
     else {
-        ret->setRotation(-module->m_rotationNode->getCanvasRotation());
+        rotationValue = -module->m_rotationNode->getCanvasRotation();
     }
     
+    removeOffset(ret);
+    ret->setRotation(rotationValue);
+    applyOffset(ret);
+
     return ret;
 }
 

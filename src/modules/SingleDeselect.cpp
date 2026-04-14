@@ -70,7 +70,7 @@ void SingleDeselect::onEditor() {
     m_editorUI->removeEventListener("deselect-listener"_spr);
     m_editorUI->addEventListener(
         "deselect-listener"_spr,
-        KeybindSettingPressedEventV3(Mod::get(), "SingleDeselect-key"),
+        KeybindSettingPressedEvent(Mod::get(), "SingleDeselect-key"),
         [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
             m_keyHeld = down;
         }

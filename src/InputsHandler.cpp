@@ -69,64 +69,35 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     return true;
 }
 
-bool InputEditorUI::hasSmoothScroll() {
-    static auto enabled = Mod::get()->getSettingValue<bool>("smooth-scroll-enabled");
-    static auto listener = listenForSettingChanges<bool>("smooth-scroll-enabled", [] (bool value) {
-        enabled = value;
-    });
-    return enabled;
-}
+#ifdef GEODE_IS_MACOS
+#include <CoreFoundation/CoreFoundation.h>
+bool InputEditorUI::isNaturalScrollEnabled() {
+    if (!tinker::utils::getSetting<bool, "ignore-natural-scrolling">()) return false;
+    CFPropertyListRef value =
+        CFPreferencesCopyAppValue(
+            CFSTR("com.apple.swipescrolldirection"),
+            kCFPreferencesAnyApplication
+        );
 
-bool InputEditorUI::hasZoomToCursor() {
-    static auto enabled = Mod::get()->getSettingValue<bool>("zoom-to-cursor");
-    static auto listener = listenForSettingChanges<bool>("zoom-to-cursor", [] (bool value) {
-        enabled = value;
-    });
-    return enabled;
-}
+    if (value && CFGetTypeID(value) == CFBooleanGetTypeID()) {
+        bool result = CFBooleanGetValue((CFBooleanRef)value);
+        CFRelease(value);
+        return result;
+    }
 
-bool InputEditorUI::invertVerticalScroll() {
-    static auto enabled = Mod::get()->getSettingValue<bool>("invert-vertical-scroll");
-    static auto listener = listenForSettingChanges<bool>("invert-vertical-scroll", [] (bool value) {
-        enabled = value;
-    });
-    return enabled;
+    if (value) CFRelease(value);
+    return true;
 }
-
-bool InputEditorUI::invertHorizontalScroll() {
-    static auto enabled = Mod::get()->getSettingValue<bool>("invert-horizontal-scroll");
-    static auto listener = listenForSettingChanges<bool>("invert-horizontal-scroll", [] (bool value) {
-        enabled = value;
-    });
-    return enabled;
+#else
+bool InputEditorUI::isNaturalScrollEnabled() {
+    return false;
 }
-
-float InputEditorUI::getScrollMultiplier() {
-    static auto multiplier = Mod::get()->getSettingValue<float>("scroll-multiplier");
-    static auto listener = listenForSettingChanges<float>("scroll-multiplier", [] (float value) {
-        multiplier = value;
-    });
-    return multiplier;
-}
-
-float InputEditorUI::getZoomMultiplier() {
-    static auto multiplier = Mod::get()->getSettingValue<float>("zoom-multiplier");
-    static auto listener = listenForSettingChanges<float>("zoom-multiplier", [] (float value) {
-        multiplier = value;
-    });
-    return multiplier;
-}
-
-float InputEditorUI::getToolbarScrollSpeedMultiplier() {
-    static auto multiplier = Mod::get()->getSettingValue<float>("ScrollableObjects-speed-modifier");
-    static auto listener = listenForSettingChanges<float>("ScrollableObjects-speed-modifier", [] (float value) {
-        multiplier = value;
-    });
-    return multiplier;
-}
+#endif
 
 void InputEditorUI::onScroll(float x, float y) {
+    using namespace tinker::utils;
     auto fields = m_fields.self();
+    int naturalMult = isNaturalScrollEnabled() ? -1 : 1;
 
     #ifdef GEODE_IS_MACOS
     float xMult = 1;
@@ -135,6 +106,9 @@ void InputEditorUI::onScroll(float x, float y) {
     float xMult = 1;
     float yMult = -1;
     #endif
+
+    xMult *= naturalMult;
+    yMult *= naturalMult;
 
     for (auto alert : fields->m_activeAlerts) {
         if (alert && alert->getParentByType<CCScene>() && nodeIsVisible(alert)) {
@@ -150,7 +124,7 @@ void InputEditorUI::onScroll(float x, float y) {
 
             if (auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(child))) {
                 auto barFields = bar->m_fields.self();
-                float multiplier = fields->m_tabModifierHeld ? 12 * getToolbarScrollSpeedMultiplier() : 12;
+                float multiplier = fields->m_tabModifierHeld ? 12 * getSetting<float, "ScrollableObjects-speed-modifier">() : 12;
                 barFields->m_scrollBar->scroll((x * multiplier) * xMult * (invertScroll ? -1 : 1), (y * multiplier) * yMult * (invertScroll ? -1 : 1));
             }
         }
@@ -174,7 +148,7 @@ void InputEditorUI::onScroll(float x, float y) {
 
         auto winSize = CCDirector::get()->getWinSize();
         CCPoint zoomPos;
-        if (hasZoomToCursor()) {
+        if (getSetting<bool, "zoom-to-cursor">()) {
             zoomPos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize/2, m_editorLayer->m_gameState.m_cameraAngle);
         }
         else {
@@ -184,16 +158,17 @@ void InputEditorUI::onScroll(float x, float y) {
 
         float zoomFactor = 1.05f;
         float zoomSpeed = 0.2f;
-        float zoomLimit = 4.f;
 
-        if (tinker::utils::getMod<"hjfod.betteredit">()) {
-            zoomLimit = 10000000.f;
-        }
+        #ifdef GEODE_IS_MACOS
+        float newY = (y * getSetting<float, "zoom-multiplier">()) * -yMult;
+        #else
+        float newY = (y * getSetting<float, "zoom-multiplier">()) * yMult;
+        #endif
 
-        float newY = (y * getZoomMultiplier()) * yMult;
+        newY *= (getSetting<bool, "invert-zoom-scroll">() ? -1 : 1);
 
         float newScale = fields->m_targetScale * std::powf(zoomFactor, -newY * zoomSpeed);
-        newScale = std::min(std::max(newScale, 0.1f), zoomLimit);
+        newScale = std::min(std::max(newScale, getSetting<float, "zoom-minimum">()), getSetting<float, "zoom-maximum">());
 
         float scaleRatio = newScale / fields->m_targetScale;
 
@@ -203,7 +178,7 @@ void InputEditorUI::onScroll(float x, float y) {
         fields->m_targetPos = zoomPos - offset * scaleRatio;
         fields->m_targetScale = newScale;
 
-        if (hasSmoothScroll()) {
+        if (getSetting<bool, "smooth-scroll-enabled">()) {
             if (oldPos.x != fields->m_targetPos.x) {
                 if (fields->m_moveX) layer->stopAction(fields->m_moveX);
                 fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f, fields->m_targetPos.x), [this, fields] (auto target) {
@@ -251,13 +226,15 @@ void InputEditorUI::onScroll(float x, float y) {
         fields->m_activeScroll = true;
     }
 
-    float newX = (x * getScrollMultiplier()) * xMult;
-    float newY = (y * getScrollMultiplier()) * yMult;
+    float multiplier = getSetting<float, "scroll-multiplier">();
 
-    if (invertVerticalScroll()) {
+    float newX = (x * multiplier) * xMult;
+    float newY = (y * multiplier) * yMult;
+
+    if (getSetting<bool, "invert-vertical-scroll">()) {
         newY *= -1;
     }
-    if (invertHorizontalScroll()) {
+    if (getSetting<bool, "invert-horizontal-scroll">()) {
         newX *= -1;
     }
 
@@ -266,7 +243,7 @@ void InputEditorUI::onScroll(float x, float y) {
     auto oldPos = fields->m_targetPos;
     fields->m_targetPos = fields->m_targetPos + newPos;
 
-    if (hasSmoothScroll()) {
+    if (getSetting<bool, "smooth-scroll-enabled">()) {
         if (oldPos.x != fields->m_targetPos.x) {
             if (fields->m_moveX) layer->stopAction(fields->m_moveX);
             fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f, fields->m_targetPos.x), [this, fields] (auto target) {
@@ -295,7 +272,7 @@ void InputEditorUI::onScroll(float x, float y) {
 void InputEditorUI::checkScrolling(float dt) {
     auto fields = m_fields.self();
 
-    if (!hasSmoothScroll()) {
+    if (!tinker::utils::getSetting<bool, "smooth-scroll-enabled">()) {
         fields->m_activeScroll = false;
         fields->m_activeZoom = false;
         return;
