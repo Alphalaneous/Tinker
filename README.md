@@ -19,8 +19,8 @@ Customize different aspects of the editor's interface.
 
 ---
 
-### ​  Canvas Rotation
-- Allows for you to rotate the editor canvas by right clicking and dragging.
+### ​  Editor Rotation
+- Allows for you to rotate the editor by right clicking and dragging.
 
 ### ​  Improved Link Controls
 - Fixes the link control buttons being clickable when toggled off, also fixes the size of them.
