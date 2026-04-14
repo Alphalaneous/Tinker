@@ -3,6 +3,7 @@
 - <c-dddddd>Fix rotating objects not being snapped to grid when camera is rotated</c>
 - <c-dddddd>Add alignment keybind for Editor Rotation</c>
 - <c-dddddd>Fix offset objects not being rotated correctly when the editor is rotated</c>
+- <c-dddddd>Add zoom bound settings</c>
 
 # 1.0.0-beta.21
 - <c-dddddd>Fix a BetterEdit bug with text inputs staying focused and blocking keybinds to prevent Tinker from being blamed for it</c>

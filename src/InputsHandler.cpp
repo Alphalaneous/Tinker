@@ -97,18 +97,15 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 void InputEditorUI::onScroll(float x, float y) {
     using namespace tinker::utils;
     auto fields = m_fields.self();
-    int naturalMult = isNaturalScrollEnabled() ? 1 : -1;
 
     #ifdef GEODE_IS_MACOS
-    float xMult = 1;
-    float yMult = 1;
+    int naturalMult = isNaturalScrollEnabled() ? 1 : -1;
+    float xMult = 1 * naturalMult;
+    float yMult = 1 * naturalMult;
     #else
     float xMult = 1;
     float yMult = -1;
     #endif
-
-    xMult *= naturalMult;
-    yMult *= naturalMult;
 
     for (auto alert : fields->m_activeAlerts) {
         if (alert && alert->getParentByType<CCScene>() && nodeIsVisible(alert)) {
