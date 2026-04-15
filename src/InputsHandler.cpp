@@ -141,7 +141,7 @@ void InputEditorUI::onScroll(float x, float y) {
             fields->m_startSwipe = layer->convertToNodeSpace(m_swipeStart);
             fields->m_activeZoom = true;
         }
-        fields->m_targetScale = std::max(fields->m_targetScale,0.1f);
+        fields->m_targetScale = std::max(fields->m_targetScale, 0.1f);
 
         auto winSize = CCDirector::get()->getWinSize();
         CCPoint zoomPos;
@@ -286,14 +286,7 @@ void InputEditorUI::checkScrolling(float dt) {
         }
         return false;
     }();
-    fields->m_activeZoom = [this, fields] -> bool {
-        if (fields->m_activeZoom) {
-            if (fields->m_scale && !fields->m_scale->isDone()) {
-                return true;
-            }
-        }
-        return false;
-    }();
+    fields->m_activeZoom = fields->m_scale && !fields->m_scale->isDone();
 }
 
 void InputEditorUI::addActiveAlert(FLAlertLayer* alert) {

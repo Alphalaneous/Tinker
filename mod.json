@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.22",
+	"version": "v1.0.0-beta.23",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -185,14 +185,6 @@
 			"default": true,
 			"name": "Enable Multi Text Edit",
 			"description": "Edit multiple text objects at once."
-		},
-		"ObjectSearch-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Object Name Search",
-			"description": "Look up objects by name. Adds an all objects tab with search.",
-			"enable-if": "!loaded:razoom.object_groups",
-			"enable-if-description": "This feature is not compatible with Object Groups."
 		},
 		"ObjectSummary-enabled": {
 			"type": "bool",
@@ -458,6 +450,29 @@
 				"android": false,
 				"ios": false
 			}
+		},
+		"ObjectSearch-title": {
+			"type": "title",
+			"name": "Object Name Search"
+		},
+		"ObjectSearch-description": {
+			"type": "info",
+			"description": "Look up objects by name. Adds an all objects tab with search."
+		},
+		"ObjectSearch-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled",
+			"enable-if": "!loaded:razoom.object_groups",
+			"enable-if-description": "This feature is not compatible with Object Groups."
+		},
+		"ObjectSearch-load-rate": {
+			"type": "int",
+			"default": 25,
+			"name": "Load Rate",
+			"description": "How many objects can load per frame in the search tab. (To reduce Editor load slowdown)",
+			"min": 1,
+			"max": 1000
 		},
 		"ObjectTooltips-title": {
 			"type": "title",

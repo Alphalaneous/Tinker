@@ -1,3 +1,6 @@
+# 1.0.0-beta.23
+- <c-dddddd>Make object search items load while in the editor rather than on level load. Load rate can be customized in settings</c>
+
 # 1.0.0-beta.22
 - <c-dddddd>Adjust scrolling to account for natural scrolling on MacOS</c>
 - <c-dddddd>Fix rotating objects not being snapped to grid when camera is rotated</c>

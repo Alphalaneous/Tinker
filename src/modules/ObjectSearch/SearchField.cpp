@@ -31,6 +31,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
 
     if (search.empty()) {
         for (const auto& item : fields->m_orderedItems) {
+            if (!item->item) continue;
             arr->addObject(item->item);
         }
         return arr;
