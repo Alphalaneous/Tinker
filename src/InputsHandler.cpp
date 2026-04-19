@@ -52,12 +52,12 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     });
 
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_LeftShift), [this] (KeyboardInputData& data) {
-        if (data.action == KeyboardInputData::Action::Release) {
+        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;
         }
     });
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_RightShift), [this] (KeyboardInputData& data) {
-        if (data.action == KeyboardInputData::Action::Release) {
+        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;
         }
     });

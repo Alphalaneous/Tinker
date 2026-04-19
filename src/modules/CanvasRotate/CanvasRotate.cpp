@@ -35,12 +35,14 @@ void CanvasRotate::onEditor() {
     m_rotationNode->setID("rotation-node"_spr);
     m_editorUI->addChild(m_rotationNode);
 
+    m_editorUI->schedule(schedule_selector(CREditorUI::updateSliderRotation));
+    
     m_editorLoaded = true;
 }
 
 void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     auto module = CanvasRotate::get();
-    if (!module->m_editorLoaded) return EditorUI::moveObject(object, offset);
+    if (!module->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
 
     int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
     if (rot < 45 || rot >= 315) {
@@ -57,6 +59,12 @@ void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     }
 
     EditorUI::moveObject(object, offset);
+}
+
+void CREditorUI::updateSliderRotation(float dt) {
+    if (!CanvasRotate::getSetting<bool, "rotate-slider-thumb">()) return;
+
+    m_positionSlider->getThumb()->setRotation(m_editorLayer->m_gameState.m_cameraAngle);
 }
 
 GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
@@ -143,6 +151,7 @@ void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (m_swipeActive) {
         return EditorUI::ccTouchMoved(touch, event);
     }
+    
     module->m_rotationNode->translate(touch);
     EditorUI::ccTouchMoved(touch, event);
 }

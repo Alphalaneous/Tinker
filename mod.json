@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.23",
+	"version": "v1.0.0-beta.24",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -30,8 +30,8 @@
 	},
 	"resources": {
 		"spritesheets": {
-			"ImageButtonSheet": [
-				"resources/ImageButtonSheet/*.png"
+			"EditButtonSheet": [
+				"resources/EditButtonSheet/*.png"
 			]
 		},
 		"sprites": [
@@ -246,6 +246,12 @@
 			"name": "Hide IDs in the Edit Level screen",
 			"description": "Hide IDs in Edit Level screen, hold shift to show them."
 		},
+		"stop-swipe-on-shift-release": {
+			"type": "bool",
+			"default": true,
+			"name": "Stop Swipe on Shift Release",
+			"description": "Stops swiping when shift is released before clicking is released."
+		},
 		"other-mods-title": {
 			"type": "title",
 			"name": "Other Mods"
@@ -328,6 +334,12 @@
 			"default": true,
 			"name": "Enable"
 		},
+		"CanvasRotate-rotate-slider-thumb": {
+			"type": "bool",
+			"default": true,
+			"name": "Rotate Slider Thumb",
+			"description": "Rotate the slider thumb according to the editor rotation, such that left and right always points left and right."
+		},
 		"CanvasRotate-use-modifier": {
 			"type": "bool",
 			"default": true,
@@ -338,6 +350,34 @@
 			"description": "Align placed objects to your exact camera rotation when held.",
 			"type": "keybind",
 			"default": ["]"],
+			"category": "editor"
+		},
+		"EditTools-title": {
+			"type": "title",
+			"name": "Extra Edit Tab Tools"
+		},
+		"EditTools-description": {
+			"type": "info",
+			"description": "Misc edit tools for the edit tab to make editing easier.",
+			"color": "#000000"
+		},
+		"EditTools-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"EditTools-camera-to-object-keybind": {
+			"name": "Camera to Object Keybind",
+			"description": "Keybind to move the camera to the selected objects.",
+			"type": "keybind",
+			"default": ["N"],
+			"category": "editor"
+		},
+		"EditTools-object-to-camera-keybind": {
+			"name": "Object to Camera Keybind",
+			"description": "Keybind to move selected objects to the center of the camera.",
+			"type": "keybind",
+			"default": ["M"],
 			"category": "editor"
 		},
 		"ImprovedGroupView-title": {

@@ -41,6 +41,7 @@ class $modify(CREditorUI, EditorUI) {
     void ccTouchEnded(CCTouch* touch, CCEvent* event);
     void ccTouchCancelled(CCTouch* touch, CCEvent* event);
     void triggerSwipeMode();
+    void updateSliderRotation(float dt);
 };
 
 class $modify(CRLevelEditorLayer, LevelEditorLayer) {

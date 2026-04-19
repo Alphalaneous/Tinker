@@ -53,6 +53,7 @@ class $modify(MainEditorUI, EditorUI) {
             }
             fields->m_modules.emplace_back(module);
         }
+        updateButtons();
 
         schedule(schedule_selector(MainEditorUI::checkForChange));
 

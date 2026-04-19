@@ -1,3 +1,9 @@
+# 1.0.0-beta.24
+- <c-dddddd>Free move now works when the camera is rotated</c>
+- <c-dddddd>Added button and keybind to move selected objects to your editor position</c>
+- <c-dddddd>Added button and keybind to move your editor position to selected objects</c>
+- <c-dddddd>Make letting go of shift before mouse when swiping stopping swipe an option</c>
+
 # 1.0.0-beta.23
 - <c-dddddd>Make object search items load while in the editor rather than on level load. Load rate can be customized in settings</c>
 
