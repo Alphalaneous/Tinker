@@ -33,7 +33,6 @@ bool StartPosOverlay::init() {
     addChild(m_background);
 
     m_button = geode::Button::createWithSpriteFrameName("GJ_playEditorBtn_001.png", [this] (auto sender) {
-        log::info("pressed");
         EditorUI::get()->onPlaytest(sender);
     });
     m_button->setScale(0.8f);
