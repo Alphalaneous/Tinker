@@ -4,6 +4,9 @@
 - <c-dddddd>Add start playtest from startpos button</c>
 - <c-dddddd>Allow wave to clip through slopes when ignore damage is enabled</c>
 - <c-dddddd>Only show negate button when text field is focused</c>
+- <c-dddddd>Make some changes to Editor Rotation to hopefully prevent objects being rotated when they shouldn't be</c>
+- <c-dddddd>Placing custom objects should work properly now when the editor is rotated</c>
+- <c-dddddd>Add node ID to live colors menu</c>
 
 # 1.0.0-beta.25
 - <c-dddddd>Disable scroll on tabs that don't have many buttons</c>

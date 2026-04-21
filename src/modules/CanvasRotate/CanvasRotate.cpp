@@ -37,12 +37,18 @@ void CanvasRotate::onEditor() {
 
     m_editorUI->schedule(schedule_selector(CREditorUI::updateSliderRotation));
     
-    m_editorLoaded = true;
+    m_editorUI->runAction(CallFuncExt::create([this] {
+        auto fields = static_cast<CREditorUI*>(m_editorUI)->m_fields.self();
+        fields->m_editorLoaded = true;
+    }));
 }
 
 void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
+    auto fields = m_fields.self();
+    if (fields->m_blockOffsetMove) return EditorUI::moveObject(object, offset);
+
     auto module = CanvasRotate::get();
-    if (!module->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
+    if (!fields->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
 
     int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
     if (rot < 45 || rot >= 315) {
@@ -61,6 +67,31 @@ void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     EditorUI::moveObject(object, offset);
 }
 
+void CREditorUI::rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint) {
+    auto fields = m_fields.self();
+    fields->m_blockOffsetMove++;
+    EditorUI::rotateObjects(objects, rotation, pivotPoint);
+    fields->m_blockOffsetMove--;
+}
+
+void CREditorUI::doPasteObjects(bool withColor) {
+    auto fields = m_fields.self();
+    fields->m_blockOffsetMove++;
+    EditorUI::doPasteObjects(withColor);
+    fields->m_blockOffsetMove--;
+}
+
+void CREditorUI::onCreateObject(int id) {
+    if (id < 0) {
+        auto fields = m_fields.self();
+        fields->m_blockOffsetMove++;
+        EditorUI::onCreateObject(id);
+        fields->m_blockOffsetMove--;
+        return;
+    }
+    EditorUI::onCreateObject(id);
+}
+
 void CREditorUI::updateSliderRotation(float dt) {
     if (!CanvasRotate::getSetting<bool, "rotate-slider-thumb">()) return;
     if (!m_positionSlider) return;
@@ -71,27 +102,28 @@ void CREditorUI::updateSliderRotation(float dt) {
 
 GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     auto ret = EditorUI::createObject(objectID, position);
+    auto fields = m_fields.self();
     auto module = CanvasRotate::get();
-    if (!module->m_editorLoaded) return ret;
+    if (!fields->m_editorLoaded) return ret;
     
-    int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
-    float rotationValue;
+    int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
+    float rotationValue = ret->getRotation();
     if (!module->m_rotationNode->isAlignKeyDown()) {
         if (rot < 45 || rot >= 315) {
-            rotationValue = 0;
+            rotationValue += 0;
         }
         else if (rot < 135) {
-            rotationValue = 270;
+            rotationValue += 270;
         }
         else if (rot < 225) {
-            rotationValue = 180;
+            rotationValue += 180;
         }
         else {
-            rotationValue = 90;
+            rotationValue += 90;
         }
     }
     else {
-        rotationValue = -module->m_rotationNode->getCanvasRotation();
+        rotationValue += -m_editorLayer->m_gameState.m_cameraAngle;
     }
     
     removeOffset(ret);
@@ -106,7 +138,6 @@ void CREditorUI::playtestStopped() {
     auto module = CanvasRotate::get();
     m_editorLayer->m_gameState.m_cameraAngle = module->m_rotationNode->getCanvasRotation();
 }
-
 
 void CREditorUI::clickOnPosition(CCPoint pos) {
     auto module = CanvasRotate::get();

@@ -10,6 +10,7 @@ void LiveColors::onEditor() {
     m_colorsMenu->ignoreAnchorPointForPosition(false);
     m_colorsMenu->setAnchorPoint({0.5f, 0});
     m_colorsMenu->setScale(0.35f);
+    m_colorsMenu->setID("live-colors-menu"_spr);
     
     auto rowLayout = RowLayout::create();
     rowLayout->setAxisAlignment(AxisAlignment::Center);

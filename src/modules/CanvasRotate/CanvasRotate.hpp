@@ -10,9 +10,7 @@ namespace tinker::ui {
 }
 
 class $editorModule(CanvasRotate) {
-
     tinker::ui::RotationNode* m_rotationNode;
-    bool m_editorLoaded;
 
     void onEditor() override;
     void toggleBetterEditHook(bool enabled);
@@ -32,7 +30,15 @@ class $modify(CREditorUI, EditorUI) {
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre);
     }
 
+    struct Fields {
+        int m_blockOffsetMove;
+        bool m_editorLoaded;
+    };
+
     void moveObject(GameObject* object, CCPoint offset);
+    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint);
+    void doPasteObjects(bool withColor);
+    void onCreateObject(int id);
     GameObject* createObject(int objectID, CCPoint position);
     void playtestStopped();
     void clickOnPosition(CCPoint pos);
