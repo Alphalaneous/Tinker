@@ -1,3 +1,6 @@
+# 1.0.0-beta.30
+- <c-dddddd>Fix type in changelog</c>
+
 # 1.0.0-beta.29
 - <c-dddddd>Add setting to make pressing enter start at a start position instead of the start of the level</c>
 - <c-dddddd>Add customizing toolbar gradient and line colors</c>
