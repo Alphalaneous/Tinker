@@ -1,5 +1,7 @@
 # 1.0.0-beta.30
 - <c-dddddd>Fix typo in changelog</c>
+- <c-dddddd>Only use scroll event to get points, trigger on scrollWheel call still</c>
+- <c-dddddd>Add editor start pos switcher</c>
 
 # 1.0.0-beta.29
 - <c-dddddd>Add setting to make pressing enter start at a start position instead of the start of the level</c>

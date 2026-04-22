@@ -1,27 +1,32 @@
 #include "StartPosTools.hpp"
+#include <Geode/ui/Button.hpp>
+#include <Geode/ui/NineSlice.hpp>
 #include "StartPosOverlay.hpp"
+#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
 using namespace tinker::ui;
 
 bool StartPosTools::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    if (key == "start-pos-switcher") return false;
+    if (key == "auto-hide-switcher") return false;
     return true;
 }
 
-void StartPosTools::onEditor() {
-    m_overlay = StartPosOverlay::create();
-	m_overlay->setID("start-pos-controls"_spr);
-	m_editorLayer->m_objectLayer->addChild(m_overlay);
+bool SPTEditorUI::init(LevelEditorLayer* editorLayer) {
+    if (!EditorUI::init(editorLayer)) return false;
+    auto fields = m_fields.self();
 
-    auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
-    auto fields = editorUI->m_fields.self();
+    fields->m_overlay = StartPosOverlay::create();
+	fields->m_overlay->setID("start-pos-controls"_spr);
+	m_editorLayer->m_objectLayer->addChild(fields->m_overlay);
 
     auto spr = CCSprite::create("playtest-start-pos.png"_spr);
     spr->setScale(0.75f);
-    fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, m_editorUI, menu_selector(SPTEditorUI::onStartPosPlaytest));
+    fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(SPTEditorUI::onPlaytest));
     fields->m_startPosBtn->setTag(1);
-    editorUI->m_uiItems->addObject(fields->m_startPosBtn);
+    m_uiItems->addObject(fields->m_startPosBtn);
 
-    auto playtestMenu = editorUI->getChildByID("playtest-menu");
+    auto playtestMenu = getChildByID("playtest-menu");
     if (playtestMenu) {
         auto layout = static_cast<AxisLayout*>(playtestMenu->getLayout());
         if (layout) {
@@ -32,16 +37,140 @@ void StartPosTools::onEditor() {
         playtestMenu->addChild(fields->m_startPosBtn);
         playtestMenu->updateLayout();
     }
-    editorUI->updatePlaytestMenu();
+    updatePlaytestMenu();
+
+    if (StartPosTools::getSetting<bool, "start-pos-switcher">()) {
+        fields->m_switcherContainer = geode::NineSlice::create("square02b_001.png");
+        fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
+        fields->m_switcherContainer->setZOrder(500);
+        fields->m_switcherContainer->setContentSize({200, 30});
+        fields->m_switcherContainer->setPosition({getContentWidth() / 2, 20});
+        fields->m_switcherContainer->setID("startpos-switcher"_spr);
+        fields->m_switcherContainer->setVisible(false);
+        fields->m_switcherContainer->setColor({0, 0, 0});
+
+        addChild(fields->m_switcherContainer);
+
+        fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
+        fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2);
+        fields->m_switcherLabel->setScale(0.5f);
+        fields->m_switcherLabel->setID("switcher-index-label"_spr);
+
+        fields->m_switcherContainer->addChild(fields->m_switcherLabel);
+
+        fields->m_prevButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
+            auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+            editorLayer->prevStartPos();
+        });
+        fields->m_prevButton->setID("prev-button"_spr);
+
+        fields->m_nextButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
+            auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+            editorLayer->nextStartPos();
+        });
+        fields->m_nextButton->setID("next-button"_spr);
+
+        fields->m_prevButton->setScale(0.5f);
+        fields->m_nextButton->setScale(0.5f);
+
+        static_cast<CCSprite*>(fields->m_nextButton->getDisplayNode())->setFlipX(true);
+
+        fields->m_switcherContainer->addChild(fields->m_prevButton);
+        fields->m_switcherContainer->addChild(fields->m_nextButton);
+
+        updateSwitcherLabel();
+
+        if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
+            fields->m_switcherContainer->setOpacity(0);
+            fields->m_switcherLabel->setOpacity(0);
+            fields->m_prevButton->setVisible(false);
+            fields->m_nextButton->setVisible(false);
+        }
+        else {
+            fields->m_switcherContainer->setOpacity(127);
+        }
+
+        addEventListener(
+            "prev-start-pos"_spr,
+            KeybindSettingPressedEvent(Mod::get(), "StartPosTools-prev-start-pos"),
+            [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+                if (down && !repeat && m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+                    auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+                    editorLayer->prevStartPos();
+                }
+            }
+        );
+
+        addEventListener(
+            "next-start-pos"_spr,
+            KeybindSettingPressedEvent(Mod::get(), "StartPosTools-next-start-pos"),
+            [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+                if (down && !repeat && m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+                    auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+                    editorLayer->nextStartPos();
+                }
+            }
+        );
+        auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+        editorLayer->setStartPosIndex(alpha::level_storage::getSavedValue<int>(editorLayer, "start-pos-index"));
+    }
+
+    return true;
 }
 
-void StartPosTools::updateOverlay() {
-    if (!m_editorUI->m_selectedObject || (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() > 1)) {
-        m_overlay->setStartPos(nullptr);
+void SPTEditorUI::showSwitcher() {
+    if (!StartPosTools::getSetting<bool, "auto-hide-switcher">()) return;
+    if (!StartPosTools::getSetting<bool, "start-pos-switcher">()) return;
+
+    auto fields = m_fields.self();
+    fields->m_switcherLabel->stopAllActions();
+    fields->m_switcherContainer->stopAllActions();
+
+    fields->m_switcherLabel->setOpacity(255);
+    fields->m_switcherContainer->setOpacity(127);
+
+    unschedule(schedule_selector(SPTEditorUI::hideSwitcher));
+    scheduleOnce(schedule_selector(SPTEditorUI::hideSwitcher), 1.f);
+}
+
+void SPTEditorUI::hideSwitcher(float dt) {
+    auto fields = m_fields.self();
+    fields->m_switcherLabel->stopAllActions();
+    fields->m_switcherContainer->stopAllActions();
+
+    fields->m_switcherLabel->runAction(CCFadeTo::create(0.2f, 0));
+    fields->m_switcherContainer->runAction(CCFadeTo::create(0.2f, 0));
+}
+
+void SPTEditorUI::updateSwitcherLabel() {
+    if (!StartPosTools::getSetting<bool, "start-pos-switcher">()) return;
+
+    auto fields = m_fields.self();
+    auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+
+    float offset = 60.f;
+    if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
+        offset = 10.f;
+    }
+
+    fields->m_switcherLabel->setString(fmt::format("{} / {}", editorLayer->getActiveStartPosIndex(), editorLayer->getStartPosCount()).c_str());
+    fields->m_switcherContainer->setContentSize({fields->m_switcherLabel->getScaledContentWidth() + offset, fields->m_switcherLabel->getScaledContentHeight() + 10});
+    fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2 + CCPoint{0, 0.65f});
+
+    fields->m_prevButton->setPosition({fields->m_prevButton->getScaledContentWidth() / 2 + 5, fields->m_switcherContainer->getContentHeight() / 2});
+    fields->m_nextButton->setPosition({fields->m_switcherContainer->getContentWidth() - fields->m_nextButton->getScaledContentWidth() / 2 - 5, fields->m_switcherContainer->getContentHeight() / 2});
+}
+
+void SPTEditorUI::updateOverlay() {
+    auto fields = m_fields.self();
+    if (!fields->m_overlay) return;
+
+    if (!m_selectedObject || (m_selectedObjects && m_selectedObjects->count() > 1)) {
+        fields->m_overlay->setStartPos(nullptr);
         return;
     }
-    if (auto startPos = typeinfo_cast<StartPosObject*>(m_editorUI->m_selectedObject)) {
-        m_overlay->setStartPos(startPos);
+    if (auto startPos = typeinfo_cast<StartPosObject*>(m_selectedObject)) {
+        fields->m_overlay->setStartPos(startPos);
     }
 }
 
@@ -60,69 +189,80 @@ void SPTEditorUI::updatePlaytestMenu() {
                 objectInfoLabel->setPositionX(playtestMenu->boundingBox().getMaxX() + 5);
             }
         }
+        updateSwitcherLabel();
+
+        if (m_editorLayer->m_playbackMode == PlaybackMode::Not) {
+            m_fields->m_currentlyPlaying = false;
+        }
     }));
 }
 
 void SPTEditorUI::showUI(bool show) {
     EditorUI::showUI(show);
     auto fields = m_fields.self();
-    if (show && m_editorLayer->m_playbackMode == PlaybackMode::Paused) {
+    if (show && m_editorLayer->m_playbackMode == PlaybackMode::Paused && fields->m_startPosBtn) {
         fields->m_startPosBtn->setVisible(false);
     }
+    if (StartPosTools::getSetting<bool, "start-pos-switcher">()) {
+        fields->m_switcherContainer->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing);
+    }
+
     updatePlaytestMenu();
 }
 
 void SPTEditorUI::onDeleteStartPos(cocos2d::CCObject* sender) {
     EditorUI::onDeleteStartPos(sender);
-    StartPosTools::get()->m_overlay->reset();
+    auto fields = m_fields.self();
+    if (m_fields->m_overlay) m_fields->m_overlay->reset();
 }
 
 void SPTEditorUI::onPlaytest(cocos2d::CCObject* sender) {
     auto fields = m_fields.self();
+    showSwitcher();
+
+    auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
     if (!sender && StartPosTools::getSetting<bool, "enter-at-startpos">()) {
+        if (!fields->m_currentlyPlaying) {
+            editorLayer->startSwitcher(false);
+            fields->m_currentlyPlaying = true;
+        }
         EditorUI::onPlaytest(sender);
         updatePlaytestMenu();
         return;
     }
 
-    if (!sender || sender->getTag() != 1) {
+    if (!sender || sender->getTag() == -1) {
         fields->m_fromStart = true;
     }
+
+    if (!fields->m_currentlyPlaying) {
+        editorLayer->startSwitcher(fields->m_fromStart);
+        fields->m_currentlyPlaying = true;
+    }
+
     EditorUI::onPlaytest(sender);
     fields->m_fromStart = false;
     updatePlaytestMenu();
 }
 
-void SPTEditorUI::onStartPosPlaytest(CCObject* sender) {
-    EditorUI::get()->onPlaytest(sender);
-}
-
 void SPTEditorUI::deselectAll() {
 	EditorUI::deselectAll();
-	StartPosTools::get()->updateOverlay();
+	updateOverlay();
 };
 
 void SPTEditorUI::deselectObject(GameObject* object) {
 	EditorUI::deselectObject(object);
-	StartPosTools::get()->updateOverlay();
+	updateOverlay();
 }
 
 void SPTEditorUI::selectObject(GameObject* object, bool ignoreFilter) {
 	EditorUI::selectObject(object, ignoreFilter);
-	StartPosTools::get()->updateOverlay();
+	updateOverlay();
 }
 
 void SPTEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
 	EditorUI::selectObjects(objects, ignoreFilter);
-	StartPosTools::get()->updateOverlay();
-}
-
-bool SPTEditorUI::shouldDeleteObject(GameObject* object) {
-    auto ret = EditorUI::shouldDeleteObject(object);
-    if (ret) {
-        StartPosTools::get()->m_overlay->checkDeletedObject(object);
-    }
-    return ret;
+	updateOverlay();
 }
 
 void SPTGJBaseGameLayer::orderSpawnObjects() {
@@ -134,11 +274,186 @@ void SPTGJBaseGameLayer::orderSpawnObjects() {
         LevelEditorLayer::get()->setStartPosObject(nullptr);
     }
     else {
-        auto startPos = StartPosTools::get()->m_overlay->getLastStartPos();
-        if (startPos) {
-            LevelEditorLayer::get()->setStartPosObject(startPos);
-        }
+        auto levelEditorLayer = static_cast<SPTLevelEditorLayer*>(LevelEditorLayer::get());
+        levelEditorLayer->setStartPosObject(levelEditorLayer->getActiveStartPos());
     }
     
     GJBaseGameLayer::orderSpawnObjects();
+}
+
+void SPTLevelEditorLayer::addSpecial(GameObject* object) {
+    LevelEditorLayer::addSpecial(object);
+    
+    if (object->m_objectID == 31) {
+        addStartPos(static_cast<StartPosObject*>(object));
+    }
+}
+
+void SPTLevelEditorLayer::removeSpecial(GameObject* object) {
+    LevelEditorLayer::removeSpecial(object);
+    if (object->m_objectID == 31) {
+        removeStartPos(static_cast<StartPosObject*>(object));
+    
+        auto editorUI = static_cast<SPTEditorUI*>(EditorUI::get());
+        if (!editorUI) return;
+
+        auto fields = editorUI->m_fields.self();
+        if (fields->m_overlay) fields->m_overlay->checkDeletedObject(object);
+    }
+}
+
+void SPTLevelEditorLayer::sortStartPositions() {
+    auto fields = m_fields.self();
+    auto& startPosVec = fields->m_startPositions;
+
+    std::sort(startPosVec.begin(), startPosVec.end(), [] (cocos2d::CCNode* a, cocos2d::CCNode* b) {
+        return a->getPositionX() < b->getPositionX();
+    });
+}
+
+void SPTLevelEditorLayer::addStartPos(StartPosObject* startPos) {
+    auto fields = m_fields.self();
+    fields->m_startPositions.push_back(startPos);
+}
+
+void SPTLevelEditorLayer::removeStartPos(StartPosObject* startPos) {
+    auto fields = m_fields.self();
+    std::erase(fields->m_startPositions, startPos);
+    if (fields->m_activeStartPos == startPos) {
+        fields->m_activeStartPos = nullptr;
+    }
+}
+
+unsigned int SPTLevelEditorLayer::indexForStartPos(StartPosObject* startPos) {
+    sortStartPositions();
+
+    auto fields = m_fields.self();
+    auto& startPosVec = fields->m_startPositions;
+    auto it = std::find(startPosVec.begin(), startPosVec.end(), startPos);
+    if (it != startPosVec.end()) {
+        return std::distance(startPosVec.begin(), it);
+    }
+    return 0;
+}
+
+void SPTLevelEditorLayer::prevStartPos() {
+    sortStartPositions();
+    auto fields = m_fields.self();
+    fields->m_startPosIndex--;
+    if (fields->m_startPosIndex < -1) {
+        fields->m_startPosIndex = fields->m_startPositions.size() - 1;
+    }
+
+    restartFromStartPos();
+}
+
+void SPTLevelEditorLayer::nextStartPos() {
+    sortStartPositions();
+    auto fields = m_fields.self();
+    fields->m_startPosIndex++;
+    if (fields->m_startPosIndex >= fields->m_startPositions.size()) {
+        fields->m_startPosIndex = -1;
+    }
+
+    restartFromStartPos();
+}
+
+void SPTLevelEditorLayer::restartFromStartPos() {
+    auto fields = m_fields.self();
+    if (!fields->m_fromStart) {
+        fields->m_startPosIndexReal = fields->m_startPosIndex;
+        alpha::level_storage::setSavedValue(this, "start-pos-index", fields->m_startPosIndexReal + 1);
+    }
+
+    if (fields->m_startPosIndex == -1) {
+        fields->m_activeStartPos = nullptr;
+    }
+    else {
+        fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
+    }
+
+    auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
+    auto dummy = CCNode::create();
+    dummy->setTag(fields->m_fromStart ? 2 : 1);
+    editorUI->onStopPlaytest(dummy);
+    editorUI->onPlaytest(dummy);
+}
+
+void SPTLevelEditorLayer::startSwitcher(bool start) {
+    if (!StartPosTools::getSetting<bool, "start-pos-switcher">()) return;
+
+    auto fields = m_fields.self();
+    fields->m_fromStart = start;
+    if (start) {
+        fields->m_startPosIndex = -1;
+        fields->m_activeStartPos = nullptr;
+        m_startPosObject = nullptr;
+    }
+    else {
+        fields->m_startPosIndex = fields->m_startPosIndexReal;
+        if (fields->m_startPosIndex == -1 || fields->m_startPositions.empty()) {
+            fields->m_activeStartPos = nullptr;
+        }
+        else {
+            fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
+        }
+    }
+}
+
+void SPTLevelEditorLayer::setActiveStartPos(StartPosObject* startPos) {
+    auto fields = m_fields.self();
+    fields->m_activeStartPos = startPos;
+    if (!startPos) {
+        fields->m_startPosIndex = -1;
+    }
+    else {
+        fields->m_startPosIndex = indexForStartPos(startPos);
+        fields->m_startPosIndexReal = fields->m_startPosIndex;
+        alpha::level_storage::setSavedValue(this, "start-pos-index", fields->m_startPosIndexReal + 1);
+    }
+}
+
+StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
+    auto fields = m_fields.self();
+
+    if (!StartPosTools::getSetting<bool, "start-pos-switcher">() && fields->m_startPosIndex == -1) {
+        return findStartPosObject();
+    }
+
+    if (!fields->m_activeStartPos) return nullptr;
+
+    auto& startPosVec = fields->m_startPositions;
+    auto it = std::find(startPosVec.begin(), startPosVec.end(), fields->m_activeStartPos);
+    if (it == startPosVec.end()) {
+        return findStartPosObject();
+    }
+
+    return fields->m_activeStartPos;
+}
+
+void SPTLevelEditorLayer::setStartPosIndex(int idx) {
+    sortStartPositions();
+
+    auto fields = m_fields.self();
+    fields->m_startPosIndex = idx - 1;
+    fields->m_startPosIndexReal = fields->m_startPosIndex;
+    if (fields->m_startPosIndex == -1 || fields->m_startPositions.empty()) {
+        fields->m_activeStartPos = nullptr;
+    }
+    else {
+        fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
+    }
+}
+
+unsigned int SPTLevelEditorLayer::getStartPosCount() {
+    auto fields = m_fields.self();
+    return fields->m_startPositions.size();
+}
+
+unsigned int SPTLevelEditorLayer::getActiveStartPosIndex() {
+    auto fields = m_fields.self();
+
+    if (fields->m_startPositions.empty() || !m_startPosObject) return 0;
+
+    return indexForStartPos(m_startPosObject) + 1;
 }

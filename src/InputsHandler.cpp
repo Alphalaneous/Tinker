@@ -31,8 +31,8 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
     schedule(schedule_selector(InputEditorUI::checkScrolling));
 
-    addEventListener(ScrollWheelEvent(), [this](double x, double y) {
-        onScroll(x, y);
+    addEventListener(ScrollWheelEvent(), [this, fields](double x, double y) {
+        fields->m_scroll = CCPoint{static_cast<float>(x), static_cast<float>(y)};
     });
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "ScrollableObjects-speed-modifier-key"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         fields->m_tabModifierHeld = down;
@@ -94,7 +94,7 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 }
 #endif
 
-void InputEditorUI::onScroll(float x, float y) {
+void InputEditorUI::onScroll() {
     auto quickVolume = CCScene::get()->getChildByID("hjfod.quick-volume-controls/overlay");
     if (quickVolume) {
         auto scale9 = quickVolume->getChildByType<CCScale9Sprite>(0);
@@ -105,6 +105,8 @@ void InputEditorUI::onScroll(float x, float y) {
 
     using namespace tinker::utils;
     auto fields = m_fields.self();
+    float x = fields->m_scroll.x;
+    float y = fields->m_scroll.y;
 
     #ifdef GEODE_IS_MACOS
     int naturalMult = isNaturalScrollEnabled() ? 1 : -1;
@@ -310,7 +312,7 @@ void InputEditorUI::removeActiveAlert(FLAlertLayer* alert) {
 }
 
 void InputEditorUI::scrollWheel(float y, float x) {
-    //do nothing
+    onScroll();
 }
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {

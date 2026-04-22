@@ -22,10 +22,11 @@ class $modify(InputEditorUI, EditorUI) {
         Ref<CCActionInterval> m_scale = nullptr;
         CCPoint m_startSwipe;
         bool m_tabModifierHeld;
+        CCPoint m_scroll;
     };
 
     bool init(LevelEditorLayer* editorLayer);
-    void onScroll(float x, float y);
+    void onScroll();
     void scrollWheel(float y, float x);
     void disableBetterEditHook();
 

@@ -1,4 +1,5 @@
 #include "StartPosOverlay.hpp"
+#include "StartPosTools.hpp"
 
 using namespace tinker::ui;
 
@@ -34,7 +35,12 @@ bool StartPosOverlay::init() {
     addChild(m_background);
 
     m_button = geode::Button::createWithSpriteFrameName("GJ_playEditorBtn_001.png", [this] (auto sender) {
-        EditorUI::get()->onPlaytest(sender);
+        auto levelEditorLayer = static_cast<SPTLevelEditorLayer*>(LevelEditorLayer::get());
+        levelEditorLayer->setActiveStartPos(m_lastStartPos);
+        levelEditorLayer->startSwitcher(false);
+        auto editorUI = static_cast<SPTEditorUI*>(levelEditorLayer->m_editorUI);
+        editorUI->m_fields->m_currentlyPlaying = true;
+        levelEditorLayer->m_editorUI->onPlaytest(sender);
     });
     m_button->setTag(1);
     m_button->setScale(0.8f);

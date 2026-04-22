@@ -732,6 +732,35 @@
 			"name": "Enter key starts at Start Position",
 			"description": "Enter key will start at start position like vanilla, rather than start of level."
 		},
+		"StartPosTools-start-pos-switcher": {
+			"type": "bool",
+			"default": true,
+			"name": "Start Pos Switcher",
+			"description": "Navigate through every start pos in the editor."
+		},
+		"StartPosTools-auto-hide-switcher": {
+			"type": "bool",
+			"default": {
+				"win": true,
+				"mac": true,
+				"android": false,
+				"ios": false
+			},
+			"name": "Auto Hide Switcher",
+			"description": "Hide the switcher when not being used."
+		},
+		"StartPosTools-prev-start-pos": {
+			"name": "Previous Start Pos",
+			"type": "keybind",
+			"default": ["Q"],
+			"category": "editor"
+		},
+		"StartPosTools-next-start-pos": {
+			"name": "Next Start Pos",
+			"type": "keybind",
+			"default": ["E"],
+			"category": "editor"
+		},
 		"ThatPasteButton-title": {
 			"type": "title",
 			"name": "Paste Warnings"
