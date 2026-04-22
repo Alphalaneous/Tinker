@@ -4,7 +4,9 @@
 #include <Geode/modify/CCTextInputNode.hpp>
 #include <Geode/ui/Button.hpp>
 
-class $editorModule(NegateInput) {};
+class $editorModule(NegateInput) {
+    bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
+};
 
 class $modify(NECCTextInputNode, CCTextInputNode) {
     $registerEditorHooks(NegateInput)

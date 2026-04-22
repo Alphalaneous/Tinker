@@ -23,8 +23,8 @@ namespace tinker::ui {
 
         geode::Button* m_button;
         geode::NineSlice* m_background;
-        WeakRef<StartPosObject> m_startPos;
-        WeakRef<StartPosObject> m_lastStartPos;
+        Ref<StartPosObject> m_startPos;
+        Ref<StartPosObject> m_lastStartPos;
     };
 
 }

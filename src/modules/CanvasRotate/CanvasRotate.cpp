@@ -30,6 +30,10 @@ bool CanvasRotate::onSettingChanged(std::string_view key, const matjson::Value& 
     return true;
 }
 
+bool CanvasRotate::isLassoActive() {
+    return m_editorUI->getUserFlag("undefined0.lasso-select/lasso-active") && m_editorUI->m_selectedMode == 3 && (m_editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed());
+}
+
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);
@@ -161,10 +165,11 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
         return EditorUI::ccTouchBegan(touch, event);
     }
-    
-    if ((m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_selectedMode == 3) {
+
+    if (((m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_selectedMode == 3) || CanvasRotate::get()->isLassoActive()) {
         return EditorUI::ccTouchBegan(touch, event);
     }
+
     auto preTransform = touch->getLocation();
     module->m_rotationNode->translate(touch);
 
@@ -181,7 +186,8 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
 void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
-    if (m_swipeActive) {
+
+    if (m_swipeActive || CanvasRotate::get()->isLassoActive()) {
         return EditorUI::ccTouchMoved(touch, event);
     }
     
@@ -204,6 +210,7 @@ void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
 }
 
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
+
     auto result = CCArray::create();
 
     auto center = rect.origin + CCPoint(rect.size.width * 0.5f, rect.size.height * 0.5f);

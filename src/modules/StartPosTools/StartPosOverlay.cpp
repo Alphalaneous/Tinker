@@ -22,6 +22,7 @@ bool StartPosOverlay::init() {
     setZOrder(10000);
     setAnchorPoint({0.5f, 0.f});
     setScale(0.8f);
+    setVisible(false);
 
     m_background = geode::NineSlice::create("square02b_001.png");
     m_background->setOpacity(127);
@@ -35,6 +36,7 @@ bool StartPosOverlay::init() {
     m_button = geode::Button::createWithSpriteFrameName("GJ_playEditorBtn_001.png", [this] (auto sender) {
         EditorUI::get()->onPlaytest(sender);
     });
+    m_button->setTag(1);
     m_button->setScale(0.8f);
     m_button->setID("playtest-button"_spr);
 
@@ -45,7 +47,7 @@ bool StartPosOverlay::init() {
 }
 
 void StartPosOverlay::setStartPos(StartPosObject* startPos) {
-    if (auto startPos = getStartPos()) {
+    if (startPos) {
         m_lastStartPos = startPos;
     }
     m_startPos = startPos;
@@ -53,7 +55,7 @@ void StartPosOverlay::setStartPos(StartPosObject* startPos) {
 }
 
 void StartPosOverlay::updateOverlay() {
-    if (!getStartPos()) {
+    if (!m_startPos) {
         setVisible(false);
         return;
     }
@@ -61,25 +63,20 @@ void StartPosOverlay::updateOverlay() {
 }
 
 void StartPosOverlay::updatePos(float dt) {
-    if (auto startPos = getStartPos()) {
-        setPosition({startPos->getPositionX(), startPos->boundingBox().getMaxY() + 3});
-        setScale(0.8f / LevelEditorLayer::get()->m_objectLayer->getScale());
-    }
+    if (!m_startPos) return;
+    setPosition({m_startPos->getPositionX(), m_startPos->boundingBox().getMaxY() + 3});
+    setScale(0.8f / LevelEditorLayer::get()->m_objectLayer->getScale());
 }
 
 void StartPosOverlay::checkDeletedObject(GameObject* object) {
-    if (auto startPos = m_startPos.lock()) {
-        if (object == startPos) m_startPos = nullptr;
-    }
-    if (auto startPos = m_lastStartPos.lock()) {
-        if (object == startPos) m_lastStartPos = nullptr;
-    }
+    if (object == m_startPos) m_startPos = nullptr;
+    if (object == m_lastStartPos) m_lastStartPos = nullptr;
 }
 
 StartPosObject* StartPosOverlay::getStartPos() {
-    return m_startPos.lock();
+    return m_startPos;
 }
 
 StartPosObject* StartPosOverlay::getLastStartPos() {
-    return m_lastStartPos.lock();
+    return m_lastStartPos;
 }

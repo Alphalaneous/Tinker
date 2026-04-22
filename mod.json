@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.26",
+	"version": "v1.0.0-beta.27",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -492,6 +492,12 @@
 				"android": true,
 				"ios": true
 			}
+		},
+		"NegateInput-always-show-negate-button": {
+			"type": "bool",
+			"name": "Always Show Negate Button",
+			"default": false,
+			"description": "Don't hide the negate button when a text input is not focused."
 		},
 		"NegateInput-enable-negate-keybind": {
 			"type": "bool",

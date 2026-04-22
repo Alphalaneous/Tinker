@@ -1,3 +1,11 @@
+# 1.0.0-beta.27
+- <c-dddddd>Fix cycling start position selections not working consistently</c>
+- <c-dddddd>Fix the start pos playtest button showing under the ground</c>
+- <c-dddddd>Add always show negate button option</c>
+- <c-dddddd>Better compatibility with Lasso Select (future update to Lasso Select needed)</c>
+- <c-dddddd>Add ability to playtest from start, separate starting from start pos to a separate button</c>
+- <c-dddddd>Fix D blocks not working with the ignore damage fix</c>
+
 # 1.0.0-beta.26
 - <c-dddddd>Fix preview object colors affecting object search permanently</c>
 - <c-dddddd>Fix object search loading circle position</c>

@@ -1,5 +1,11 @@
 #include "NegateInput.hpp"
-#include "Geode/cocos/cocoa/CCObject.h"
+
+bool NegateInput::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    if (key == "always-show-negate-button") {
+        return true;
+    }
+    return false;
+}
 
 bool NECCTextInputNode::allowedInput() {
     if (!LevelEditorLayer::get()) return false;
@@ -43,7 +49,7 @@ bool NECCTextInputNode::init(float width, float height, char const* placeholder,
 void NECCTextInputNode::showOnFocus(float dt) {
     auto fields = m_fields.self();
     if (fields->m_button) {
-        fields->m_button->setVisible(m_selected);
+        fields->m_button->setVisible(m_selected || NegateInput::getSetting<bool, "always-show-negate-button">());
     }
 }
 

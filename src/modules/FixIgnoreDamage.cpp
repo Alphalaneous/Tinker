@@ -5,6 +5,6 @@ bool FixIgnoreDamage::onToggled(bool state) {
 }
 
 void FIDPlayerObject::collidedWithSlopeInternal(float dt, GameObject* object, bool forced) {
-    if (m_isDart && m_ignoreDamage) return;
+    if (m_isDart && m_ignoreDamage && m_stateDartSlide <= 0) return;
     PlayerObject::collidedWithSlopeInternal(dt, object, forced);
 }
