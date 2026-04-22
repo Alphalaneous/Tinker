@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.28",
+	"version": "v1.0.0-beta.29",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -252,12 +252,6 @@
 			"name": "Hide IDs in the Edit Level screen",
 			"description": "Hide IDs in Edit Level screen, hold shift to show them."
 		},
-		"StartPosTools-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Show button to playtest from selected Start Position",
-			"description": "Show an overlay above start positions when selected with a button to playtest from it."
-		},
 		"stop-swipe-on-shift-release": {
 			"type": "bool",
 			"default": true,
@@ -344,7 +338,7 @@
 		"CanvasRotate-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enable"
+			"name": "Enabled"
 		},
 		"CanvasRotate-rotate-slider-thumb": {
 			"type": "bool",
@@ -363,6 +357,35 @@
 			"type": "keybind",
 			"default": ["]"],
 			"category": "editor"
+		},
+		"CustomToolbarBackground-title": {
+			"type": "title",
+			"name": "Custom Toolbar Background"
+		},
+		"CustomToolbarBackground-description": {
+			"type": "info",
+			"description": "Customize the toolbar's background colors.",
+			"color": "#000000"
+		},
+		"CustomToolbarBackground-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Enabled"
+		},
+		"CustomToolbarBackground-gradient-start-color": {
+			"type": "rgba",
+			"default": [16, 12, 13, 200],
+			"name": "Gradient Start Color"
+		},
+		"CustomToolbarBackground-gradient-end-color": {
+			"type": "rgba",
+			"default": [31, 31, 31, 200],
+			"name": "Gradient End Color"
+		},
+		"CustomToolbarBackground-line-color": {
+			"type": "rgba",
+			"default": [91, 92, 92, 200],
+			"name": "Line Color"
 		},
 		"EditTools-title": {
 			"type": "title",
@@ -687,6 +710,27 @@
 			"type": "keybind",
 			"default": ["P"],
 			"category": "editor"
+		},
+		"StartPosTools-title": {
+			"type": "title",
+			"name": "Start Position Tools"
+		},
+		"StartPosTools-description": {
+			"type": "info",
+			"description": "Better start position tools.",
+			"color": "#000000"
+		},
+		"StartPosTools-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled",
+			"description": "Show an overlay above start positions when selected with a button to playtest from it."
+		},
+		"StartPosTools-enter-at-startpos": {
+			"type": "bool",
+			"default": true,
+			"name": "Enter key starts at Start Position",
+			"description": "Enter key will start at start position like vanilla, rather than start of level."
 		},
 		"ThatPasteButton-title": {
 			"type": "title",

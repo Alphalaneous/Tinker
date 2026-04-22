@@ -9,6 +9,7 @@ class $editorModule(StartPosTools) {
     tinker::ui::StartPosOverlay* m_overlay;
     void onEditor() override;
     void updateOverlay();
+    bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 };
 
 class $modify(SPTEditorUI, EditorUI) {

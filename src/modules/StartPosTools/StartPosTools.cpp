@@ -3,6 +3,10 @@
 
 using namespace tinker::ui;
 
+bool StartPosTools::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    return true;
+}
+
 void StartPosTools::onEditor() {
     m_overlay = StartPosOverlay::create();
 	m_overlay->setID("start-pos-controls"_spr);
@@ -75,6 +79,12 @@ void SPTEditorUI::onDeleteStartPos(cocos2d::CCObject* sender) {
 
 void SPTEditorUI::onPlaytest(cocos2d::CCObject* sender) {
     auto fields = m_fields.self();
+    if (!sender && StartPosTools::getSetting<bool, "enter-at-startpos">()) {
+        EditorUI::onPlaytest(sender);
+        updatePlaytestMenu();
+        return;
+    }
+
     if (!sender || sender->getTag() != 1) {
         fields->m_fromStart = true;
     }

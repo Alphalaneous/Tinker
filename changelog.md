@@ -1,3 +1,7 @@
+# 1.0.0-beta.29
+- <c-dddddd>Add setting to make pressing enter start at a start position instead of the start of the level</c>
+- <c-dddddd>Add customizing toolbar gadient and line colors</c>
+
 # 1.0.0-beta.28
 - <c-dddddd>Fix a crash when pressing enter to playtest</c>
 - <c-dddddd>Fix playtest menu when BetterEdit is disabled</c>
