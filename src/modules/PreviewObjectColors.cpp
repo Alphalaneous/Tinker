@@ -34,6 +34,8 @@ void PreviewObjectColors::onEditor() {
                 auto btn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_editHSVBtn2_001.png", 1, [this, fields] (CCMenuItemSpriteExtra* sender) {
                     auto customizeObjectLayer = CustomizeObjectLayer::create(fields->m_defaultObject, nullptr);
                     customizeObjectLayer->show();
+                    customizeObjectLayer->updateColorSprite();
+                    customizeObjectLayer->updateChannelLabel(fields->m_defaultObject->m_baseColor->m_colorID);
                 });
                 soBar->addToExtrasMenu(btn);
             }

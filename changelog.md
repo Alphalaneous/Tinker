@@ -5,6 +5,9 @@
 - <c-dddddd>Better compatibility with Lasso Select (future update to Lasso Select needed)</c>
 - <c-dddddd>Add ability to playtest from start, separate starting from start pos to a separate button</c>
 - <c-dddddd>Fix D blocks not working with the ignore damage fix</c>
+- <c-dddddd>Fix deleting all start positions still allowing you to start from a ghost start position</c>
+- <c-dddddd>Fix color preview showing on bottom right of CustomizeObjectLayer when it shouldn't</c>
+- <c-dddddd>Add node ID to tinker button in pause menu</c>
 
 # 1.0.0-beta.26
 - <c-dddddd>Fix preview object colors affecting object search permanently</c>

@@ -73,6 +73,11 @@ void StartPosOverlay::checkDeletedObject(GameObject* object) {
     if (object == m_lastStartPos) m_lastStartPos = nullptr;
 }
 
+void StartPosOverlay::reset() {
+    m_startPos = nullptr;
+    m_lastStartPos = nullptr;
+}
+
 StartPosObject* StartPosOverlay::getStartPos() {
     return m_startPos;
 }

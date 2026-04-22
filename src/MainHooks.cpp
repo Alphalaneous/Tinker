@@ -176,6 +176,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
             geode::openSettingsPopup(Mod::get());
         });
         tinkerBtn->setZOrder(1000);
+        tinkerBtn->setID("tinker-settings"_spr);
 
         guidelinesMenu->addChild(tinkerBtn);
         guidelinesMenu->updateLayout();

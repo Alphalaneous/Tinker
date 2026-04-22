@@ -67,6 +67,11 @@ void SPTEditorUI::showUI(bool show) {
     updatePlaytestMenu();
 }
 
+void SPTEditorUI::onDeleteStartPos(cocos2d::CCObject* sender) {
+    EditorUI::onDeleteStartPos(sender);
+    StartPosTools::get()->m_overlay->reset();
+}
+
 void SPTEditorUI::onPlaytest(cocos2d::CCObject* sender) {
     auto fields = m_fields.self();
     if (sender->getTag() != 1) {

@@ -28,6 +28,7 @@ class $modify(SPTEditorUI, EditorUI) {
     void selectObjects(cocos2d::CCArray* objects, bool ignoreFilter);
     bool shouldDeleteObject(GameObject* object);
     void onStartPosPlaytest(CCObject* sender);
+    void onDeleteStartPos(cocos2d::CCObject* sender);
 };
 
 class $modify(SPTGJBaseGameLayer, GJBaseGameLayer) {

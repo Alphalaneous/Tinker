@@ -16,6 +16,7 @@ namespace tinker::ui {
         StartPosObject* getStartPos();
         StartPosObject* getLastStartPos();
         void checkDeletedObject(GameObject* object);
+        void reset();
 
     protected:
         bool init() override;
