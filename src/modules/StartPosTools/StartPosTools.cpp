@@ -121,11 +121,6 @@ bool SPTEditorUI::init(LevelEditorLayer* editorLayer) {
         if (saved.contains("start-pos-index")) {
             editorLayer->setStartPosIndex(alpha::level_storage::getSavedValue<int>(editorLayer, "start-pos-index"));
         }
-        else {
-            runAction(CallFuncExt::create([editorLayer] {
-                editorLayer->setStartPosIndex(editorLayer->getStartPosCount());
-            }));
-        }
     }
 
     return true;
@@ -441,7 +436,15 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
     auto fields = m_fields.self();
 
     if ((!StartPosTools::getSetting<bool, "start-pos-switcher">() && fields->m_startPosIndex == -1) || (!hasSwitched() && !fields->m_fromStart)) {
-        return findStartPosObject();
+        if (fields->m_startPositions.empty()) return nullptr;
+        
+        sortStartPositions();
+        fields->m_startPosIndex = fields->m_startPositions.size() - 1;
+        if (!fields->m_fromStart) {
+            fields->m_startPosIndexReal = fields->m_startPosIndex;
+        }
+        fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
+        return fields->m_activeStartPos;
     }
 
     if (!fields->m_activeStartPos) return nullptr;
@@ -449,7 +452,15 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
     auto& startPosVec = fields->m_startPositions;
     auto it = std::find(startPosVec.begin(), startPosVec.end(), fields->m_activeStartPos);
     if (it == startPosVec.end()) {
-        return findStartPosObject();
+        if (fields->m_startPositions.empty()) return nullptr;
+
+        sortStartPositions();
+        fields->m_startPosIndex = fields->m_startPositions.size() - 1;
+        if (!fields->m_fromStart) {
+            fields->m_startPosIndexReal = fields->m_startPosIndex;
+        }
+        fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
+        return fields->m_activeStartPos;
     }
 
     return fields->m_activeStartPos;
