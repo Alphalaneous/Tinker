@@ -1,3 +1,7 @@
+# 1.0.0-beta.32
+- <c-dddddd>Fix startpos switcher just not working consistently</c>
+- <c-dddddd>Add playtest confirmation option</c>
+
 # 1.0.0-beta.31
 - <c-dddddd>Make playtest act like vanilla again, and turn the playtest from start pos button into a playtest without start pos button (Swapping the behavior)</c>
 - <c-dddddd>Make scroll delegation an option for compatibility sake, off by default</c>

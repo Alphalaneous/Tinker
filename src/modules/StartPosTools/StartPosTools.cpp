@@ -1,6 +1,7 @@
 #include "StartPosTools.hpp"
 #include <Geode/ui/Button.hpp>
 #include <Geode/ui/NineSlice.hpp>
+#include "Geode/loader/Log.hpp"
 #include "StartPosOverlay.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
@@ -242,9 +243,13 @@ void SPTEditorUI::onPlaytest(cocos2d::CCObject* sender) {
         return;
     }
 
-    if (!sender || sender->getTag() == 1) {
+    if (sender && sender->getTag() == 1) {
         fields->m_fromStart = true;
     }
+
+    // no tag -> regular playtest
+    // tag 1 -> from startpos
+    // tag 2 -> from no startpos 
 
     if (!fields->m_currentlyPlaying) {
         editorLayer->startSwitcher(fields->m_fromStart);
@@ -386,7 +391,7 @@ void SPTLevelEditorLayer::restartFromStartPos() {
 
     auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
     auto dummy = CCNode::create();
-    dummy->setTag(fields->m_fromStart ? 2 : 1);
+    dummy->setUserFlag("start-pos-switcher"_spr);
     editorUI->onStopPlaytest(dummy);
     editorUI->onPlaytest(dummy);
 }
