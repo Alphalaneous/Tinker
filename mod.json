@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.36",
+	"version": "v1.0.0-beta.37",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -85,6 +85,12 @@
 			"default": true,
 			"name": "Enable Reference Image",
 			"description": "A button to import reference images into a level."
+		},
+		"AdvancedSelectAll-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Advanced Select All",
+			"description": "A handful of buttons to select all based on object ID, base color, and detail color."
 		},
 		"scrolling-title": {
 			"type": "title",
