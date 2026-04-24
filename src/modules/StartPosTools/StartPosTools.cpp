@@ -130,6 +130,9 @@ void SPTEditorUI::showSwitcher() {
     if (!StartPosTools::getSetting<bool, "auto-hide-switcher">()) return;
     if (!StartPosTools::getSetting<bool, "start-pos-switcher">()) return;
 
+    auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+    if (editorLayer->getStartPosCount() == 0) return;
+
     auto fields = m_fields.self();
     fields->m_switcherLabel->stopAllActions();
     fields->m_switcherContainer->stopAllActions();
@@ -212,7 +215,8 @@ void SPTEditorUI::showUI(bool show) {
         fields->m_startPosBtn->setVisible(false);
     }
     if (StartPosTools::getSetting<bool, "start-pos-switcher">()) {
-        fields->m_switcherContainer->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing);
+        auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
+        fields->m_switcherContainer->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing && editorLayer->getStartPosCount() != 0);
     }
 
     updatePlaytestMenu();
@@ -322,6 +326,12 @@ void SPTLevelEditorLayer::sortStartPositions() {
 void SPTLevelEditorLayer::addStartPos(StartPosObject* startPos) {
     auto fields = m_fields.self();
     fields->m_startPositions.push_back(startPos);
+
+    auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
+    editorUI->updateSwitcherLabel();
+    if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
+        editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
+    }
 }
 
 void SPTLevelEditorLayer::removeStartPos(StartPosObject* startPos) {
@@ -329,6 +339,12 @@ void SPTLevelEditorLayer::removeStartPos(StartPosObject* startPos) {
     std::erase(fields->m_startPositions, startPos);
     if (fields->m_activeStartPos == startPos) {
         fields->m_activeStartPos = nullptr;
+    }
+
+    auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
+    editorUI->updateSwitcherLabel();
+    if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
+        editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
     }
 }
 
@@ -368,6 +384,8 @@ void SPTLevelEditorLayer::nextStartPos() {
 
 void SPTLevelEditorLayer::restartFromStartPos() {
     auto fields = m_fields.self();
+    if (fields->m_startPositions.empty()) return;
+
     if (!fields->m_fromStart) {
         fields->m_startPosIndexReal = fields->m_startPosIndex;
         alpha::level_storage::setSavedValue(this, "start-pos-index", fields->m_startPosIndexReal + 1);

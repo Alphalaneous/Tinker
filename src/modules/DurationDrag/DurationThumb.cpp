@@ -272,6 +272,7 @@ void DurationThumb::update(float dt) {
                 }
             }
         }
+        setVisible(duration >= 0);
     } 
     else if (m_object->m_isDirty) {
         m_dragging = false;
@@ -430,7 +431,7 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     const auto type = m_thumbType;
 
     auto ensureNonZero = [](float& value) {
-        if (value == 0.f) value = 0.00001f;
+        if (value <= 0.f) value = 0.00001f;
     };
 
     if (m_object->m_objectID == 1006 && m_thumbType != ThumbType::Multi) {
@@ -440,7 +441,7 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
                 m_startingDuration = m_object->m_fadeInDuration
                     + m_object->m_holdDuration
                     + m_object->m_fadeOutDuration;
-                if (m_startingDuration == 0.f) {
+                if (m_startingDuration <= 0.f) {
                     m_object->m_holdDuration = 0.00001f;
                     m_startingDuration = 0.00001f;
                 }
@@ -462,12 +463,12 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
                 break;
         }
 
-        if (m_startingDuration == 0) m_object->m_holdDuration = 0.00001f;
+        if (m_startingDuration <= 0) m_object->m_holdDuration = 0.00001f;
         m_startingHoldDuration = m_object->m_holdDuration;
     }
     else {
         m_startingDuration = m_object->m_duration;
-        if (m_startingDuration == 0) m_object->m_duration = 0.00001f;
+        if (m_startingDuration <= 0) m_object->m_duration = 0.00001f;
     }
 
     if (m_thumbType == ThumbType::Multi) {
@@ -488,12 +489,12 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
             m_startingDuration = m_object->m_fadeInDuration
                     + m_object->m_holdDuration
                     + m_object->m_fadeOutDuration;
-            if (m_startingDuration == 0) m_object->m_holdDuration = 0.00001f;
+            if (m_startingDuration <= 0) m_object->m_holdDuration = 0.00001f;
             m_startingHoldDuration = m_object->m_holdDuration;
         }
         else {
             m_startingDuration = m_object->m_duration;
-            if (m_startingDuration == 0) m_object->m_duration = 0.00001f;
+            if (m_startingDuration <= 0) m_object->m_duration = 0.00001f;
         }
 
         auto center = tinker::utils::duration_drag::getCenter(EditorUI::get());

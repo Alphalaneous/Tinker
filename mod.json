@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.33",
+	"version": "v1.0.0-beta.34",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -847,6 +847,19 @@
 			"description": "Quickly access Edit Extras",
 			"type": "keybind",
 			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-restart": {
+			"name": "Playtest Restart",
+			"type": "keybind",
+			"default": ["R"],
+			"category": "editor"
+		},
+		"Keybinds-restart-from-beginning": {
+			"name": "Playtest Restart without Start Positions",
+			"type": "keybind",
+			"description": "Restart level from beginning, ignoring start positions. Only works with Start Pos Tools enabled.",
+			"default": ["Ctrl+R"],
 			"category": "editor"
 		}
 	},

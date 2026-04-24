@@ -54,6 +54,25 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     });
 
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+            auto dummy = CCNode::create();
+            onStopPlaytest(dummy);
+            onPlaytest(dummy);
+        }
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart-from-beginning"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+            auto dummy = CCNode::create();
+            dummy->setTag(1);
+            onStopPlaytest(dummy);
+            onPlaytest(dummy);
+        }
+    });
+
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_LeftShift), [this] (KeyboardInputData& data) {
         if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;

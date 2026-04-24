@@ -1,3 +1,9 @@
+# 1.0.0-beta.34
+- <c-dddddd>Fix duration drag being broken if the duration is negative</c>
+- <c-dddddd>Fix start pos switching when there are no start positions</c>
+- <c-dddddd>Adding positions via Clean Start Pos updates the label now</c>
+- <c-dddddd>Added `restart` and `restart without start positions` keybinds for the editor</c>
+
 # 1.0.0-beta.33
 - <c-dddddd>Fix a crash</c>
 
