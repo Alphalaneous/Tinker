@@ -328,9 +328,11 @@ void SPTLevelEditorLayer::addStartPos(StartPosObject* startPos) {
     fields->m_startPositions.push_back(startPos);
 
     auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
-    editorUI->updateSwitcherLabel();
-    if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
-        editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
+    if (editorUI) {
+        editorUI->updateSwitcherLabel();
+        if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
+            editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
+        }
     }
 }
 
@@ -342,9 +344,11 @@ void SPTLevelEditorLayer::removeStartPos(StartPosObject* startPos) {
     }
 
     auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
-    editorUI->updateSwitcherLabel();
-    if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
-        editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
+    if (editorUI) {
+        editorUI->updateSwitcherLabel();
+        if (!StartPosTools::getSetting<bool, "auto-hide-switcher">() && m_playbackMode == PlaybackMode::Playing) {
+            editorUI->m_fields->m_switcherContainer->setVisible(!fields->m_startPositions.empty());
+        }
     }
 }
 

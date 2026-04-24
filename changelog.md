@@ -1,3 +1,6 @@
+# 1.0.0-beta.35
+- <c-dddddd>Fix a crash</c>
+
 # 1.0.0-beta.34
 - <c-dddddd>Fix duration drag being broken if the duration is negative</c>
 - <c-dddddd>Fix start pos switching when there are no start positions</c>
