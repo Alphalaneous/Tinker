@@ -31,11 +31,8 @@ namespace tinker::ui {
         float m_rotation = 0.f;
         CCPoint m_lastPos;
         bool m_isSnapped = false;
-        bool m_editorLoaded = false;
         float m_unsnappedCameraAngle = 0.0f;
         float m_smoothedCameraAngle = 0.0f;
-        std::map<int, CCPoint> m_activeTouches;
-        CCPoint m_lastTouchVector;
         bool m_alignKeyDown = false;
         EditorUI* m_editorUI = nullptr;
 

@@ -26,6 +26,7 @@ bool SPTEditorUI::init(LevelEditorLayer* editorLayer) {
         spr->setScale(0.75f);
         fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(SPTEditorUI::onPlaytest));
         fields->m_startPosBtn->setTag(1);
+        fields->m_startPosBtn->setID("playtest-no-startpos-button"_spr);
         m_uiItems->addObject(fields->m_startPosBtn);
     }
 

@@ -37,5 +37,7 @@ class $modify(InputEditorUI, EditorUI) {
 
     bool isNaturalScrollEnabled();
     
+    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+
     static InputEditorUI* get();
 };

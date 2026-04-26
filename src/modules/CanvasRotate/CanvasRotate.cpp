@@ -34,6 +34,10 @@ bool CanvasRotate::isLassoActive() {
     return m_editorUI->getUserFlag("undefined0.lasso-select/lasso-active") && m_editorUI->m_selectedMode == 3 && (m_editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed());
 }
 
+bool CanvasRotate::isRotating() {
+    return m_rotationNode->isRotating();
+}
+
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);

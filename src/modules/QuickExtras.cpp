@@ -67,26 +67,41 @@ void QuickExtras::onEditExtras() {
 }
 
 bool QEEditorUI::_isAllowedObjectID(int id) {
-    return id == 2907 
-        || (id >= 2909 && id <= 2917) 
-        || (id >= 2919 && id <= 2924) 
-        || id == 3643 
-        || id == 1594 
-        || id == 1615 
-        || id == 1704 
-        || id == 1751 
-        || id == 2063 
-        || id == 2065;
+    return id == 3643 // toggle block
+        || id == 1594 // toggle orb
+        || id == 2903 // gradient
+        || id == 1615 // counter
+        || id == 1704 // green dash orb
+        || id == 1751 // pink dash orb
+        || id == 2063  // checkpoint
+        || id == 2065; // particle
+}
+
+bool QEEditorUI::isDisallowedObjectID(int id) {
+    return id == 2064 // orange teleport portal
+        || id == 749 // linked orange teleport portal
+        || id == 918 // monster chompy
+        || id == 1327 // small monster
+        || id == 1328 // medium monster
+        || id == 1584 // bat monster
+        || id == 2012 // spike ball monster
+        || id == 919; // animated spike pit
 }
 
 bool QEEditorUI::isSpecialEdit(GameObject* obj) {
     if (!obj) return false;
-
+    if (isDisallowedObjectID(obj->m_objectID)) return false;
+    
+    if (obj->m_classType == GameObjectClassType::Enhanced) {
+        auto enhanced = static_cast<EnhancedGameObject*>(obj);
+        if (enhanced->m_hasCustomAnimation) return true;
+        if (enhanced->m_hasCustomRotation) return true;
+    }
+    
     if (_isAllowedObjectID(obj->m_objectID)) return true;
     if (obj->getType() == GameObjectType::Collectible) return true;
     if (obj->isSpecialObject()) return true;
-    if (obj->canMultiActivate(true)) return true;
-    if (obj->isTrigger()) return true;
+    if (obj->canAllowMultiActivate()) return true;
 
     return false;
 }
@@ -110,13 +125,7 @@ bool QEEditorUI::_editButton2Usable() {
 
     if (objectID == -1 && classType == -1) return false;
     if (classType == static_cast<int>(GameObjectClassType::Smart)) return true;
-
-    bool isSmart = arrayContainsClass(
-        m_selectedObjects,
-        static_cast<int>(GameObjectClassType::Smart)
-    );
-
-    if (isSmart || objectType == static_cast<int>(GameObjectType::Collectible)) return true;
+    if (objectType == static_cast<int>(GameObjectType::Collectible)) return true;
 
     if (!m_selectedObject) return _checkMultiSelection();
 

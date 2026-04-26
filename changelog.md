@@ -1,3 +1,8 @@
+# 1.0.0-beta.37
+- <c-dddddd>Improve Quick extras inclusions and exclusions</c>
+- <c-dddddd>Fix rotating camera and dragging at same time</c>
+- <c-dddddd>Add node ID to playtest without startpos button</c>
+
 # 1.0.0-beta.36
 - <c-dddddd>Add editor grid customization</c>
   - <c-dddddd>Color customization</c>

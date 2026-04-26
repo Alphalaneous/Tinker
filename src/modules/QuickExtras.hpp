@@ -16,6 +16,7 @@ class $modify(QEEditorUI, EditorUI) {
 
     void showUI(bool show);
     bool _isAllowedObjectID(int id);
+    bool isDisallowedObjectID(int id);
     bool _checkMultiSelection();
     bool _editButton2Usable();
 

@@ -34,19 +34,7 @@ bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = true;
         m_lastPos = touch->getLocation();
-    }
-
-    if (touch->getButton() == alpha::dispatcher::MouseButton::TOUCH) {
-        m_activeTouches[touch->getID()] = touch->getLocation();
-
-        if (m_activeTouches.size() == 2) {
-            m_rotateDragging = true;
-
-            auto it = m_activeTouches.begin();
-            CCPoint p1 = it->second; ++it;
-            CCPoint p2 = it->second;
-            m_lastTouchVector = p2 - p1;
-        }
+        m_editorUI->ccTouchCancelled(touch, nullptr);
     }
 
     return true;
@@ -72,44 +60,12 @@ void RotationNode::clickMoved(alpha::dispatcher::TouchEvent* touch) {
         updateCanvasRotation(deltaAngle);
         m_lastPos = currentPos;
     }
-        
-    if (touch->getButton() == alpha::dispatcher::MouseButton::TOUCH) {
-        if (m_activeTouches.find(touch->getID()) != m_activeTouches.end()) {
-            m_activeTouches[touch->getID()] = touch->getLocation();
-        }
-
-        if (m_activeTouches.size() == 2) {
-            auto it = m_activeTouches.begin();
-            CCPoint p1 = it->second; ++it;
-            CCPoint p2 = it->second;
-
-            CCPoint currentVec = p2 - p1;
-            float angle1 = std::atan2f(m_lastTouchVector.y, m_lastTouchVector.x);
-            float angle2 = std::atan2f(currentVec.y, currentVec.x);
-            float deltaAngle = CC_RADIANS_TO_DEGREES(angle2 - angle1);
-
-            if (deltaAngle > 180.f) deltaAngle -= 360.f;
-            if (deltaAngle < -180.f) deltaAngle += 360.f;
-
-            updateCanvasRotation(deltaAngle);
-            m_lastTouchVector = currentVec;
-        } 
-    }
 }
 
 void RotationNode::clickEnded(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = false;
         realign();
-    }
-    if (touch->getButton() == alpha::dispatcher::MouseButton::TOUCH) {
-        if (m_activeTouches.size() >= 2) {
-            runAction(CallFuncExt::create([this] {
-                m_rotateDragging = false;
-            }));
-            realign();
-        }
-        m_activeTouches.erase(touch->getID());
     }
 }
 

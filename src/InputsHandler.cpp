@@ -1,5 +1,6 @@
 #include "InputsHandler.hpp"
 #include "Utils.hpp"
+#include "modules/CanvasRotate/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
@@ -336,6 +337,14 @@ void InputEditorUI::removeActiveAlert(FLAlertLayer* alert) {
 void InputEditorUI::scrollWheel(float y, float x) {
     if (!tinker::utils::getSetting<bool, "scroll-delegate-to-vanilla">()) return;
     onScroll();
+}
+
+bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+    if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
+        return false;
+    }
+
+    return EditorUI::ccTouchBegan(touch, event);
 }
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
