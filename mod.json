@@ -738,12 +738,6 @@
 			"name": "Enabled",
 			"description": "Show an overlay above start positions when selected with a button to playtest from it."
 		},
-		"StartPosTools-enter-at-startpos": {
-			"type": "bool",
-			"default": true,
-			"name": "Enter key starts at Start Position",
-			"description": "Enter key will start at start position like vanilla, rather than start of level."
-		},
 		"StartPosTools-start-pos-switcher": {
 			"type": "bool",
 			"default": true,

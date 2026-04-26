@@ -62,6 +62,8 @@ class $modify(SPTLevelEditorLayer, LevelEditorLayer) {
     void addStartPos(StartPosObject* startPos);
     void removeStartPos(StartPosObject* startPos);
 
+    int getLastEnabledStartposIndex();
+
     unsigned int indexForStartPos(StartPosObject* startPos);
     void sortStartPositions();
 

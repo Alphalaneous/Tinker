@@ -1,3 +1,8 @@
+# 1.0.0-beta.38
+- <c-dddddd>Fix search height being too low for devices where the virtual keyboard height is misrepresented</c>
+- <c-dddddd>Cleanup startpos switcher code some more</c>
+- <c-dddddd>Default start position selection should now respect if a start pos is disabled, and will only disrespect it when it is used/switched to</c>
+
 # 1.0.0-beta.37
 - <c-dddddd>Improve Quick extras inclusions and exclusions</c>
 - <c-dddddd>Fix rotating camera and dragging at same time</c>

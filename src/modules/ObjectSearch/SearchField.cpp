@@ -236,7 +236,7 @@ void SearchField::textInputClosed(CCTextInputNode* node) {
 
 void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
     #ifdef GEODE_IS_MOBILE
-    m_yOffset = yOffset;
+    m_yOffset = std::max(yOffset, m_editorUI->m_toolbarHeight + 15);
     runAction(CallFuncExt::create([this] {
         setupTabOffset();
     }));
