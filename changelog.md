@@ -1,3 +1,6 @@
+# 1.0.0-beta.39
+- <c-dddddd>Rework Geode Settings</c>
+
 # 1.0.0-beta.38
 - <c-dddddd>Fix search height being too low for devices where the virtual keyboard height is misrepresented</c>
 - <c-dddddd>Cleanup startpos switcher code some more</c>

@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.38",
+	"version": "v1.0.0-beta.39",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -92,7 +92,8 @@
 		},
 		"scrolling-description": {
 			"type": "info",
-			"description": "How scrolling and zooming with your mouse feels in the editor."
+			"description": "How scrolling and zooming with your mouse feels in the editor.",
+			"color": "#000000"
 		},
 		"smooth-scroll-enabled": {
 			"type": "bool",
@@ -276,7 +277,8 @@
 		},
 		"other-mods-description": {
 			"type": "info",
-			"description": "Changes Tinker can make to better integrate other mods with Tinker itself."	
+			"description": "Changes Tinker can make to better integrate other mods with Tinker itself.",
+			"color": "#000000"
 		},
 		"AlternateLassoLocation-enabled": {
 			"type": "bool",
@@ -288,7 +290,7 @@
 		},
 		"AutoBuildHelper-title": {
 			"type": "title",
-			"name": "Automatic \"Build Helper\""
+			"name": "Auto \"Build Helper\""
 		},
 		"AutoBuildHelper-description": {
 			"type": "info",
@@ -308,7 +310,7 @@
 		},
 		"AwesomeModifierIcons-title": {
 			"type": "title",
-			"name": "Improved Modifier Icons"
+			"name": "Modifier Icons"
 		},
 		"AwesomeModifierIcons-description": {
 			"type": "info",
@@ -372,7 +374,7 @@
 		},
 		"CustomToolbarBackground-title": {
 			"type": "title",
-			"name": "Custom Toolbar Background"
+			"name": "Toolbar Background"
 		},
 		"CustomToolbarBackground-description": {
 			"type": "info",
@@ -550,7 +552,8 @@
 		},
 		"ObjectSearch-description": {
 			"type": "info",
-			"description": "Look up objects by name. Adds an all objects tab with search."
+			"description": "Look up objects by name. Adds an all objects tab with search.",
+			"color": "#000000"
 		},
 		"ObjectSearch-enabled": {
 			"type": "bool",
@@ -573,7 +576,8 @@
 		},
 		"ObjectTooltips-description": {
 			"type": "info",
-			"description": "Tooltips with object names when hovering over an object in the build tab."
+			"description": "Tooltips with object names when hovering over an object in the build tab.",
+			"color": "#000000"
 		},
 		"ObjectTooltips-enabled": {
 			"type": "bool",
@@ -621,7 +625,7 @@
 		},
 		"RepeatingEditorButtons-title": {
 			"type": "title",
-			"name": "Repeating Editor Buttons"
+			"name": "Repeating Buttons"
 		},
 		"RepeatingEditorButtons-description": {
 			"type": "info",
@@ -809,7 +813,7 @@
 		},
 		"QuickExtras-title": {
 			"type": "title",
-			"name": "Quick Edit Extras Button"
+			"name": "Quick Edit Extras"
 		},
 		"QuickExtras-description": {
 			"type": "info",
@@ -829,7 +833,7 @@
 		},
 		"EditorGridCustomization-title": {
 			"type": "title",
-			"name": "Editor Grid Customization"
+			"name": "Editor Grid"
 		},
 		"EditorGridCustomization-description": {
 			"type": "info",
