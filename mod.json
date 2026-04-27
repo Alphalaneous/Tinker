@@ -22,10 +22,6 @@
 		"spaghettdev.named-editor-groups": {
 			"version": "v2.4.1",
             "required": false
-		},
-		"raydeeux.gameobjectidstacksize": {
-			"version": "v1.0.9",
-			"required": false
 		}
 	},
 	"resources": {

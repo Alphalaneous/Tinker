@@ -4,7 +4,7 @@
 #include "SearchField.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include <raydeeux.gameobjectidstacksize/include/api.hpp>
+//#include <raydeeux.gameobjectidstacksize/include/api.hpp>
 #include "../PreviewObjectColors.hpp"
 
 using namespace alpha::prelude;
@@ -313,7 +313,7 @@ void OSEditorUI::updateBatch(float dt) {
         item->item = newCmi;
 
         if (tinker::utils::getMod<"raydeeux.gameobjectidstacksize">()) {
-            ObjectIDDisplay::AddObjectIDLabelEvent().send(newCmi);
+            //ObjectIDDisplay::AddObjectIDLabelEvent().send(newCmi);
         }
 
         if (PreviewObjectColors::isEnabled()) {
