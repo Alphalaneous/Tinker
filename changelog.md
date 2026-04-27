@@ -1,3 +1,7 @@
+# 1.0.0-beta.40
+- <c-dddddd>Fix settings scroll layout not being updated properly</c>
+- <c-dddddd>Fix a crash</c>
+
 # 1.0.0-beta.39
 - <c-dddddd>Rework Geode Settings</c>
 

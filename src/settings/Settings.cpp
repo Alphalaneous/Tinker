@@ -81,10 +81,10 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         auto label = alert->m_mainLayer->getChildByType<CCLabelBMFont>(0);
         if (label && std::string_view(label->getString()) == "Settings for Tinker") {
             customSetup();
+            #ifdef GEODE_IS_DESKTOP
+            schedule(schedule_selector(TinkerModSettingsPopup::checkMousePos));
+            #endif
         }
-        #ifdef GEODE_IS_DESKTOP
-        schedule(schedule_selector(TinkerModSettingsPopup::checkMousePos));
-        #endif
     }
 
     void checkMousePos(float dt) {
@@ -166,15 +166,16 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         geode::cocos::limitNodeSize(label, allBtnBg->getContentSize() - CCSize{12, 8}, 1.f, 0.05f);
         allBtnBg->addChild(label);
 
-        auto tabButton = geode::Button::createWithNode(allBtnBg, [geodeTheme, fields, allBtnBg] (auto sender) {
+        auto tabButton = geode::Button::createWithNode(allBtnBg, [scrollLayer, geodeTheme, fields, allBtnBg] (auto sender) {
             for (auto& [key, category] : fields->m_categories) {
-                category.expand(false);
                 category.buttonBg->setColor(geodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
                 category.showTitle();
+                category.expand(false);
                 category.tabButton->setEnabled(true);
             }
             allBtnBg->setColor(geodeTheme ? ccColor3B{168, 147, 185} : ccColor3B{248, 200, 43});
             sender->setEnabled(false);
+            scrollLayer->m_contentLayer->updateLayout();
         });
         tabButton->setScaleMultiplier(1.1f);
         tabButton->setZOrder(-1);
@@ -212,7 +213,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                 ptr->buttonBg = btnBg;
                 ptr->titleSetting = settingNode;
                 ptr->isGeodeTheme = geodeTheme;
-                ptr->tabButton = geode::Button::createWithNode(btnBg, [geodeTheme, ptr, fields, allBtnBg, tabButton] (auto sender) {
+                ptr->tabButton = geode::Button::createWithNode(btnBg, [scrollLayer, geodeTheme, ptr, fields, allBtnBg, tabButton] (auto sender) {
                     for (auto& [key, category] : fields->m_categories) {
                         category.hideTitle();
                         category.collapse();
@@ -222,6 +223,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                     ptr->expand();
                     sender->setEnabled(false);
                     tabButton->setEnabled(true);
+                    scrollLayer->m_contentLayer->updateLayout(false);
                 });
                 ptr->tabButton->setScaleMultiplier(1.1f);
                 ptr->tabButton->setZOrder(idx);
@@ -237,7 +239,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
 
         fields->m_scrollLayer->getContentLayer()->updateLayout();
 
-        scrollLayer->m_contentLayer->updateLayout(false);
+        scrollLayer->m_contentLayer->updateLayout();
         scrollLayer->scrollToTop();
 
         float offset = geodeTheme ? 0 : -5;
