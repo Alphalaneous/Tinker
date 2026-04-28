@@ -91,7 +91,7 @@ bool QEEditorUI::isDisallowedObjectID(int id) {
 bool QEEditorUI::isSpecialEdit(GameObject* obj) {
     if (!obj) return false;
     if (isDisallowedObjectID(obj->m_objectID)) return false;
-    
+        
     if (obj->m_classType == GameObjectClassType::Enhanced) {
         auto enhanced = static_cast<EnhancedGameObject*>(obj);
         if (enhanced->m_hasCustomAnimation) return true;
@@ -109,11 +109,18 @@ bool QEEditorUI::isSpecialEdit(GameObject* obj) {
 bool QEEditorUI::_checkMultiSelection() {
     if (m_selectedObjects->count() == 0) return false;
 
+    bool special = true;
+
     for (auto object : m_selectedObjects->asExt<GameObject>()) {
-        if (!isSpecialEdit(object)) return false;
+        if (object->m_classType == GameObjectClassType::Smart) {
+            return true;
+        }
+        if (!isSpecialEdit(object)) {
+            special = false;
+        }
     }
 
-    return true;
+    return special;
 }
 
 bool QEEditorUI::_editButton2Usable() {

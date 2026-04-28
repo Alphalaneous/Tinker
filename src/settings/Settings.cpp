@@ -23,12 +23,14 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
 
         void collapse() {
             buttonBg->setColor(isGeodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
+            toggler->m_toggled = false;
             toggler->toggleWithCallback(true);
         }
         void expand(bool setColor = true) {
             if (setColor) {
                 buttonBg->setColor(isGeodeTheme ? ccColor3B{168, 147, 185} : ccColor3B{248, 200, 43});
             }
+            toggler->m_toggled = true;
             toggler->toggleWithCallback(false);
         }
 
@@ -182,7 +184,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         tabButton->setEnabled(false);
         fields->m_scrollLayer->getContentLayer()->addChild(tabButton);
 
-        Category* currentCategory;
+        Category* currentCategory = nullptr;
 
         int idx = 0;
 

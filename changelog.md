@@ -1,3 +1,7 @@
+# 1.0.0-beta.41
+- <c-dddddd>Fix template blocks not having edit special when selected with something else</c>
+- <c-dddddd>Fix settings not expanding properly when switching tabs (I think)</c>
+
 # 1.0.0-beta.40
 - <c-dddddd>Fix settings scroll layout not being updated properly</c>
 - <c-dddddd>Fix a crash</c>
