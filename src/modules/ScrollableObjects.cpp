@@ -347,25 +347,34 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     bool larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
 
-    if (!larger && m_tabIndex != 13) {
-        fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20) / scale);
+    bool editTabBar = getID() == "edit-tab-bar";
 
-        fields->m_scrollLayer->setHorizontalScroll(false);
+    if ((!larger && m_tabIndex != 13) || editTabBar) {
+
+        AxisLayout* layout = nullptr;
+
+        if (!editTabBar) {
+            fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20) / scale);
+            fields->m_scrollLayer->setHorizontalScroll(false);
+            layout = RowLayout::create();
+        }
+        else {
+            layout = ColumnLayout::create();
+        }
         
         fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Center);
         
-        auto rowLayout = RowLayout::create();
-        rowLayout->setAutoScale(false);
-        rowLayout->setGrowCrossAxis(true);
-        rowLayout->ignoreInvisibleChildren(false);
-        rowLayout->setGap(gap);
-        rowLayout->setAxis(Axis::Row);
-        rowLayout->setAutoGrowAxis(std::nullopt);
-        rowLayout->setAxisReverse(false);
-        rowLayout->setCrossAxisReverse(false);
-        rowLayout->setAxisAlignment(AxisAlignment::Start);
+        layout->setAutoScale(false);
+        layout->setGrowCrossAxis(true);
+        layout->ignoreInvisibleChildren(false);
+        layout->setGap(gap);
+        layout->setAxis(Axis::Row);
+        layout->setAutoGrowAxis(std::nullopt);
+        layout->setAxisReverse(false);
+        layout->setCrossAxisReverse(false);
+        layout->setAxisAlignment(AxisAlignment::Start);
 
-        fields->m_objectsMenu->setLayout(rowLayout);
+        fields->m_objectsMenu->setLayout(layout);
 
         float maxX = 0;
 
