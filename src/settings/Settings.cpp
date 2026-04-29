@@ -6,7 +6,11 @@
 #include <alphalaneous.alphas-ui-pack/include/nodes/scroll/AdvancedScrollLayer.hpp>
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
+#define FTS_FUZZY_MATCH_IMPLEMENTATION
+#include <Geode/external/fts/fts_fuzzy_match.h>
+
 using namespace geode::prelude;
+
 
 class TitleSettingNodeV3 : public CCNode {};
 
@@ -17,21 +21,32 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         std::string name;
         geode::Button* tabButton;
         geode::NineSlice* buttonBg;
-        std::vector<SettingNodeV3*> settings;
-        SettingNodeV3* titleSetting;
+        std::vector<Ref<SettingNodeV3>> settings;
+        Ref<SettingNodeV3> titleSetting;
+        CCNode* content;
         bool isGeodeTheme = true;
+
+        std::set<Ref<SettingNodeV3>> foundSettings;
 
         void collapse() {
             buttonBg->setColor(isGeodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
-            toggler->m_toggled = false;
-            toggler->toggleWithCallback(true);
+
+            titleSetting->removeFromParentAndCleanup(false);
+
+            for (auto setting : settings) {
+                setting->removeFromParentAndCleanup(false);
+            }
         }
-        void expand(bool setColor = true) {
+
+        void expand(bool setColor = true) {            
             if (setColor) {
                 buttonBg->setColor(isGeodeTheme ? ccColor3B{168, 147, 185} : ccColor3B{248, 200, 43});
             }
-            toggler->m_toggled = true;
-            toggler->toggleWithCallback(false);
+            if (!titleSetting->getParent()) content->addChild(titleSetting);
+            
+            for (auto setting : settings) {
+                if (!content->getParent()) content->addChild(setting);
+            }
         }
 
         void hideTitle() {
@@ -44,12 +59,101 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
             titleSetting->getButtonMenu()->setVisible(true);
             titleSetting->getNameLabel()->setVisible(true);
         }
+
+        void updateState(bool setColor = true, bool checkToggle = false) {
+            collapse();
+            if (checkToggle && toggler->isToggled()) {
+                if (!titleSetting->getParent()) content->addChild(titleSetting);
+                return;
+            }
+            expand(setColor);
+        }
+
+        bool weightedFuzzyMatch(ZStringView str, ZStringView kw, double weight, double& out) {
+            int score;
+            if (fts::fuzzy_match(kw.c_str(), str.c_str(), score)) {
+                out = std::max(out, score * weight);
+                return true;
+            }
+            return false;
+        }
+
+        bool matchSearch(SettingNode* node, ZStringView query) {
+            if (typeinfo_cast<TitleSettingNodeV3*>(node)) {
+                return true;
+            }
+
+            bool addToList = false;
+            auto setting = node->getSetting();
+            double weighted = 0;
+            if (auto name = setting->getName()) {
+                addToList |= weightedFuzzyMatch(setting->getKey(), query, 0.5, weighted);
+                addToList |= weightedFuzzyMatch(*name, query, 1, weighted);
+            }
+            // If there's no name, give full weight to key
+            else {
+                addToList |= weightedFuzzyMatch(setting->getKey(), query, 1, weighted);
+            }
+            if (weighted < 60.0 + 10.0 * query.size()) {
+                addToList = false;
+            }
+            addToList |= weightedFuzzyMatch(titleSetting->getSetting()->getDisplayName(), query, 1, weighted);
+
+            return addToList;
+        }
+
+        bool checkSearch(ZStringView search, geode::SettingNodeV3* settingNode, bool full) {
+            auto hasSearch = !search.empty();
+
+            if (typeinfo_cast<TitleSettingNodeV3*>(settingNode)) {
+                return true;
+            }
+
+            foundSettings.erase(settingNode);
+            settingNode->removeFromParent();
+
+            if (!hasSearch || matchSearch(settingNode, search)) {
+                if (!full || !toggler->isToggled()) {
+                    content->addChild(settingNode);
+                }
+                foundSettings.insert(settingNode);
+                return true;
+            }
+            return false;
+        }
+
+        void search(ZStringView search, bool& bg, bool full = true) {
+            for (auto setting : settings) {
+                if (checkSearch(search, setting, full)) {
+                    setting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+                    bg = !bg;
+                }
+            }
+
+            if (full && !checkIfNeedsTitle()) {
+                bg = !bg;
+            }
+        }
+
+        bool checkIfNeedsTitle() {
+            if (foundSettings.empty()) {
+                hideTitle();
+                return false;
+            }
+            showTitle();
+            return true;
+        }
     };
 
     struct Fields {
-        StringMap<Category> m_categories;
+        std::vector<Category> m_categories;
         alpha::ui::AdvancedScrollLayer* m_scrollLayer;
-        geode::ScrollLayer* m_mainScrollLayer;
+        Ref<geode::ScrollLayer> m_mainScrollLayer;
+        geode::ScrollLayer* m_replacementScrollLayer;
+        Category* m_activeCategory = nullptr;
+        geode::TextInput* m_searchInput;
+        geode::Scrollbar* m_scrollBar;
+        CCMenuItemSpriteExtra* m_searchClearBtn;
     };
 
     bool isGeodeTheme() {
@@ -83,6 +187,9 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         auto label = alert->m_mainLayer->getChildByType<CCLabelBMFont>(0);
         if (label && std::string_view(label->getString()) == "Settings for Tinker") {
             customSetup();
+            addEventListener(SettingNodeValueChangeEvent(), [this] (std::string_view modID, std::string_view key, SettingNodeV3* node, bool isCommit) {
+                updateState();
+            });
             #ifdef GEODE_IS_DESKTOP
             schedule(schedule_selector(TinkerModSettingsPopup::checkMousePos));
             #endif
@@ -91,7 +198,70 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
 
     void checkMousePos(float dt) {
         auto fields = m_fields.self();
-        fields->m_mainScrollLayer->enableScrollWheel(alpha::utils::isPointInsideNode(fields->m_mainScrollLayer, getMousePos()));
+        fields->m_replacementScrollLayer->enableScrollWheel(alpha::utils::isPointInsideNode(fields->m_replacementScrollLayer, getMousePos()));
+    }
+
+    void updateState() {
+        auto alert = reinterpret_cast<FLAlertLayer*>(this);
+        auto fields = m_fields.self();
+
+        auto listPosBefore = fields->m_replacementScrollLayer->m_contentLayer->getPositionY();
+        auto listHeightBefore = fields->m_replacementScrollLayer->m_contentLayer->getContentHeight();
+
+        auto search = fields->m_searchInput->getString();
+        auto hasSearch = !search.empty();
+
+        auto clearSpr = static_cast<CCSprite*>(fields->m_searchClearBtn->getNormalImage());
+        fields->m_searchClearBtn->setEnabled(hasSearch);
+        clearSpr->setColor(hasSearch ? ccWHITE : ccGRAY);
+        clearSpr->setOpacity(hasSearch ? 255 : 90);
+
+        auto childSpr = clearSpr->getChildByType<CCSprite>(0);
+
+        if (childSpr) {
+            childSpr->setColor(hasSearch ? ccWHITE : ccGRAY);
+            childSpr->setOpacity(hasSearch ? 255 : 90);
+        }
+
+        bool bg = false;
+
+        if (!fields->m_activeCategory) {
+            for (auto& category : fields->m_categories) {
+                category.updateState(false, true);
+                category.titleSetting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+                bg = !bg;
+
+                category.search(search, bg);
+            }
+        }
+        else {
+            for (auto& category : fields->m_categories) {
+                category.collapse();
+            }
+            fields->m_activeCategory->updateState();
+            fields->m_activeCategory->titleSetting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+            bg = !bg;
+
+            fields->m_activeCategory->search(search, bg, false);
+        }
+
+        fields->m_replacementScrollLayer->m_contentLayer->updateLayout();        
+        fields->m_replacementScrollLayer->m_contentLayer->setPositionY(
+            listPosBefore +
+                (listHeightBefore - fields->m_replacementScrollLayer->m_contentLayer->getContentHeight())
+        );
+
+        bool usesScroll = fields->m_replacementScrollLayer->m_contentLayer->getContentHeight() > fields->m_replacementScrollLayer->getContentHeight();
+        fields->m_scrollBar->getThumb()->setVisible(usesScroll);
+        fields->m_scrollBar->getTrack()->setOpacity(usesScroll ? 150 : 50);
+    }
+
+    void onClearSearch(CCObject* sender) {
+        auto fields = m_fields.self();
+        
+        fields->m_searchInput->setString("");
+        updateState();
+        fields->m_replacementScrollLayer->moveToTop();
     }
 
     void customSetup() {
@@ -104,8 +274,8 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         auto listBorders = alert->m_mainLayer->getChildByType<geode::ListBorders>(0);
         if (!listBorders) return;
 
-        auto scrollbar = alert->m_mainLayer->getChildByType<geode::Scrollbar>(0);
-        if (!scrollbar) return;
+        fields->m_scrollBar = alert->m_mainLayer->getChildByType<geode::Scrollbar>(0);
+        if (!fields->m_scrollBar) return;
 
         auto scrollLayer = layerColor->getChildByType<ScrollLayer>(0);
         if (!scrollLayer) return;
@@ -117,6 +287,19 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
 
         layerColor->setContentHeight(layerColor->getContentHeight() / 0.8f);
         searchMenu->setPositionY(layerColor->getContentHeight());
+
+        fields->m_searchInput = typeinfo_cast<geode::TextInput*>(searchMenu->getChildByID("search-input"));
+        if (!fields->m_searchInput) return;
+
+        fields->m_searchClearBtn = searchMenu->getChildByType<CCMenuItemSpriteExtra>(0);
+        if (!fields->m_searchClearBtn) return;
+
+        fields->m_searchClearBtn->setTarget(this, menu_selector(TinkerModSettingsPopup::onClearSearch));
+
+        fields->m_searchInput->setCallback([this, fields] (auto const&) {
+            updateState();
+            fields->m_replacementScrollLayer->scrollToTop();
+        });
 
         bool geodeTheme = isGeodeTheme();
 
@@ -131,9 +314,9 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         layerColor->setPositionX(alert->m_mainLayer->getContentWidth() - 50);
         listBorders->setPositionX(alert->m_mainLayer->getContentWidth() - 50);
 
-        scrollbar->setScale(0.8);
-        scrollbar->addOnEnterCallback([scrollbar] () {
-            static_cast<CCNode*>(scrollbar)->draw();
+        fields->m_scrollBar->setScale(0.8);
+        fields->m_scrollBar->addOnEnterCallback([fields] () {
+            static_cast<CCNode*>(fields->m_scrollBar)->draw();
         });
         listBorders->setScale(0.75f);
         listBorders->setContentSize({width, height});
@@ -168,8 +351,12 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         geode::cocos::limitNodeSize(label, allBtnBg->getContentSize() - CCSize{12, 8}, 1.f, 0.05f);
         allBtnBg->addChild(label);
 
-        auto tabButton = geode::Button::createWithNode(allBtnBg, [scrollLayer, geodeTheme, fields, allBtnBg] (auto sender) {
-            for (auto& [key, category] : fields->m_categories) {
+        auto tabButton = geode::Button::createWithNode(allBtnBg, [this, scrollLayer, geodeTheme, fields, allBtnBg] (auto sender) {
+            
+            for (auto& category : fields->m_categories) {
+                category.collapse();
+            }
+            for (auto& category : fields->m_categories) {
                 category.buttonBg->setColor(geodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
                 category.showTitle();
                 category.expand(false);
@@ -177,14 +364,27 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
             }
             allBtnBg->setColor(geodeTheme ? ccColor3B{168, 147, 185} : ccColor3B{248, 200, 43});
             sender->setEnabled(false);
-            scrollLayer->m_contentLayer->updateLayout();
+
+            fields->m_activeCategory = nullptr;
+            updateState();
+            fields->m_replacementScrollLayer->scrollToTop();
         });
         tabButton->setScaleMultiplier(1.1f);
         tabButton->setZOrder(-1);
         tabButton->setEnabled(false);
         fields->m_scrollLayer->getContentLayer()->addChild(tabButton);
+        
+        fields->m_replacementScrollLayer = geode::ScrollLayer::create({0, 0, scrollLayer->getContentWidth(), scrollLayer->getContentHeight()});
+        fields->m_replacementScrollLayer->setPosition(scrollLayer->getPosition());
+        fields->m_replacementScrollLayer->setAnchorPoint(scrollLayer->getAnchorPoint());
+        fields->m_replacementScrollLayer->setContentSize(scrollLayer->getContentSize());
+        fields->m_replacementScrollLayer->setZOrder(scrollLayer->getZOrder());
+        fields->m_replacementScrollLayer->setScale(scrollLayer->getScale());
+        fields->m_replacementScrollLayer->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout(0));
+        fields->m_scrollBar->setTarget(fields->m_replacementScrollLayer);
 
-        Category* currentCategory = nullptr;
+        layerColor->addChild(fields->m_replacementScrollLayer);
+        scrollLayer->removeFromParentAndCleanup(false);
 
         int idx = 0;
 
@@ -197,11 +397,6 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                 auto toggler = settingNode->getButtonMenu()->getChildByType<CCMenuItemToggler>(0);
                 auto category = Category{toggler, setting->getDisplayName()};
 
-                fields->m_categories[setting->getKey()] = category;
-                auto ptr = &fields->m_categories[setting->getKey()];
-
-                currentCategory = ptr;
-
                 auto btnBg = geode::NineSlice::create("tab-bg.png"_spr);
                 btnBg->setContentSize({90, 20});
                 btnBg->setScaleMultiplier(0.5f);
@@ -212,30 +407,35 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                 geode::cocos::limitNodeSize(label, btnBg->getContentSize() - CCSize{12, 8}, 1.f, 0.05f);
                 btnBg->addChild(label);
 
-                ptr->buttonBg = btnBg;
-                ptr->titleSetting = settingNode;
-                ptr->isGeodeTheme = geodeTheme;
-                ptr->tabButton = geode::Button::createWithNode(btnBg, [scrollLayer, geodeTheme, ptr, fields, allBtnBg, tabButton] (auto sender) {
-                    for (auto& [key, category] : fields->m_categories) {
+                category.buttonBg = btnBg;
+                category.titleSetting = settingNode;
+                category.isGeodeTheme = geodeTheme;
+                category.tabButton = geode::Button::createWithNode(btnBg, [this, idx, scrollLayer, geodeTheme, fields, allBtnBg, tabButton] (auto sender) mutable {
+                    for (auto& category : fields->m_categories) {
                         category.hideTitle();
                         category.collapse();
                         category.tabButton->setEnabled(true);
                     }
                     allBtnBg->setColor(geodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
-                    ptr->expand();
+                    fields->m_categories[idx].expand();
                     sender->setEnabled(false);
                     tabButton->setEnabled(true);
-                    scrollLayer->m_contentLayer->updateLayout(false);
+                    fields->m_activeCategory = &fields->m_categories[idx];
+                    updateState();
+                    fields->m_replacementScrollLayer->scrollToTop();
                 });
-                ptr->tabButton->setScaleMultiplier(1.1f);
-                ptr->tabButton->setZOrder(idx);
+                category.tabButton->setScaleMultiplier(1.1f);
+                category.tabButton->setZOrder(idx);
+                category.content = fields->m_replacementScrollLayer->m_contentLayer;
 
-                fields->m_scrollLayer->getContentLayer()->addChild(ptr->tabButton);
+                fields->m_scrollLayer->getContentLayer()->addChild(category.tabButton);
+                fields->m_categories.push_back(std::move(category));
+
                 idx++;
                 continue;
             }
-            if (currentCategory) {
-                currentCategory->settings.push_back(settingNode);
+            if (idx > 0) {
+                fields->m_categories[idx-1].settings.push_back(settingNode);
             }
         }
 
@@ -243,6 +443,9 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
 
         scrollLayer->m_contentLayer->updateLayout();
         scrollLayer->scrollToTop();
+
+        updateState();
+        fields->m_replacementScrollLayer->scrollToTop();
 
         float offset = geodeTheme ? 0 : -5;
 

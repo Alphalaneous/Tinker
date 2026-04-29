@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0-beta.41",
+	"version": "v1.0.0-beta.42",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -22,6 +22,10 @@
 		"spaghettdev.named-editor-groups": {
 			"version": "v2.4.1",
             "required": false
+		},
+		"raydeeux.gameobjectidstacksize": {
+			"version": "v1.0.9",
+			"required": false
 		}
 	},
 	"resources": {
@@ -892,9 +896,51 @@
 			"description": "Extra keybinds for navigating the editor.",
 			"color": "#000000"
 		},
+		"Keybinds-edit-object": {
+			"name": "Edit Object",
+			"description": "Quickly access Edit Object",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-edit-group": {
+			"name": "Edit Group",
+			"description": "Quickly access Edit Group",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-edit-special": {
+			"name": "Edit Special",
+			"description": "Quickly access Edit Special",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
 		"Keybinds-edit-extras": {
 			"name": "Edit Extras",
 			"description": "Quickly access Edit Extras",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-copy-values": {
+			"name": "Copy Values",
+			"description": "Quickly activate Copy Values",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-paste-state": {
+			"name": "Paste State",
+			"description": "Quickly activate Paste State",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-paste-color": {
+			"name": "Paste Color",
+			"description": "Quickly activate Paste Color",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"

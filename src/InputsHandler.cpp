@@ -55,6 +55,69 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     });
 
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-object"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        if (auto popup = CCScene::get()->getChildByType<CustomizeObjectLayer>(0)) {
+            popup->keyBackClicked();
+        }
+        else {
+            editObject(nullptr);
+        }
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-group"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        if (auto popup = CCScene::get()->getChildByType<SetGroupIDLayer>(0)) {
+            popup->keyBackClicked();
+        }
+        else {
+            editGroup(nullptr);
+        }
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-special"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        if (auto popup = CCScene::get()->getChildByType<SetupSmartBlockLayer>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<SetItemIDLayer>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<EditGameObjectPopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<SetupInteractObjectPopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<SetupRotatePopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<SetupGradientPopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<SetupAnimSettingsPopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else if (auto popup = CCScene::get()->getChildByType<CreateParticlePopup>(0)) {
+            popup->keyBackClicked();
+        }
+        else {
+            editObjectSpecial(0);
+        }
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-copy-values"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        onCopyState(nullptr);
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-state"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        onPasteState(nullptr);
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-color"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        onPasteColor(nullptr);
+    });
+
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (!down || repeat) return;
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -145,6 +208,8 @@ void InputEditorUI::onScroll() {
             return;
         }
     }
+
+    if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll()) {
         for (auto child : getChildrenExt()) {

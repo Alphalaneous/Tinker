@@ -74,7 +74,9 @@ bool QEEditorUI::_isAllowedObjectID(int id) {
         || id == 1704 // green dash orb
         || id == 1751 // pink dash orb
         || id == 2063  // checkpoint
-        || id == 2065; // particle
+        || id == 2065 // particle
+        || id == 1329 // user coin
+        || id == 142; // gold coin
 }
 
 bool QEEditorUI::isDisallowedObjectID(int id) {

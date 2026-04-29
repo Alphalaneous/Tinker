@@ -1,3 +1,10 @@
+# 1.0.0-beta.42
+- <c-dddddd>Improve settings performance</c>
+- <c-dddddd>Implement my own actually *good* search for settings</c>
+- <c-dddddd>Fix scrolling working during playtest</c>
+- <c-dddddd>Fix edit special being inaccessible for User Coins and Gold Coins</c>
+- <c-dddddd>Add more keybinds</c>
+
 # 1.0.0-beta.41
 - <c-dddddd>Fix template blocks not having edit special when selected with something else</c>
 - <c-dddddd>Fix settings not expanding properly when switching tabs (I think)</c>
