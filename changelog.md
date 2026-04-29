@@ -1,3 +1,8 @@
+# 1.0.0
+- <c-dddddd>New visual identity</c>
+- <c-dddddd>Updated mod information to include everything that is missing</c>
+- <c-dddddd>Move out of Beta</c>
+
 # 1.0.0-beta.42
 - <c-dddddd>Improve settings performance</c>
 - <c-dddddd>Implement my own actually *good* search for settings</c>

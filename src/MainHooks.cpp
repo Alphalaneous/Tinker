@@ -170,7 +170,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
         auto guidelinesMenu = getChildByID("guidelines-menu");
         if (!guidelinesMenu) return true;
 
-        auto spr = CircleButtonSprite::createWithSprite("tinker-hammer.png"_spr, 1.f, CircleBaseColor::Green, CircleBaseSize::Small);
+        auto spr = CCSprite::create("hammer-button.png"_spr);
 
         auto tinkerBtn = CCMenuItemExt::createSpriteExtra(spr, [] (auto sender) {
             geode::openSettingsPopup(Mod::get());

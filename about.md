@@ -1,4 +1,4 @@
-# <c-004ba6>T</c><c-10629b>i</c><c-186f95>n</c><c-26848c>k</c><c-369c80>e</c><c-46b476>r</c>
+# <c-C6F6FF>T</c><c-BBF7FA>i</c><c-AEF8F4>n</c><c-9EFAED>k</c><c-89FDE3>e</c><c-75FFDA>r</c>
 
 **A plethora of editor changes, additions, and improvements to make editing levels feel just a little bit better.** 
 
@@ -8,11 +8,7 @@
 
 <c-dddddd>Well you can toggle anything you want on and off. All disabled features are **fully** disabled, meaning they won't be hiding in the background affecting performance without you realizing.</c>
 
-**<cy>This is a beta!</c>**
-
-<c-dddddd>Expect bugs, incompatibilities with other mods, etc. Please report any problems on the mod's [GitHub Issues](https://github.com/Alphalaneous/Tinker/issues) page.</c> 
-
-<c-dddddd>Some features here can affect the load time of the Editor. Do note that improvements are planned and actively being looked into.</c>
+<c-dddddd>Please report any bugs or crashes on the mod's [GitHub Issues](https://github.com/Alphalaneous/Tinker/issues) page.</c> 
 
 ---
 
@@ -82,6 +78,20 @@ Customize different aspects of the editor's interface.
 ### ​  Paste Warnings
 - <c-dddddd>Shows warnings for paste state and paste color.</c>
 
+### ​  Playtest Warning
+- <c-dddddd>Shows a warning when you playtest a level, in case you didn't mean to.</c>
+
+### ​  Editor Grid Customization
+- <c-dddddd>Customize aspects of the editor grid, such as the color, if it is inverted, effect line colors, and even a rainbow music line.</c>
+
+### ​  Custom Toolbar Colors
+- <c-dddddd>Customize the toolbar colors (that area where you find objects and have the build, edit, and delete tabs).</c>
+
+### ​  Start Position Tools
+- <c-dddddd>Adds start pos switcher for the editor.</c>
+- <c-dddddd>Select any start position to start from that one.</c>
+- <c-dddddd>Playtest without start pos button</c>
+
 ---
 
 ## Objects
@@ -114,6 +124,10 @@ All things related to objects.
 ### ​  Single Deselect
 - <c-dddddd>Allows for you to hold a modifier to deselect objects within an existing selection.</c>
 
+###   Edit Tools
+- <c-dddddd>Adds a button and keybind to center the selected object to the camera poisiton.</c>
+- <c-dddddd>Adds a button and keybind to center the camera to the selected object's position.</c>
+
 ---
 
 ## Fixes
@@ -132,6 +146,9 @@ Different fixes that you'll likely want to keep on to improve the editing experi
 
 ### ​  Text Object Transform Fix
 - <c-dddddd>Fixes the transform bounds for text objects such that they are not always {0, 0}. Updates them properly when the text and/or kerning is changed.</c>
+
+### ​  Wave Ignore Damage Fix
+- <c-dddddd>Fixes wave treating all slopes as if they have D blocks when ignore damage is enabled</c>
 
 ---
 
@@ -162,7 +179,15 @@ Changes Tinker can make to better integrate other mods with Tinker itself.
 ---
 
 ### ​  Keybinds
-- <c-dddddd>Quick Extras keybind</c>
+- <c-dddddd>Edit Object</c>
+- <c-dddddd>Edit Group</c>
+- <c-dddddd>Edit Special</c>
+- <c-dddddd>Edit Extras</c>
+- <c-dddddd>Copy Values</c>
+- <c-dddddd>Paste State</c>
+- <c-dddddd>Paste Color</c>
+- <c-dddddd>Restart</c>
+- <c-dddddd>Restart without Start Pos</c>
 
 ---
 

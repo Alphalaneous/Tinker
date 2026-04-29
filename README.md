@@ -2,67 +2,79 @@
 
 **A plethora of editor changes, additions, and improvements to make editing levels feel just a little bit better.** 
 
-This mod provides a fully customizable and modular feature set for you to use the editor how you want to!
+<c-dddddd>This mod provides a fully customizable and modular feature set for you to use the editor how you want to!</c>
 
 **Don't like a feature?** 
 
-Well you can toggle anything you want on and off. All disabled features are **fully** disabled, meaning they won't be hiding in the background affecting performance without you realizing.
+<c-dddddd>Well you can toggle anything you want on and off. All disabled features are **fully** disabled, meaning they won't be hiding in the background affecting performance without you realizing.</c>
 
-**<cy>This is a beta!**
+<c-dddddd>Please report any bugs or crashes on the mod's [GitHub Issues](https://github.com/Alphalaneous/Tinker/issues) page.</c> 
 
-Expect bugs, incompatibilities with other mods, etc. Please report any problems on the mod's [GitHub Issues](https://github.com/Alphalaneous/Tinker/issues) page. 
-
-Some features here can affect the load time of the Editor. Do note that improvements are planned and actively being looked into.
+---
 
 ## Interface
 Customize different aspects of the editor's interface.
 
 ---
 
-### ​  Editor Rotation
-- Allows for you to rotate the editor by right clicking and dragging.
+### ​  Canvas Rotation
+- <c-dddddd>Allows for you to rotate the editor canvas by right clicking and dragging.</c>
 
 ### ​  Improved Link Controls
-- Fixes the link control buttons being clickable when toggled off, also fixes the size of them.
+- <c-dddddd>Fixes the link control buttons being clickable when toggled off, also fixes the size of them.</c>
 
 ### ​  Show Length In Editor
-- Shows the levels' length in time in the top left corner.
+- <c-dddddd>Shows the levels' length in time in the top left corner.</c>
 
 ### ​  Live Colors
-- Shows the levels' currently active colors on the bottom of the screen.
+- <c-dddddd>Shows the levels' currently active colors on the bottom of the screen.</c>
 
 ### ​  Preview Object Colors
-- Allows for you to preview a color channel on the object buttons in the build tab.
+- <c-dddddd>Allows for you to preview a color channel on the object buttons in the build tab.</c>
 
 ### ​  Object Tooltips
-- Tooltips with object names are shown while hovering over an object in the build tab.
+- <c-dddddd>Tooltips with object names are shown while hovering over an object in the build tab.</c>
 
 ### ​  Quick Extras
-- Adds a shortcut button to edit extra properties of objects, replacing Edit Special when it isn't needed.
+- <c-dddddd>Adds a shortcut button to edit extra properties of objects, replacing Edit Special when it isn't needed.</c>
 
 ### ​  Reference Image
-- Adds a button to import reference images into a level.
+- <c-dddddd>Adds a button to import reference images into a level.</c>
 
 ### ​  Scrollable Objects
-- Allows for you to scroll through objects instead of navigating per page in the build tab.
+- <c-dddddd>Allows for you to scroll through objects instead of navigating per page in the build tab.</c>
 
 ### ​  Improved Group View
-- Shows more than 20 groups at once in the Group View when selecting multiple objects with a scrollable list of the groups.
+- <c-dddddd>Shows more than 20 groups at once in the Group View when selecting multiple objects with a scrollable list of the groups.</c>
 
 ### ​  Joystick Navigation
-- Navigate the editor with a Joystick. Most useful for mobile one handed use.
+- <c-dddddd>Navigate the editor with a Joystick. Most useful for mobile one handed use.</c>
 
 ### ​  Negate Input
-- Allows for you to press N and/or a button to negate any number input when focused.
+- <c-dddddd>Allows for you to press N and/or a button to negate any number input when focused.</c>
 
 ### ​  Relocate Build Tools
-- Relocates the build tools from the editor pause menu to the edit menu.
+- <c-dddddd>Relocates the build tools from the editor pause menu to the edit menu.</c>
 
 ### ​  Repeating Editor Buttons
-- Allows for you to hold certain buttons in the editor to repeatedly press them.
+- <c-dddddd>Allows for you to hold certain buttons in the editor to repeatedly press them.</c>
 
 ### ​  Paste Warnings
-- Shows warnings for paste state and paste color.
+- <c-dddddd>Shows warnings for paste state and paste color.</c>
+
+### ​  Playtest Warning
+- <c-dddddd>Shows a warning when you playtest a level, in case you didn't mean to.</c>
+
+### ​  Editor Grid Customization
+- <c-dddddd>Customize aspects of the editor grid, such as the color, if it is inverted, effect line colors, and even a rainbow music line.</c>
+
+### ​  Custom Toolbar Colors
+- <c-dddddd>Customize the toolbar colors (that area where you find objects and have the build, edit, and delete tabs).</c>
+
+### ​  Start Position Tools
+- <c-dddddd>Adds start pos switcher for the editor.</c>
+- <c-dddddd>Select any start position to start from that one.</c>
+- <c-dddddd>Playtest without start pos button</c>
 
 ---
 
@@ -72,29 +84,33 @@ All things related to objects.
 ---
 
 ### ​  Duration Drag
-- Adds the ability to drag on a duration line to change the duration without going into a trigger's edit menu.
+- <c-dddddd>Adds the ability to drag on a duration line to change the duration without going into a trigger's edit menu.</c>
 
 ### ​  Multi Text Edit
-- Allows for you to edit multiple text objects at once.
+- <c-dddddd>Allows for you to edit multiple text objects at once.</c>
 
 ### ​  Object Search
-- Adds a new search tab for objects. In this tab, you will see every object and be able to search by name.
-- You can fine tune your search and search by object ID by starting the search with `id:`, or by an exact name with `exact:`.
+- <c-dddddd>Adds a new search tab for objects. In this tab, you will see every object and be able to search by name.</c>
+- <c-dddddd>You can fine tune your search and search by object ID by starting the search with `id:`, or by an exact name with `exact:`.</c>
 
 ### ​  Object Summary
-- Adds a button in the level settings to view how many of each object there are.
+- <c-dddddd>Adds a button in the level settings to view how many of each object there are.</c>
 
 ### ​  Old Color Triggers
-- Brings back the old color trigger textures so you can view them when looking at old levels.
+- <c-dddddd>Brings back the old color trigger textures so you can view them when looking at old levels.</c>
 
 ### ​  Improved Modifier Icons
-- Improves the Modifier blocks (D/H/J/S/F) by adding icons for each of their actions instead of the letter.
+- <c-dddddd>Improves the Modifier blocks (D/H/J/S/F) by adding icons for each of their actions instead of the letter.</c>
 
 ### ​  Automatic "Build Helper"
-- Adds a toggle to automate the Build Helper tool. Allows for you to copy and paste objects and/or place custom objects to automatically run Build Helper on them when the toggle is on.
+- <c-dddddd>Adds a toggle to automate the Build Helper tool. Allows for you to copy and paste objects and/or place custom objects to automatically run Build Helper on them when the toggle is on.</c>
 
 ### ​  Single Deselect
-- Allows for you to hold a modifier to deselect objects within an existing selection.
+- <c-dddddd>Allows for you to hold a modifier to deselect objects within an existing selection.</c>
+
+###   Edit Tools
+- <c-dddddd>Adds a button and keybind to center the selected object to the camera poisiton.</c>
+- <c-dddddd>Adds a button and keybind to center the camera to the selected object's position.</c>
 
 ---
 
@@ -104,16 +120,19 @@ Different fixes that you'll likely want to keep on to improve the editing experi
 ---
 
 ### ​  Centered Object Buttons
-- Makes the object sprites on the buttons in the build tab actually centered.
+- <c-dddddd>Makes the object sprites on the buttons in the build tab actually centered.</c>
 
 ### ​  Editor Slider Fix
-- Fixes the position slider not being based on the level length.
+- <c-dddddd>Fixes the position slider not being based on the level length.</c>
 
 ### ​  Transform Control Fixes
-- Fixes the touch issues with Transform and Scale controls.
+- <c-dddddd>Fixes the touch issues with Transform and Scale controls.</c>
 
 ### ​  Text Object Transform Fix
-- Fixes the transform bounds for text objects such that they are not always {0, 0}. Updates them properly when the text and/or kerning is changed.
+- <c-dddddd>Fixes the transform bounds for text objects such that they are not always {0, 0}. Updates them properly when the text and/or kerning is changed.</c>
+
+### ​  Wave Ignore Damage Fix
+- <c-dddddd>Fixes wave treating all slopes as if they have D blocks when ignore damage is enabled</c>
 
 ---
 
@@ -123,7 +142,7 @@ Stuff that just doesn't fit in any other category.
 ---
 
 ### ​  Hide IDs in the Edit Level screen
-- Hides IDs in Edit Level screen, hold shift to show them.
+- <c-dddddd>Hides IDs in Edit Level screen, hold shift to show them.</c>
 
 ---
 
@@ -133,8 +152,8 @@ Changes Tinker can make to better integrate other mods with Tinker itself.
 ---
 
 ### ​  Alternate Lasso Select Location
-- <cy>Requires Lasso Select Mod.
-- Moves the Lasso Select button to the bottom right.
+- <cy>Requires Lasso Select Mod.</c>
+- <c-dddddd>Moves the Lasso Select button to the bottom right.</c>
 
 ---
 
@@ -144,7 +163,15 @@ Changes Tinker can make to better integrate other mods with Tinker itself.
 ---
 
 ### ​  Keybinds
-- <c-dddddd>Quick Extras keybind</c>
+- <c-dddddd>Edit Object</c>
+- <c-dddddd>Edit Group</c>
+- <c-dddddd>Edit Special</c>
+- <c-dddddd>Edit Extras</c>
+- <c-dddddd>Copy Values</c>
+- <c-dddddd>Paste State</c>
+- <c-dddddd>Paste Color</c>
+- <c-dddddd>Restart</c>
+- <c-dddddd>Restart without Start Pos</c>
 
 ---
 
@@ -155,7 +182,7 @@ Tools to interface with this mod as a mod developer.
 
 ### ​  Improved Group View
 
-- Send events to update the group view when in SetGroupIDLayer.
+- <c-dddddd>Send events to update the group view when in SetGroupIDLayer.</c>
 
 ```cpp
 #include <alphalaneous.tinker/include/ImprovedGroupView.hpp>
@@ -172,18 +199,18 @@ Cool people that helped with the making of this mod.
 ---
 
 ### ​  Brift
-- Automatic "Build Helper" sprite
-- Relocate Build Tools sprites
+- <c-dddddd>Automatic "Build Helper" sprite</c>
+- <c-dddddd>Relocate Build Tools sprites</c>
 
 ---
 
 ### ​  Mat
-- Original Reference Image concept
+- <c-dddddd>Original Reference Image concept</c>
 
 ---
 
 ### ​  TerminumGD
-- Idea for Hide IDs in the Edit Level screen
+- <c-dddddd>Idea for Hide IDs in the Edit Level screen</c>
 
 ---
 
@@ -191,4 +218,4 @@ Cool people that helped with the making of this mod.
 
 ---
 
-- If you like this mod and what I make, feel free to donate to my [Ko-fi](https://ko-fi.com/alphalaneous).
+- <c-dddddd>If you like this mod and what I make, feel free to donate to my [Ko-fi](https://ko-fi.com/alphalaneous).</c>
