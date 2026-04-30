@@ -29,15 +29,6 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
 
     auto winSize = CCDirector::get()->getWinSize();
 
-    fields->m_spinner = geode::LoadingSpinner::create(60.f);
-    fields->m_spinner->setID("object-search-loading");
-    fields->m_spinner->setPosition({winSize.width / 2 , m_toolbarHeight / 2});
-    fields->m_spinner->setZOrder(500);
-    fields->m_spinner->setOpacity(0);
-
-    m_uiItems->addObject(fields->m_spinner);
-
-    addChild(fields->m_spinner);
 
     alpha::editor_tabs::addTab("all-objects"_spr, alpha::editor_tabs::BUILD, [this, fields] () {
         fields->m_searchBar = alpha::editor_tabs::createEditButtonBar({});
@@ -49,13 +40,10 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
     }, [this, fields] (bool state, cocos2d::CCNode*) {
         if (!fields->m_searchField) return;
         if (state && !fields->m_searchField->getParent()) {
-            if (fields->m_finishedLoadingItems) {
-                #ifndef GEODE_IS_MOBILE
-                fields->m_searchField->focus();
-                #endif
-                addChild(fields->m_searchField);
-            }
-            if (fields->m_spinner) fields->m_spinner->setOpacity(255);
+            #ifndef GEODE_IS_MOBILE
+            fields->m_searchField->focus();
+            #endif
+            addChild(fields->m_searchField);
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(false);
@@ -64,7 +52,6 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
         else {
             fields->m_searchField->defocus();
             fields->m_searchField->removeFromParent();
-            if (fields->m_spinner) fields->m_spinner->setOpacity(0);
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(true);
@@ -93,43 +80,122 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
                 auto cmi = typeinfo_cast<CreateMenuItem*>(node);
                 if (!cmi || cmi->m_objectID < 1 || cmi->m_tabIndex == 13) continue;
 
-                fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{nullptr, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, cmi};
+                int bgID = 1;
+                auto bgObject = typeinfo_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
+                if (bgObject) {
+                    bgID = bgObject->getValue();
+                }
+
+                auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, this, menu_selector(EditorUI::onCreateButton));
+
+                fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, cmi};
                 fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
             }
         }
 
-        schedule(schedule_selector(OSEditorUI::updateBatch));
+        auto arr = fields->m_searchField->generateItemArrayForSearch("");
+        
+        auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
+        auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
+
+        fields->m_searchBar->loadFromItems(arr, cols, rows, false);
     }));
 
     return true;
 }
 
-void OSEditorUI::finish() {
-    auto fields = m_fields.self();
-
-    unschedule(schedule_selector(OSEditorUI::updateBatch));
-
-    auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-    auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-    auto arr = fields->m_searchField->generateItemArrayForSearch("");
-    fields->m_searchBar->loadFromItems(arr, cols, rows, false);
-    if (fields->m_searchBar->isVisible()) {
-        #ifndef GEODE_IS_MOBILE
-        fields->m_searchField->focus();
-        #endif
-        addChild(fields->m_searchField);
-    }
-
-    m_uiItems->removeObject(fields->m_spinner);
-
-    fields->m_spinner->removeFromParent();
-    fields->m_spinner = nullptr;
-    fields->m_finishedLoadingItems = true;
-    log::debug("Finished loading search tab.");
+void OSEditorUI::onPause(CCObject* sender) {
+    m_fields->m_searchField->defocus();
+    EditorUI::onPause(sender);
 }
 
-void OSEditorUI::updateButton(CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
+void OSEditorUI::updateCreateMenu(bool selectTab) {
+    EditorUI::updateCreateMenu(selectTab);
+
+    auto nodeRes = alpha::editor_tabs::nodeForTab("all-objects"_spr);
+    if (!nodeRes) return;
+
+    auto allObjectsBar = static_cast<EditButtonBar*>(nodeRes.unwrap().data());
+    if (!allObjectsBar) return;
+        
+    for (auto node : allObjectsBar->m_buttonArray->asExt<CCNode>()) {
+        auto cmi = typeinfo_cast<CreateMenuItem*>(node);
+        if (!cmi) continue;
+
+        auto buttonSprite = cmi->getChildByType<ButtonSprite*>(0);
+
+        if (cmi->m_objectID == m_selectedObjectIndex) {
+            buttonSprite->m_subBGSprite->setColor({127, 127, 127});
+        }
+        else {
+            buttonSprite->m_subBGSprite->setColor({255, 255, 255});
+        }
+    }
+}
+
+CreateMenuItem* OSEditorUI::getCreateBtn(int id, int bg) {
+    auto ret = EditorUI::getCreateBtn(id, bg);
+    ret->setUserObject("bg"_spr, CCInteger::create(bg));
+    return ret;
+}
+
+CreateMenuItem* OSCreateMenuItem::createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector) {
+    auto container = CCSprite::create();
+    container->setAnchorPoint({0.5f, 0.5f});
+    container->setContentSize({32, 32});
+    container->setPosition({16, 16});
+    container->setCascadeColorEnabled(true);
+    container->setCascadeOpacityEnabled(true);
+
+    auto btnSpr = ButtonSprite::create(container, 32, 0, 32.0, 1.0, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
+    
+    auto ret = CreateMenuItem::create(btnSpr, nullptr, target, selector);
+    ret->m_objectID = item->m_objectID;
+    ret->m_pageIndex = item->m_pageIndex;
+    ret->m_tabIndex = item->m_tabIndex;
+    ret->setUserFlag("search-item"_spr);
+
+    auto fields = static_cast<OSCreateMenuItem*>(ret)->m_fields.self();
+
+    fields->m_btnSprite = btnSpr;
+    fields->m_item = item;
+    fields->m_container = container;
+    fields->m_isRender = true;
+
+    return ret;
+}
+
+void OSCreateMenuItem::loadRender() {
+    auto fields = m_fields.self();
+    if (!fields->m_isRender || fields->m_loaded) return;
+
+    auto buttonSprite = fields->m_item->getChildByType<ButtonSprite*>(0);
+
+    buttonSprite->m_subBGSprite->setOpacity(0);
+
+    auto render = alpha::ui::RenderNode::create(buttonSprite, true);
+    render->render();
+    fields->m_render = render;
+
+    auto spr = CCSprite::createWithTexture(render->getTexture(), render->getTextureRect());
+    spr->m_sBlendFunc.src = CC_BLEND_SRC;
+    spr->m_sBlendFunc.dst = CC_BLEND_DST;
+    spr->setOpacityModifyRGB(true);
+    spr->setScale(1);
+    spr->setPosition(fields->m_container->getContentSize() / 2);
+
+    fields->m_container->addChild(spr);
+
+    if (PreviewObjectColors::isEnabled()) {
+        auto obj = static_cast<POCEditorUI*>(PreviewObjectColors::get()->m_editorUI)->m_fields->m_defaultObject;
+        updateButton(fields->m_item, obj->m_detailColor->m_colorID, obj->m_baseColor->m_colorID, obj->m_detailColor->m_hsv, obj->m_baseColor->m_hsv);
+    }
+
+    buttonSprite->m_subBGSprite->setOpacity(255);
+    fields->m_loaded = true;
+}
+
+void OSCreateMenuItem::updateButton(CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
     auto editorUI = static_cast<POCEditorUI*>(PreviewObjectColors::get()->m_editorUI);
     auto fields = editorUI->m_fields.self();
 
@@ -266,97 +332,34 @@ void OSEditorUI::updateButton(CCNode* btn, int color1ID, int color2ID, const coc
     }
 }
 
-void OSEditorUI::updateBatch(float dt) {
-    auto fields = m_fields.self();
-
-    unsigned int max = ObjectSearch::getSetting<unsigned int, "load-rate">();
-
-    for (int i = fields->m_itemPos; i < fields->m_itemPos + max; i++) {
-        if (i == fields->m_orderedItems.size()) {
-            finish();
-            return;
-        }
-        auto item = fields->m_orderedItems[i];
-        auto& cmi = item->origItem;
-        if (PreviewObjectColors::isEnabled()) {
-            updateButton(cmi, 0, 0, {0, 1, 1, false, false}, {0, 1, 1, false, false});
-        }
-
-        auto buttonSprite = cmi->getChildByType<ButtonSprite*>(0);
-
-        buttonSprite->m_subBGSprite->setOpacity(0);
-
-        auto render = alpha::ui::RenderNode::create(buttonSprite, true);
-        render->render();
-
-        auto spr = CCSprite::createWithTexture(render->getTexture(), render->getTextureRect());
-        spr->m_sBlendFunc.src = CC_BLEND_SRC;
-        spr->m_sBlendFunc.dst = CC_BLEND_DST;
-        spr->setOpacityModifyRGB(true);
-        spr->setUserObject("render"_spr, render);
-
-        int bgID = 1;
-        auto bgObject = typeinfo_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
-        if (bgObject) {
-            bgID = bgObject->getValue();
-        }
-
-        auto btnSprite = ButtonSprite::create(spr, 32, 0, 32.0, 1.0, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
-        spr->setScale(1);
-
-        auto newCmi = CreateMenuItem::create(btnSprite, nullptr, this, menu_selector(EditorUI::onCreateButton));
-        newCmi->m_objectID = cmi->m_objectID;
-        newCmi->m_pageIndex = cmi->m_pageIndex;
-        newCmi->m_tabIndex = cmi->m_tabIndex;
-        newCmi->setUserFlag("search-item"_spr);
-
-        item->item = newCmi;
-
-        if (tinker::utils::getMod<"raydeeux.gameobjectidstacksize">()) {
-            ObjectIDDisplay::AddObjectIDLabelEvent().send(newCmi);
-        }
-
-        if (PreviewObjectColors::isEnabled()) {
-            auto obj = static_cast<POCEditorUI*>(PreviewObjectColors::get()->m_editorUI)->m_fields->m_defaultObject;
-            updateButton(cmi, obj->m_detailColor->m_colorID, obj->m_baseColor->m_colorID, obj->m_detailColor->m_hsv, obj->m_baseColor->m_hsv);
-        }
-
-        buttonSprite->m_subBGSprite->setOpacity(255);
-    }
-    fields->m_itemPos += max;
+void OSEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage) {
+    EditButtonBar::loadFromItems(objects, rows, columns, keepPage);
+    checkPage();
 }
 
-void OSEditorUI::onPause(CCObject* sender) {
-    m_fields->m_searchField->defocus();
-    EditorUI::onPause(sender);
+void OSEditButtonBar::goToPage(int page) {
+    EditButtonBar::goToPage(page);
+    checkPage();
 }
 
-void OSEditorUI::updateCreateMenu(bool selectTab) {
-    EditorUI::updateCreateMenu(selectTab);
+void OSEditButtonBar::onLeft(cocos2d::CCObject* sender) {
+    EditButtonBar::onLeft(sender);
+    checkPage();
+}
 
-    auto nodeRes = alpha::editor_tabs::nodeForTab("all-objects"_spr);
-    if (!nodeRes) return;
+void OSEditButtonBar::onRight(cocos2d::CCObject* sender) {
+    EditButtonBar::onRight(sender);
+    checkPage();
+}
 
-    auto allObjectsBar = static_cast<EditButtonBar*>(nodeRes.unwrap().data());
-    if (!allObjectsBar) return;
-        
-    for (auto node : allObjectsBar->m_buttonArray->asExt<CCNode>()) {
-        auto cmi = typeinfo_cast<CreateMenuItem*>(node);
-        if (!cmi) continue;
+void OSEditButtonBar::checkPage() {
+    if (!m_hasCreateItems) return;
 
-        auto buttonSprite = cmi->getChildByType<ButtonSprite*>(0);
-
-        if (cmi->m_objectID == m_selectedObjectIndex) {
-            buttonSprite->m_subBGSprite->setColor({127, 127, 127});
-        }
-        else {
-            buttonSprite->m_subBGSprite->setColor({255, 255, 255});
+    auto pageNum = getPage();
+    for (auto node : m_buttonArray->asExt<CreateMenuItem>()) {
+        auto oCmi = static_cast<OSCreateMenuItem*>(node);
+        if (std::abs(pageNum - oCmi->m_pageIndex) <= 1) {
+            oCmi->loadRender();
         }
     }
-}
-
-CreateMenuItem* OSEditorUI::getCreateBtn(int id, int bg) {
-    auto ret = EditorUI::getCreateBtn(id, bg);
-    ret->setUserObject("bg"_spr, CCInteger::create(bg));
-    return ret;
 }

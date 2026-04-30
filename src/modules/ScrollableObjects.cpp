@@ -1,6 +1,7 @@
 #include "ScrollableObjects.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include "ObjectSearch/ObjectSearch.hpp"
 
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "invert-scroll") return true;
@@ -460,7 +461,16 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
 
         child->setVisible(visible);
 
-        if (visible) visibleNodes.push_back(child);
+        if (visible) {
+            visibleNodes.push_back(child);
+            if (ObjectSearch::isEnabled()) {
+                auto cmi = typeinfo_cast<CreateMenuItem*>(child);
+                if (cmi) {
+                    auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
+                    oCmi->loadRender();
+                }
+            }
+        }
 
         ++idx;
     }

@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -73,6 +73,14 @@
 			"default": false,
 			"name": "Enable Live Colors",
 			"description": "Show the levels' currently active colors on the bottom of the screen."
+		},
+		"ObjectSearch-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled",
+			"description": "Look up objects by name. Adds an all objects tab with search.",
+			"enable-if": "!loaded:razoom.object_groups",
+			"enable-if-description": "This feature is not compatible with Object Groups."
 		},
 		"PreviewObjectColors-enabled": {
 			"type": "bool",
@@ -545,30 +553,6 @@
 				"android": false,
 				"ios": false
 			}
-		},
-		"ObjectSearch-title": {
-			"type": "title",
-			"name": "Object Name Search"
-		},
-		"ObjectSearch-description": {
-			"type": "info",
-			"description": "Look up objects by name. Adds an all objects tab with search.",
-			"color": "#000000"
-		},
-		"ObjectSearch-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled",
-			"enable-if": "!loaded:razoom.object_groups",
-			"enable-if-description": "This feature is not compatible with Object Groups."
-		},
-		"ObjectSearch-load-rate": {
-			"type": "int",
-			"default": 25,
-			"name": "Load Rate",
-			"description": "How many objects can load per frame in the search tab. (To reduce Editor load slowdown)",
-			"min": 1,
-			"max": 1000
 		},
 		"ObjectTooltips-title": {
 			"type": "title",

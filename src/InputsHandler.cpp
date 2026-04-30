@@ -5,6 +5,7 @@
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include "CCCallbackAction.hpp"
+#include "CCValueTo.hpp"
 
 using namespace alpha::prelude;
 
@@ -234,7 +235,6 @@ void InputEditorUI::onScroll() {
 
     if (CCKeyboardDispatcher::get()->getControlKeyPressed()) {
         if (!fields->m_activeZoom) {
-            fields->m_targetPos = layer->getPosition();
             fields->m_targetScale = layer->getScale();
             fields->m_startSwipe = layer->convertToNodeSpace(m_swipeStart);
             fields->m_activeZoom = true;
@@ -242,14 +242,6 @@ void InputEditorUI::onScroll() {
         fields->m_targetScale = std::max(fields->m_targetScale, 0.1f);
 
         auto winSize = CCDirector::get()->getWinSize();
-        CCPoint zoomPos;
-        if (getSetting<bool, "zoom-to-cursor">()) {
-            zoomPos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize/2, m_editorLayer->m_gameState.m_cameraAngle);
-        }
-        else {
-            zoomPos = winSize / 2;
-        }
-        auto offset = zoomPos - fields->m_targetPos;
 
         float zoomFactor = 1.05f;
         float zoomSpeed = 0.2f;
@@ -262,56 +254,55 @@ void InputEditorUI::onScroll() {
 
         newY *= (getSetting<bool, "invert-zoom-scroll">() ? -1 : 1);
 
-        float newScale = fields->m_targetScale * std::powf(zoomFactor, -newY * zoomSpeed);
-        newScale = std::min(std::max(newScale, getSetting<float, "zoom-minimum">()), getSetting<float, "zoom-maximum">());
-
-        float scaleRatio = newScale / fields->m_targetScale;
-
-        auto oldPos = fields->m_targetPos;
         auto oldScale = fields->m_targetScale;
 
-        fields->m_targetPos = zoomPos - offset * scaleRatio;
-        fields->m_targetScale = newScale;
+        float newScale = fields->m_targetScale * std::powf(zoomFactor, -newY * zoomSpeed);
+        fields->m_targetScale = std::min(std::max(newScale, getSetting<float, "zoom-minimum">()), getSetting<float, "zoom-maximum">());
 
         if (getSetting<bool, "smooth-scroll-enabled">()) {
-            if (oldPos.x != fields->m_targetPos.x) {
-                if (fields->m_moveX) layer->stopAction(fields->m_moveX);
-                fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f, fields->m_targetPos.x), [this, fields] (auto target) {
-                    m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
-                    constrainGameLayerPosition();
-                }), 1.2f);
-                layer->runAction(fields->m_moveX);
-            }
-            if (oldPos.y != fields->m_targetPos.y) {
-                if (fields->m_moveY) layer->stopAction(fields->m_moveY);
-                fields->m_moveY = CCEaseOut::create(CCCallbackAction::create(CCMoveToY::create(0.1f, fields->m_targetPos.y), [this, fields] (auto target) {
-                    m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
-                    constrainGameLayerPosition();
-                }), 1.2f);
-                layer->runAction(fields->m_moveY);
-            }
-
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
-                fields->m_scale = CCEaseOut::create(CCCallbackAction::create(CCScaleTo::create(0.1f, fields->m_targetScale), [this, fields] (auto target) {
-                    m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
-                    updateZoom(m_editorLayer->m_objectLayer->getScale());
+
+                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f, layer->getScale(), fields->m_targetScale, [this, layer, fields] (float t, float start, float end, float& scale) {
+                    scale = start + (end - start) * t;
+
+                    if (getSetting<bool, "zoom-to-cursor">()) {
+                        auto mousePos = getMousePos();
+                        auto prevPos = layer->convertToNodeSpace(mousePos);
+                    
+                        updateZoom(scale);
+
+                        auto newPos = layer->convertToWorldSpace(prevPos);
+                        layer->setPosition(layer->getPosition() + mousePos - newPos);
+                    }
+                    else {
+                        updateZoom(scale);
+                    }
+                    m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
                     constrainGameLayerPosition();
                 }), 1.2f);
+
                 layer->runAction(fields->m_scale);
             }
         }
         else {
             fields->m_activeZoom = false;
 
-            layer->setScale(fields->m_targetScale);
-            layer->setPosition(fields->m_targetPos);
+            if (getSetting<bool, "zoom-to-cursor">()) {
+                auto mousePos = getMousePos();
+                auto prevPos = layer->convertToNodeSpace(mousePos);
+            
+                updateZoom(fields->m_targetScale);
 
-            m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
-            updateZoom(m_editorLayer->m_objectLayer->getScale());
+                auto newPos = layer->convertToWorldSpace(prevPos);
+                layer->setPosition(layer->getPosition() + mousePos - newPos);
+            }
+            else {
+                updateZoom(fields->m_targetScale);
+            }
+            m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
             constrainGameLayerPosition();
         }
-
         return;
     }
 
