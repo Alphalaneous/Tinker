@@ -3,6 +3,8 @@
 - <c-dddddd>More performance fixes</c>
 - <c-dddddd>Toggling Length In Editor now updates the time properly</c>
 - <c-dddddd>Live Colors now properly updates with default color IDs when objects are placed</c>
+- <c-dddddd>Add selection amount for Paste Confirmation</c>
+- <c-dddddd>Add disabling Paste Confirmation for objects with no groups and color set</c>
 
 # 1.0.2
 - <c-dddddd>Fix a crash</c>

@@ -789,11 +789,18 @@
 			"default": true,
 			"type": "bool"
 		},
-		"ThatPasteButton-always-show": {
-			"name": "Always Show the Warning",
-			"description": "Always shows the warning even if you only have one object selected.",
+		"ThatPasteButton-dont-show-if-default": {
+			"name": "Don't show warning if objects are default",
+			"description": "Don't show the warning when selected objects have no groups and use default colors.",
 			"default": false,
 			"type": "bool"
+		},
+		"ThatPasteButton-object-requirement": {
+			"name": "Number of Objects to Show Warning",
+			"description": "The amount of selected objects needed for the warning to pop up.",
+			"type": "int",
+			"default": 2,
+			"min": 1
 		},
 		"QuickExtras-title": {
 			"type": "title",
