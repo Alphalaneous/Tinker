@@ -1,3 +1,6 @@
+# 1.0.5
+- <c-dddddd>Change the icon so people stop complaining that it's too detailed, "liquid ass", looks bad, etc.</c>
+
 # 1.0.4
 - <c-dddddd>Fix a crash</c>
 
