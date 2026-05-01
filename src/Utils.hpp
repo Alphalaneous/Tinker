@@ -90,9 +90,24 @@ namespace tinker::utils {
     }
 
     inline void forEachObject(GJBaseGameLayer const* game, std::function<void(GameObject*)> const& callback) {
-        for (auto object : game->m_activeObjects) {
-            if (object->m_unk3ee) continue;
-            callback(object);
+        int count = game->m_sections.empty() ? -1 : game->m_sections.size();
+        for (int i = game->m_leftSectionIndex; i <= game->m_rightSectionIndex && i < count; ++i) {
+            auto leftSection = game->m_sections[i];
+            if (!leftSection) continue;
+
+            auto leftSectionSize = leftSection->size();
+            for (int j = game->m_bottomSectionIndex; j <= game->m_topSectionIndex && j < leftSectionSize; ++j) {
+                auto section = leftSection->at(j);
+                if (!section) continue;
+
+                auto sectionSize = game->m_sectionSizes[i]->at(j);
+                for (int k = 0; k < sectionSize; ++k) {
+                    auto obj = section->at(k);
+                    if (!obj) continue;
+
+                    callback(obj);
+                }
+            }
         }
     }
 
