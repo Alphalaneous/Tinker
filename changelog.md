@@ -1,3 +1,6 @@
+# 1.0.4
+- <c-dddddd>Fix a crash</c>
+
 # 1.0.3
 - <c-dddddd>Fix misnamed setting for Object Search</c>
 - <c-dddddd>More performance fixes</c>
