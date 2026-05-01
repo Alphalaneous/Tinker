@@ -60,7 +60,13 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     }));
 
+    m_fields->m_shouldLoadBars = true;
+
     return true;
+}
+
+bool SOEditorUI::shouldLoadBars() {
+    return m_fields->m_shouldLoadBars;
 }
 
 bool ScrollableObjects::canScroll() {
@@ -163,6 +169,10 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         fields->m_items.clear();
     }
 
+    setUserFlag("alphalaneous.editortab_api/disable-rewrite");
+    auto editorUI = EditorUI::get();
+    if (!editorUI || !static_cast<SOEditorUI*>(editorUI)->shouldLoadBars()) return;
+
     float currentX = 0;
 
     if (fields->m_scrollLayer) {
@@ -191,14 +201,9 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         fields->m_widthOffset = -26.f;
     }
 
-    setUserFlag("alphalaneous.editortab_api/disable-rewrite");
     setAnchorPoint({0.5f, 0.f});
 
-    auto editorUI = EditorUI::get();
-    if (!editorUI) return;
-
     fields->m_initialized = true;
-
     auto widthOffset = 180;
 
     auto spacerLeft = editorUI->getChildByID("spacer-line-left");
@@ -254,17 +259,19 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     float width = 0;
 
+
     for (auto object : objects->asExt<CCNode>()) {
         rIdx--;
         object->removeFromParentAndCleanup(false);
         object->setScale(1);
         object->setVisible(true);
 
-        if (auto cmi = typeinfo_cast<CreateMenuItem*>(object)) {
+        if (m_hasCreateItems) {
+            auto cmi = static_cast<CreateMenuItem*>(object);
             cmi->m_tabIndex = m_tabIndex;
+            cmi->m_baseScale = 1.f;
         }
-        
-        if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
+        else if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
             item->m_baseScale = 1.f;
         }
 

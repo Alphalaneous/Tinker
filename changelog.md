@@ -1,3 +1,7 @@
+# 1.0.2
+- <c-dddddd>Fix a crash</c>
+- <c-dddddd>Speed up Object Search loading</c>
+
 # 1.0.1
 - <c-dddddd>Rewrite zoom logic to hopefully resolve some bugs</c>
 - <c-dddddd>Lazy load search tab</c>

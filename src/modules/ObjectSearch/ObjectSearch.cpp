@@ -2,6 +2,7 @@
 #include "../../ObjectNames.hpp"
 #include "../LiveColors/LiveColors.hpp"
 #include "SearchField.hpp"
+#include "../ScrollableObjects.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <raydeeux.gameobjectidstacksize/include/api.hpp>
@@ -29,7 +30,6 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
 
     auto winSize = CCDirector::get()->getWinSize();
 
-
     alpha::editor_tabs::addTab("all-objects"_spr, alpha::editor_tabs::BUILD, [this, fields] () {
         fields->m_searchBar = alpha::editor_tabs::createEditButtonBar({});
         fields->m_searchBar->m_hasCreateItems = true;
@@ -56,6 +56,15 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(true);
             }
+        }
+        if (state && !fields->m_initialLoaded) {
+            auto arr = fields->m_searchField->generateItemArrayForSearch("");
+            
+            auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
+            auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
+
+            fields->m_searchBar->loadFromItems(arr, cols, rows, false);
+            fields->m_initialLoaded = true;
         }
     });
     
@@ -92,13 +101,6 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
                 fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
             }
         }
-
-        auto arr = fields->m_searchField->generateItemArrayForSearch("");
-        
-        auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-        auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-        fields->m_searchBar->loadFromItems(arr, cols, rows, false);
     }));
 
     return true;
@@ -337,23 +339,9 @@ void OSEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int rows, int col
     checkPage();
 }
 
-void OSEditButtonBar::goToPage(int page) {
-    EditButtonBar::goToPage(page);
-    checkPage();
-}
-
-void OSEditButtonBar::onLeft(cocos2d::CCObject* sender) {
-    EditButtonBar::onLeft(sender);
-    checkPage();
-}
-
-void OSEditButtonBar::onRight(cocos2d::CCObject* sender) {
-    EditButtonBar::onRight(sender);
-    checkPage();
-}
-
 void OSEditButtonBar::checkPage() {
     if (!m_hasCreateItems) return;
+    if (ScrollableObjects::isEnabled()) return;
 
     auto pageNum = getPage();
     for (auto node : m_buttonArray->asExt<CreateMenuItem>()) {
@@ -361,5 +349,14 @@ void OSEditButtonBar::checkPage() {
         if (std::abs(pageNum - oCmi->m_pageIndex) <= 1) {
             oCmi->loadRender();
         }
+    }
+}
+
+void OSBoomScrollLayer::instantMoveToPage(int page) {
+    BoomScrollLayer::instantMoveToPage(page);
+
+    if (auto ebb = typeinfo_cast<EditButtonBar*>(getParent())) {
+        auto sEbb = static_cast<OSEditButtonBar*>(ebb);
+        sEbb->checkPage();
     }
 }

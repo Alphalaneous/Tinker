@@ -26,7 +26,6 @@ Result<SearchField::ItemInformation> SearchField::infoForID(unsigned int id) {
 
 CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
     auto fields = m_editorUI->m_fields.self();
-
     auto arr = CCArray::createWithCapacity(fields->m_orderedItems.size());
 
     if (search.empty()) {

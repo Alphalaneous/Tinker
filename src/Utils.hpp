@@ -317,4 +317,31 @@ namespace tinker::utils {
         }
 
     }
+
+    class Timestamp {
+    public:
+        Timestamp(ZStringView id) : m_id(id) {
+            m_start = m_last = std::chrono::steady_clock::now();
+        }
+
+        void snapshot(ZStringView label) {
+            auto now = std::chrono::steady_clock::now();
+
+            auto total = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
+            auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_last).count();
+
+            log::debug("[{}] ({}) +{} ms (total {} ms)", m_id, label, delta, total);
+
+            m_last = now;
+        }
+
+        ~Timestamp() {
+            snapshot("end");
+        }
+
+    private:
+        std::string m_id;
+        std::chrono::time_point<std::chrono::steady_clock> m_start;
+        std::chrono::time_point<std::chrono::steady_clock> m_last;
+    };
 }

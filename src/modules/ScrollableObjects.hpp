@@ -14,8 +14,13 @@ class $globalModule(ScrollableObjects) {
 class $modify(SOEditorUI, EditorUI) {
     $registerGlobalHooks(ScrollableObjects, true)
 
+    struct Fields {
+        bool m_shouldLoadBars;
+    };
+
     bool init(LevelEditorLayer* editorLayer);
     void updateCreateMenu(bool selectTab);
+    bool shouldLoadBars();
 
     static void _onModify(auto& self) {
         (void) self.setHookPriorityAfterPost("EditorUI::init", "alphalaneous.editortab_api");

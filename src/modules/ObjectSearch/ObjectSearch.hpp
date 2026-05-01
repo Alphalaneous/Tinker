@@ -5,6 +5,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/CreateMenuItem.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
+#include <Geode/modify/BoomScrollLayer.hpp>
 #include "SearchField.hpp"
 
 class $globalModule(ObjectSearch) {};
@@ -17,6 +18,7 @@ class $modify(OSEditorUI, EditorUI) {
         tinker::ui::SearchField* m_searchField;
         std::map<unsigned int, tinker::ui::SearchField::ItemInformation> m_items;
         std::vector<tinker::ui::SearchField::ItemInformation*> m_orderedItems;
+        bool m_initialLoaded = false;
     };
 
     bool init(LevelEditorLayer* editorLayer);
@@ -48,7 +50,10 @@ class $modify(OSEditButtonBar, EditButtonBar) {
     void checkPage();
 
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
-    void goToPage(int page);
-    void onLeft(cocos2d::CCObject* sender);
-    void onRight(cocos2d::CCObject* sender);
+};
+
+class $modify(OSBoomScrollLayer, BoomScrollLayer) {
+    $registerGlobalHooks(ObjectSearch)
+
+    void instantMoveToPage(int page);
 };
