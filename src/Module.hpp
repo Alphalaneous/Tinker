@@ -3,7 +3,8 @@
 #include "ModuleRegistry.hpp"
 #include <Geode/Geode.hpp>
 #include "Utils.hpp"
-#include "SettingsQueueHandler.hpp"
+#include "settings/SettingsQueueHandler.hpp"
+#include "settings/SettingsCache.hpp"
 
 using namespace geode::prelude;
 
@@ -76,7 +77,9 @@ public:
         static auto listener = listenForAllSettingChanges([] (std::string_view key, std::shared_ptr<SettingV3> settingA) {
             static auto setting = Mod::get()->getSetting(enabledKey.data());
             if (!setting) return;
-            settingEnabled = setting->shouldEnable();
+            if (SettingsCache::get()->getSettingsList().find(enabledKey.data())->second->hasEnableIf) {
+                settingEnabled = setting->shouldEnable();
+            }
         });
         return settingEnabled && getSetting<bool, "enabled">();
     }

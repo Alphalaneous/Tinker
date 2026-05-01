@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.2",
+	"version": "v1.0.3",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -77,7 +77,7 @@
 		"ObjectSearch-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled",
+			"name": "Enable Object Search",
 			"description": "Look up objects by name. Adds an all objects tab with search.",
 			"enable-if": "!loaded:razoom.object_groups",
 			"enable-if-description": "This feature is not compatible with Object Groups."

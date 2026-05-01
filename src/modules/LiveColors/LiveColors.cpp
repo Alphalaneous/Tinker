@@ -81,11 +81,14 @@ void LCEditorUI::checkColors(float dt) {
         if (m_editorLayer->m_currentLayer != -1 
             && object->m_editorLayer != m_editorLayer->m_currentLayer 
             && object->m_editorLayer2 != m_editorLayer->m_currentLayer) return;
+
         if (auto base = object->m_baseColor) {
-            activeColors.insert(base->m_colorID);
+            int id = base->m_colorID == 0 ? base->m_defaultColorID : base->m_colorID;
+            activeColors.insert(id);
         }
         if (auto detail = object->m_detailColor) {
-            activeColors.insert(detail->m_colorID);
+            int id = detail->m_colorID == 0 ? detail->m_defaultColorID : detail->m_colorID;
+            activeColors.insert(id);
         }
     });
 

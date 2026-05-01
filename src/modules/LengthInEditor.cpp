@@ -3,6 +3,7 @@
 bool LengthInEditor::onToggled(bool state) {
     if (state) {
         onEditor();
+        onObjectChange(m_editorLayer->getLastObjectX());
     }
     else {
         m_editorUI->m_uiItems->removeObject(m_lengthContainer);

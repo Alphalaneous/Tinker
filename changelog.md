@@ -1,3 +1,9 @@
+# 1.0.3
+- <c-dddddd>Fix misnamed setting for Object Search</c>
+- <c-dddddd>More performance fixes</c>
+- <c-dddddd>Toggling Length In Editor now updates the time properly</c>
+- <c-dddddd>Live Colors now properly updates with default color IDs when objects are placed</c>
+
 # 1.0.2
 - <c-dddddd>Fix a crash</c>
 - <c-dddddd>Speed up Object Search loading</c>

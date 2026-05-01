@@ -1,4 +1,5 @@
 #include "SettingsQueueHandler.hpp"
+#include "SettingsCache.hpp"
 
 void SettingsQueueHandler::addFeature(const std::string& name) {
     m_features.push_back(std::move(name));
@@ -22,17 +23,14 @@ void SettingsQueueHandler::queueShow() {
                 content.append("### Features\n");
 
                 for (const auto& v : m_features) {
-                    auto setting = Mod::get()->getSetting(v);
-                    if (!setting) continue;
-                    auto name = setting->getDisplayName();
+                    auto& list = SettingsCache::get()->getSettingsList();
+                    auto settingIter = list.find(v);
+                    if (settingIter == list.end()) continue;
+
+                    auto setting = settingIter->second;
+                    auto name = setting->name;
                     if (name == "Enabled") {
-                        auto split = utils::string::split(v, "-");
-                        auto titleName = split[0] + "-title";
-                        auto titleSetting = Mod::get()->getSetting(titleName);
-                        name = "<unknown>";
-                        if (titleSetting) {
-                            name = titleSetting->getDisplayName();
-                        }
+                        name = setting->category->name;
                     }
                     utils::string::replaceIP(name, "Enable ", "");
                     content.append("- <c-dddddd>{}</c>\n", name);
@@ -44,16 +42,13 @@ void SettingsQueueHandler::queueShow() {
                 content.append("### Settings\n");
 
                 for (const auto& v : m_settings) {
-                    auto setting = Mod::get()->getSetting(v);
-                    if (!setting) continue;
-                    auto split = utils::string::split(v, "-");
-                    auto titleName = split[0] + "-title";
-                    auto titleSetting = Mod::get()->getSetting(titleName);
-                    std::string featureName = "unknown";
-                    if (titleSetting) {
-                        featureName = titleSetting->getDisplayName();
-                    }
-                    content.append("- <c-dddddd>{}</c> <c-888888>({})</c>\n", setting->getDisplayName(), featureName);
+                    auto& list = SettingsCache::get()->getSettingsList();
+                    auto settingIter = list.find(v);
+                    if (settingIter == list.end()) continue;
+
+                    auto setting = settingIter->second;
+
+                    content.append("- <c-dddddd>{}</c> <c-888888>({})</c>\n", setting->name, setting->category->name);
                 }
             }
 
