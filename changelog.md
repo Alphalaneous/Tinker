@@ -1,3 +1,6 @@
+# 1.0.7
+- <c-dddddd>Fix a leak causing a crash when pressing space while the Gen Color Triggers mod is installed</c>
+
 # 1.0.6
 - <c-dddddd>Fix a crash when placing start positions while start position switcher is disabled</c>
 

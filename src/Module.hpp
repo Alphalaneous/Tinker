@@ -35,6 +35,10 @@ private:
 
     static inline matjson::Value $queuedSettings;
 public:
+    virtual ~ModuleCore() {
+        log::debug("Destroyed: {}", Name.data());
+    }
+
     static std::shared_ptr<T> create() {
         auto ret = std::make_shared<T>();
         ret->ModuleBase::isEnabled = [] () {
