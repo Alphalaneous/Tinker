@@ -394,6 +394,13 @@
 			"default": false,
 			"name": "Enabled"
 		},
+		"CustomToolbarBackground-blur-behind": {
+			"type": "bool",
+			"default": false,
+			"name": "Blur Behind",
+			"enable-if": "loaded:thesillydoggo.blur-api",
+			"enable-if-description": "This feature requires the Blur API mod."
+		},
 		"CustomToolbarBackground-gradient-start-color": {
 			"type": "rgba",
 			"default": [16, 12, 13, 200],

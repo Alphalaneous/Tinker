@@ -1,6 +1,21 @@
 #include "CustomToolbarBackground.hpp"
+#include "../third-party/BlurAPI.hpp"
 
 bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    
+    if (key == "blur-behind") {
+        auto enabled = value.asBool().unwrapOr(false);
+        if (enabled) {
+            BlurAPI::addBlur(m_editorUI->getChildByID("background-sprite"));
+	        BlurAPI::addBlur(m_editorUI->getChildByID("build-tabs-menu"));
+        }
+        else {
+            BlurAPI::removeBlur(m_editorUI->getChildByID("background-sprite"));
+	        BlurAPI::removeBlur(m_editorUI->getChildByID("build-tabs-menu"));
+        }
+        return true;
+    }
+    
     auto colorRes = value.as<ccColor4B>();
     if (!colorRes.isOk()) return true;
     auto color = colorRes.unwrap();
@@ -44,4 +59,9 @@ void CustomToolbarBackground::onEditor() {
     m_line->setZOrder(1);
 
     toolbarBG->addChild(m_line);
+
+    if (getSetting<bool, "blur-behind">()) {
+	    BlurAPI::addBlur(toolbarBG);
+	    BlurAPI::addBlur(m_editorUI->getChildByID("build-tabs-menu"));
+    }
 }

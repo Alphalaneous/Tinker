@@ -43,6 +43,9 @@ void QuickExtras::onUpdateButtons() {
 
         if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
             editorButtonsMenu->updateLayout();
+            m_editorUI->runAction(CallFuncExt::create([editorButtonsMenu] {
+                editorButtonsMenu->updateLayout();
+            }));
         }
     }
 

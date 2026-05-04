@@ -1,3 +1,9 @@
+# 1.0.8
+- <c-dddddd>Add Blur Behind option for Custom Toolbar Background when Blur API is installed</c>
+- <c-dddddd>Fix quick extras button being positioned weirdly after pausing a playtest</c>
+- <c-dddddd>Fix another BetterEdit bug unrelated to Tinker</c>
+- <c-dddddd>Revert icon</c>
+
 # 1.0.7
 - <c-dddddd>Fix a leak causing a crash when pressing space while the Gen Color Triggers mod is installed</c>
 

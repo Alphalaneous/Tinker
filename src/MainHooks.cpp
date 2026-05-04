@@ -120,17 +120,6 @@ class $modify(MainEditorUI, EditorUI) {
     }
 };
 
-class $modify(MainGJRotationControl, GJRotationControl) {
-    void finishTouch() {
-        GJRotationControl::finishTouch();
-        for (auto child : getChildrenExt()) {
-            if (auto textInput = typeinfo_cast<geode::TextInput*>(child)) {
-                textInput->defocus();
-            }
-        }
-    }
-};
-
 class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
 
     bool init(GameObject* obj, cocos2d::CCArray* objs) {
