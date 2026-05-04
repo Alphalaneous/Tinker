@@ -30,6 +30,7 @@ bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getLocation().y < m_editorUI->m_toolbarHeight) return false;
     if (!CanvasRotate::getSetting<bool, "use-modifier">()) return false;
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return false;
+    if (!alpha::utils::isPointInsideNode(m_editorUI, touch->getLocation())) return false;
     
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = true;
