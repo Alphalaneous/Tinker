@@ -33,17 +33,19 @@ class $nodeModify(OTGroup, Group) {
         auto child = getChildByType<GroupDragLayer>(0);
         auto menu = getChildByType<CCMenu*>(1);
 
-        addOnEnterCallback([child, menu] {
-            std::set<CreateMenuItem*> items;
+        addOnEnterCallback([this, child, menu] {
+            runAction(CallFuncExt::create([this, child, menu] {
+                std::set<CreateMenuItem*> items;
 
-            for (auto child : menu->getChildrenExt()) {
-                auto cmi = typeinfo_cast<CreateMenuItem*>(child);
-                if (!cmi) continue;
+                for (auto child : menu->getChildrenExt()) {
+                    auto cmi = typeinfo_cast<CreateMenuItem*>(child);
+                    if (!cmi) continue;
 
-                items.insert(cmi);
-            }
+                    items.insert(cmi);
+                }
 
-            ObjectTooltips::get()->m_objectGroups[child] = items;
+                ObjectTooltips::get()->m_objectGroups[child] = items;
+            }));
         });
         addOnExitCallback([child] {
             ObjectTooltips::get()->m_objectGroups.erase(child);
