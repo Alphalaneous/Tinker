@@ -162,6 +162,26 @@ namespace tinker::utils {
         }
     }
 
+    inline std::string capitalize(std::string_view input) {
+        std::string result(input);
+
+        bool newWord = true;
+
+        for (char &ch : result) {
+            if (std::isspace(static_cast<unsigned char>(ch))) {
+                newWord = true;
+            } 
+            else {
+                if (newWord) {
+                    ch = std::toupper(static_cast<unsigned char>(ch));
+                    newWord = false;
+                }
+            }
+        }
+
+        return result;
+    }
+
     inline std::vector<std::string> split(const std::string& str, const std::string& delimiter, int limit = -1) {
         std::vector<std::string> result;
         size_t start = 0;

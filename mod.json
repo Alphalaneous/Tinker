@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.8",
+	"version": "v1.0.9",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -78,9 +78,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable Object Search",
-			"description": "Look up objects by name. Adds an all objects tab with search.",
-			"enable-if": "!loaded:razoom.object_groups",
-			"enable-if-description": "This feature is not compatible with Object Groups."
+			"description": "Look up objects by name. Adds an all objects tab with search."
 		},
 		"PreviewObjectColors-enabled": {
 			"type": "bool",
@@ -656,9 +654,7 @@
 		"ScrollableObjects-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled",
-			"enable-if": "!loaded:razoom.object_groups",
-			"enable-if-description": "This feature is not compatible with Object Groups."
+			"name": "Enabled"
 		},
 		"ScrollableObjects-speed-modifier-key": {
 			"name": "Speed Modifier Key",

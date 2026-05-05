@@ -17,7 +17,7 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
     if (leftSpacerLine) leftSpacerLine->setZOrder(11);
     if (rightSpacerLine) rightSpacerLine->setZOrder(11);
 
-    alpha::editor_tabs::addTabSwitchCallback([] (auto tab) {
+    alpha::editor_tabs::addTabSwitchCallback([this] (auto tab) {
         auto nodeRes = alpha::editor_tabs::nodeForTab(tab);
         if (!nodeRes) return;
         
@@ -25,6 +25,12 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
         auto ebb = typeinfo_cast<EditButtonBar*>(node.data());
 
         if (!ebb) return;
+
+        auto toggleMenu = getChildByID("razoom.object_groups/toggle_menu");
+        if (toggleMenu) {
+            toggleMenu->setVisible(((ebb->m_tabIndex > 0 && ebb->m_tabIndex < 13) || tab == "block") && m_selectedMode == 2);
+        }
+
         auto scrollEbb = static_cast<SOEditButtonBar*>(ebb);
         auto scrollEbbFields = scrollEbb->m_fields.self();
 
@@ -60,7 +66,14 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     }));
 
-    m_fields->m_shouldLoadBars = true;
+    auto fields = m_fields.self();
+
+    fields->m_gotoObjectsMenu = getChildByID("razoom.object_groups/goto_obj_menu");
+    if (fields->m_gotoObjectsMenu) {
+        fields->m_gotoObjectsMenu->removeFromParent();
+    }
+
+    fields->m_shouldLoadBars = true;
 
     return true;
 }
@@ -127,6 +140,7 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
         if (!cmi) return;
 
         auto menu = cmi->getParent();
+        if (!menu) return;
         auto content = typeinfo_cast<alpha::ui::ScrollContent*>(menu->getParent());
         if (!content) return;
 
@@ -601,6 +615,38 @@ void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
     m_buttonRows = std::clamp(rows, 1, 16);
     m_buttonRowsLabel->setString(numToString(m_buttonRows).c_str());
 }
+
+class $nodeModify(SOGroup, Group) {
+
+    void modify() {
+        if (!ScrollableObjects::isEnabled()) return;
+        if (getID() != "RaZooM") return;
+
+        addOnEnterCallback([this] {
+            if (!getParent()) return;
+
+            auto menu = typeinfo_cast<CCMenu*>(getParent());
+            if (!menu) return;
+
+            runAction(CallFuncExt::create([menu, this] {
+
+                CCNode* parent = menu;
+                while (parent && !typeinfo_cast<EditButtonBar*>(parent)) {
+                    parent = parent->getParent();
+                }
+
+                auto worldPos = menu->convertToWorldSpace(getPosition());
+
+                removeFromParentAndCleanup(false);
+                auto nodePos = parent->convertToNodeSpace(worldPos);
+                setPosition(nodePos);
+
+                setScale(parent->getScale());
+                parent->addChild(this);
+            }));
+        });
+    }
+};
 
 class $nodeModify(SOMoveGroup, MoveGroup) {
 

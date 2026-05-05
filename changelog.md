@@ -1,3 +1,6 @@
+# 1.0.9
+- <c-dddddd>Object Groups compatibility fixes for Scrollable Toolbar, Object Tooltips, and Search</c>
+
 # 1.0.8
 - <c-dddddd>Add Blur Behind option for Custom Toolbar Background when Blur API is installed</c>
 - <c-dddddd>Fix quick extras button being positioned weirdly after pausing a playtest</c>

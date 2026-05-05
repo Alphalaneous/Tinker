@@ -104,6 +104,28 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
     auto origItem = m_activeItem;
     if (origItem) setButtonOpacity(origItem, 255);
 
+    bool isInObjectGroups = false;
+
+    for (auto& [node, items] : ObjectTooltips::get()->getObjectGroups()) {
+        if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
+            isInObjectGroups = true;
+
+            if (!items.contains(m_activeItem)) {
+                hideTooltip();
+                m_activeItem = nullptr;
+            }
+
+            for (auto item : items) {
+                if (!nodeIsVisible(item)) continue;
+                if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
+                    m_activeItem = item;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
     auto tabIDRes = alpha::editor_tabs::getCurrentTab();
     if (!tabIDRes) return;
     auto tabID = tabIDRes.unwrap();
@@ -117,36 +139,43 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 
     if (!editButtonBar->m_hasCreateItems) return;
 
-    if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()))) {
-        m_activeItem = nullptr;
-    }
-
-    if (ScrollableObjects::isEnabled()) {
-        auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(editButtonBar);
-        auto soEbbFields = scrollEditButtonBar->m_fields.self();
-        bool inScrollBounds = alpha::utils::isPointInsideNode(soEbbFields->m_scrollLayer, touch->getLocation());
-        if (!inScrollBounds && m_activeItem) {
-            hideTooltip();
+    if (!isInObjectGroups) {
+        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()))) {
             m_activeItem = nullptr;
         }
 
-        if (inScrollBounds) {
-            for (auto item : soEbbFields->m_visibleNodes) {
-                if (!nodeIsVisible(item)) continue;
+        if (ScrollableObjects::isEnabled()) {
+            auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(editButtonBar);
+            auto soEbbFields = scrollEditButtonBar->m_fields.self();
+            bool inScrollBounds = alpha::utils::isPointInsideNode(soEbbFields->m_scrollLayer, touch->getLocation());
+            if (!inScrollBounds && m_activeItem) {
+                hideTooltip();
+                m_activeItem = nullptr;
+            }
+
+            if (inScrollBounds) {
+                for (auto item : soEbbFields->m_visibleNodes) {
+                    if (!nodeIsVisible(item)) continue;
+                    if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
+                        m_activeItem = static_cast<CreateMenuItem*>(item.data());
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            for (auto item : editButtonBar->m_buttonArray->asExt<CreateMenuItem>()) {
+                if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
                 if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
-                    m_activeItem = static_cast<CreateMenuItem*>(item.data());
+                    m_activeItem = item;
                     break;
                 }
             }
         }
     }
     else {
-        for (auto item : editButtonBar->m_buttonArray->asExt<CreateMenuItem>()) {
-            if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
-            if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
-                m_activeItem = item;
-                break;
-            }
+        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()))) {
+            m_activeItem = nullptr;
         }
     }
 
@@ -208,8 +237,18 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
 
 void TooltipHover::showTooltip(CreateMenuItem* item) {
     auto nameRes = ObjectNames::get()->getName(item->m_objectID);
-    if (!nameRes) return;
-    auto name = nameRes.unwrap();
+    std::string name;
+    if (!nameRes) {
+        if (auto obj = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
+            name = tinker::utils::capitalize(obj->getCString());
+        }
+    }
+    else {
+        name = nameRes.unwrap();
+    }
+    if (name.empty()) {
+        name = fmt::format("Unnamed {}", item->m_objectID);
+    }
 
     auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
 

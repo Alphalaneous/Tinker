@@ -3,7 +3,6 @@
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
-#include <Geode/modify/GJRotationControl.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "ModuleRegistry.hpp"
 #include "Module.hpp"
