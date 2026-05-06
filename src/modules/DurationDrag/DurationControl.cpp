@@ -173,6 +173,9 @@ void DurationControl::addObject(EffectGameObject* object) {
 void DurationControl::setMenuPosition(const CCPoint& point, const CCPoint& anchor) {
     m_buttonsMenu->setPosition(point);
     m_buttonsMenu->setAnchorPoint(anchor);
+    // cocos for some reason isn't updating the positon and anchor properly so I do this
+    m_buttonsMenu->m_bTransformDirty = true;
+    m_buttonsMenu->m_bPositionDirty = true;
 }
 
 void DurationControl::updateObjects(EditorUI* editorUI) {

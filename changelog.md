@@ -1,3 +1,9 @@
+# 1.0.10
+- <c-dddddd>Fix a crash when selecting triggers with insane duration amounts</c>
+- <c-dddddd>Fix align button alignment (lol) being wrong sometimes</c>
+- <c-dddddd>Fix a mistake in the description</c>
+- <c-dddddd>Fix scale of object groups popup</c>
+
 # 1.0.9
 - <c-dddddd>Object Groups compatibility fixes for Scrollable Toolbar, Object Tooltips, and Search</c>
 

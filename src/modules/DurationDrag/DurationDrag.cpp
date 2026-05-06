@@ -40,7 +40,7 @@ void DDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
 	DurationDrag::get()->updateObjects();
 }
 
-void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float lineWidth, float dashLength, float gapLength) {
+void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY) {
     float dx = end.x - start.x;
     float dy = end.y - start.y;
     float totalDist = std::sqrt(dx * dx + dy * dy);
@@ -50,6 +50,10 @@ void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, 
     float dirX = dx / totalDist;
     float dirY = dy / totalDist;
 
+    constexpr float dashLength = 10.f;
+    constexpr float lineWidth = 2.f;
+    constexpr float gapLength = 5.f;
+
     float traveled = 0.f;
     while (traveled < totalDist) {
         float segmentLength = std::min(dashLength, totalDist - traveled);
@@ -57,9 +61,15 @@ void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, 
         ccVertex2F segStart = { start.x + dirX * traveled, start.y + dirY * traveled };
         ccVertex2F segEnd   = { start.x + dirX * (traveled + segmentLength), start.y + dirY * (traveled + segmentLength) };
 
-        DrawGridAPI::get().drawLine(segStart, segEnd, color, lineWidth);
+        if (segStart.x > maxX || segStart.y > maxY) break;
 
-        traveled += dashLength + gapLength;
+        traveled += (dashLength + gapLength);
+
+        if (segEnd.x < minX || segEnd.y < minY) {
+            continue;
+        }
+
+        DrawGridAPI::get().drawLine(segStart, segEnd, color, lineWidth);
     }
 }
 
@@ -127,7 +137,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
                         end.x = std::max(end.x, 0.f);
                     }
 
-                    drawDottedLine(end, centerPoint, {145, 170, 255, 180});
+                    drawDottedLine(end, centerPoint, {145, 170, 255, 180}, minX, maxX, minY, maxY);
                 }
             }
         }
@@ -150,7 +160,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
         
         if (object->getPositionX() < 0 && !object->m_isSpawnTriggered) {
 
-            drawDottedLine(object->getPosition(), {0, object->getPositionY()}, color);
+            drawDottedLine(object->getPosition(), {0, object->getPositionY()}, color, minX, maxX, minY, maxY);
 
             if (object->m_objectID == 1006) {
                 drawPulseLine(object, 0);

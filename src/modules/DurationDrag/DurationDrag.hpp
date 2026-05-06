@@ -31,6 +31,6 @@ class $modify(DDEditorUI, EditorUI) {
 };
 
 class DurationDragDraw : public DrawNode {
-	static void drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float lineWidth = 2.f, float dashLength = 10.f, float gapLength = 5.f);
+	static void drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY);
 	void draw(DrawGridLayer* dgl, float minX, float maxX, float minY, float maxY);
 };

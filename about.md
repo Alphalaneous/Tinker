@@ -124,7 +124,7 @@ All things related to objects.
 ### ​  Single Deselect
 - <c-dddddd>Allows for you to hold a modifier to deselect objects within an existing selection.</c>
 
-###   Edit Tools
+### ​  Edit Tools
 - <c-dddddd>Adds a button and keybind to center the selected object to the camera poisiton.</c>
 - <c-dddddd>Adds a button and keybind to center the camera to the selected object's position.</c>
 

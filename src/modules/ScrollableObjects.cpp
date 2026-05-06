@@ -640,8 +640,8 @@ class $nodeModify(SOGroup, Group) {
                 removeFromParentAndCleanup(false);
                 auto nodePos = parent->convertToNodeSpace(worldPos);
                 setPosition(nodePos);
+                setScale(menu->getScale());
 
-                setScale(parent->getScale());
                 parent->addChild(this);
             }));
         });
