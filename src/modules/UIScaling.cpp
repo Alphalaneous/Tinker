@@ -6,10 +6,11 @@
 #include "ScrollableObjects.hpp"
 #include "StartPosTools/StartPosTools.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include "../../../include/UIScaling.hpp"
 
 bool UIScaling::onToggled(bool state) {
-    setScaling(state ? UIScaling::getUIScale() : 1, UIScaling::shouldScaleToolbar(), true);
-    setPauseScaling(UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1);
+    setScaling(state ? UIScaling::getUIScale() : 1, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
+    setPauseScaling(state ? (UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1) : 1);
     return true;
 }
 
@@ -20,14 +21,15 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
         if (be) {
             auto beScale = be->getSettingValue<float>("scale-factor");
             if (beScale != 1) {
-                setScaling(beScale, UIScaling::shouldScaleToolbar(), true);
+                setScaling(beScale, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
                 return true;
             }
         }
-        setScaling(value.asDouble().unwrapOr(1), UIScaling::shouldScaleToolbar(), true);
+        setScaling(value.asDouble().unwrapOr(1), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
         setPauseScaling(UIScaling::shouldScalePause() ? value.asDouble().unwrapOr(1) : 1);
         return true;
     }
+
     if (key == "scale-pause") {
         bool scalePause = value.asBool().unwrapOr(false);
         if (be) {
@@ -39,6 +41,7 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
         setPauseScaling(scalePause ? UIScaling::getUIScale() : 1);
         return true;
     }
+
     if (key == "scale-toolbar") {
         bool scaleToolbar = value.asBool().unwrapOr(false);
         if (be) {
@@ -47,7 +50,12 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
                 scaleToolbar = be->getSettingValue<bool>("scale-build-tabs");
             }
         }
-        setScaling(UIScaling::getUIScale(), scaleToolbar, true);
+        setScaling(UIScaling::getUIScale(), scaleToolbar, getSetting<bool, "top-align">(), true);
+        return true;
+    }
+
+    if (key == "top-align") {
+        setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), value.asBool().unwrapOr(false), true);
         return true;
     }
     return true;
@@ -62,10 +70,10 @@ void UIScaling::onEditor() {
         m_editorUI->addEventListener(SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<FloatSetting>(setting)) {
                 if (ty->getValue() == 1) {
-                    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), true);
+                    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
                     return;
                 }
-                setScaling(ty->getValue(), UIScaling::shouldScaleToolbar(), true);
+                setScaling(ty->getValue(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
             }
         });
 
@@ -73,10 +81,10 @@ void UIScaling::onEditor() {
             if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
                 auto beScale = be->getSettingValue<float>("scale-factor");
                 if (beScale != 1) {
-                    setScaling(beScale, ty->getValue(), true);
+                    setScaling(beScale, ty->getValue(), getSetting<bool, "top-align">(), true);
                     return;
                 }
-                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), true);
+                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
             }
         });
 
@@ -88,19 +96,19 @@ void UIScaling::onEditor() {
                     return;
                 }
                 setPauseScaling(UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1);
-                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), true);
+                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
             }
         });
     }
 
-    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), false);
+    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), false);
 }
 
 bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
     if (!UIScaling::isEnabled()) return EditorUI::init(editorLayer);
     if (!EditorUI::init(editorLayer)) return false;
 
-    UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), false);
+    UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), UIScaling::getSetting<bool, "top-align">(), false);
 
     return true;
 }
@@ -153,9 +161,11 @@ void UIScaling::setPauseScaling(float scale) {
             topMenu->setPosition({size.width / 2, size.height - 30 * scale});
         }
     }
+
+    tinker::api::ui_scaling::PauseUIScaleUpdated().send(scale);
 }
 
-void UIScaling::setScaling(float scale, bool toolbar, bool fullReload) {
+void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullReload) {
     auto size = CCDirector::get()->getWinSize();
 
     if (auto slider = m_editorUI->getChildByID("position-slider")) {
@@ -202,16 +212,27 @@ void UIScaling::setScaling(float scale, bool toolbar, bool fullReload) {
         undoMenu->setPosition({6 * scale + undoMenu->getScaledContentWidth() / 2, size.height - undoMenu->getScaledContentHeight() / 2});
     }
 
-    if (getSetting<bool, "top-align">()) {
+    float rightSideScale = scale;
+    if (tinker::utils::getMod<"razoom.named_editor_layers">()) {
+        rightSideScale = scale * .88f;
+    }
+
+    if (topAlign) {
         if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
-            buttonsMenu->setScale(scale);
+            buttonsMenu->setScale(rightSideScale);
             buttonsMenu->setAnchorPoint({0.5f, 0.5f});
-            buttonsMenu->setPosition({size.width - buttonsMenu->getScaledContentWidth() / 2, size.height - 37.5f * scale - buttonsMenu->getScaledContentHeight() / 2});
+            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height - 37.5f * scale - buttonsMenu->getScaledContentHeight() / 2});
 
             if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
-                layerMenu->setScale(scale);
+                layerMenu->setScale(rightSideScale);
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition({size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                
+                if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
+                    namedLayerMenu->setScale(rightSideScale);
+                    namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
+                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale});
+                }
             }
         }
 
@@ -249,17 +270,29 @@ void UIScaling::setScaling(float scale, bool toolbar, bool fullReload) {
     }
     else {
         if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
-            buttonsMenu->setScale(scale);
+            buttonsMenu->setScale(rightSideScale);
             buttonsMenu->setAnchorPoint({0.5f, 0.5f});
-            buttonsMenu->setPosition({size.width - buttonsMenu->getScaledContentWidth() / 2, size.height / 2 + 42.5f * scale});
+            CCPoint offset = {0, 0};
+            if (tinker::utils::getMod<"razoom.named_editor_layers">()) {
+                float height = buttonsMenu->getContentHeight() * scale;
+                float result = height - buttonsMenu->getContentHeight() * rightSideScale;
+                offset.y = result / 2;
+            }
+
+            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height / 2 + 42.5f * scale} + offset);
 
             if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
-                layerMenu->setScale(scale);
+                layerMenu->setScale(rightSideScale);
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition({size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                
+                if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
+                    namedLayerMenu->setScale(rightSideScale);
+                    namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
+                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale});
+                }
             }
         }
-
 
         if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
             playtestMenu->setScale(scale);
@@ -424,6 +457,8 @@ void UIScaling::setScaling(float scale, bool toolbar, bool fullReload) {
             LengthInEditor::get()->updateScale(scale);
         }
     }
+
+    tinker::api::ui_scaling::UIScaleUpdated().send(scale, toolbar, topAlign);
 }
 
 float UIScaling::getUIScale() {

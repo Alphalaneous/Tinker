@@ -1,3 +1,12 @@
+# 1.0.12
+- <c-dddddd>Fix top align UI scaling setting not updating</c>
+- <c-dddddd>Fix pause menu scaling not updating when UI scale is turned off </c>
+- <c-dddddd>Fix Named Editor Layers mod alignment issues</c>
+- <c-dddddd>Fix IDs not showing in search with ObjectIDDisplay mod</c>
+- <c-dddddd>Add `tinker::api::ui_scaling::UIScaleUpdated` and `tinker::api::ui_scaling::PauseUIScaleUpdated` for other mods to listen to if they wish to account for UI scaling</c>
+- <c-dddddd>Fix Awesome modifier icons letter showing on the Object Groups category when it shouldn't</c>
+- <c-dddddd>Update about and readme</c>
+
 # 1.0.11
 - <c-dddddd>Fixes for Object Groups</c>
   - <c-dddddd>Scaling is correct for pinned groups now</c>

@@ -169,6 +169,7 @@ CreateMenuItem* OSCreateMenuItem::createSearchItem(CreateMenuItem* item, int bgI
     ret->m_pageIndex = item->m_pageIndex;
     ret->m_tabIndex = item->m_tabIndex;
     ret->setUserFlag("search-item"_spr);
+    ObjectIDDisplay::AddObjectIDLabelEvent().send(ret);
 
     auto fields = static_cast<OSCreateMenuItem*>(ret)->m_fields.self();
 

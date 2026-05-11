@@ -27,9 +27,13 @@ void AMIEffectGameObject::customSetup() {
 
     spr->setScale(0.9f);
     addChildAtPosition(spr, Anchor::Center);
-    runAction(CallFuncExt::create([this] {
-        updateLetters();
-    }));
+
+    // can end up unscheduled, this is needed instead of runAction
+    queueInMainThread([self = WeakRef(this)] {
+        if (auto obj = self.lock()) {
+            obj->updateLetters();
+        }
+    });
 }
 
 void AMIEffectGameObject::updateLetters() {

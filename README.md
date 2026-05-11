@@ -76,6 +76,10 @@ Customize different aspects of the editor's interface.
 - <c-dddddd>Select any start position to start from that one.</c>
 - <c-dddddd>Playtest without start pos button</c>
 
+### ​  UI Scaling
+- <c-dddddd>Change the size of UI elements</c>
+- <c-dddddd>Updates live</c>
+
 ---
 
 ## Objects
@@ -189,6 +193,24 @@ Tools to interface with this mod as a mod developer.
 
 // Sends an update event to the group view
 tinker::improved_group_view::updateGroupView();
+```
+
+### ​  UI Scaling
+
+- <c-dddddd>Listen for when the UI scale is changed.</c>
+
+```cpp
+#include <alphalaneous.tinker/include/UIScaling.hpp>
+
+// scale will be 1 if the setting is turned off while in the editor
+tinker::ui_scaling::UIScaleUpdated().listen([] (float scale, bool scaleToolbars, bool topAlign) {
+    // editor UI scaled
+});
+
+tinker::ui_scaling::PauseUIScaleUpdated().listen([] (float scale) {
+    // editor pause UI scaled
+});
+
 ```
 
 ---
