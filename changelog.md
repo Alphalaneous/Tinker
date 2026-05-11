@@ -1,3 +1,15 @@
+# 1.0.11
+- <c-dddddd>Fixes for Object Groups</c>
+  - <c-dddddd>Scaling is correct for pinned groups now</c>
+  - <c-dddddd>Pinned Groups no longer jitter when dragged</c>
+  - <c-dddddd>Fixed crash when adding or deleting object groups</c>
+  - <c-dddddd>Fixed crash when hovering over a deleted object in a group</c>
+  - <c-dddddd>Reposition object groups settings and object find button</c>
+  - <c-dddddd>Find button now scrolls to the object properly, and shows the circle wave animation</c>
+- <c-dddddd>Add my own responsive UI scaling settings</c>
+- <c-dddddd>Fix transform controls not updating when centering objects to camera</c>
+- <c-dddddd>Fix Object Search lazy loading not working when a search result had less than `rows * columns` items</c>
+
 # 1.0.10
 - <c-dddddd>Fix a crash when selecting triggers with insane duration amounts</c>
 - <c-dddddd>Fix align button alignment (lol) being wrong sometimes</c>

@@ -19,7 +19,7 @@ void ObjectTooltips::onEditor() {
     });
 }
 
-const std::unordered_map<CCNode*, std::set<CreateMenuItem*>>& ObjectTooltips::getObjectGroups() {
+const std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>>& ObjectTooltips::getObjectGroups() {
     return m_objectGroups;
 }
 
@@ -35,7 +35,7 @@ class $nodeModify(OTGroup, Group) {
 
         addOnEnterCallback([this, child, menu] {
             runAction(CallFuncExt::create([this, child, menu] {
-                std::set<CreateMenuItem*> items;
+                std::set<Ref<CreateMenuItem>> items;
 
                 for (auto child : menu->getChildrenExt()) {
                     auto cmi = typeinfo_cast<CreateMenuItem*>(child);

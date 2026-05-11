@@ -146,7 +146,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
     bool init(LevelEditorLayer* layer) {
         if (!EditorPauseLayer::init(layer)) return false;
-        if (getUserFlag("ignore"_spr)) return true;
+        if (getUserFlag("ignore"_spr) || !EditorUI::get()) return true;
 
         auto fields = m_fields.self();
         

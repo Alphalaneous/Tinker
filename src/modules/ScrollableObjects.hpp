@@ -16,7 +16,10 @@ class $modify(SOEditorUI, EditorUI) {
 
     struct Fields {
         bool m_shouldLoadBars;
-        Ref<CCNode> m_gotoObjectsMenu;
+        Ref<CCNode> m_groupsGotoMenu;
+        Ref<CCNode> m_groupsTogglesMenu;
+        Ref<CCMenuItemSpriteExtra> m_groupsGotoObjectsButton;
+        Ref<CCMenuItemSpriteExtra> m_groupsTogglesButton;
     };
 
     bool init(LevelEditorLayer* editorLayer);

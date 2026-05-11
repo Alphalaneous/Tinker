@@ -144,6 +144,15 @@ void ETEditorUI::onCenterObjects(CCObject* sender) {
     m_editorLayer->addToUndoList(UndoObject::createWithTransformObjects(arr, UndoCommand::Transform), false);
 
     moveObjects(arr, offset);
+
+    auto selectArr = m_selectedObjects->shallowCopy();
+    if (m_selectedObject) selectArr->addObject(m_selectedObject);
+
+    m_pivotPoint = getGroupCenter(selectArr, false);
+
+    m_transformControl->setPosition(snapped);
+    m_scaleControl->setPosition(snapped + CCPoint{0, 40});
+    m_rotationControl->setPosition(snapped);
 }
 
 void ETEditorUI::onCenterCamera(CCObject* sender) {

@@ -36,16 +36,18 @@ void QuickExtras::onUpdateButtons() {
     if (!m_editExtrasBtn) return;
 
     if (!getSetting<bool, "always-show">()) {
-        bool isSpecial = static_cast<QEEditorUI*>(m_editorUI)->_editButton2Usable();
+        if (nodeIsVisible(m_editExtrasBtn)) {
+            bool isSpecial = static_cast<QEEditorUI*>(m_editorUI)->_editButton2Usable();
 
-        m_editExtrasBtn->setVisible(!isSpecial);
-        m_editorUI->m_editSpecialBtn->setVisible(isSpecial);
+            m_editExtrasBtn->setVisible(!isSpecial);
+            m_editorUI->m_editSpecialBtn->setVisible(isSpecial);
 
-        if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
-            editorButtonsMenu->updateLayout();
-            m_editorUI->runAction(CallFuncExt::create([editorButtonsMenu] {
+            if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
                 editorButtonsMenu->updateLayout();
-            }));
+                m_editorUI->runAction(CallFuncExt::create([editorButtonsMenu] {
+                    editorButtonsMenu->updateLayout();
+                }));
+            }
         }
     }
 

@@ -39,7 +39,8 @@ class $modify(OSCreateMenuItem, CreateMenuItem) {
         bool m_isRender = false;
         bool m_loaded = false;
     };
-
+    
+    static CreateMenuItem* create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector);
     static CreateMenuItem* createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector);
     void loadRender();
     void updateButton(CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2);
@@ -48,8 +49,11 @@ class $modify(OSCreateMenuItem, CreateMenuItem) {
 class $modify(OSEditButtonBar, EditButtonBar) {
     $registerGlobalHooks(ObjectSearch)
 
-    void checkPage();
+    struct Fields {
+        bool m_searchBar = false;
+    };
 
+    void checkPage();
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
 };
 

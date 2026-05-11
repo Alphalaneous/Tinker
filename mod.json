@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.10",
+	"version": "v1.0.11",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -16,7 +16,7 @@
 		"alphalaneous.good_grid": "v1.2.0",
 		"alphalaneous.alphas_geode_utils": "v1.2.4",
 		"alphalaneous.alphas-ui-pack": "v1.1.0",
-		"alphalaneous.editortab_api": "v2.1.0",
+		"alphalaneous.editortab_api": "v2.1.6",
 		"alphalaneous.level-storage-api": "v1.0.0",
 		"alk.better-touch-prio": "v1.0.16",
 		"spaghettdev.named-editor-groups": {
@@ -25,6 +25,10 @@
 		},
 		"raydeeux.gameobjectidstacksize": {
 			"version": "v1.0.9",
+			"required": false
+		},
+		"razoom.object_groups": {
+			"version": "v2.1.9",
 			"required": false
 		}
 	},
@@ -805,6 +809,47 @@
 			"default": 2,
 			"min": 1
 		},
+		"UIScaling-title": {
+			"type": "title",
+			"name": "UI Scaling"
+		},
+		"UIScaling-description": {
+			"type": "info",
+			"description": "How large elements in the UI are. BetterEdit's scale factor will override this if being used.",
+			"color": "#000000"
+		},
+		"UIScaling-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"UIScaling-scale": {
+			"type": "float",
+			"default": 0.9,
+			"name": "Scale Factor",
+			"min": 0.4,
+			"max": 1,
+			"control": {
+                "slider": true,
+				"slider-step": 0.025
+            }
+		},
+		"UIScaling-top-align": {
+			"type": "bool",
+			"default": false,
+			"name": "Top Align Side Buttons"
+		},
+		"UIScaling-scale-pause": {
+			"type": "bool",
+			"default": true,
+			"name": "Scale Pause Menu"
+		},
+		"UIScaling-scale-toolbar": {
+			"type": "bool",
+			"default": true,
+			"name": "Scale Toolbar",
+			"description": "Scale the toolbar (create, edit, and delete tabs) with the rest of the UI."
+		},
 		"QuickExtras-title": {
 			"type": "title",
 			"name": "Quick Edit Extras"
@@ -950,6 +995,13 @@
 			"type": "keybind",
 			"description": "Restart level from beginning, ignoring start positions. Only works with Start Pos Tools enabled.",
 			"default": ["Ctrl+R"],
+			"category": "editor"
+		},
+		"Keybinds-exit-pause-menu": {
+			"name": "Exit Pause Menu",
+			"type": "keybind",
+			"description": "Exit the editor pause menu.",
+			"default": ["Escape"],
 			"category": "editor"
 		}
 	},

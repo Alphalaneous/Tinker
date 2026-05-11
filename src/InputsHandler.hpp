@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/EditorPauseLayer.hpp>
 
 using namespace geode::prelude;
 
@@ -12,17 +13,22 @@ class $modify(InputEditorUI, EditorUI) {
     }
 
     struct Fields {
-        float m_targetScale;
-        CCPoint m_targetPos;
         std::set<FLAlertLayer*> m_activeAlerts;
-        bool m_activeScroll;
+
         Ref<CCActionInterval> m_moveX = nullptr;
         Ref<CCActionInterval> m_moveY = nullptr;
-        bool m_activeZoom;
         Ref<CCActionInterval> m_scale = nullptr;
+
+        CCPoint m_targetPos;
         CCPoint m_startSwipe;
-        bool m_tabModifierHeld;
         CCPoint m_scroll;
+
+        bool m_activeScroll;
+        bool m_activeZoom;
+        bool m_tabModifierHeld;
+        bool m_blockPause;
+
+        float m_targetScale;
     };
 
     bool init(LevelEditorLayer* editorLayer);
@@ -35,9 +41,19 @@ class $modify(InputEditorUI, EditorUI) {
     void addActiveAlert(FLAlertLayer* alert);
     void removeActiveAlert(FLAlertLayer* alert);
 
+    bool hasActiveAlerts();
+
     bool isNaturalScrollEnabled();
     
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    void blockPause();
+    void unblockPause();
+
+    void onPause(cocos2d::CCObject* sender);
 
     static InputEditorUI* get();
+};
+
+class $modify(InputEditorPauseLayer, EditorPauseLayer) {
+    void customSetup();
 };

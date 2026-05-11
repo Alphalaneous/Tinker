@@ -34,6 +34,10 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
         fields->m_searchBar = alpha::editor_tabs::createEditButtonBar({});
         fields->m_searchBar->m_hasCreateItems = true;
 
+        auto osBar = static_cast<OSEditButtonBar*>(fields->m_searchBar);
+        auto osFields = osBar->m_fields.self();
+        osFields->m_searchBar = true;
+
         return fields->m_searchBar;
     }, [] () {
         return CCSprite::create("search.png"_spr);
@@ -76,7 +80,7 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({getContentWidth() / 2, m_toolbarHeight + 5.f + buildTabHeight});
+        fields->m_searchField->setPosition({getContentWidth() / 2, m_toolbarHeight + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
         fields->m_searchField->setOrigY();
     }));
@@ -141,6 +145,12 @@ void OSEditorUI::updateCreateMenu(bool selectTab) {
 CreateMenuItem* OSEditorUI::getCreateBtn(int id, int bg) {
     auto ret = EditorUI::getCreateBtn(id, bg);
     ret->setUserObject("bg"_spr, CCInteger::create(bg));
+    return ret;
+}
+
+CreateMenuItem* OSCreateMenuItem::create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector) {
+    auto ret = CreateMenuItem::create(normal, selected, target, selector);
+    ret->m_objectID = 0;
     return ret;
 }
 
@@ -343,8 +353,18 @@ void OSEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int rows, int col
 }
 
 void OSEditButtonBar::checkPage() {
-    if (!m_hasCreateItems) return;
-    if (ScrollableObjects::isEnabled()) return;
+    auto fields = m_fields.self();
+
+    if (!m_hasCreateItems || !fields->m_searchBar) return;
+
+    if (ScrollableObjects::isEnabled()) {
+        auto soBar = reinterpret_cast<SOEditButtonBar*>(this);
+        auto soFields = soBar->m_fields.self();
+        if (!soFields->m_scrollLayer) return;
+        
+        soBar->cull(soFields, soFields->m_scrollLayer->getScrollPoint().x);
+        return;
+    }
 
     auto pageNum = getPage();
     for (auto node : m_buttonArray->asExt<CreateMenuItem>()) {

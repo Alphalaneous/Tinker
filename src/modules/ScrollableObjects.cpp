@@ -1,6 +1,7 @@
 #include "ScrollableObjects.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include <razoom.object_groups/include/ObjectFoundEvent.hpp>
 #include "ObjectSearch/ObjectSearch.hpp"
 
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
@@ -26,11 +27,6 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
 
         if (!ebb) return;
 
-        auto toggleMenu = getChildByID("razoom.object_groups/toggle_menu");
-        if (toggleMenu) {
-            toggleMenu->setVisible(((ebb->m_tabIndex > 0 && ebb->m_tabIndex < 13) || tab == "block") && m_selectedMode == 2);
-        }
-
         auto scrollEbb = static_cast<SOEditButtonBar*>(ebb);
         auto scrollEbbFields = scrollEbb->m_fields.self();
 
@@ -54,23 +50,63 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
     });
 
     runAction(CallFuncExt::create([this] {
-
         auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
         auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
+        auto fields = m_fields.self();
+
         for (auto tab : alpha::editor_tabs::getAllTabs().unwrap()) {
-            auto bar = typeinfo_cast<EditButtonBar*>(tab);
-            if (bar) {
-                bar->reloadItems(cols, rows);
+            auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(tab));
+            if (!bar) continue;
+
+            if (tinker::utils::getMod<"razoom.object_groups">()) {
+                if (bar->m_hasCreateItems && bar->m_tabIndex != 13) {
+                    if (fields->m_groupsGotoObjectsButton) {
+                        auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_findObject.png", 0.78f, [this, fields] (auto sender) {
+                            fields->m_groupsGotoObjectsButton->activate();
+                        });
+                        bar->addToExtrasMenu(newBtn);
+                    }
+                    if (fields->m_groupsTogglesButton) {
+                        auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_editMode.png", 0.78f, [this, fields] (auto sender) {
+                            fields->m_groupsTogglesButton->activate();
+                        });
+                        bar->addToExtrasMenu(newBtn);
+                    }
+                }
             }
+
+            bar->reloadItems(cols, rows);
         }
     }));
 
+    addEventListener(razoom::ObjectFoundEvent(), [] (auto cmi) {
+        auto menu = cmi->getParent();
+        if (!menu) return;
+        auto content = typeinfo_cast<alpha::ui::ScrollContent*>(menu->getParent());
+        if (!content) return;
+
+        auto worldPos = menu->convertToWorldSpace(cmi->getPosition());
+        auto nodePos = content->convertToNodeSpace(worldPos);
+
+        auto scrollLayer = content->getScrollLayer();
+        if (!scrollLayer) return;
+
+        scrollLayer->setScrollX(nodePos.x - scrollLayer->getContentWidth() / 2, true);
+    });
+
     auto fields = m_fields.self();
 
-    fields->m_gotoObjectsMenu = getChildByID("razoom.object_groups/goto_obj_menu");
-    if (fields->m_gotoObjectsMenu) {
-        fields->m_gotoObjectsMenu->removeFromParent();
+    fields->m_groupsGotoMenu = getChildByID("razoom.object_groups/goto_obj_menu");
+    if (fields->m_groupsGotoMenu) {
+        fields->m_groupsGotoObjectsButton = fields->m_groupsGotoMenu->getChildByType<CCMenuItemSpriteExtra>(0);
+        fields->m_groupsGotoMenu->removeFromParent();
+    }
+
+    fields->m_groupsTogglesMenu = getChildByID("razoom.object_groups/toggle_menu");
+    if (fields->m_groupsTogglesMenu) {
+        fields->m_groupsTogglesButton = fields->m_groupsTogglesMenu->getChildByType<CCMenuItemSpriteExtra>(0);
+        fields->m_groupsTogglesMenu->removeFromParent();
     }
 
     fields->m_shouldLoadBars = true;
@@ -169,6 +205,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     }
     if (!m_scrollLayer) {
         m_scrollLayer = BoomScrollLayer::create(m_pagesArray, 0, false);
+        m_scrollLayer->m_pages->addObject(CCNode::create());
         fields->m_dummyScrollLayer = m_scrollLayer;
     }
 
@@ -460,6 +497,13 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
         for (auto child : fields->m_objectsMenu->getChildrenExt()) {
             child->setVisible(true);
             visibleNodes.push_back(child);
+            if (ObjectSearch::isEnabled()) {
+                auto cmi = typeinfo_cast<CreateMenuItem*>(child);
+                if (cmi) {
+                    auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
+                    oCmi->loadRender();
+                }
+            }
         }
         return;
     }
@@ -618,6 +662,16 @@ void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
 
 class $nodeModify(SOGroup, Group) {
 
+    // to kinda match Object Groups implementation
+    float getTabScale() {
+        if (auto someBar = EditorUI::get()->getChildByID("pixel-tab-bar")) {
+            if (auto menu = someBar->getChildByIDRecursive("alphalaneous.tinker/items-menu")) {
+                return someBar->getScale() * menu->getScale();
+            }
+        }
+        return 0.8;
+    }
+
     void modify() {
         if (!ScrollableObjects::isEnabled()) return;
         if (getID() != "RaZooM") return;
@@ -625,11 +679,18 @@ class $nodeModify(SOGroup, Group) {
         addOnEnterCallback([this] {
             if (!getParent()) return;
 
-            auto menu = typeinfo_cast<CCMenu*>(getParent());
-            if (!menu) return;
+            if (auto node = exact_cast<CCNode*>(getParent())) {
+                setScale(1);
+                if (auto node = EditorUI::get()->getChildByID("razoom.object_groups/pinned-groups")) {
+                    node->setScale(getTabScale());
+                }
+                return;
+            }
 
-            runAction(CallFuncExt::create([menu, this] {
-
+            runAction(CallFuncExt::create([this] {
+                auto menu = typeinfo_cast<CCMenu*>(getParent());
+                if (!menu) return;
+                
                 CCNode* parent = menu;
                 while (parent && !typeinfo_cast<EditButtonBar*>(parent)) {
                     parent = parent->getParent();
@@ -641,6 +702,7 @@ class $nodeModify(SOGroup, Group) {
                 auto nodePos = parent->convertToNodeSpace(worldPos);
                 setPosition(nodePos);
                 setScale(menu->getScale());
+                setZOrder(30);
 
                 parent->addChild(this);
             }));

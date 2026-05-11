@@ -143,6 +143,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
             m_swipeActive = false;
         }
     });
+    
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_RightShift), [this] (KeyboardInputData& data) {
         if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;
@@ -403,17 +404,50 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     return EditorUI::ccTouchBegan(touch, event);
 }
 
-class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
-    struct Fields {
-        FLAlertLayer* m_self;
-        ~Fields() {
-            auto editor = InputEditorUI::get();
-            if (!editor) return;
+void InputEditorUI::onPause(cocos2d::CCObject* sender) {
+    if (!m_fields->m_blockPause) {
+        EditorUI::onPause(sender);
+    }
+}
 
-            editor->removeActiveAlert(m_self);
+void InputEditorUI::blockPause() {
+    m_fields->m_blockPause = true;
+}
+
+void InputEditorUI::unblockPause() {
+    runAction(CallFuncExt::create([this] {
+        m_fields->m_blockPause = false;
+    }));
+}
+
+bool InputEditorUI::hasActiveAlerts() {
+    return m_fields->m_activeAlerts.size() > 0;
+}
+
+void InputEditorPauseLayer::customSetup() {
+    EditorPauseLayer::customSetup();
+    if (!EditorUI::get() || getUserFlag("ignore"_spr)) return;
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-exit-pause-menu"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (down && !repeat && !InputEditorUI::get()->hasActiveAlerts()) {
+            onResume(nullptr);
         }
-    };
+    });
 
+    addOnEnterCallback([] {
+        if (auto editor = InputEditorUI::get()) {
+            editor->blockPause();
+        }
+    });
+
+    addOnExitCallback([] {
+        if (auto editor = InputEditorUI::get()) {
+            editor->unblockPause();
+        }
+    });
+}
+
+class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
     void modify() {
         auto editor = InputEditorUI::get();
         if (!editor) return;
@@ -422,8 +456,18 @@ class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
             return;
         }
 
-        auto fields = m_fields.self();
-        fields->m_self = this;
-        editor->addActiveAlert(this);
+        addOnEnterCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->addActiveAlert(this);
+            }
+        });
+
+        addOnExitCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->removeActiveAlert(this);
+            }
+        });
     }
 };

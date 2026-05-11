@@ -11,5 +11,7 @@ class $editorModule(LengthInEditor) {
     void onGameTypeChange(bool isPlatformer) override;
 	std::string getTime(float x);
 
+    void updateScale(float scale);
+
     bool onToggled(bool state) override;
 };
