@@ -5,7 +5,7 @@
 #include "../ScrollableObjects.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include <raydeeux.gameobjectidstacksize/include/api.hpp>
+#include "../../third-party/ObjectIDDisplay.hpp"
 #include "../PreviewObjectColors.hpp"
 
 using namespace alpha::prelude;
