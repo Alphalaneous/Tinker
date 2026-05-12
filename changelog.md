@@ -1,3 +1,6 @@
+# 1.0.13
+- <c-dddddd>Fix Edit Extras not updating properly</c>
+
 # 1.0.12
 - <c-dddddd>Fix top align UI scaling setting not updating</c>
 - <c-dddddd>Fix pause menu scaling not updating when UI scale is turned off </c>

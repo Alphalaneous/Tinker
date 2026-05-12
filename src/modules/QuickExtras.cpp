@@ -36,7 +36,7 @@ void QuickExtras::onUpdateButtons() {
     if (!m_editExtrasBtn) return;
 
     if (!getSetting<bool, "always-show">()) {
-        if (nodeIsVisible(m_editExtrasBtn)) {
+        if (nodeIsVisible(m_editorUI->m_positionSlider)) {
             bool isSpecial = static_cast<QEEditorUI*>(m_editorUI)->_editButton2Usable();
 
             m_editExtrasBtn->setVisible(!isSpecial);
