@@ -259,7 +259,7 @@ void SearchField::setupTabOffset() {
     auto winSize = CCDirector::get()->getWinSize();
     auto tab = m_editorUI->m_fields->m_searchBar;
 
-    #if GEODE_IS_ANDROID
+    #ifdef GEODE_IS_ANDROID
         m_yOffset = winSize.height - tab->getScaledContentHeight() - 20 - getScaledContentHeight();
     #endif
 
