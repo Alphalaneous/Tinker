@@ -71,15 +71,15 @@ void LengthInEditor::updateScale(float scale) {
 
         if (UIScaling::isEnabled()) {
             if (!UIScaling::getSetting<bool, "top-align">() && UIScaling::getSetting<float, "scale">() <= 0.85f) {
-                m_lengthContainer->setPosition({6 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale});
+                m_lengthContainer->setPosition(CCPoint{6 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale} + UIScaling::getSafeOffset());
                 return;
             }
         }
 
-        m_lengthContainer->setPosition({playbackMenu->getPositionX() - 2 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale});
+        m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale} + UIScaling::getSafeOffset());
 
         if (auto objectInfoLabel = m_editorUI->getChildByID("object-info-label")) {
-            objectInfoLabel->setPosition({objectInfoLabel->getPositionX(), m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10 * scale});
+            objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10 * scale);
         }
     }));
 }

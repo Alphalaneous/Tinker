@@ -9,10 +9,24 @@ bool ObjectItem::init(int objectID, int count) {
 
     auto arr = CCArray::create();
 
-    CCSprite* object;
+    CCNode* object;
 
     if (objectID == 2065) {
         object = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
+    }
+    else if (objectID == 747) {
+        object = CCNode::create();
+        object->setContentSize({100, 100});
+        object->setAnchorPoint({0.5f, 0.5f});
+        auto portalBlue = EditorUI::get()->spriteFromObjectString("1,2902", true, false, 1, nullptr, nullptr, nullptr);
+        auto portalOrange = EditorUI::get()->spriteFromObjectString("1,2064", true, false, 1, nullptr, nullptr, nullptr);
+        portalOrange->setScaleX(-1);
+
+        portalBlue->setPosition(object->getContentSize() / 2 + CCPoint{12, -10});
+        portalOrange->setPosition(object->getContentSize() / 2 + CCPoint{-12, 10});
+
+        object->addChild(portalBlue);
+        object->addChild(portalOrange);
     }
     else {
         object = EditorUI::get()->spriteFromObjectString(fmt::format("1,{}", objectID), true, false, 1, nullptr, nullptr, nullptr);
@@ -52,11 +66,17 @@ bool ObjectItem::init(int objectID, int count) {
     bg->setPosition({max / 2.f + gap / 2, max / 2.f + labelOffset + gap / 2});
     bg->setID("background"_spr);
 
-    auto bgRotationOffset = utils::random::generate<float>(-3, 3);
+    utils::random::Generator generator(objectID);
+
+    for (int i = 0; i < 5; i++) {
+        generator.next();
+    }
+
+    auto bgRotationOffset = generator.generate<float>(-3, 3);
     bg->setRotation(bgRotationOffset);
 
-    auto objectRotationOffset = utils::random::generate<float>(-3, 3);
-    object->setRotation(objectRotationOffset);
+    auto objectRotationOffset = generator.generate<float>(-3, 3);
+    object->setRotation(-bgRotationOffset + objectRotationOffset);
 
     countLabel->setPosition({max + labelOffset + gap / 2, gap / 2});
     countLabel->setZOrder(2);

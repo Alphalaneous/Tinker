@@ -11,6 +11,8 @@ class $editorModule(UIScaling) {
     void setScaling(float scale, bool toolbar, bool topAlign, bool fullReload);
     void setPauseScaling(float scale);
 
+    static CCPoint getSafeOffset();
+
     static float getUIScale();
     static bool shouldScaleToolbar();
     static bool shouldScalePause();

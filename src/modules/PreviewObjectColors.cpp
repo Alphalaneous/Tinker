@@ -30,7 +30,7 @@ void PreviewObjectColors::onEditor() {
         if (ScrollableObjects::isEnabled()) {
             for (auto child : m_editorUI->getChildrenExt()) {
                 if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
-                    if (!bar->m_hasCreateItems) continue;
+                    if (!bar->m_hasCreateItems || bar->getID() == "alphalaneous.tinker/all-objects-tab-bar") continue;
                     auto soBar = static_cast<SOEditButtonBar*>(bar);
                     auto btn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_editHSVBtn2_001.png", 1, [this, fields] (CCMenuItemSpriteExtra* sender) {
                         auto customizeObjectLayer = CustomizeObjectLayer::create(fields->m_defaultObject, nullptr);

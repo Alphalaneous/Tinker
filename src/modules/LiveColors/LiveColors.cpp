@@ -17,9 +17,12 @@ void LiveColors::onEditor() {
     rowLayout->ignoreInvisibleChildren(true);
     m_colorsMenu->setLayout(rowLayout);
 
+    auto winSize = CCDirector::get()->getWinSize();
+    m_colorsMenu->setPositionX(winSize.width / 2.f);
+
     m_editorUI->addChild(m_colorsMenu);
 
-    m_editorUI->schedule(schedule_selector(LCEditorUI::checkColors));
+    m_editorUI->schedule(schedule_selector(LCEditorUI::checkColors), 1/60.f);
     
     m_editorUI->runAction(CallFuncExt::create([this] {
         float scale = m_editorUI->m_positionSlider->getScale();
@@ -45,7 +48,6 @@ void LiveColors::updateScale(float scale) {
     m_availableBtnCount = std::floor((maxWidth + 5)/ (btnWidth + 5));
 
     m_colorsMenu->setContentSize({maxWidth, 30});
-    m_colorsMenu->setPosition({winSize.width / 2.f, m_editorUI->m_toolbarHeight + 20 * scale});
 
     m_buttons.clear();
     m_colorsMenu->removeAllChildren();
@@ -66,11 +68,13 @@ void LiveColors::showMenu(bool show) {
 
 void LCEditorUI::showUI(bool show) {
     EditorUI::showUI(show);
+    auto fields = m_fields.self();
+    fields->m_uiVisible = show;
+
     float scale = m_positionSlider->getScale();
 
     auto module = LiveColors::get();
 
-    module->m_colorsMenu->setPositionY(show ? m_toolbarHeight + 20 * scale : 5);
     module->m_colorsMenu->setEnabled(show);
     if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() != "all-objects"_spr) {
         module->m_colorsMenu->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing || show);
@@ -127,4 +131,13 @@ void LCEditorUI::checkColors(float dt) {
         module->m_colorsMenu->updateLayout();
     }
     module->m_lastBtnCount = count;
+
+    float heightOffset = m_toolbarHeight;
+
+    if (m_tabsMenu && m_tabsMenu->isVisible()) {
+        heightOffset = m_toolbarHeight + m_tabsMenu->getScaledContentHeight();
+    }
+
+    auto fields = m_fields.self();
+    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0) + 5 * m_positionSlider->getScale());
 }

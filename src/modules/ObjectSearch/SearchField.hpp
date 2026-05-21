@@ -32,10 +32,10 @@ namespace tinker::ui {
         void textInputClosed(CCTextInputNode* node) override;
         void textChanged(CCTextInputNode* node) override;
 
+        void onClosed();
+
         void defocus();
         void focus();
-
-        void setOrigY();
 
         void setupTabOffset();
 
@@ -54,7 +54,6 @@ namespace tinker::ui {
         geode::Button* m_clearButton;
         Ref<geode::NineSlice> m_tabBG;
 
-        float m_origY;
         float m_yOffset;
         bool m_lockClose;
         bool m_inputFocused;

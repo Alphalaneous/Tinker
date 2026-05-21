@@ -13,7 +13,7 @@ class $modify(InputEditorUI, EditorUI) {
     }
 
     struct Fields {
-        std::set<FLAlertLayer*> m_activeAlerts;
+        std::set<CCNode*> m_activeAlerts;
 
         Ref<CCActionInterval> m_moveX = nullptr;
         Ref<CCActionInterval> m_moveY = nullptr;
@@ -38,8 +38,8 @@ class $modify(InputEditorUI, EditorUI) {
 
     void checkScrolling(float dt);
 
-    void addActiveAlert(FLAlertLayer* alert);
-    void removeActiveAlert(FLAlertLayer* alert);
+    void addActiveAlert(CCNode* alert);
+    void removeActiveAlert(CCNode* alert);
 
     bool hasActiveAlerts();
 

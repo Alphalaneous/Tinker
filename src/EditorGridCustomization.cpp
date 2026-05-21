@@ -103,10 +103,19 @@ $on_mod(Loaded) {
         DrawGridAPI::get().setInvertGrid(value);
         auto& grid = DrawGridAPI::get().getNode<Grid>().unwrap();
         if (value) {
-            grid.setGridColor({75, 75, 75, 255});
+            auto opacity = static_cast<GLubyte>(255 * tinker::utils::getSetting<float, "EditorGridCustomization-grid-invert-opacity">());
+            grid.setGridColor({opacity, opacity, opacity, opacity});
         }
         else {
             grid.setGridColor(tinker::utils::getSetting<ccColor4B, "EditorGridCustomization-grid-color">());
+        }
+    }>();
+
+    tinker::utils::onSetting<float, "EditorGridCustomization-grid-invert-opacity", [] (float value) {
+        auto& grid = DrawGridAPI::get().getNode<Grid>().unwrap();
+        if (tinker::utils::getSetting<bool, "EditorGridCustomization-grid-invert">()) {
+            auto opacity = static_cast<GLubyte>(255 * value);
+            grid.setGridColor({opacity, opacity, opacity, opacity});
         }
     }>();
 

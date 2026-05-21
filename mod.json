@@ -1,5 +1,5 @@
 {
-	"geode": "5.6.0",
+	"geode": "5.7.1",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.13",
+	"version": "v1.0.14",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -885,6 +885,15 @@
 			"name": "Grid Inverts Behind",
 			"description": "Make the grid invert the color behind it rather than a static color. (Overrides Grid Color setting)",
 			"default": false
+		},
+		"EditorGridCustomization-grid-invert-opacity": {
+			"type": "float",
+			"name": "Grid Invert Opacity",
+			"description": "The opacity of the grid when using invert",
+			"default": 0.5,
+			"min": 0,
+			"max": 1,
+			"enable-if": "EditorGridCustomization-grid-invert"
 		},
 		"EditorGridCustomization-effect-line-color": {
 			"type": "rgba",

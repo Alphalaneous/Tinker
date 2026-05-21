@@ -62,6 +62,7 @@ void TooltipHover::resetTooltip() {
     hideTooltip();
     #else
     m_tooltipBG->setVisible(false);
+    if (m_activeItem) setButtonOpacity(m_activeItem, 255);
     #endif
     m_activeItem = nullptr;
 }
@@ -237,6 +238,8 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
 }
 
 void TooltipHover::showTooltip(CreateMenuItem* item) {
+    if (item->m_objectID < 0) return;
+
     auto nameRes = ObjectNames::get()->getName(item->m_objectID);
     std::string name;
     if (!nameRes) {
@@ -258,7 +261,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     m_tooltipLabel->setString(std::string(name).c_str());
 
     float heightOffset = 0;
-    if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
+    if (ObjectTooltips::getSetting<bool, "show-object-id">() && item->m_objectID != 0) {
         m_tooltipIDLabel->setString(numToString(item->m_objectID).c_str());
         heightOffset = m_tooltipIDLabel->getScaledContentHeight();
     }
@@ -272,6 +275,8 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
         m_tooltipIDLabel->setPosition({2.5f, 2.5f});
     }
+
+    m_tooltipIDLabel->setVisible(item->m_objectID != 0);
 
     #ifdef GEODE_IS_DESKTOP
     if (!m_clicking) {

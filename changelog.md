@@ -1,3 +1,20 @@
+# 1.0.14
+- <c-dddddd>Account for iOS safe areas</c>
+- <c-dddddd>Live colors now adjusts positions relative to the tab rather than floating so high</c>
+- <c-dddddd>Zoom to cursor now zooms to the correct position when the editor is rotated</c>
+- <c-dddddd>Disabling Editor Rotation should now properly update the rotation of the slider button</c>
+- <c-dddddd>Add Grid Invert opacity setting</c>
+- <c-dddddd>Fix GJDropDownLayers not blocking input properly, and also being skipped on the unpause check</c>
+- <c-dddddd>Fix tooltips persisting when editor is paused</c>
+- <c-dddddd>Fix tooltip highlight persisting when the tooltip is reset</c>
+- <c-dddddd>Rework Search Tab positioning on mobile to be more consistent</c>
+- <c-dddddd>Object summary's cosmetic random rotation no longer changes on filter change</c>
+- <c-dddddd>Teleport portals in the object summary no longer cause Editor Sounds to play a sound</c>
+- <c-dddddd>Teleport portals in the object summary can now be distinguished from unlinked teleport portals</c>
+- <c-dddddd>Preview object colors button no longer shows on the search tab (as it is not functional there)</c>
+- <c-dddddd>The object ID on tooltips (when enabled) no longer show if the ID is 0</c>
+- <c-dddddd>Object Tooltips no longer show on custom objects</c>
+
 # 1.0.13
 - <c-dddddd>Fix Edit Extras not updating properly</c>
 

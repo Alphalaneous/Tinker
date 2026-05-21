@@ -140,7 +140,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
         m_lockClose = true;
         m_searchInput->focus();
         #ifdef GEODE_IS_MOBILE
-        textInputShouldOffset(m_searchInput->getInputNode(), m_yOffset);
+        setupTabOffset();
         #endif
     });
 
@@ -153,10 +153,6 @@ bool SearchField::init(OSEditorUI* editorUI) {
     m_tabBG->setID("floating-tab-background"_spr);
 
     return true;
-}
-
-void SearchField::setOrigY() {
-    m_origY = getPositionY();
 }
 
 void SearchField::defocus() {
@@ -195,7 +191,10 @@ void SearchField::textChanged(CCTextInputNode* node) {
         fields->m_searchBar->loadFromItems(arr, cols, rows, false);
 
         #ifdef GEODE_IS_MOBILE
-        fields->m_searchBar->setPositionY(m_yOffset + getScaledContentHeight() + 10);
+        auto winSize = CCDirector::get()->getWinSize();
+
+        auto tab = m_editorUI->m_fields->m_searchBar;
+        tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10);
         #endif
     }));
 }
@@ -204,7 +203,9 @@ void SearchField::textInputOpened(CCTextInputNode* node) {
     #ifdef GEODE_IS_MOBILE
     m_inputFocused = true;
 
-    setupTabOffset();
+    runAction(CallFuncExt::create([this] {
+        setupTabOffset();
+    }));
 
     m_lockClose = true;
     runAction(CallFuncExt::create([this] {
@@ -217,25 +218,37 @@ void SearchField::textInputClosed(CCTextInputNode* node) {
     #ifdef GEODE_IS_MOBILE
     runAction(CallFuncExt::create([this] {
         if (!m_lockClose) {
-            m_inputFocused = false;
-
-            setPositionY(m_origY);
-
-            auto tab = m_editorUI->m_fields->m_searchBar;
-
-            tab->setPositionY(0);
-            m_tabBG->removeFromParent();
-
-            tab->setZOrder(10);
+            onClosed();
         }
         m_lockClose = false;
     }));
     #endif
 }
 
+void SearchField::onClosed() {
+    m_inputFocused = false;
+
+    float buildTabHeight = 0;
+    float scale = 1.f;
+    if (auto node = m_editorUI->getChildByID("build-tabs-menu")) {
+        buildTabHeight = node->getScaledContentHeight();
+        scale = node->getScale();
+    }
+
+    setPosition({m_editorUI->getContentWidth() / 2, m_editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
+
+    auto tab = m_editorUI->m_fields->m_searchBar;
+
+    tab->setPositionY(0);
+    m_tabBG->removeFromParent();
+
+    tab->setZOrder(10);
+}
+
 void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
     #ifdef GEODE_IS_MOBILE
     m_yOffset = std::max(yOffset, m_editorUI->m_toolbarHeight + 15);
+   
     runAction(CallFuncExt::create([this] {
         setupTabOffset();
     }));
@@ -243,6 +256,13 @@ void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
 }
 
 void SearchField::setupTabOffset() {
+    auto winSize = CCDirector::get()->getWinSize();
+    auto tab = m_editorUI->m_fields->m_searchBar;
+
+    #if GEODE_IS_ANDROID
+        m_yOffset = winSize.height - tab->getScaledContentHeight() - 20 - getScaledContentHeight();
+    #endif
+
     setPositionY(m_yOffset);
 
     float heightOffset = 2;
@@ -250,8 +270,7 @@ void SearchField::setupTabOffset() {
         heightOffset = ScrollableObjects::getSetting<float, "y-offset">();
     }
 
-    auto tab = m_editorUI->m_fields->m_searchBar;
-    tab->setPositionY(m_yOffset + getScaledContentHeight() + 10 - heightOffset + 2);
+    tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10);
     
     m_tabBG->setContentSize(tab->getScaledContentSize() + CCSize{0, 10 - heightOffset * tab->getScale() + 2});
     m_tabBG->setPosition(tab->getPosition() + CCPoint{0, tab->getScaledContentHeight() / 2});

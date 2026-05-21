@@ -264,11 +264,11 @@ void InputEditorUI::onScroll() {
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
 
-                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f, layer->getScale(), fields->m_targetScale, [this, layer, fields] (float t, float start, float end, float& scale) {
+                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f, layer->getScale(), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
                     scale = start + (end - start) * t;
 
                     if (getSetting<bool, "zoom-to-cursor">()) {
-                        auto mousePos = getMousePos();
+                        auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2, m_editorLayer->m_gameState.m_cameraAngle);
                         auto prevPos = layer->convertToNodeSpace(mousePos);
                     
                         updateZoom(scale);
@@ -290,7 +290,7 @@ void InputEditorUI::onScroll() {
             fields->m_activeZoom = false;
 
             if (getSetting<bool, "zoom-to-cursor">()) {
-                auto mousePos = getMousePos();
+                auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2, m_editorLayer->m_gameState.m_cameraAngle);
                 auto prevPos = layer->convertToNodeSpace(mousePos);
             
                 updateZoom(fields->m_targetScale);
@@ -379,13 +379,13 @@ void InputEditorUI::checkScrolling(float dt) {
     fields->m_activeZoom = fields->m_scale && !fields->m_scale->isDone();
 }
 
-void InputEditorUI::addActiveAlert(FLAlertLayer* alert) {
+void InputEditorUI::addActiveAlert(CCNode* alert) {
     auto fields = m_fields.self();
 
     fields->m_activeAlerts.insert(alert);
 }
 
-void InputEditorUI::removeActiveAlert(FLAlertLayer* alert) {
+void InputEditorUI::removeActiveAlert(CCNode* alert) {
     auto fields = m_fields.self();
 
     fields->m_activeAlerts.erase(alert);
@@ -455,6 +455,27 @@ class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
         if (typeinfo_cast<ColorSelectLiveOverlay*>(this) || typeinfo_cast<HSVLiveOverlay*>(this)) {
             return;
         }
+
+        addOnEnterCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->addActiveAlert(this);
+            }
+        });
+
+        addOnExitCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->removeActiveAlert(this);
+            }
+        });
+    }
+};
+
+class $baseModify(BlockingGJDropDownLayer, GJDropDownLayer) {
+    void modify() {
+        auto editor = InputEditorUI::get();
+        if (!editor) return;
 
         addOnEnterCallback([this] {
             auto editor = InputEditorUI::get();

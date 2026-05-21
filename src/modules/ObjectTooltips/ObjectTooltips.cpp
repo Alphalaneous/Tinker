@@ -6,17 +6,23 @@
 using namespace tinker::ui;
 
 void ObjectTooltips::onEditor() {
-    auto hover = TooltipHover::create();
-    m_editorUI->addChild(hover);
-    m_editorUI->m_uiItems->addObject(hover);
+    m_hover = TooltipHover::create();
+    m_editorUI->addChild(m_hover);
+    m_editorUI->m_uiItems->addObject(m_hover);
 
-    alpha::editor_tabs::addTabSwitchCallback([hover] (auto tab) {
-        hover->resetTooltip();
+    alpha::editor_tabs::addTabSwitchCallback([this] (auto tab) {
+        m_hover->resetTooltip();
     });
 
-    alpha::editor_tabs::addModeSwitchCallback([hover] (auto mode) {
-        hover->resetTooltip();
+    alpha::editor_tabs::addModeSwitchCallback([this] (auto mode) {
+        m_hover->resetTooltip();
     });
+}
+
+void ObjectTooltips::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
+    if (m_hover) {
+        m_hover->resetTooltip();
+    }
 }
 
 const std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>>& ObjectTooltips::getObjectGroups() {

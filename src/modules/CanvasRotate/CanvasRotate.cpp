@@ -13,12 +13,20 @@ bool CanvasRotate::onToggled(bool state) {
             m_rotationNode->onExit();
             m_rotationNode->onEnter();
         }));
+
+        if (m_editorUI->m_positionSlider && m_editorUI->m_positionSlider->getThumb()) {
+            m_editorUI->m_positionSlider->getThumb()->setRotation(m_editorLayer->m_gameState.m_cameraAngle);
+        }
     }
     else {
         if (m_rotationNode) {
             m_rotationNode->removeFromParent();
         }
         m_editorLayer->m_gameState.m_cameraAngle = 0;
+
+        if (m_editorUI->m_positionSlider && m_editorUI->m_positionSlider->getThumb()) {
+            m_editorUI->m_positionSlider->getThumb()->setRotation(0);
+        }
     }
     if (JoystickNavigation::isEnabled()) {
         JoystickNavigation::get()->updateController(state);
@@ -27,6 +35,11 @@ bool CanvasRotate::onToggled(bool state) {
 }
 
 bool CanvasRotate::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    if (key == "rotate-slider-thumb") {
+        if (m_editorUI->m_positionSlider && m_editorUI->m_positionSlider->getThumb()) {
+            m_editorUI->m_positionSlider->getThumb()->setRotation(value.asBool().unwrapOrDefault() ? m_editorLayer->m_gameState.m_cameraAngle : 0);
+        }
+    }
     return true;
 }
 

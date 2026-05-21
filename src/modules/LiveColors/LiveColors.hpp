@@ -25,6 +25,10 @@ class $modify(LCEditorUI, EditorUI) {
 	static void _onModify(auto& self) {
         (void) self.setHookPriorityAfterPost("EditorUI::init", "hjfod.betteredit");
     }
+
+    struct Fields {
+        bool m_uiVisible = true;
+    };
     
     void showUI(bool show);
 	void checkColors(float dt);

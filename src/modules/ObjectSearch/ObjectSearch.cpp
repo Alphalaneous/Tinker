@@ -56,6 +56,7 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
         else {
             fields->m_searchField->defocus();
             fields->m_searchField->removeFromParent();
+            fields->m_searchField->onClosed();
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(true);
@@ -82,7 +83,6 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
 
         fields->m_searchField->setPosition({getContentWidth() / 2, m_toolbarHeight + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
-        fields->m_searchField->setOrigY();
     }));
 
     return true;

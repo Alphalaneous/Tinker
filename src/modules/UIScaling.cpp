@@ -113,6 +113,10 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
     return true;
 }
 
+CCPoint UIScaling::getSafeOffset() {
+    return {utils::getSafeAreaRect().getMinX() / 2, 0};
+}
+
 void UIScaling::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
     setPauseScaling(getSetting<float, "scale">());
 }
@@ -128,27 +132,27 @@ void UIScaling::setPauseScaling(float scale) {
 
         if (auto infoMenu = m_pauseLayer->getChildByID("info-menu")) {
             infoMenu->setScale(scale);
-            infoMenu->setPosition({10 * scale + infoMenu->getScaledContentWidth() / 2, size.height - infoMenu->getScaledContentHeight() / 2 - 5 * scale});
+            infoMenu->setPosition(CCPoint{10 * scale + infoMenu->getScaledContentWidth() / 2, size.height - infoMenu->getScaledContentHeight() / 2 - 5 * scale} + getSafeOffset());
         }
 
         if (auto actionsMenu = m_pauseLayer->getChildByID("actions-menu")) {
             actionsMenu->setScale(scale);
-            actionsMenu->setPosition({size.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10 * scale + actionsMenu->getScaledContentHeight() / 2});
+            actionsMenu->setPosition(CCPoint{size.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10 * scale + actionsMenu->getScaledContentHeight() / 2} - getSafeOffset());
             
             if (auto smallActionsMenu = m_pauseLayer->getChildByID("small-actions-menu")) {
                 smallActionsMenu->setScale(scale);
-                smallActionsMenu->setPosition({actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale + smallActionsMenu->getScaledContentHeight() / 2});
+                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale + smallActionsMenu->getScaledContentHeight() / 2} - getSafeOffset());
             }
         }
 
         if (auto optionsMenu = m_pauseLayer->getChildByID("options-menu")) {
             optionsMenu->setScale(scale);
-            optionsMenu->setPosition({15 * scale + optionsMenu->getScaledContentWidth() / 2, 15 * scale + optionsMenu->getScaledContentHeight() / 2});
+            optionsMenu->setPosition(CCPoint{15 * scale + optionsMenu->getScaledContentWidth() / 2, 15 * scale + optionsMenu->getScaledContentHeight() / 2} + getSafeOffset());
         }
 
         if (auto settingsMenu = m_pauseLayer->getChildByID("settings-menu")) {
             settingsMenu->setScale(scale);
-            settingsMenu->setPosition({size.width - 2 * scale - settingsMenu->getScaledContentWidth() / 2.f, size.height - 34 * scale - settingsMenu->getScaledContentHeight() / 2});
+            settingsMenu->setPosition(CCPoint{size.width - 2 * scale - settingsMenu->getScaledContentWidth() / 2.f, size.height - 34 * scale - settingsMenu->getScaledContentHeight() / 2} - getSafeOffset());
         }
 
         if (auto guidelinesMenu = m_pauseLayer->getChildByID("guidelines-menu")) {
@@ -178,7 +182,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     if (auto settingsMenu = m_editorUI->getChildByID("settings-menu")) {
         settingsMenu->setScale(scale);
         settingsMenu->setAnchorPoint({0.5f, 0.5f});
-        settingsMenu->setPosition(size - settingsMenu->getScaledContentSize() / 2 - CCSize{scale, 0});
+        settingsMenu->setPosition(size - settingsMenu->getScaledContentSize() / 2 - CCSize{scale, 0} - getSafeOffset());
 
         if (auto gridSizeControls = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls")) {
 
@@ -209,7 +213,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     if (auto undoMenu = m_editorUI->getChildByID("undo-menu")) {
         undoMenu->setScale(scale);
         undoMenu->setAnchorPoint({0.5f, 0.5f});
-        undoMenu->setPosition({6 * scale + undoMenu->getScaledContentWidth() / 2, size.height - undoMenu->getScaledContentHeight() / 2});
+        undoMenu->setPosition(CCPoint{6 * scale + undoMenu->getScaledContentWidth() / 2, size.height - undoMenu->getScaledContentHeight() / 2} + getSafeOffset());
     }
 
     float rightSideScale = scale;
@@ -221,17 +225,17 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
             buttonsMenu->setScale(rightSideScale);
             buttonsMenu->setAnchorPoint({0.5f, 0.5f});
-            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height - 37.5f * scale - buttonsMenu->getScaledContentHeight() / 2});
+            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height - 37.5f * scale - buttonsMenu->getScaledContentHeight() / 2} - getSafeOffset());
 
             if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
                 layerMenu->setScale(rightSideScale);
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale} - getSafeOffset());
                 
                 if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
                     namedLayerMenu->setScale(rightSideScale);
                     namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale});
+                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale} - getSafeOffset());
                 }
             }
         }
@@ -239,30 +243,30 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         if (auto playbackMenu = m_editorUI->getChildByID("playback-menu")) {
             playbackMenu->setScale(scale);
             playbackMenu->setAnchorPoint({0.5f, 0.5f});
-            playbackMenu->setPosition({6 * scale + playbackMenu->getScaledContentWidth() / 2, size.height - playbackMenu->getScaledContentHeight() / 2 - 45 * scale});
+            playbackMenu->setPosition(CCPoint{6 * scale + playbackMenu->getScaledContentWidth() / 2, size.height - playbackMenu->getScaledContentHeight() / 2 - 45 * scale} + getSafeOffset());
         }
 
         if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
             zoomMenu->setScale(scale);
             zoomMenu->setAnchorPoint({0.5f, 0.5f});
-            zoomMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() / 2, size.height - zoomMenu->getScaledContentHeight() / 2 - (45 * 3 + 5) * scale});
+            zoomMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() / 2, size.height - zoomMenu->getScaledContentHeight() / 2 - (45 * 3 + 5) * scale} + getSafeOffset());
         }
 
         if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
             playtestMenu->setScale(scale);
             playtestMenu->setAnchorPoint({0.5f, 0.5f});
-            playtestMenu->setPosition({6 * scale + playtestMenu->getScaledContentWidth() / 2, size.height - playtestMenu->getScaledContentHeight() / 2 - (45 * 2) * scale});
+            playtestMenu->setPosition(CCPoint{6 * scale + playtestMenu->getScaledContentWidth() / 2, size.height - playtestMenu->getScaledContentHeight() / 2 - (45 * 2) * scale} + getSafeOffset());
         
             if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
                 linkMenu->setAnchorPoint({0.5f, 0.5f});
                 if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
                     if (ImprovedLinkControls::isEnabled()) {
                         linkMenu->setScale(scale * 0.8f);
-                        linkMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale});
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale} + getSafeOffset());
                     }
                     else {
                         linkMenu->setScale(scale);
-                        linkMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - (linkMenu->getScaledContentHeight() / 2) GEODE_MOBILE(- 24.f * scale)});
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - (linkMenu->getScaledContentHeight() / 2) GEODE_MOBILE(- 24.f * scale)} + getSafeOffset());
                     }
                 }
             }
@@ -279,17 +283,17 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
                 offset.y = result / 2;
             }
 
-            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height / 2 + 42.5f * scale} + offset);
+            buttonsMenu->setPosition(CCPoint{size.width - buttonsMenu->getScaledContentWidth() / 2, size.height / 2 + 42.5f * scale} + offset - getSafeOffset());
 
             if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
                 layerMenu->setScale(rightSideScale);
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale});
+                layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale} - getSafeOffset());
                 
                 if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
                     namedLayerMenu->setScale(rightSideScale);
                     namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale});
+                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale} - getSafeOffset());
                 }
             }
         }
@@ -297,18 +301,18 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
             playtestMenu->setScale(scale);
             playtestMenu->setAnchorPoint({0.5f, 0.5f});
-            playtestMenu->setPosition({6 * scale + playtestMenu->getScaledContentWidth() / 2, size.height / 2 + 50 * scale});
+            playtestMenu->setPosition(CCPoint{6 * scale + playtestMenu->getScaledContentWidth() / 2, size.height / 2 + 50 * scale} + getSafeOffset());
         
             if (auto playbackMenu = m_editorUI->getChildByID("playback-menu")) {
                 playbackMenu->setScale(scale);
                 playbackMenu->setAnchorPoint({0.5f, 0.5f});
-                playbackMenu->setPosition({6 * scale + playbackMenu->getScaledContentWidth() / 2, playtestMenu->getPositionY() + 45 * scale});
+                playbackMenu->setPosition(CCPoint{6 * scale + playbackMenu->getScaledContentWidth() / 2, playtestMenu->getPositionY() + 45 * scale} + getSafeOffset());
             }
 
             if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
                 zoomMenu->setScale(scale);
                 zoomMenu->setAnchorPoint({0.5f, 0.5f});
-                zoomMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() / 2, playtestMenu->getPositionY() - playtestMenu->getScaledContentHeight() / 2 - 10 * scale - zoomMenu->getScaledContentHeight() / 2});
+                zoomMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() / 2, playtestMenu->getPositionY() - playtestMenu->getScaledContentHeight() / 2 - 10 * scale - zoomMenu->getScaledContentHeight() / 2} + getSafeOffset());
             }
 
             if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
@@ -316,11 +320,11 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
                 if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
                     if (ImprovedLinkControls::isEnabled()) {
                         linkMenu->setScale(scale * 0.8f);
-                        linkMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale});
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale} + getSafeOffset());
                     }
                     else {
                         linkMenu->setScale(scale);
-                        linkMenu->setPosition({9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 GEODE_MOBILE(- 24.f * scale)});
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 GEODE_MOBILE(- 24.f * scale)} + getSafeOffset());
                     }
                 }
             }
@@ -356,7 +360,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
             }
         }
 
-        categories->setPosition({offset * toolbarScale + categories->getScaledContentWidth() / 2, categories->getScaledContentHeight() / 2});
+        categories->setPosition(CCPoint{offset * toolbarScale + categories->getScaledContentWidth() / 2, categories->getScaledContentHeight() / 2} + getSafeOffset());
         categories->setAnchorPoint({0.5f, 0.5f});
 
         if (auto leftLine = m_editorUI->getChildByID("spacer-line-left")) {
@@ -372,7 +376,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
 
     if (auto toggles = m_editorUI->getChildByID("toolbar-toggles-menu")) {
         toggles->setScale(toolbarScale);
-        toggles->setPosition({size.width - toggles->getScaledContentWidth() / 2 - 3 * toolbarScale, toggles->getScaledContentHeight() / 2});
+        toggles->setPosition(CCPoint{size.width - toggles->getScaledContentWidth() / 2 - 3 * toolbarScale, toggles->getScaledContentHeight() / 2} - getSafeOffset());
         toggles->setAnchorPoint({0.5f, 0.5f});
 
         if (auto rightLine = m_editorUI->getChildByID("spacer-line-right")) {
@@ -430,7 +434,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
 
     if (auto objectInfoLabel = m_editorUI->getChildByID("object-info-label")) {
         objectInfoLabel->setScale(0.6f * scale);
-        objectInfoLabel->setPosition({52 * scale, size.height - 50 * scale});
+        objectInfoLabel->setPosition(CCPoint{52 * scale, size.height - 50 * scale} + getSafeOffset());
     }
 
     if (fullReload) {
