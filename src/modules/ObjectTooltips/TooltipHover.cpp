@@ -276,7 +276,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         m_tooltipIDLabel->setPosition({2.5f, 2.5f});
     }
 
-    m_tooltipIDLabel->setVisible(item->m_objectID != 0);
+    if (m_tooltipIDLabel) m_tooltipIDLabel->setVisible(item->m_objectID != 0);
 
     #ifdef GEODE_IS_DESKTOP
     if (!m_clicking) {

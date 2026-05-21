@@ -1,3 +1,6 @@
+# 1.0.15
+- <c-dddddd>Fix a crash</c>
+
 # 1.0.14
 - <c-dddddd>Account for iOS safe areas</c>
 - <c-dddddd>Live colors now adjusts positions relative to the tab rather than floating so high</c>
