@@ -1,5 +1,6 @@
 #include "DurationDrag.hpp"
 #include "Utils.hpp"
+#include <alphalaneous.good_grid/include/DrawLayers/DurationLines.hpp>
 
 using namespace tinker::ui;
 
@@ -12,6 +13,20 @@ void DurationDrag::onEditor() {
     m_durationControl = DurationControl::create();
 	m_durationControl->setID("duration-control"_spr);
 	m_editorLayer->m_objectLayer->addChild(m_durationControl);
+
+    auto dgl = m_editorLayer->m_drawGridLayer;
+
+    auto durationLines = dgl->getChildByType<good_grid::DurationLines>(0);
+    durationLines->setPropertiesForObject([] (good_grid::GradientColor& color, EffectGameObject* object, float& lineWidth) {
+        if (object->getPositionX() < 0 && !object->m_isSpawnTriggered || object->m_objectID == 1006) {
+            color = {0,0,0,0};
+        }
+    });
+
+    auto ddd = DurationDragDraw::create();
+    ddd->setZOrder(60);
+    ddd->setID("duration-drag"_spr);
+    dgl->addChild(ddd);
 }
 
 void DurationDrag::updateObjects() {
@@ -40,7 +55,17 @@ void DDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
 	DurationDrag::get()->updateObjects();
 }
 
-void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY) {
+DurationDragDraw* DurationDragDraw::create() {
+    auto ret = new DurationDragDraw();
+    if (ret->init()) {
+        ret->autorelease();
+        return ret;
+    }
+    delete ret;
+    return nullptr;
+}
+
+void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, const good_grid::GradientColor& color, float minX, float maxX, float minY, float maxY) {
     float dx = end.x - start.x;
     float dy = end.y - start.y;
     float totalDist = std::sqrt(dx * dx + dy * dy);
@@ -69,16 +94,14 @@ void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, 
             continue;
         }
 
-        DrawGridAPI::get().drawLine(segStart, segEnd, color, lineWidth);
+        drawLine(segStart, segEnd, color, lineWidth);
     }
 }
 
+void DurationDragDraw::draw(float minX, float maxX, float minY, float maxY) {
+    if (!getDrawGridLayer()->m_editorLayer->m_showDurationLines || getDrawGridLayer()->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
-void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float minY, float maxY) {
-    if (!dgl->m_editorLayer->m_showDurationLines || dgl->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
-
-    auto& api = DrawGridAPI::get();
-    const LineColor color = { 255, 255, 255, 115};
+    const good_grid::GradientColor color = { 255, 255, 255, 115};
 
     auto drawPulseLine = [&](EffectGameObject* object, float x) {
         const ccVertex2F start = {x, object->getPositionY()};
@@ -93,23 +116,23 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
         const ccVertex2F p1 = {std::lerp(start.x, end.x, fadeInPct), std::lerp(start.y, end.y, fadeInPct)};
         const ccVertex2F p2 = {std::lerp(start.x, end.x, holdPct), std::lerp(start.y, end.y, holdPct)};
 
-        const LineColor startColor{{255,255,255,0}, color.getColorA()};
-        const LineColor endColor{color.getColorA(), {255,255,255,0}};
+        const good_grid::GradientColor startColor{{255,255,255,0}, color.getColorA()};
+        const good_grid::GradientColor endColor{color.getColorA(), {255,255,255,0}};
 
-        api.drawLine(start, p1, startColor, 2.f);
-        api.drawLine(p1, p2, color, 2.f);
-        api.drawLine(p2, end, endColor, 2.f);
+        drawLine(start, p1, startColor, 2.f);
+        drawLine(p1, p2, color, 2.f);
+        drawLine(p2, end, endColor, 2.f);
     };
 
-    if (dgl->m_editorLayer->m_editorUI->m_selectedObjects->count() <= 100) {
-        auto center = tinker::utils::duration_drag::getCenter(dgl->m_editorLayer->m_editorUI);
+    if (getDrawGridLayer()->m_editorLayer->m_editorUI->m_selectedObjects->count() <= 100) {
+        auto center = tinker::utils::duration_drag::getCenter(getDrawGridLayer()->m_editorLayer->m_editorUI);
         if (center) {
 
             bool first = true;
             int refChannel;
             bool drawCenter = true;
 
-            for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
+            for (auto object : CCArrayExt<EffectGameObject*>(getDrawGridLayer()->m_editorLayer->m_editorUI->m_selectedObjects)) {
                 if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
                 if (first) {
                     refChannel = object->m_channelValue;
@@ -121,7 +144,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
             }
 
             if (drawCenter) {
-                for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
+                for (auto object : CCArrayExt<EffectGameObject*>(getDrawGridLayer()->m_editorLayer->m_editorUI->m_selectedObjects)) {
                     if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
 
                     auto centerPoint = center.unwrap().second;
@@ -143,8 +166,8 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
         }
     }
 
-    for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_durationObjects)) {
-        if (!DrawGridAPI::get().isObjectVisible(object)) continue;
+    for (auto object : CCArrayExt<EffectGameObject*>(getDrawGridLayer()->m_editorLayer->m_durationObjects)) {
+        if (!isObjectVisible(object)) continue;
 
         if (object->m_endPosition.x < 0 && !object->m_isSpawnTriggered) {
             object->m_endPosition = CCPointZero;
@@ -167,34 +190,11 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
                 continue;
             }
 
-            api.drawLine({0, object->getPositionY()}, {object->m_endPosition.x, object->m_endPosition.y}, color, 2.f);
+            drawLine({0, object->getPositionY()}, {object->m_endPosition.x, object->m_endPosition.y}, color, 2.f);
         }
 
         if (object->m_objectID == 1006) {
             drawPulseLine(object, object->getPositionX());
         }
     }
-}
-
-$on_mod(Loaded) {
-	auto& api = DrawGridAPI::get();
-    
-	auto& node = api.addDraw<DurationDragDraw>("duration-drag");
-
-    listenForSettingChanges<bool>("DurationDrag-enabled", [&node] (bool val) {
-        node.setEnabled(val);
-    });
-
-    node.setEnabled(DurationDrag::isEnabled());
-
-	if (auto durationLineRes = api.getNode<DurationLines>()) {
-		auto& durationLines = durationLineRes.unwrap();
-
-		durationLines.setPropertiesForObject([] (LineColor& color, EffectGameObject* object, float& lineWidth) {
-            if (!DurationDrag::isEnabled()) return;
-			if (object->getPositionX() < 0 && !object->m_isSpawnTriggered || object->m_objectID == 1006) {
-				color = {0,0,0,0};
-			}
-		});
-	}
 }

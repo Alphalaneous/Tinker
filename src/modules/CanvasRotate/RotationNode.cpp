@@ -1,6 +1,5 @@
 #include "RotationNode.hpp"
-#include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include <alphalaneous.good_grid/include/GoodGrid.hpp>
 #include "../../Utils.hpp"
 #include "CanvasRotate.hpp"
 
@@ -146,7 +145,5 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
 
     m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
 
-    DrawGridAPI::get().setLineSmoothing(static_cast<int>(std::round(m_rotation)) % 90 != 0);
-
-    DrawGridAPI::get().markDirty();
+    good_grid::markDirty();
 }

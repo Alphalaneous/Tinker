@@ -3,9 +3,7 @@
 #include "../../Module.hpp"
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
-#include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
-#include <alphalaneous.good_grid/include/DrawNode.hpp>
+#include <alphalaneous.good_grid/include/DrawGridBase.hpp>
 #include "DurationControl.hpp"
 
 class $editorModule(DurationDrag) {
@@ -30,7 +28,11 @@ class $modify(DDEditorUI, EditorUI) {
     void selectObjects(cocos2d::CCArray* objects, bool ignoreFilter);
 };
 
-class DurationDragDraw : public DrawNode {
-	static void drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY);
-	void draw(DrawGridLayer* dgl, float minX, float maxX, float minY, float maxY);
-};
+namespace tinker::ui {
+    class DurationDragDraw : public good_grid::DrawGridBase {
+    public:
+        static DurationDragDraw* create();
+        void drawDottedLine(const CCPoint& start, const CCPoint& end, const good_grid::GradientColor& color, float minX, float maxX, float minY, float maxY);
+        void draw(float minX, float maxX, float minY, float maxY);
+    };
+}

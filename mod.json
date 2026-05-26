@@ -13,7 +13,7 @@
 	"description": "Editor Revamped",
 	"dependencies": {
 		"geode.node-ids": "v1.23.3",
-		"alphalaneous.good_grid": "v1.2.0",
+		"alphalaneous.good_grid": "v2.0.0",
 		"alphalaneous.alphas_geode_utils": "v1.2.4",
 		"alphalaneous.alphas-ui-pack": "v1.1.0",
 		"alphalaneous.editortab_api": "v2.1.6",
@@ -875,6 +875,11 @@
 			"description": "Customize the colors of the editor grid",
 			"color": "#000000"
 		},
+		"EditorGridCustomization-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
 		"EditorGridCustomization-grid-color": {
 			"type": "rgba",
 			"default": [0, 0, 0, 150],
@@ -890,7 +895,7 @@
 			"type": "float",
 			"name": "Grid Invert Opacity",
 			"description": "The opacity of the grid when using invert",
-			"default": 0.5,
+			"default": 0.3,
 			"min": 0,
 			"max": 1,
 			"enable-if": "EditorGridCustomization-grid-invert"
