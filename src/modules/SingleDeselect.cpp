@@ -22,7 +22,7 @@ void SDEditorUI::deselectSpecificObject(CCPoint pos) {
         auto max = std::max(object->m_editorLayer, object->m_editorLayer2);
 
         if (m_editorLayer->m_lockedLayers.size() > max) {
-            locked = m_editorLayer->m_lockedLayers[object->m_editorLayer] || (object->m_editorLayer2 != 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer2]);
+            locked = (object->m_editorLayer >= 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer]) || (object->m_editorLayer2 > 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer2]);
         }
 
         if (object->boundingBox().containsPoint(mousePosToNode) && !locked && (currentLayer == -1 || (isOnCurrentEditorLayer1 || isOnCurrentEditorLayer2))) {

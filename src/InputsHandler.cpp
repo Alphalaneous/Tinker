@@ -426,6 +426,7 @@ bool InputEditorUI::hasActiveAlerts() {
 
 void InputEditorPauseLayer::customSetup() {
     EditorPauseLayer::customSetup();
+    #ifndef GEODE_IS_MACOS
     if (!EditorUI::get() || getUserFlag("ignore"_spr)) return;
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-exit-pause-menu"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
@@ -445,6 +446,7 @@ void InputEditorPauseLayer::customSetup() {
             editor->unblockPause();
         }
     });
+    #endif
 }
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {

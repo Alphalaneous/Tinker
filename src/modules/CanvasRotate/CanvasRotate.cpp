@@ -247,7 +247,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
             auto max = std::max(object->m_editorLayer, object->m_editorLayer2);
 
             if (m_lockedLayers.size() > max) {
-                locked = m_lockedLayers[object->m_editorLayer] || (object->m_editorLayer2 != 0 && m_lockedLayers[object->m_editorLayer2]);
+                locked = (object->m_editorLayer >= 0 && m_lockedLayers[object->m_editorLayer]) || (object->m_editorLayer2 > 0 && m_lockedLayers[object->m_editorLayer2]);
             }
 
             if ((!isOnCurrentEditorLayer1 && !isOnCurrentEditorLayer2 && m_currentLayer != -1) || locked) return;

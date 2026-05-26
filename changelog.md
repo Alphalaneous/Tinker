@@ -1,3 +1,7 @@
+# 1.0.16
+- <c-dddddd>Fix a crash when you have one negative editor layer and one positive editor layer on an object</c>
+- <c-dddddd>Remove editor pause escape keybind for MacOS due to weird crashes</c>
+
 # 1.0.15
 - <c-dddddd>Fix a crash</c>
 
