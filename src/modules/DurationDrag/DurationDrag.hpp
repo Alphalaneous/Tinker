@@ -3,6 +3,7 @@
 #include "../../Module.hpp"
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/EditorPauseLayer.hpp>
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include <alphalaneous.good_grid/include/DrawNode.hpp>
@@ -28,6 +29,12 @@ class $modify(DDEditorUI, EditorUI) {
     void deselectObject(GameObject* object);
     void selectObject(GameObject* object, bool ignoreFilter);
     void selectObjects(cocos2d::CCArray* objects, bool ignoreFilter);
+};
+
+class $modify(DDEditorPauseLayer, EditorPauseLayer) {
+    $registerEditorHooks(DurationDrag)
+
+    void onResume(CCObject* sender);
 };
 
 class DurationDragDraw : public DrawNode {

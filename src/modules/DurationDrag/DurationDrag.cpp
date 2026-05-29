@@ -20,6 +20,11 @@ void DurationDrag::updateObjects() {
 	}
 }
 
+void DDEditorPauseLayer::onResume(CCObject* sender) {
+    EditorPauseLayer::onResume(sender);
+    DurationDrag::get()->updateObjects();
+}
+
 void DDEditorUI::deselectAll() {
 	EditorUI::deselectAll();
 	DurationDrag::get()->updateObjects();
@@ -78,7 +83,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
     if (!dgl->m_editorLayer->m_showDurationLines || dgl->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
     auto& api = DrawGridAPI::get();
-    const LineColor color = { 255, 255, 255, 115};
+    const LineColor color = { 100, 100, 100, 75};
 
     auto drawPulseLine = [&](EffectGameObject* object, float x) {
         const ccVertex2F start = {x, object->getPositionY()};
@@ -93,8 +98,8 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
         const ccVertex2F p1 = {std::lerp(start.x, end.x, fadeInPct), std::lerp(start.y, end.y, fadeInPct)};
         const ccVertex2F p2 = {std::lerp(start.x, end.x, holdPct), std::lerp(start.y, end.y, holdPct)};
 
-        const LineColor startColor{{255,255,255,0}, color.getColorA()};
-        const LineColor endColor{color.getColorA(), {255,255,255,0}};
+        const LineColor startColor{{0,0,0,0}, color.getColorA()};
+        const LineColor endColor{color.getColorA(), {0,0,0,0}};
 
         api.drawLine(start, p1, startColor, 2.f);
         api.drawLine(p1, p2, color, 2.f);

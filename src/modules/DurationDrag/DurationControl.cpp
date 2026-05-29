@@ -181,7 +181,7 @@ void DurationControl::setMenuPosition(const CCPoint& point, const CCPoint& ancho
 void DurationControl::updateObjects(EditorUI* editorUI) {
     if (!editorUI || m_lockUpdateObjects) return;
 
-    if (editorUI->m_selectedObjects->count() > 100) {
+    if (editorUI->m_selectedObjects->count() > 100 || !editorUI->m_editorLayer->m_showDurationLines) {
         for (auto& [k, v] : m_objects) {
             v->removeFromParent();
         }

@@ -1,3 +1,7 @@
+# 1.0.17
+- <c-dddddd>Duration Drag no longer shows if duration lines are disabled</c>
+- <c-dddddd>Fix dotted line and pulse line colors when duration drag is enabled</c>
+
 # 1.0.16
 - <c-dddddd>Fix a crash when you have one negative editor layer and one positive editor layer on an object</c>
 - <c-dddddd>Remove editor pause escape keybind for MacOS due to weird crashes</c>
