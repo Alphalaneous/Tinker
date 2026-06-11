@@ -55,7 +55,7 @@ body:
       - "Mac (Arm)"
       - "Android (32-bit)"
       - "Android (64-bit)"
-      - "iOS"
+      - "iOS (JIT)"
       - "iOS (Jitless)"
       - "Linux"
     validations:
