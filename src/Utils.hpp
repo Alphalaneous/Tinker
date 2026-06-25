@@ -464,7 +464,6 @@ namespace tinker::utils {
                         }
 
                         gameObject->updateHSVState();
-                        gameObject->setOpacity(baseColor->m_opacity * 255.f);
 
                         auto blend = blending 
                             ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
@@ -526,7 +525,6 @@ namespace tinker::utils {
                         }
 
                         gameObject->updateHSVState();
-                        gameObject->setChildOpacity(detailColor->m_opacity * 255.f);
 
                         auto blend = blending 
                             ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
@@ -580,6 +578,7 @@ namespace tinker::utils {
                         if (detailColor->m_usesHSV) color = GameToolbox::transformColor(color, detailColor->m_hsv);
                         gameObject->updateSecondaryColor(color);
                     }
+                    gameObject->setOpacity(255);
                 }
             }
         }

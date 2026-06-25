@@ -1,5 +1,6 @@
 #include "CustomToolbarBackground.hpp"
 #include "../third-party/BlurAPI.hpp"
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjson::Value& value) {
     
@@ -56,3 +57,13 @@ void CustomToolbarBackground::onEditor() {
 	    BlurAPI::addBlur(m_editorUI->getChildByID("build-tabs-menu"));
     }
 }
+
+class $nodeModify(CTBGroup, Group) {
+    void modify() {
+        if (!CustomToolbarBackground::isEnabled()) return;
+        if (!CustomToolbarBackground::getSetting<bool, "blur-behind">()) return;
+        if (getID() != "RaZooM") return;
+        
+	    BlurAPI::addBlur(this);
+    }
+};

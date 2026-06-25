@@ -2,6 +2,7 @@
 #include "../../ObjectNames.hpp"
 #include "../ScrollableObjects.hpp"
 #include "../UIScaling.hpp"
+#include "../../InputsHandler.hpp"
 #include "ObjectTooltips.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
@@ -74,6 +75,9 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
         m_tooltipBG->setVisible(false);
     }
     m_clicking = true;
+    if (touch->getLocation().y > EditorUI::get()->m_toolbarHeight) {
+        m_clickingOutside = true;
+    }
     return true;
 }
 
@@ -88,6 +92,7 @@ void TooltipHover::clickEnded(TouchEvent* touch) {
         m_tooltipBG->setPosition(positionHere);
     }
     m_clicking = false;
+    m_clickingOutside = false;
 }
 
 bool TooltipHover::mouseEntered(TouchEvent* touch) {
@@ -101,7 +106,7 @@ void TooltipHover::showTooltipWithTouch(TouchEvent* touch)
 void TooltipHover::mouseMoved(TouchEvent* touch) 
 #endif
 {
-    if (LevelEditorLayer::get()->getChildByType<EditorPauseLayer>(0)) return;
+    if (LevelEditorLayer::get()->getChildByType<EditorPauseLayer>(0) || InputEditorUI::get()->hasActiveAlerts()) return;
 
     auto origItem = m_activeItem;
     if (origItem) setButtonOpacity(origItem, 255);
@@ -182,7 +187,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
     }
 
     if (m_activeItem) {
-        setButtonOpacity(m_activeItem, 172);
+        setButtonOpacity(m_activeItem, m_clickingOutside ? 255 : 172);
         
         #ifdef GEODE_IS_MOBILE
         unschedule(schedule_selector(TooltipHover::scheduleHide));
@@ -210,11 +215,15 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 bool TooltipHover::clickBegan(TouchEvent* touch) {
     showTooltipWithTouch(touch);
     m_clicking = true;
+    if (touch->getLocation().y > EditorUI::get()->m_toolbarHeight) {
+        m_clickingOutside = true;
+    }
     return true;
 }
 
 void TooltipHover::clickEnded(TouchEvent* touch) {
     m_clicking = false;
+    m_clickingOutside = false;
     scheduleOnce(schedule_selector(TooltipHover::scheduleHide), 2);
 }
 

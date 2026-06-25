@@ -43,6 +43,7 @@ namespace tinker::ui {
         void setButtonOpacity(CreateMenuItem* item, GLubyte opacity);
 
         bool m_clicking;
+        bool m_clickingOutside;
         Ref<CreateMenuItem> m_activeItem = nullptr;
         geode::NineSlice* m_tooltipBG;
         CCLabelBMFont* m_tooltipLabel;

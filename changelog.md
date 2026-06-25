@@ -1,5 +1,9 @@
 # 1.0.20
 - <c-dddddd>Fix some features no longer working when entering the editor</c>
+- <c-dddddd>Fix hovering CreateMenuItems when alerts are visible</c>
+- <c-dddddd>Fix CreateMenuItems being dimmed when dragging in the editor area</c>
+- <c-dddddd>Toolbar blurring now applies to popups from Object Groups</c>
+- <c-dddddd>Fixed opacity being wrong with Preview Object Colors enabled</c>
 
 # 1.0.19
 - <c-dddddd>Fix an issue with Editor start pos switcher not loading initial start positions</c>

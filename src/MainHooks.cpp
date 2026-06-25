@@ -61,7 +61,6 @@ class $modify(MainEditorUI, EditorUI) {
     struct Fields {
         int m_lastObjectCount;
         bool m_wasPlatformer;
-        std::set<FLAlertLayer*> m_activeAlerts;
 
         ~Fields() {
             s_editorUI = nullptr;
