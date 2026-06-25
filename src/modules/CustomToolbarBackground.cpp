@@ -1,5 +1,5 @@
 #include "CustomToolbarBackground.hpp"
-#include "../third-party/BlurAPI.hpp"
+#include "third-party/BlurAPI.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjson::Value& value) {

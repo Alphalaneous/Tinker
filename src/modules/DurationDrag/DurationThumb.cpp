@@ -1,7 +1,7 @@
 #include "DurationThumb.hpp"
 #include "DurationControl.hpp"
 #include "Utils.hpp"
-#include "../../Utils.hpp"
+#include "utils/Utils.hpp"
 
 using namespace tinker::ui;
 

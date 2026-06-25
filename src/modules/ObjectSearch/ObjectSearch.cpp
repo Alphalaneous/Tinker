@@ -1,12 +1,12 @@
 #include "ObjectSearch.hpp"
-#include "../../ObjectNames.hpp"
-#include "../LiveColors/LiveColors.hpp"
+#include "misc/ObjectNames.hpp"
+#include "modules/LiveColors/LiveColors.hpp"
 #include "SearchField.hpp"
-#include "../ScrollableObjects.hpp"
-#include "../CenteredObjectButtons.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/CenteredObjectButtons.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include "../../third-party/ObjectIDDisplay.hpp"
+#include "third-party/ObjectIDDisplay.hpp"
 
 using namespace alpha::prelude;
 

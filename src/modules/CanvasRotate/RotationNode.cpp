@@ -1,7 +1,7 @@
 #include "RotationNode.hpp"
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
-#include "../../Utils.hpp"
+#include "utils/Utils.hpp"
 #include "CanvasRotate.hpp"
 
 using namespace tinker::ui;

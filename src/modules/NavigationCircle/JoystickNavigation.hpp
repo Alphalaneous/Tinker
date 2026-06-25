@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Module.hpp"
+#include "module/Module.hpp"
 
 namespace tinker::ui {
     class NavigationControl;

@@ -1,5 +1,5 @@
 #include "ThatPasteButton.hpp"
-#include "../Utils.hpp"
+#include "utils/Utils.hpp"
 
 bool ThatPasteButton::onToggled(bool state) {
     if (state) {

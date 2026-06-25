@@ -1,8 +1,8 @@
 #include "TooltipHover.hpp"
-#include "../../ObjectNames.hpp"
-#include "../ScrollableObjects.hpp"
-#include "../UIScaling.hpp"
-#include "../../InputsHandler.hpp"
+#include "misc/ObjectNames.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/UIScaling.hpp"
+#include "InputsHandler.hpp"
 #include "ObjectTooltips.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 

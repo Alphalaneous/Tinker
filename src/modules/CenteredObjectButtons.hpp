@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Module.hpp"
+#include "module/Module.hpp"
 #include <Geode/modify/CreateMenuItem.hpp>
 
 class $editorModule(CenteredObjectButtons) {};

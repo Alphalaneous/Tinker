@@ -1,15 +1,11 @@
 #pragma once
 
-#include "Geode/cocos/cocoa/CCArray.h"
 #include <Geode/Geode.hpp>
-#include <Geode/binding/CCMenuItemToggler.hpp>
-#include <Geode/binding/EditButtonBar.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
 #include <Geode/modify/GameObject.hpp>
 #include <Geode/modify/ObjectToolbox.hpp>
-#include <vector>
 
 using namespace geode::prelude;
 

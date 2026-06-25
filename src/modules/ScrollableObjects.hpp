@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Module.hpp"
+#include "module/Module.hpp"
 #include <Geode/modify/EditButtonBar.hpp>
 #include <Geode/modify/EditorOptionsLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Module.hpp"
+#include "module/Module.hpp"
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
 

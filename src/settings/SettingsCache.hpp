@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Utils.hpp"
 #include <Geode/Geode.hpp>
+#include "utils/Singleton.hpp"
 
 using namespace geode::prelude;
 
-class SettingsCache : public tinker::utils::Singleton<SettingsCache> {
+class SettingsCache : public Singleton<SettingsCache> {
 public:
     struct SettingCategory;
 

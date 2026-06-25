@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "../Utils.hpp"
+#include "utils/Singleton.hpp"
 
 using namespace geode::prelude;
 
-class SettingsQueueHandler : public tinker::utils::Singleton<SettingsQueueHandler> {
+class SettingsQueueHandler : public Singleton<SettingsQueueHandler> {
 public:
     void addFeature(const std::string& name);
     void addSetting(const std::string& name);

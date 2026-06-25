@@ -1,6 +1,6 @@
 #include "NavigationControl.hpp"
 #include "JoystickNavigation.hpp"
-#include "../CanvasRotate/CanvasRotate.hpp"
+#include "modules/CanvasRotate/CanvasRotate.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
 using namespace tinker::ui;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Module.hpp"
+#include "module/Module.hpp"
 #include "RotationNode.hpp"
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>

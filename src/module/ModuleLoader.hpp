@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "ModuleRegistry.hpp"
+#include "module/ModuleRegistry.hpp"
 
 using namespace geode::prelude;
 

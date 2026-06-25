@@ -2,5 +2,6 @@
 
 #include "module/Module.hpp"
 
-class $editorModule(MobileGestures) {
+class $editorModule(ZoomText) {
 };
+

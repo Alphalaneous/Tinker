@@ -1,11 +1,11 @@
 #include "InputsHandler.hpp"
-#include "Utils.hpp"
+#include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
+#include "actions/CCCallbackAction.hpp"
+#include "actions/CCValueTo.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include "CCCallbackAction.hpp"
-#include "CCValueTo.hpp"
 
 using namespace alpha::prelude;
 

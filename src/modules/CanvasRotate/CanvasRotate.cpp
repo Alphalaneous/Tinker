@@ -1,7 +1,7 @@
 #include "CanvasRotate.hpp"
 #include "RotationNode.hpp"
-#include "../../Utils.hpp"
-#include "../NavigationCircle/JoystickNavigation.hpp"
+#include "utils/Utils.hpp"
+#include "modules/NavigationCircle/JoystickNavigation.hpp"
 
 using namespace tinker::ui;
 

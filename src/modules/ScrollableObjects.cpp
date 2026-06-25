@@ -2,7 +2,7 @@
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <razoom.object_groups/include/ObjectFoundEvent.hpp>
-#include "ObjectSearch/ObjectSearch.hpp"
+#include "modules/ObjectSearch/ObjectSearch.hpp"
 
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "invert-scroll") return true;

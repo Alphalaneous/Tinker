@@ -3,8 +3,8 @@
 #include <Geode/Geode.hpp>
 #include "settings/SettingsCache.hpp"
 #include "settings/SettingsQueueHandler.hpp"
-#include "Utils.hpp"
-#include "ModuleLoader.hpp"
+#include "utils/Utils.hpp"
+#include "module/ModuleLoader.hpp"
 #include "Events.hpp"
 
 using namespace geode::prelude;

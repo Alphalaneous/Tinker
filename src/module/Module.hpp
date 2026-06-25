@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "ModuleCore.hpp"
-#include "ModuleBase.hpp"
+#include "module/ModuleCore.hpp"
+#include "module/ModuleBase.hpp"
 #include "Events.hpp"
 
 using namespace geode::prelude;

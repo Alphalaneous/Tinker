@@ -1,11 +1,11 @@
 #include "SearchField.hpp"
-#include "../../ObjectNames.hpp"
+#include "misc/ObjectNames.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
-#include "../../Utils.hpp"
+#include "utils/Utils.hpp"
 #include "ObjectSearch.hpp"
-#include "../ScrollableObjects.hpp"
+#include "modules/ScrollableObjects.hpp"
 
 using namespace tinker::ui;
 

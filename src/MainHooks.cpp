@@ -1,5 +1,4 @@
 #include <Geode/Geode.hpp>
-#include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/SetGroupIDLayer.hpp>
@@ -7,9 +6,9 @@
 #include <Geode/modify/CCTouchDispatcher.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
-#include "ModuleBase.hpp"
-#include "ModuleRegistry.hpp"
-#include "Module.hpp"
+#include "module/ModuleBase.hpp"
+#include "module/ModuleRegistry.hpp"
+#include "module/Module.hpp"
 #include <Geode/ui/GeodeUI.hpp>
 #include "Events.hpp"
 #include "modules/ScrollableObjects.hpp"

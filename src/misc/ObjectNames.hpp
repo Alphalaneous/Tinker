@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Utils.hpp"
+#include "utils/Singleton.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 
 using namespace geode::prelude;
 
-class ObjectNames : public tinker::utils::Singleton<ObjectNames> {
+class ObjectNames : public Singleton<ObjectNames> {
 public:
     void checkNames();
     Result<std::string_view> getName(unsigned int id);

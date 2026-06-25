@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Module.hpp"
+#include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/TextGameObject.hpp>
 #include <Geode/modify/CustomizeObjectLayer.hpp>

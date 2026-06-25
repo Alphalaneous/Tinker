@@ -1,10 +1,10 @@
 #include "UIScaling.hpp"
-#include "ImprovedLinkControls.hpp"
-#include "LengthInEditor.hpp"
-#include "LiveColors/LiveColors.hpp"
-#include "ObjectSearch/ObjectSearch.hpp"
-#include "ScrollableObjects.hpp"
-#include "StartPosTools/StartPosTools.hpp"
+#include "modules/ImprovedLinkControls.hpp"
+#include "modules/LengthInEditor.hpp"
+#include "modules/LiveColors/LiveColors.hpp"
+#include "modules/ObjectSearch/ObjectSearch.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/StartPosTools/StartPosTools.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../../include/UIScaling.hpp"
 
