@@ -87,7 +87,7 @@ bool QEEditorUI::_isAllowedObjectID(int id) {
         || id == 1615 // counter
         || id == 1704 // green dash orb
         || id == 1751 // pink dash orb
-        || id == 2063  // checkpoint
+        || id == 2063 // checkpoint
         || id == 2065 // particle
         || id == 1329 // user coin
         || id == 142; // gold coin
@@ -95,13 +95,14 @@ bool QEEditorUI::_isAllowedObjectID(int id) {
 
 bool QEEditorUI::isDisallowedObjectID(int id) {
     return id == 2064 // orange teleport portal
-        || id == 749 // linked orange teleport portal
-        || id == 918 // monster chompy
+        || id == 749  // linked orange teleport portal
+        || id == 918  // monster chompy
         || id == 1327 // small monster
         || id == 1328 // medium monster
         || id == 1584 // bat monster
         || id == 2012 // spike ball monster
-        || id == 919; // animated spike pit
+        || id == 919  // animated spike pit
+        || id == 914; // text object
 }
 
 bool QEEditorUI::isSpecialEdit(GameObject* obj) {

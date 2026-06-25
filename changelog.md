@@ -13,6 +13,7 @@
 - <c-dddddd>Improve Object Search to group objects by tab, tab with most results shows at front</c>
 - <c-dddddd>Require editor restart when toggling toolbar blur due to potential crash</c>
 - <c-dddddd>Smooth scroll speed now ignores speedhack</c>
+- <c-dddddd>Fix Edit Extras not showing for text objects</c>
 
 # 1.0.17
 - <c-dddddd>Duration Drag no longer shows if duration lines are disabled</c>
