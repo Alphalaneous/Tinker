@@ -1,3 +1,6 @@
+# 1.0.20
+- <c-dddddd>Fix some features no longer working when entering the editor</c>
+
 # 1.0.19
 - <c-dddddd>Fix an issue with Editor start pos switcher not loading initial start positions</c>
 

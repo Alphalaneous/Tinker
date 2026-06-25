@@ -1,5 +1,7 @@
 #include <Geode/Geode.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
@@ -15,14 +17,48 @@
 
 using namespace geode::prelude;
 
+class $modify(MainLevelEditorLayer, LevelEditorLayer) {
+
+    struct Fields {
+        std::vector<std::shared_ptr<EditorModuleBase>> m_modules;
+    };
+
+    bool init(GJGameLevel* level, bool noUI) {
+
+        auto fields = m_fields.self();
+
+        for (const auto& createModule : ModuleRegistry<EditorModuleBase>::get()->m_modules) {
+            fields->m_modules.push_back(createModule());
+        }
+
+        if (!LevelEditorLayer::init(level, noUI)) return false;
+
+        return true;
+    }
+
+    std::vector<std::shared_ptr<EditorModuleBase>>* getModules() {
+        return &m_fields->m_modules;
+    }
+
+    void forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback) {
+        if (!moduleCallback) return;
+        for (auto& module : *getModules()) {
+            if (module->isEnabled()) {
+                moduleCallback(module.get());
+            }
+        }
+    }
+
+    static MainLevelEditorLayer* get() {
+        return static_cast<MainLevelEditorLayer*>(LevelEditorLayer::get());
+    }
+};
 
 class $modify(MainEditorUI, EditorUI) {
 
     static inline EditorUI* s_editorUI = nullptr;
 
     struct Fields {
-        std::vector<std::shared_ptr<EditorModuleBase>> m_modules;
-
         int m_lastObjectCount;
         bool m_wasPlatformer;
         std::set<FLAlertLayer*> m_activeAlerts;
@@ -47,14 +83,12 @@ class $modify(MainEditorUI, EditorUI) {
     bool init(LevelEditorLayer* editorLayer) {
         auto fields = m_fields.self();
 
-        for (const auto& createModule : ModuleRegistry<EditorModuleBase>::get()->m_modules) {
-            fields->m_modules.push_back(createModule());
-        }
-
         if (!EditorUI::init(editorLayer)) return false;
         s_editorUI = this;
 
-        for (const auto& module : fields->m_modules) {
+        auto modules = static_cast<MainLevelEditorLayer*>(editorLayer)->getModules();
+
+        for (const auto& module : *modules) {
             module->m_editorLayer = m_editorLayer;
             module->m_editorUI = this;
             if (module->isEnabled()) {
@@ -103,17 +137,6 @@ class $modify(MainEditorUI, EditorUI) {
     void updateButtons() {
         EditorUI::updateButtons();
         UpdateButtonsEvent().send();
-    }
-
-    void forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback) {
-        if (!moduleCallback) return;
-		auto fields = m_fields.self();
-
-        for (auto& module : fields->m_modules) {
-            if (module->isEnabled()) {
-                moduleCallback(module.get());
-            }
-        }
     }
 
     void deactivateScaleControl() {
@@ -190,11 +213,15 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
         bool m_wasIgnored = false;
         ~Fields() {
             if (MainEditorUI::get()) {
-                MainEditorUI::get()->forEachModule([this] (EditorModuleBase* module) {
-                    module->m_pauseLayer = nullptr;
-                });
-                if (!m_wasIgnored) {
-                    EditorUnpausedEvent().send();
+                auto editorLayer = MainLevelEditorLayer::get();
+                if (editorLayer) {
+                    editorLayer->forEachModule([this] (EditorModuleBase* module) {
+                        module->m_pauseLayer = nullptr;
+                    });
+                    
+                    if (!m_wasIgnored) {
+                        EditorUnpausedEvent().send();
+                    }
                 }
             }
         }
@@ -209,7 +236,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
             return true;
         }
 
-        MainEditorUI::get()->forEachModule([this] (EditorModuleBase* module) {
+        MainLevelEditorLayer::get()->forEachModule([this] (EditorModuleBase* module) {
             module->m_pauseLayer = this;
         });
         EditorPausedEvent().send(this);
