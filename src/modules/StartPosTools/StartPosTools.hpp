@@ -6,13 +6,12 @@
 #include <Geode/modify/GJBaseGameLayer.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 
-class $editorModule(StartPosTools) {
-    void onEditor() override;
+class $globalModule(StartPosTools) {
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 };
 
 class $modify(SPTEditorUI, EditorUI) {
-    $registerEditorHooks(StartPosTools)
+    $registerGlobalHooks(StartPosTools)
 
     struct Fields {
         Ref<tinker::ui::StartPosOverlay> m_overlay;
@@ -25,6 +24,7 @@ class $modify(SPTEditorUI, EditorUI) {
         geode::Button* m_nextButton;
     };
 
+    bool init(LevelEditorLayer* editorLayer);
     void updateOverlay();
     void showSwitcher();
     void hideSwitcher(float dt);
@@ -40,13 +40,13 @@ class $modify(SPTEditorUI, EditorUI) {
 };
 
 class $modify(SPTGJBaseGameLayer, GJBaseGameLayer) {
-    $registerEditorHooks(StartPosTools)
+    $registerGlobalHooks(StartPosTools)
 
     void orderSpawnObjects();
 };
 
 class $modify(SPTLevelEditorLayer, LevelEditorLayer) {
-    $registerEditorHooks(StartPosTools)
+    $registerGlobalHooks(StartPosTools)
 
     struct Fields {
         std::vector<Ref<StartPosObject>> m_startPositions;

@@ -1,3 +1,6 @@
+# 1.0.19
+- <c-dddddd>Fix an issue with Editor start pos switcher not loading initial start positions</c>
+
 # 1.0.18
 - <c-dddddd>Fix editor slider not updating when camera moves from scroll and centering</c>
 - <c-dddddd>Add button to lock camera to music playback</c>

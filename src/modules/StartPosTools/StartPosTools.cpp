@@ -13,8 +13,9 @@ bool StartPosTools::onSettingChanged(std::string_view key, const matjson::Value&
     return true;
 }
 
-void StartPosTools::onEditor() {
-    auto fields = static_cast<SPTEditorUI*>(m_editorUI)->m_fields.self();
+bool SPTEditorUI::init(LevelEditorLayer* editorLayer) {
+    if (!EditorUI::init(editorLayer)) return false;
+    auto fields = m_fields.self();
 
     fields->m_overlay = StartPosOverlay::create();
 	fields->m_overlay->setID("start-pos-controls"_spr);
@@ -23,13 +24,13 @@ void StartPosTools::onEditor() {
     if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
         auto spr = CCSprite::create("playtest-start-pos.png"_spr);
         spr->setScale(0.75f);
-        fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, m_editorUI, menu_selector(SPTEditorUI::onPlaytest));
+        fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(SPTEditorUI::onPlaytest));
         fields->m_startPosBtn->setTag(1);
         fields->m_startPosBtn->setID("playtest-no-startpos-button"_spr);
-        m_editorUI->m_uiItems->addObject(fields->m_startPosBtn);
+        m_uiItems->addObject(fields->m_startPosBtn);
     }
 
-    auto playtestMenu = m_editorUI->getChildByID("playtest-menu");
+    auto playtestMenu = getChildByID("playtest-menu");
     if (playtestMenu) {
         auto layout = static_cast<AxisLayout*>(playtestMenu->getLayout());
         if (layout) {
@@ -42,19 +43,19 @@ void StartPosTools::onEditor() {
             playtestMenu->updateLayout();
         }
     }
-    static_cast<SPTEditorUI*>(m_editorUI)->updatePlaytestMenu();
+    updatePlaytestMenu();
 
     if (StartPosTools::getSetting<bool, "start-pos-switcher">()) {
         fields->m_switcherContainer = geode::NineSlice::create("square02b_001.png");
         fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
         fields->m_switcherContainer->setZOrder(500);
         fields->m_switcherContainer->setContentSize({200, 30});
-        fields->m_switcherContainer->setPosition({m_editorUI->getContentWidth() / 2, 20});
+        fields->m_switcherContainer->setPosition({getContentWidth() / 2, 20});
         fields->m_switcherContainer->setID("startpos-switcher"_spr);
         fields->m_switcherContainer->setVisible(false);
         fields->m_switcherContainer->setColor({0, 0, 0});
 
-        m_editorUI->addChild(fields->m_switcherContainer);
+        addChild(fields->m_switcherContainer);
 
         fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
         fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2);
@@ -83,7 +84,7 @@ void StartPosTools::onEditor() {
         fields->m_switcherContainer->addChild(fields->m_prevButton);
         fields->m_switcherContainer->addChild(fields->m_nextButton);
 
-        static_cast<SPTEditorUI*>(m_editorUI)->updateSwitcherLabel();
+        updateSwitcherLabel();
 
         if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
             fields->m_switcherContainer->setOpacity(0);
@@ -117,7 +118,7 @@ void StartPosTools::onEditor() {
             }
         );
 
-        m_editorUI->runAction(CallFuncExt::create([this] {
+        runAction(CallFuncExt::create([this] {
             auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
             auto saved = alpha::level_storage::getSaveContainer(editorLayer, Mod::get());
             if (saved.contains("start-pos-index")) {
@@ -125,6 +126,7 @@ void StartPosTools::onEditor() {
             }
         }));
     }
+    return true;
 }
 
 void SPTEditorUI::showSwitcher() {
