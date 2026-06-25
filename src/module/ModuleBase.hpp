@@ -5,11 +5,10 @@
 using namespace geode::prelude;
 
 struct ModuleBase {
-    geode::Function<bool()> isEnabled;
-
     virtual void onCreated() {}
     virtual bool onSettingChanged(std::string_view key, const matjson::Value& value) { return false; }
     virtual bool onToggled(bool state) { return false; }
+    virtual bool moduleEnabled() { return false; }
 
     template <class Event, class Callback>
     ListenerHandle* addEventListener(std::string_view id, Event const& event, Callback&& callback, int priority = 0) {

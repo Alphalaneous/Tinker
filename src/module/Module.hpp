@@ -3,7 +3,6 @@
 #include <Geode/Geode.hpp>
 #include "module/ModuleCore.hpp"
 #include "module/ModuleBase.hpp"
-#include "Events.hpp"
 
 using namespace geode::prelude;
 

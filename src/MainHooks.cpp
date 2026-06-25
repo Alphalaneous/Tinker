@@ -24,7 +24,7 @@ std::vector<std::shared_ptr<EditorModuleBase>>* MainLevelEditorLayer::getModules
 void MainLevelEditorLayer::forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback) {
     if (!moduleCallback) return;
     for (auto& module : *getModules()) {
-        if (module->isEnabled()) {
+        if (module->moduleEnabled()) {
             moduleCallback(module.get());
         }
     }
@@ -57,7 +57,7 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     for (const auto& module : *modules) {
         module->m_editorLayer = m_editorLayer;
         module->m_editorUI = this;
-        if (module->isEnabled()) {
+        if (module->moduleEnabled()) {
             module->onEditor();
         }
     }

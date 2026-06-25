@@ -25,14 +25,14 @@ public:
         log::debug("Destroyed: {}", Name.data());
     }
 
+    bool moduleEnabled() override {
+        return isEnabled();
+    }
+
     static std::shared_ptr<T> create() {
         auto ret = std::make_shared<T>();
-        ret->ModuleBase::isEnabled = [] () {
-            return isEnabled();
-        };
 
         log::debug("Created: {}", Name.data());
-
 
         bool moduleEnabled = isEnabled();
 
