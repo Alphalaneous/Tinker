@@ -5,10 +5,12 @@
 #include <Geode/modify/TextGameObject.hpp>
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 
-class $globalModule(ReferenceImage) {};
+class $editorModule(ReferenceImage) {
+	void onEditor() override;
+};
 
 class $modify(RICustomizeObjectLayer, CustomizeObjectLayer) {
-	$registerGlobalHooks(ReferenceImage);
+	$registerEditorHooks(ReferenceImage);
 
 	struct Fields {
 		bool m_isImageObject;
@@ -20,7 +22,7 @@ class $modify(RICustomizeObjectLayer, CustomizeObjectLayer) {
 };
 
 class $modify(RITextGameObject, TextGameObject) {
-	$registerGlobalHooks(ReferenceImage);
+	$registerEditorHooks(ReferenceImage);
 
 	struct Fields {
 		Ref<LazySprite> m_spr;
@@ -40,8 +42,7 @@ class $modify(RITextGameObject, TextGameObject) {
 };
 
 class $modify(RIEditorUI, EditorUI) {
-	$registerGlobalHooks(ReferenceImage)
+	$registerEditorHooks(ReferenceImage)
 
 	void onImport(CCObject* sender);
-    bool init(LevelEditorLayer* editorLayer);
 };

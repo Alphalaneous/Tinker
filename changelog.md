@@ -1,3 +1,19 @@
+# 1.0.18
+- <c-dddddd>Fix editor slider not updating when camera moves from scroll and centering</c>
+- <c-dddddd>Add button to lock camera to music playback</c>
+- <c-dddddd>Add fix for the vanilla bug where the ground position is weird when zooming</c>
+- <c-dddddd>Clean up module system a bit</c>
+- <c-dddddd>Rework Quick Extras to be cleaner</c>
+- <c-dddddd>Add Object Groups version check</c>
+- <c-dddddd>Fix link controls position on mobile</c>
+- <c-dddddd>Fix Preview Object Colors affecting objects that are black by default when no color is set</c>
+- <c-dddddd>Fixed opacity not working with Preview Object Colors</c>
+- <c-dddddd>Object Search no longer renders objects separately</c>
+- <c-dddddd>Preview Object Colors now works in the search tab</c>
+- <c-dddddd>Improve Object Search to group objects by tab, tab with most results shows at front</c>
+- <c-dddddd>Require editor restart when toggling toolbar blur due to potential crash</c>
+- <c-dddddd>Smooth scroll speed now ignores speedhack</c>
+
 # 1.0.17
 - <c-dddddd>Duration Drag no longer shows if duration lines are disabled</c>
 - <c-dddddd>Fix dotted line and pulse line colors when duration drag is enabled</c>

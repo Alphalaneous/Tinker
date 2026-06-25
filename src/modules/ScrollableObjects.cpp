@@ -9,11 +9,9 @@ bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Va
     return false;
 }
 
-bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
-    if (!EditorUI::init(editorLayer)) return false;
-
-    auto leftSpacerLine = getChildByID("spacer-line-left");
-    auto rightSpacerLine = getChildByID("spacer-line-right");
+void ScrollableObjects::onEditor() {
+    auto leftSpacerLine = m_editorUI->getChildByID("spacer-line-left");
+    auto rightSpacerLine = m_editorUI->getChildByID("spacer-line-right");
 
     if (leftSpacerLine) leftSpacerLine->setZOrder(11);
     if (rightSpacerLine) rightSpacerLine->setZOrder(11);
@@ -49,11 +47,23 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
         scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
     });
 
-    runAction(CallFuncExt::create([this] {
+    m_editorUI->runAction(CallFuncExt::create([this] {
         auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
         auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-        auto fields = m_fields.self();
+        auto fields = static_cast<SOEditorUI*>(m_editorUI)->m_fields.self();
+
+        fields->m_groupsGotoMenu = m_editorUI->getChildByID("razoom.object_groups/goto_obj_menu");
+        if (fields->m_groupsGotoMenu) {
+            fields->m_groupsGotoObjectsButton = fields->m_groupsGotoMenu->getChildByType<CCMenuItemSpriteExtra>(0);
+            fields->m_groupsGotoMenu->removeFromParent();
+        }
+
+        fields->m_groupsTogglesMenu = m_editorUI->getChildByID("razoom.object_groups/toggle_menu");
+        if (fields->m_groupsTogglesMenu) {
+            fields->m_groupsTogglesButton = fields->m_groupsTogglesMenu->getChildByType<CCMenuItemSpriteExtra>(0);
+            fields->m_groupsTogglesMenu->removeFromParent();
+        }
 
         for (auto tab : alpha::editor_tabs::getAllTabs().unwrap()) {
             auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(tab));
@@ -94,28 +104,14 @@ bool SOEditorUI::init(LevelEditorLayer* editorLayer) {
 
         scrollLayer->setScrollX(nodePos.x - scrollLayer->getContentWidth() / 2, true);
     });
-
-    auto fields = m_fields.self();
-
-    fields->m_groupsGotoMenu = getChildByID("razoom.object_groups/goto_obj_menu");
-    if (fields->m_groupsGotoMenu) {
-        fields->m_groupsGotoObjectsButton = fields->m_groupsGotoMenu->getChildByType<CCMenuItemSpriteExtra>(0);
-        fields->m_groupsGotoMenu->removeFromParent();
-    }
-
-    fields->m_groupsTogglesMenu = getChildByID("razoom.object_groups/toggle_menu");
-    if (fields->m_groupsTogglesMenu) {
-        fields->m_groupsTogglesButton = fields->m_groupsTogglesMenu->getChildByType<CCMenuItemSpriteExtra>(0);
-        fields->m_groupsTogglesMenu->removeFromParent();
-    }
-
-    fields->m_shouldLoadBars = true;
-
-    return true;
 }
 
-bool SOEditorUI::shouldLoadBars() {
-    return m_fields->m_shouldLoadBars;
+bool ScrollableObjects::shouldLoadBars() {
+    return m_shouldLoadBars;
+}
+
+void ScrollableObjects::setLoadBars() {
+    m_shouldLoadBars = true;
 }
 
 bool ScrollableObjects::canScroll() {
@@ -222,7 +218,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     setUserFlag("alphalaneous.editortab_api/disable-rewrite");
     auto editorUI = EditorUI::get();
-    if (!editorUI || !static_cast<SOEditorUI*>(editorUI)->shouldLoadBars()) return;
+    if (!editorUI || !ScrollableObjects::get()->shouldLoadBars()) return;
 
     float currentX = 0;
 
@@ -501,7 +497,7 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
                 auto cmi = typeinfo_cast<CreateMenuItem*>(child);
                 if (cmi) {
                     auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
-                    oCmi->loadRender();
+                    oCmi->loadObject();
                 }
             }
         }
@@ -532,12 +528,20 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
                 auto cmi = typeinfo_cast<CreateMenuItem*>(child);
                 if (cmi) {
                     auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
-                    oCmi->loadRender();
+                    oCmi->loadObject();
                 }
             }
         }
 
         ++idx;
+    }
+}
+
+void SOEditButtonBar::clearExtrasMenu() {
+    auto fields = m_fields.self();
+    fields->m_extrasButtons.clear();
+    if (fields->m_extrasMenu) {
+        fields->m_extrasMenu->removeAllChildren();
     }
 }
 
@@ -675,6 +679,8 @@ class $nodeModify(SOGroup, Group) {
     void modify() {
         if (!ScrollableObjects::isEnabled()) return;
         if (getID() != "RaZooM") return;
+        auto objectGroups = Loader::get()->getLoadedMod("razoom.object_groups");
+        if (objectGroups && objectGroups->getVersion() >= VersionInfo{2, 2, 0}) return;
 
         addOnEnterCallback([this] {
             if (!getParent()) return;

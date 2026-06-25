@@ -6,25 +6,28 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
-class $globalModule(ScrollableObjects) {
+class $editorModule(ScrollableObjects) {
+    bool m_shouldLoadBars;
+
+    void onEditor() override;
     bool canScroll();
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
+
+    bool shouldLoadBars();
+    void setLoadBars();
 };
 
 class $modify(SOEditorUI, EditorUI) {
-    $registerGlobalHooks(ScrollableObjects, true)
+    $registerEditorHooks(ScrollableObjects, true)
 
     struct Fields {
-        bool m_shouldLoadBars;
         Ref<CCNode> m_groupsGotoMenu;
         Ref<CCNode> m_groupsTogglesMenu;
         Ref<CCMenuItemSpriteExtra> m_groupsGotoObjectsButton;
         Ref<CCMenuItemSpriteExtra> m_groupsTogglesButton;
     };
 
-    bool init(LevelEditorLayer* editorLayer);
     void updateCreateMenu(bool selectTab);
-    bool shouldLoadBars();
 
     static void _onModify(auto& self) {
         (void) self.setHookPriorityAfterPost("EditorUI::init", "alphalaneous.editortab_api");
@@ -32,7 +35,7 @@ class $modify(SOEditorUI, EditorUI) {
 };
 
 class $modify(SOEditButtonBar, EditButtonBar) {
-    $registerGlobalHooks(ScrollableObjects, true)
+    $registerEditorHooks(ScrollableObjects, true)
 
     struct Fields {
         Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer;
@@ -68,6 +71,7 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 
     void createExtrasMenu();
     void addToExtrasMenu(CCMenuItemSpriteExtra* button);
+    void clearExtrasMenu();
 
     static void _onModify(auto& self) {
         (void) self.setHookPriority("EditButtonBar::loadFromItems", Priority::Replace);
@@ -76,7 +80,7 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 };
 
 class $modify(SOEditorOptionsLayer, EditorOptionsLayer) {
-    $registerGlobalHooks(ScrollableObjects)
+    $registerEditorHooks(ScrollableObjects)
 
     void onButtonRows(cocos2d::CCObject* sender);
     void setupOptions();

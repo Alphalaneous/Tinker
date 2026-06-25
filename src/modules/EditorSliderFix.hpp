@@ -6,8 +6,7 @@
 class $editorModule(EditorSliderFix) {
     float m_lastObjectX = 0.f;
 
-    void onObjectChange(float lastObjectX) override;
-
+    void onEditor() override;
     bool onToggled(bool state) override;
 };
 

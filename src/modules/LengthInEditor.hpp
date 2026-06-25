@@ -7,8 +7,6 @@ class $editorModule(LengthInEditor) {
     Ref<CCNode> m_lengthContainer;
 
     void onEditor() override;
-    void onObjectChange(float lastObjectX) override;
-    void onGameTypeChange(bool isPlatformer) override;
 	std::string getTime(float x);
 
     void updateScale(float scale);

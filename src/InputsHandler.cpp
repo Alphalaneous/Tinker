@@ -264,7 +264,8 @@ void InputEditorUI::onScroll() {
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
 
-                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f, layer->getScale(), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
+
+                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, layer->getScale(), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
                     scale = start + (end - start) * t;
 
                     if (getSetting<bool, "zoom-to-cursor">()) {
@@ -281,6 +282,7 @@ void InputEditorUI::onScroll() {
                     }
                     m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
                     constrainGameLayerPosition();
+                    updateSlider();
                 }), 1.2f);
 
                 layer->runAction(fields->m_scale);
@@ -303,6 +305,7 @@ void InputEditorUI::onScroll() {
             }
             m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
             constrainGameLayerPosition();
+            updateSlider();
         }
         return;
     }
@@ -333,17 +336,19 @@ void InputEditorUI::onScroll() {
     if (getSetting<bool, "smooth-scroll-enabled">()) {
         if (oldPos.x != fields->m_targetPos.x) {
             if (fields->m_moveX) layer->stopAction(fields->m_moveX);
-            fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f, fields->m_targetPos.x), [this, fields] (auto target) {
+            fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f * fields->m_speedScale, fields->m_targetPos.x), [this, fields] (auto target) {
                 m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
                 constrainGameLayerPosition();
+                updateSlider();
             }), 1.2f);
             layer->runAction(fields->m_moveX);
         }
         if (oldPos.y != fields->m_targetPos.y) {
             if (fields->m_moveY) layer->stopAction(fields->m_moveY);
-            fields->m_moveY = CCEaseOut::create(CCCallbackAction::create(CCMoveToY::create(0.1f, fields->m_targetPos.y), [this, fields] (auto target) {
+            fields->m_moveY = CCEaseOut::create(CCCallbackAction::create(CCMoveToY::create(0.1f * fields->m_speedScale, fields->m_targetPos.y), [this, fields] (auto target) {
                 m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
                 constrainGameLayerPosition();
+                updateSlider();
             }), 1.2f);
             layer->runAction(fields->m_moveY);
         }
@@ -353,11 +358,14 @@ void InputEditorUI::onScroll() {
         layer->setPosition(fields->m_targetPos);
         m_swipeStart = m_editorLayer->m_objectLayer->convertToWorldSpace(fields->m_startSwipe);
         constrainGameLayerPosition();
+        updateSlider();
     }
 }
 
 void InputEditorUI::checkScrolling(float dt) {
     auto fields = m_fields.self();
+
+    fields->m_speedScale = dt / CCDirector::get()->getDeltaTime();
 
     if (!tinker::utils::getSetting<bool, "smooth-scroll-enabled">()) {
         fields->m_activeScroll = false;

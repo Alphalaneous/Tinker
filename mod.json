@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.17",
+	"version": "v1.0.18",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -250,6 +250,12 @@
 			"name": "Enable Text Object Transform Fix",
 			"description": "Fix the transform bounds for text objects such that they are not always {0, 0}. Updates them properly when the text and/or kerning is changed."
 		},
+		"ZoomGroundFix-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Zoom Ground Position Fix",
+			"description": "Fix the ground position not properly updating when you zoom."
+		},
 		"misc-title": {
 			"type": "title",
 			"name": "Miscellaneous"
@@ -264,6 +270,12 @@
 			"default": false,
 			"name": "Hide IDs in the Edit Level screen",
 			"description": "Hide IDs in Edit Level screen, hold shift to show them."
+		},
+		"MusicCameraLock-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Music Camera Lock Button",
+			"description": "Lock the camera to the music line when playback is active with a toggle."
 		},
 		"PlaytestConfirmation-enabled": {
 			"type": "bool",

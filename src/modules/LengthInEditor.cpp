@@ -4,7 +4,7 @@
 bool LengthInEditor::onToggled(bool state) {
     if (state) {
         onEditor();
-        onObjectChange(m_editorLayer->getLastObjectX());
+        m_timeLabel->setString(getTime(m_editorLayer->getLastObjectX()).c_str());
     }
     else {
         m_editorUI->m_uiItems->removeObject(m_lengthContainer);
@@ -59,6 +59,23 @@ void LengthInEditor::onEditor() {
         m_editorUI->addChild(m_lengthContainer);
         m_editorUI->m_uiItems->addObject(m_lengthContainer);
     }
+
+    addEventListener(LevelTypeChangedEvent(), [this] (bool isPlatformer) {
+        if (isPlatformer) {
+            m_editorUI->removeChild(m_lengthContainer);
+            m_editorUI->m_uiItems->removeObject(m_lengthContainer);
+        }
+        else {
+            if (!m_lengthContainer->getParent()) {
+                m_editorUI->addChild(m_lengthContainer);
+                m_editorUI->m_uiItems->addObject(m_lengthContainer);
+            }
+        }
+    });
+
+    addEventListener(ObjectChangeEvent(), [this] (float lastObjectX) {
+        m_timeLabel->setString(getTime(lastObjectX).c_str());
+    });
 }
 
 void LengthInEditor::updateScale(float scale) {
@@ -82,23 +99,6 @@ void LengthInEditor::updateScale(float scale) {
             objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10 * scale);
         }
     }));
-}
-
-void LengthInEditor::onObjectChange(float lastObjectX) {
-    m_timeLabel->setString(getTime(lastObjectX).c_str());
-}
-
-void LengthInEditor::onGameTypeChange(bool isPlatformer) {
-    if (isPlatformer) {
-        m_editorUI->removeChild(m_lengthContainer);
-        m_editorUI->m_uiItems->removeObject(m_lengthContainer);
-    }
-    else {
-        if (!m_lengthContainer->getParent()) {
-            m_editorUI->addChild(m_lengthContainer);
-            m_editorUI->m_uiItems->addObject(m_lengthContainer);
-        }
-    }
 }
 
 std::string LengthInEditor::getTime(float x) {

@@ -13,5 +13,4 @@ class $editorModule(ThatPasteButton) {
     bool areObjectColorsDefault();
 
     void onEditor() override;
-    void onSetGroupIDLayer(SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) override;
 };

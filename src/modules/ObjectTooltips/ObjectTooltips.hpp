@@ -11,6 +11,5 @@ class $editorModule(ObjectTooltips) {
     tinker::ui::TooltipHover* m_hover;
 
     void onEditor() override;
-    void onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) override;
     const std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>>& getObjectGroups();
 };

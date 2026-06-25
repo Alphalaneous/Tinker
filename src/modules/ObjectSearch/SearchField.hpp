@@ -17,6 +17,7 @@ namespace tinker::ui {
             Ref<CreateMenuItem> item;
             std::string name;
             int id;
+            int tabIndex;
             Ref<CreateMenuItem> origItem;
         };
         

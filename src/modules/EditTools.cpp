@@ -170,4 +170,6 @@ void ETEditorUI::onCenterCamera(CCObject* sender) {
     auto pos = m_editorLayer->m_objectLayer->convertToWorldSpace(center);
 
     playCircleAnim(pos, 50.f, 0.8f);
+
+    updateSlider();
 }

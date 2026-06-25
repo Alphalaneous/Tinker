@@ -3,30 +3,28 @@
 #include "../LiveColors/LiveColors.hpp"
 #include "SearchField.hpp"
 #include "../ScrollableObjects.hpp"
+#include "../CenteredObjectButtons.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../third-party/ObjectIDDisplay.hpp"
-#include "../PreviewObjectColors.hpp"
 
 using namespace alpha::prelude;
 
-bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
-    if (!EditorUI::init(editorLayer)) return false;
-
+void ObjectSearch::onEditor() {
     // rob never initializes these, it can cause bugs
-    for (auto control : m_customTabControls->asExt<CreateMenuItem>()) {
+    for (auto control : m_editorUI->m_customTabControls->asExt<CreateMenuItem>()) {
         control->m_objectID = 0;
         control->m_tabIndex = 13;
     }
 
     auto objectSearch = ObjectSearch::get();
-    auto fields = m_fields.self();
+    auto fields = static_cast<OSEditorUI*>(m_editorUI)->m_fields.self();
 
-    fields->m_searchField = tinker::ui::SearchField::create(this);
+    fields->m_searchField = tinker::ui::SearchField::create(static_cast<OSEditorUI*>(m_editorUI));
     fields->m_searchField->defocus();
     fields->m_searchField->setID("search-field"_spr);
     
-    m_uiItems->addObject(fields->m_searchField);
+    m_editorUI->m_uiItems->addObject(fields->m_searchField);
 
     auto winSize = CCDirector::get()->getWinSize();
 
@@ -47,7 +45,7 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
             #ifndef GEODE_IS_MOBILE
             fields->m_searchField->focus();
             #endif
-            addChild(fields->m_searchField);
+            m_editorUI->addChild(fields->m_searchField);
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(false);
@@ -73,19 +71,41 @@ bool OSEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     });
     
-    runAction(CallFuncExt::create([this, fields, objectSearch] {
+    m_editorUI->runAction(CallFuncExt::create([this, fields, objectSearch] {
         float buildTabHeight = 0;
         float scale = 1.f;
-        if (auto node = getChildByID("build-tabs-menu")) {
+        if (auto node = m_editorUI->getChildByID("build-tabs-menu")) {
             buildTabHeight = node->getScaledContentHeight();
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({getContentWidth() / 2, m_toolbarHeight + 5.f * scale + buildTabHeight});
+        fields->m_searchField->setPosition({m_editorUI->getContentWidth() / 2, m_editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
     }));
 
-    return true;
+    /*addEventListener(SetupCreateMenuEvent(), [this] () {
+        auto fields = static_cast<OSEditorUI*>(m_editorUI)->m_fields.self();
+        auto bar = fields->m_searchBar;
+        for (auto tab : m_editorUI->m_createButtonBars->asExt<EditButtonBar>()) {
+            if (!tab || !tab->m_hasCreateItems || bar == tab) continue;
+
+            for (auto node : tab->m_buttonArray->asExt<CCNode>()) {
+                auto cmi = typeinfo_cast<CreateMenuItem*>(node);
+                if (!cmi || cmi->m_objectID < 1 || cmi->m_tabIndex == 13) continue;
+
+                int bgID = 1;
+                auto bgObject = typeinfo_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
+                if (bgObject) {
+                    bgID = bgObject->getValue();
+                }
+
+                auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, m_editorUI, menu_selector(EditorUI::onCreateButton));
+
+                fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, cmi->m_tabIndex, cmi};
+                fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
+            }
+        }
+    });*/
 }
 
 void OSEditorUI::setupCreateMenu() {
@@ -107,7 +127,7 @@ void OSEditorUI::setupCreateMenu() {
 
             auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, this, menu_selector(EditorUI::onCreateButton));
 
-            fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, cmi};
+            fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, tab->m_tabIndex, cmi};
             fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
         }
     }
@@ -155,14 +175,9 @@ CreateMenuItem* OSCreateMenuItem::create(cocos2d::CCNode* normal, cocos2d::CCNod
 }
 
 CreateMenuItem* OSCreateMenuItem::createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector) {
-    auto container = CCSprite::create();
-    container->setAnchorPoint({0.5f, 0.5f});
-    container->setContentSize({32, 32});
-    container->setPosition({16, 16});
-    container->setCascadeColorEnabled(true);
-    container->setCascadeOpacityEnabled(true);
+    auto m_dummy = CCSprite::create();
 
-    auto btnSpr = ButtonSprite::create(container, 32, 0, 32.0, 1.0, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
+    auto btnSpr = ButtonSprite::create(m_dummy, 32, 0, 32.0, 1.0, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
     
     auto ret = CreateMenuItem::create(btnSpr, nullptr, target, selector);
     ret->m_objectID = item->m_objectID;
@@ -173,179 +188,94 @@ CreateMenuItem* OSCreateMenuItem::createSearchItem(CreateMenuItem* item, int bgI
 
     auto fields = static_cast<OSCreateMenuItem*>(ret)->m_fields.self();
 
-    fields->m_btnSprite = btnSpr;
-    fields->m_item = item;
-    fields->m_container = container;
-    fields->m_isRender = true;
+    fields->m_dummy = m_dummy;
+    fields->m_isLazy = true;
 
     return ret;
 }
 
-void OSCreateMenuItem::loadRender() {
+void OSCreateMenuItem::loadObject() {
     auto fields = m_fields.self();
-    if (!fields->m_isRender || fields->m_loaded) return;
+    if (!fields->m_isLazy || fields->m_loaded) return;
 
-    auto buttonSprite = fields->m_item->getChildByType<ButtonSprite*>(0);
+    auto buttonSprite = getChildByType<ButtonSprite*>(0);
 
-    buttonSprite->m_subBGSprite->setOpacity(0);
+    GameObject* obj = nullptr;
 
-    auto render = alpha::ui::RenderNode::create(buttonSprite, true);
-    render->render();
-    fields->m_render = render;
-
-    auto spr = CCSprite::createWithTexture(render->getTexture(), render->getTextureRect());
-    spr->m_sBlendFunc.src = CC_BLEND_SRC;
-    spr->m_sBlendFunc.dst = CC_BLEND_DST;
-    spr->setOpacityModifyRGB(true);
-    spr->setScale(1);
-    spr->setPosition(fields->m_container->getContentSize() / 2);
-
-    fields->m_container->addChild(spr);
-
-    if (PreviewObjectColors::isEnabled()) {
-        auto obj = static_cast<POCEditorUI*>(PreviewObjectColors::get()->m_editorUI)->m_fields->m_defaultObject;
-        updateButton(fields->m_item, obj->m_detailColor->m_colorID, obj->m_baseColor->m_colorID, obj->m_detailColor->m_hsv, obj->m_baseColor->m_hsv);
+    if (m_objectID == 0x392 || m_objectID == 0x64F) {
+        auto texture = CCTextureCache::get()->addImage("bigFont.png", false);
+        obj = TextGameObject::create(texture);
+    }
+    else {
+        obj = GameObject::createWithKey(m_objectID);
     }
 
-    buttonSprite->m_subBGSprite->setOpacity(255);
-    fields->m_loaded = true;
-}
+    auto frame = ObjectToolbox::sharedState()->intKeyToFrame(m_objectID);
 
-void OSCreateMenuItem::updateButton(CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
-    auto editorUI = static_cast<POCEditorUI*>(PreviewObjectColors::get()->m_editorUI);
-    auto fields = editorUI->m_fields.self();
+    obj->customSetup();
+    obj->addColorSprite(frame);
+    obj->setupCustomSprites(frame);
 
-    auto detailColorData = editorUI->getActiveColor(color1ID);
-    auto baseColorData = editorUI->getActiveColor(color2ID);
+    if (m_objectID == 0x392) {
+        static_cast<TextGameObject*>(obj)->updateTextObject("A", true);
+    }
+    else if (m_objectID == 0x64F) {
+        static_cast<TextGameObject*>(obj)->updateTextObject("0", true);
+    }
+    else if (m_objectID == 0x419) {
+        static_cast<EffectGameObject*>(obj)->updateSpecialColor();
+    }
 
-    if (auto btnSprite = btn->getChildByType<ButtonSprite>(0)) {
-        for (auto child : btnSprite->getChildrenExt()) {
-            if (auto gameObject = typeinfo_cast<GameObject*>(child)) {
-                if (!editorUI->isColorable(gameObject)) return;
-                
-                if (auto baseColor = gameObject->m_baseColor) {
-                    baseColor->m_colorID = color2ID;
-                    baseColor->m_hsv = hsv2;
+    if (obj->m_classType == GameObjectClassType::Effect) {
+        auto effect = static_cast<EffectGameObject*>(obj);
 
-                    auto color = ccColor3B{255, 255, 255};
-                    bool blending = false;
-                    gameObject->updateHSVState();
+        bool colorable = (effect->m_customColorType == 1) || (effect->m_customColorType == 0 && effect->m_maybeNotColorable);
 
-                    if (color2ID != 0) {
-                        color = baseColorData.color;
-                        blending = baseColorData.blending;
-                        baseColor->m_opacity = baseColorData.opacity;
-                    }
-
-                    auto blend = blending 
-                        ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
-                        : ccBlendFunc{GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
-
-                    if (auto anim = typeinfo_cast<AnimatedGameObject*>(gameObject)) {
-                        if (auto animSpr = anim->m_animatedSprite) {
-                            if (auto paSpr = animSpr->m_paSprite) {
-                                for (auto child : paSpr->getChildrenExt()) {
-                                    if (child == anim->m_eyeSpritePart && !anim->m_childSprite) continue;
-                                    auto spr = static_cast<CCSprite*>(child);
-                                    spr->setBlendFunc(blend);
-                                }
-                            }
-                        }
-                    }
-                    else if (typeinfo_cast<EnhancedGameObject*>(gameObject) || gameObject->m_hasCustomChild) {
-                        for (auto child : gameObject->getChildrenExt()) {
-                            if (child == gameObject->m_colorSprite) continue;
-                            if (auto spr = typeinfo_cast<CCSprite*>(child)) {
-                                spr->setBlendFunc(blend);
-                            }
-                        }
-                    }
-
-                    const auto& id = gameObject->m_objectID;
-                    if (id == 1701 || id == 1702 || id == 1703) {
-                        for (auto child : gameObject->getChildrenExt()) {
-                            if (child->getChildrenCount() == 0) {
-                                if (auto spr = typeinfo_cast<CCSprite*>(child)) {
-                                    spr->setBlendFunc(blend);
-                                }
-                            }
-                        }
-                    }
-
-                    gameObject->setBlendFunc(blend);
-
-                    if (baseColor->m_usesHSV) color = GameToolbox::transformColor(color, baseColor->m_hsv);
-                    gameObject->updateMainColor(color);
-                }
-                if (auto detailColor = gameObject->m_detailColor) {
-                    detailColor->m_colorID = color1ID;
-                    detailColor->m_hsv = hsv1;
-
-                    auto color = ccColor3B{200, 200, 255};
-                    bool blending = false;
-                    gameObject->updateHSVState();
-
-                    if (color1ID != 0) {
-                        color = detailColorData.color;
-                        blending = detailColorData.blending;
-                        detailColor->m_opacity = detailColorData.opacity;
-                    }
-
-                    auto blend = blending 
-                        ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
-                        : ccBlendFunc{GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
-
-                    std::function<void(CCNode*)> applyBlend = [&](CCNode* node) {
-                        for (auto child : node->getChildrenExt()) {
-                            if (auto spr = typeinfo_cast<CCSprite*>(child)) {
-                                spr->setBlendFunc(blend);
-                                applyBlend(spr);
-                            }
-                        }
-                    };
-                    
-                    if (auto anim = typeinfo_cast<AnimatedGameObject*>(gameObject)) {
-                        if (anim->m_childSprite) {
-                            anim->m_childSprite->setBlendFunc(blend);
-                        }
-                        else {
-                            if (auto eye = anim->m_eyeSpritePart) {
-                                eye->setBlendFunc(blend);
-                            }
-                        }
-                    }
-                    else if (typeinfo_cast<EnhancedGameObject*>(gameObject)) {
-                        for (auto child : gameObject->getChildrenExt()) {
-                            applyBlend(child);
-                        }
-                    }
-                    else {
-                        const auto& id = gameObject->m_objectID;
-                        if (id == 1701 || id == 1702 || id == 1703) {
-                            for (auto child : gameObject->getChildrenExt()) {
-                                if (child->getChildrenCount() > 0) {
-                                    applyBlend(child);
-                                    if (auto spr = typeinfo_cast<CCSprite*>(child)) {
-                                        spr->setBlendFunc(blend);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            applyBlend(gameObject);
-                        }
-                    }
-
-                    if (auto spr = gameObject->m_colorSprite) {
-                        spr->setBlendFunc(blend);
-                    }
-
-                    if (detailColor->m_usesHSV) color = GameToolbox::transformColor(color, detailColor->m_hsv);
-                    gameObject->updateSecondaryColor(color);
-                }
-            }
+        if (!colorable && !effect->m_colorSprite && effect->m_baseColor->m_defaultColorID != 1004 && effect->m_shouldPreview) {
+            obj->setColor({200, 200, 255});
         }
     }
+
+    if (obj->m_opacityMod2 > 0.0f) {
+        obj->setOpacity(255);
+    }
+
+    auto rect = LevelEditorLayer::get()->getObjectRect(obj, false, false);
+
+    float maxSize = std::max(rect.size.width, rect.size.height);
+    float scale = obj->getScale();
+
+    if (32.f / maxSize < scale || obj->m_pixelScaleX > 1.0f) {
+        obj->setScale(32.f / maxSize);
+    }
+
+    fields->m_dummy->removeFromParent();
+
+    obj->setZOrder(1);
+
+    buttonSprite->m_subSprite = obj;
+    buttonSprite->addChild(obj);
+
+    geode::cocos::limitNodeSize(obj, {32, 32}, 1.f, 0.01f);
+    
+    if (CenteredObjectButtons::isEnabled()) {
+        buttonSprite->updateSpriteOffset({-0.25f, -1.5f});
+    }
+    else {
+        buttonSprite->updateSpriteOffset({0, 0});
+    }
+
+    if (obj->m_colorSprite && !obj->m_unk28c) {
+        int z = obj->m_colorZLayerRelated ? 1 : -1;
+        obj->addChild(obj->m_colorSprite, z);
+
+        auto size = obj->getContentSize();
+        obj->m_colorSprite->setPosition(size / 2);
+        obj->m_colorSprite->setColor({200, 200, 255});
+        obj->m_colorSprite->setScale(1);
+    }
+
+    fields->m_loaded = true;
 }
 
 void OSEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage) {
@@ -371,7 +301,7 @@ void OSEditButtonBar::checkPage() {
     for (auto node : m_buttonArray->asExt<CreateMenuItem>()) {
         auto oCmi = static_cast<OSCreateMenuItem*>(node);
         if (std::abs(pageNum - oCmi->m_pageIndex) <= 1) {
-            oCmi->loadRender();
+            oCmi->loadObject();
         }
     }
 }

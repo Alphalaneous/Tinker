@@ -91,21 +91,21 @@ void RepeatingEditorButtons::onEditor() {
             static_cast<REBCCMenuItemSpriteExtra*>(rightBtn)->setRepeatable(true);
         }
     }
-}
 
-void RepeatingEditorButtons::onSetGroupIDLayer(SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
-    applyRepeatIfExist(setGroupIDLayer, "add-group-id-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "add-group-id-prev-button");
-    applyRepeatIfExist(setGroupIDLayer, "editor-layer-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "editor-layer-prev-button");
-    applyRepeatIfExist(setGroupIDLayer, "editor-layer-2-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "editor-layer-2-prev-button");
-    applyRepeatIfExist(setGroupIDLayer, "z-order-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "z-order-prev-button");
-    applyRepeatIfExist(setGroupIDLayer, "channel-order-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "channel-order-prev-button");
-    applyRepeatIfExist(setGroupIDLayer, "channel-next-button");
-    applyRepeatIfExist(setGroupIDLayer, "channel-prev-button");
+    addEventListener(SetGroupIDLayerOpenedEvent(), [this] (SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
+        applyRepeatIfExist(setGroupIDLayer, "add-group-id-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "add-group-id-prev-button");
+        applyRepeatIfExist(setGroupIDLayer, "editor-layer-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "editor-layer-prev-button");
+        applyRepeatIfExist(setGroupIDLayer, "editor-layer-2-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "editor-layer-2-prev-button");
+        applyRepeatIfExist(setGroupIDLayer, "z-order-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "z-order-prev-button");
+        applyRepeatIfExist(setGroupIDLayer, "channel-order-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "channel-order-prev-button");
+        applyRepeatIfExist(setGroupIDLayer, "channel-next-button");
+        applyRepeatIfExist(setGroupIDLayer, "channel-prev-button");
+    });
 }
 
 void RepeatingEditorButtons::applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, ZStringView id) {

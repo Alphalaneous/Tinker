@@ -44,6 +44,28 @@ void RelocateBuildTools::onEditor() {
     [] {
         return CCLabelBMFont::create("B", "bigFont.fnt");
     });
+
+    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        if (auto smallActionsMenu = editorPauseLayer->getChildByID("small-actions-menu")) {
+            static_cast<AxisLayout*>(smallActionsMenu->getLayout())->ignoreInvisibleChildren(true);
+            for (auto child : smallActionsMenu->getChildrenExt()) {
+                child->setVisible(false);
+            }
+            smallActionsMenu->updateLayout();
+        }
+
+        if (auto actionsMenu = editorPauseLayer->getChildByID("actions-menu")) {
+            static_cast<AxisLayout*>(actionsMenu->getLayout())->ignoreInvisibleChildren(true);
+
+            for (auto child : actionsMenu->getChildrenExt()) {
+                child->setVisible(false);
+            }
+            if (auto keys = actionsMenu->getChildByID("keys-button")) {
+                keys->setVisible(true);
+            }
+            actionsMenu->updateLayout();
+        }
+    });
 }
 
 CCSprite* RelocateBuildTools::addIcon(CCNode* node, CCLabelBMFont* label) {
@@ -139,28 +161,6 @@ CCNode* RelocateBuildTools::createBuildTools() {
     }
 
     return alpha::editor_tabs::createEditButtonBar(nodes);
-}
-
-void RelocateBuildTools::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
-    if (auto smallActionsMenu = editorPauseLayer->getChildByID("small-actions-menu")) {
-        static_cast<AxisLayout*>(smallActionsMenu->getLayout())->ignoreInvisibleChildren(true);
-        for (auto child : smallActionsMenu->getChildrenExt()) {
-            child->setVisible(false);
-        }
-        smallActionsMenu->updateLayout();
-    }
-
-    if (auto actionsMenu = editorPauseLayer->getChildByID("actions-menu")) {
-        static_cast<AxisLayout*>(actionsMenu->getLayout())->ignoreInvisibleChildren(true);
-
-        for (auto child : actionsMenu->getChildrenExt()) {
-            child->setVisible(false);
-        }
-        if (auto keys = actionsMenu->getChildByID("keys-button")) {
-            keys->setVisible(true);
-        }
-        actionsMenu->updateLayout();
-    }
 }
 
 void RBTEditorPauseLayer::onResume(CCObject* sender) {

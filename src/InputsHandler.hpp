@@ -29,6 +29,8 @@ class $modify(InputEditorUI, EditorUI) {
         bool m_blockPause;
 
         float m_targetScale;
+
+        float m_speedScale;
     };
 
     bool init(LevelEditorLayer* editorLayer);

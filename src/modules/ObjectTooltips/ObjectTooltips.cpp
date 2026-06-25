@@ -17,12 +17,12 @@ void ObjectTooltips::onEditor() {
     alpha::editor_tabs::addModeSwitchCallback([this] (auto mode) {
         m_hover->resetTooltip();
     });
-}
 
-void ObjectTooltips::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
-    if (m_hover) {
-        m_hover->resetTooltip();
-    }
+    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        if (m_hover) {
+            m_hover->resetTooltip();
+        }
+    });
 }
 
 const std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>>& ObjectTooltips::getObjectGroups() {

@@ -28,7 +28,9 @@ bool AutoBuildHelper::onToggled(bool state) {
     if (state) {
         onEditor();
         if (m_pauseLayer) {
-            onEditorPauseLayer(m_pauseLayer);
+            if (getSetting<bool, "show-on-pause">()) {
+                showOnPause();
+            }
         }
     }
     else {
@@ -117,16 +119,16 @@ void AutoBuildHelper::showOnPause() {
 
     menu->addChild(m_bhToggler);
     menu->updateLayout();
+
+    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        if (!getSetting<bool, "show-on-pause">()) return;
+        showOnPause();
+    });
 }
 
 void AutoBuildHelper::onEditor() {
     if (getSetting<bool, "show-on-pause">()) return;
     showOnEditorUI();
-}
-
-void AutoBuildHelper::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
-    if (!getSetting<bool, "show-on-pause">()) return;
-    showOnPause();
 }
 
 void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {

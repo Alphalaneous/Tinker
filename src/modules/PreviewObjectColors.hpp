@@ -6,15 +6,8 @@
 class Group : public CCNode {};
 
 class $editorModule(PreviewObjectColors) {
-    struct ColorData {
-		ccColor3B color;
-		bool blending;
-		GLubyte opacity;
-	};
-
     void onEditor() override;
-    void onSave() override;
-    void onUpdateButtons() override;
+    void onUpdateButtons();
 };
 
 class $modify(POCEditorUI, EditorUI) {
@@ -26,9 +19,6 @@ class $modify(POCEditorUI, EditorUI) {
 
     void editObject(cocos2d::CCObject* sender);
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
-	PreviewObjectColors::ColorData getActiveColor(int colorID);
-	bool isColorable(GameObject* object);
-	void updateButton(CCNode* btn);
 	void updateObjectColors(float dt);
 
 	static void _onModify(auto& self) {

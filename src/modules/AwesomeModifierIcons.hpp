@@ -2,21 +2,16 @@
 
 #include "../Module.hpp"
 #include <Geode/modify/EffectGameObject.hpp>
-#include <Geode/modify/EditorUI.hpp>
 
-class $globalModule(AwesomeModifierIcons) {
+class $editorModule(AwesomeModifierIcons) {
+    void onEditor() override;
+
     static std::unordered_map<int, std::string> s_textureMap;
 };
 
 class $modify(AMIEffectGameObject, EffectGameObject) {
-    $registerGlobalHooks(AwesomeModifierIcons)
+    $registerEditorHooks(AwesomeModifierIcons)
 
 	void customSetup();
     void updateLetters();
-};
-
-class $modify(AMIEditorUI, EditorUI) {
-    $registerGlobalHooks(AwesomeModifierIcons)
-
-    bool init(LevelEditorLayer* editorLayer);
 };

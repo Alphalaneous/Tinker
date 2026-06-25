@@ -67,7 +67,7 @@ void UIScaling::onEditor() {
         using FloatSetting = typename SettingTypeForValueType<float>::SettingType;
         using BoolSetting = typename SettingTypeForValueType<bool>::SettingType;
 
-        m_editorUI->addEventListener(SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener(SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<FloatSetting>(setting)) {
                 if (ty->getValue() == 1) {
                     setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
@@ -77,7 +77,7 @@ void UIScaling::onEditor() {
             }
         });
 
-        m_editorUI->addEventListener(SettingChangedEvent(be, "scale-build-tabs"), [be, this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener(SettingChangedEvent(be, "scale-build-tabs"), [be, this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
                 auto beScale = be->getSettingValue<float>("scale-factor");
                 if (beScale != 1) {
@@ -88,7 +88,7 @@ void UIScaling::onEditor() {
             }
         });
 
-        m_editorUI->addEventListener(SettingChangedEvent(be, "scale-pause"), [be, this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener(SettingChangedEvent(be, "scale-pause"), [be, this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
                 auto beScale = be->getSettingValue<float>("scale-factor");
                 if (beScale != 1) {
@@ -101,7 +101,9 @@ void UIScaling::onEditor() {
         });
     }
 
-    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), false);
+    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        setPauseScaling(getSetting<float, "scale">());
+    });
 }
 
 bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
@@ -115,10 +117,6 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
 
 CCPoint UIScaling::getSafeOffset() {
     return {utils::getSafeAreaRect().getMinX() / 2, 0};
-}
-
-void UIScaling::onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) {
-    setPauseScaling(getSetting<float, "scale">());
 }
 
 void UIScaling::setPauseScaling(float scale) {
@@ -260,13 +258,13 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
             if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
                 linkMenu->setAnchorPoint({0.5f, 0.5f});
                 if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                    if (ImprovedLinkControls::isEnabled()) {
-                        linkMenu->setScale(scale * 0.8f);
+                    if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
+                        linkMenu->setScale(scale GEODE_DESKTOP(* 0.8f));
                         linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale} + getSafeOffset());
                     }
                     else {
                         linkMenu->setScale(scale);
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - (linkMenu->getScaledContentHeight() / 2) GEODE_MOBILE(- 24.f * scale)} + getSafeOffset());
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - (linkMenu->getScaledContentHeight() / 2)} + getSafeOffset());
                     }
                 }
             }
@@ -425,7 +423,6 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
             LiveColors::get()->updateScale(toolbarScale);
         }
     }
-    
 
     if (auto rowMenu = m_editorUI->getChildByID("razoom.object_groups/row_menu")) {
         rowMenu->setScale(0.561f * scale);
@@ -488,7 +485,6 @@ bool UIScaling::shouldScaleToolbar() {
     }
     return UIScaling::getSetting<bool, "scale-toolbar">();
 }
-
 
 bool UIScaling::shouldScalePause() {
     if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {

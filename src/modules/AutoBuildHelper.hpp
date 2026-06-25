@@ -8,7 +8,6 @@ class $editorModule(AutoBuildHelper) {
     bool m_autoBuildHelperEnabled = false;
 
     void onEditor() override;
-    void onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) override;
 
     void removeFromEditorUI();
     void removeFromPause();

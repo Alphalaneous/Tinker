@@ -3,12 +3,18 @@
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
+#include <Geode/modify/ButtonSprite.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include "ModuleBase.hpp"
 #include "ModuleRegistry.hpp"
 #include "Module.hpp"
 #include <Geode/ui/GeodeUI.hpp>
+#include "Events.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/UIScaling.hpp"
 
 using namespace geode::prelude;
+
 
 class $modify(MainEditorUI, EditorUI) {
 
@@ -35,23 +41,36 @@ class $modify(MainEditorUI, EditorUI) {
     static void onModify(auto& self) {
         (void) self.setHookPriority("EditorUI::init", Priority::Late);
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
+        (void) self.setHookPriority("EditorUI::updateCreateMenu", Priority::Replace);
     }
 
     bool init(LevelEditorLayer* editorLayer) {
-        if (!EditorUI::init(editorLayer)) return false;
-        s_editorUI = this;
-
         auto fields = m_fields.self();
 
         for (const auto& createModule : ModuleRegistry<EditorModuleBase>::get()->m_modules) {
-            auto module = createModule();
+            fields->m_modules.push_back(createModule());
+        }
+
+        if (!EditorUI::init(editorLayer)) return false;
+        s_editorUI = this;
+
+        for (const auto& module : fields->m_modules) {
             module->m_editorLayer = m_editorLayer;
             module->m_editorUI = this;
             if (module->isEnabled()) {
                 module->onEditor();
             }
-            fields->m_modules.emplace_back(module);
         }
+
+        if (ScrollableObjects::isEnabled()) {
+            ScrollableObjects::get()->setLoadBars();
+        }
+
+        if (UIScaling::isEnabled()) {
+            UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), UIScaling::getSetting<bool, "top-align">(), true);
+        }
+
+        EditorEnterEvent().send(this);
         updateButtons();
 
         schedule(schedule_selector(MainEditorUI::checkForChange));
@@ -66,9 +85,7 @@ class $modify(MainEditorUI, EditorUI) {
 		int cur = m_editorLayer->m_objectCount;
 
 		if (last != cur) {
-            forEachModule([this] (EditorModuleBase* module) {
-                module->onObjectChange(m_editorLayer->getLastObjectX());
-            });
+            ObjectChangeEvent().send(m_editorLayer->getLastObjectX());
 		}
 	
 		fields->m_lastObjectCount = cur;
@@ -77,9 +94,7 @@ class $modify(MainEditorUI, EditorUI) {
         bool isPlatformer = m_editorLayer->m_levelSettings->m_platformerMode;
 
         if (wasPlatformer != isPlatformer) {
-            forEachModule([&isPlatformer] (EditorModuleBase* module) {
-                module->onGameTypeChange(isPlatformer);
-            });
+            LevelTypeChangedEvent().send(isPlatformer);
         }
 
         fields->m_wasPlatformer = isPlatformer;
@@ -87,11 +102,7 @@ class $modify(MainEditorUI, EditorUI) {
 
     void updateButtons() {
         EditorUI::updateButtons();
-		auto fields = m_fields.self();
-
-        forEachModule([] (EditorModuleBase* module) {
-            module->onUpdateButtons();
-        });
+        UpdateButtonsEvent().send();
     }
 
     void forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback) {
@@ -113,6 +124,49 @@ class $modify(MainEditorUI, EditorUI) {
         }
         EditorUI::deactivateScaleControl();
     }
+
+    void updateCreateMenu(bool selectTab) {
+        if (m_selectedMode != 2) {
+            m_createButtonBar->setVisible(false);
+            m_tabsMenu->setVisible(false);
+            return;
+        }
+
+        m_createButtonBar->setVisible(true);
+        m_tabsMenu->setVisible(true);
+
+        for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
+            enableButton(item);
+        }
+
+        for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
+            enableButton(item);
+        }
+
+        for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
+            if (item->m_objectID == m_selectedObjectIndex) {
+                disableButton(item);
+                if (!selectTab) {
+                    return;
+                }
+                selectBuildTab(item->m_tabIndex);
+                m_createButtonBar->goToPage(item->m_pageIndex);
+                return;
+            }
+        }
+
+        for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
+            if (item->m_objectID == m_selectedObjectIndex) {
+                disableButton(item);
+                if (!selectTab) {
+                    return;
+                }
+                selectBuildTab(item->m_tabIndex);
+                m_createButtonBar->goToPage(item->m_pageIndex);
+                return;
+            }
+        }
+    }
     
     static MainEditorUI* get() {
         return static_cast<MainEditorUI*>(s_editorUI);
@@ -124,9 +178,7 @@ class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
     bool init(GameObject* obj, cocos2d::CCArray* objs) {
         if (!SetGroupIDLayer::init(obj, objs)) return false;
 
-        MainEditorUI::get()->forEachModule([this, obj, objs] (EditorModuleBase* module) {
-            module->onSetGroupIDLayer(this, obj, objs);
-        });
+        SetGroupIDLayerOpenedEvent().send(this, obj, objs);
 
         return true;
     }
@@ -135,25 +187,32 @@ class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
 class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
     struct Fields {
+        bool m_wasIgnored = false;
         ~Fields() {
             if (MainEditorUI::get()) {
                 MainEditorUI::get()->forEachModule([this] (EditorModuleBase* module) {
                     module->m_pauseLayer = nullptr;
                 });
+                if (!m_wasIgnored) {
+                    EditorUnpausedEvent().send();
+                }
             }
         }
     };
 
     bool init(LevelEditorLayer* layer) {
         if (!EditorPauseLayer::init(layer)) return false;
-        if (getUserFlag("ignore"_spr) || !EditorUI::get()) return true;
-
         auto fields = m_fields.self();
-        
+
+        if (getUserFlag("ignore"_spr) || !EditorUI::get()) {
+            fields->m_wasIgnored = true;
+            return true;
+        }
+
         MainEditorUI::get()->forEachModule([this] (EditorModuleBase* module) {
             module->m_pauseLayer = this;
-            module->onEditorPauseLayer(this);
         });
+        EditorPausedEvent().send(this);
 
         auto guidelinesMenu = getChildByID("guidelines-menu");
         if (!guidelinesMenu) return true;
@@ -173,9 +232,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
     }
 
     void saveLevel() {
-        MainEditorUI::get()->forEachModule([this] (EditorModuleBase* module) {
-            module->onSave();
-        });
+        LevelSavedEvent().send();
         EditorPauseLayer::saveLevel();
     }
 };

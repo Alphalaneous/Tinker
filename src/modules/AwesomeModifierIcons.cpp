@@ -51,12 +51,10 @@ void AMIEffectGameObject::updateLetters() {
     }
 }
 
-bool AMIEditorUI::init(LevelEditorLayer* editorLayer) {
-    if (!EditorUI::init(editorLayer)) return false;
+void AwesomeModifierIcons::onEditor() {
+    if (!AwesomeModifierIcons::getSetting<bool, "move-f-block">()) return;
 
-    if (!AwesomeModifierIcons::getSetting<bool, "move-f-block">()) return true;
-
-    auto buttonBars = m_createButtonBars->asExt<EditButtonBar>();
+    auto buttonBars = m_editorUI->m_createButtonBars->asExt<EditButtonBar>();
 
     auto portalTabIt = std::find_if(buttonBars.begin(), buttonBars.end(),
         [](auto bar) { 
@@ -64,7 +62,7 @@ bool AMIEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     );
 
-    if (portalTabIt == buttonBars.end()) return true;
+    if (portalTabIt == buttonBars.end()) return;
     auto portalTab = *portalTabIt;
 
     auto buttons = portalTab->m_buttonArray;
@@ -107,6 +105,4 @@ bool AMIEditorUI::init(LevelEditorLayer* editorLayer) {
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
     portalTab->reloadItems(cols, rows);
-
-    return true;
 }

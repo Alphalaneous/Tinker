@@ -3,12 +3,12 @@
 #include "../Module.hpp"
 #include <Geode/modify/TextGameObject.hpp>
 
-class $globalModule(FixTextObjectBounds) {
+class $editorModule(FixTextObjectBounds) {
     bool onToggled(bool state) override;
 };
 
 class $modify(FTOBTextGameObject, TextGameObject) {
-    $registerGlobalHooks(FixTextObjectBounds)
+    $registerEditorHooks(FixTextObjectBounds)
 
     void fixBounds();
 

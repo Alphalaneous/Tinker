@@ -4,12 +4,12 @@
 #include <Geode/modify/GJTransformControl.hpp>
 #include <Geode/modify/GJScaleControl.hpp>
 
-class $globalModule(TransformFix) {
+class $editorModule(TransformFix) {
     bool onToggled(bool state) override;
 };
 
 class $modify(TFGJTransformControl, GJTransformControl) {
-    $registerGlobalHooks(TransformFix, true);
+    $registerEditorHooks(TransformFix, true);
 
     struct Fields {
         CCMenu* m_menu;

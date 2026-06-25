@@ -63,23 +63,26 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
         }
     }
     else {
-        struct Score {
+        struct NameScore {
             unsigned int id;
             std::string name;
             int score;
         };
 
-        std::vector<Score> nameScores;
+        std::vector<NameScore> nameScores;
 
         for (auto& [k, v] : ObjectNames::get()->getNames()) {
             int score = 0;
             if (!lower.empty() && !fts::fuzzy_match(lower.c_str(), v.c_str(), score)) continue;
             std::string lowerV = geode::utils::string::toLower(v);
-            //we still want the results to make some sense
+
             if (geode::utils::string::contains(lowerV, lower)) { 
                 nameScores.push_back({k, v, score});
             }
         }
+
+        std::unordered_map<unsigned int, std::vector<ItemInformation>> sections;
+        std::vector<std::vector<ItemInformation>*> sectionsVec;
 
         if (!nameScores.empty()) {
             std::sort(nameScores.begin(), nameScores.end(), [&](const auto& a, const auto& b) {
@@ -87,8 +90,27 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
             });
 
             for (const auto& score : nameScores) {
-                auto info = infoForID(score.id);
-                if (info) arr->addObject(info.unwrap().item);
+                auto infoRes = infoForID(score.id);
+                if (infoRes) {
+                    auto& info = infoRes.unwrap();
+                    auto item = info.item;
+                    auto& section = sections[info.tabIndex];
+                    section.push_back(info);
+                }
+            }
+
+            for (auto& [k, v] : sections) {
+                sectionsVec.push_back(&v);
+            }
+
+            std::sort(sectionsVec.begin(), sectionsVec.end(), [&](const auto& a, const auto& b) {
+                return a->size() > b->size();
+            });
+
+            for (const auto section : sectionsVec) {
+                for (const auto& item : *section) {
+                    arr->addObject(item.item);
+                }
             }
         }
     }

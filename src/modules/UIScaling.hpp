@@ -7,7 +7,6 @@ class $editorModule(UIScaling) {
     bool onToggled(bool state) override;
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
     void onEditor() override;
-    void onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) override;
     void setScaling(float scale, bool toolbar, bool topAlign, bool fullReload);
     void setPauseScaling(float scale);
 

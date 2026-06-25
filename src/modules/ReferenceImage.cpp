@@ -3,17 +3,15 @@
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
 
-bool RIEditorUI::init(LevelEditorLayer* editorLayer) {
-    if (!EditorUI::init(editorLayer)) return false;
-    auto btn = getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
+void ReferenceImage::onEditor() {
+    auto btn = m_editorUI->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
     btn->setID("reference-import"_spr);
-    m_editButtonBar->m_buttonArray->addObject(btn);
+    m_editorUI->m_editButtonBar->m_buttonArray->addObject(btn);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    m_editButtonBar->reloadItems(cols, rows);
-    return true;
+    m_editorUI->m_editButtonBar->reloadItems(cols, rows);
 }
 
 bool RICustomizeObjectLayer::init(GameObject* object, CCArray* objectArray) {

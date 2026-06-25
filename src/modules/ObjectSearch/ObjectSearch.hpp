@@ -8,10 +8,12 @@
 #include <Geode/modify/BoomScrollLayer.hpp>
 #include "SearchField.hpp"
 
-class $globalModule(ObjectSearch) {};
+class $editorModule(ObjectSearch) {
+    void onEditor() override;
+};
 
 class $modify(OSEditorUI, EditorUI) {
-    $registerGlobalHooks(ObjectSearch)
+    $registerEditorHooks(ObjectSearch)
 
     struct Fields {
         EditButtonBar* m_searchBar;
@@ -21,7 +23,6 @@ class $modify(OSEditorUI, EditorUI) {
         bool m_initialLoaded = false;
     };
 
-    bool init(LevelEditorLayer* editorLayer);
     void setupCreateMenu();
     void updateCreateMenu(bool selectTab);
     CreateMenuItem* getCreateBtn(int id, int bg);
@@ -29,25 +30,21 @@ class $modify(OSEditorUI, EditorUI) {
 };
 
 class $modify(OSCreateMenuItem, CreateMenuItem) {
-    $registerGlobalHooks(ObjectSearch)
+    $registerEditorHooks(ObjectSearch)
 
     struct Fields {
-        Ref<CreateMenuItem> m_item;
-        Ref<alpha::ui::RenderNode> m_render;
-        CCSprite* m_container;
-        ButtonSprite* m_btnSprite;
-        bool m_isRender = false;
+        CCSprite* m_dummy;
+        bool m_isLazy = false;
         bool m_loaded = false;
     };
     
     static CreateMenuItem* create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector);
     static CreateMenuItem* createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector);
-    void loadRender();
-    void updateButton(CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2);
+    void loadObject();
 };
 
 class $modify(OSEditButtonBar, EditButtonBar) {
-    $registerGlobalHooks(ObjectSearch)
+    $registerEditorHooks(ObjectSearch)
 
     struct Fields {
         bool m_searchBar = false;
@@ -58,7 +55,7 @@ class $modify(OSEditButtonBar, EditButtonBar) {
 };
 
 class $modify(OSBoomScrollLayer, BoomScrollLayer) {
-    $registerGlobalHooks(ObjectSearch)
+    $registerEditorHooks(ObjectSearch)
 
     void instantMoveToPage(int page);
 };

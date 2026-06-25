@@ -111,32 +111,32 @@ void ThatPasteButton::onEditor() {
             else orig(sender);
         });
     }
-}
 
-void ThatPasteButton::onSetGroupIDLayer(SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
-    auto actions = setGroupIDLayer->m_mainLayer->getChildByID("actions-menu");
-    if (!actions) return;
+    addEventListener(SetGroupIDLayerOpenedEvent(), [this] (SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
+        auto actions = setGroupIDLayer->m_mainLayer->getChildByID("actions-menu");
+        if (!actions) return;
 
-    auto pasteButton = typeinfo_cast<CCMenuItemSpriteExtra*>(actions->getChildByID("paste-button"));
-    if (!pasteButton) return;
+        auto pasteButton = typeinfo_cast<CCMenuItemSpriteExtra*>(actions->getChildByID("paste-button"));
+        if (!pasteButton) return;
 
-    if (pasteButton->getUserObject("hijack"_spr)) return;
+        if (pasteButton->getUserObject("hijack"_spr)) return;
 
-    tinker::utils::hijackButton(pasteButton, [this] (auto orig, auto sender) {
-        if (!ThatPasteButton::isEnabled() || !getSetting<bool, "toggle-paste-state-group">()) return orig(sender);
+        tinker::utils::hijackButton(pasteButton, [this] (auto orig, auto sender) {
+            if (!ThatPasteButton::isEnabled() || !getSetting<bool, "toggle-paste-state-group">()) return orig(sender);
 
-        int showCount = getSetting<int, "object-requirement">();
-        bool show = (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() >= showCount) || (showCount == 1 && m_editorUI->m_selectedObject);
-            
-        if (show) {
-            if (getSetting<bool, "dont-show-if-default">() && areObjectGroupsDefault()) {
-                orig(sender);
-                return;
-            }
-            createQuickPopup("Paste State?", "Pasting state is <cr>dangerous</c>! Are you sure?", "Cancel", "Yes", [this, orig, sender] (FLAlertLayer*, bool yes) {
-                if (yes) orig(sender);
-            });
-        } 
-        else orig(sender);
+            int showCount = getSetting<int, "object-requirement">();
+            bool show = (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() >= showCount) || (showCount == 1 && m_editorUI->m_selectedObject);
+                
+            if (show) {
+                if (getSetting<bool, "dont-show-if-default">() && areObjectGroupsDefault()) {
+                    orig(sender);
+                    return;
+                }
+                createQuickPopup("Paste State?", "Pasting state is <cr>dangerous</c>! Are you sure?", "Cancel", "Yes", [this, orig, sender] (FLAlertLayer*, bool yes) {
+                    if (yes) orig(sender);
+                });
+            } 
+            else orig(sender);
+        });
     });
 }

@@ -9,7 +9,6 @@ class $editorModule(RelocateBuildTools) {
     Ref<EditorPauseLayer> m_pauseLayer;
 
     void onEditor() override;
-    void onEditorPauseLayer(EditorPauseLayer* editorPauseLayer) override;
 
     CCSprite* addIcon(CCNode* node, CCLabelBMFont* label);
     void rebuildButtons(std::vector<Ref<CCNode>> nodes);

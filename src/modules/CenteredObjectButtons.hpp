@@ -3,10 +3,10 @@
 #include "../Module.hpp"
 #include <Geode/modify/CreateMenuItem.hpp>
 
-class $globalModule(CenteredObjectButtons) {};
+class $editorModule(CenteredObjectButtons) {};
 
 class $modify(COBCreateMenuItem, CreateMenuItem) {
-    $registerGlobalHooks(CenteredObjectButtons)
+    $registerEditorHooks(CenteredObjectButtons)
 
     static CreateMenuItem* create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector);
 };

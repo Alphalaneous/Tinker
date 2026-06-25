@@ -1,12 +1,14 @@
 #include "EditorSliderFix.hpp"
 
-bool EditorSliderFix::onToggled(bool state) {
-    return true;
+void EditorSliderFix::onEditor() {
+    addEventListener(ObjectChangeEvent(), [this] (float lastObjectX) {
+        m_lastObjectX = lastObjectX;
+        m_editorUI->updateSlider();
+    });
 }
 
-void EditorSliderFix::onObjectChange(float lastObjectX) {
-    m_lastObjectX = lastObjectX;
-    m_editorUI->updateSlider();
+bool EditorSliderFix::onToggled(bool state) {
+    return true;
 }
 
 void ESFEditorUI::sliderChanged(cocos2d::CCObject* sender) {
