@@ -318,7 +318,6 @@ void PerfEditorUI::setupCreateMenu() {
         });
     }
 
-    log::info("pre event");
     runAction(CallFuncExt::create([] {
         SetupCreateMenuEvent().send();
     }));

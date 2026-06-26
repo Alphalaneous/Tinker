@@ -24,6 +24,7 @@ class $modify(OSEditorUI, EditorUI) {
     };
 
     void setupCreateMenu();
+    void onSetupCreateMenu();
     void updateCreateMenu(bool selectTab);
     CreateMenuItem* getCreateBtn(int id, int bg);
     void onPause(CCObject* sender);

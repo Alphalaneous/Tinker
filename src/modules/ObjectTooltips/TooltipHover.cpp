@@ -181,7 +181,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         }
     }
     else {
-        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()))) {
+        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
             m_activeItem = nullptr;
         }
     }
@@ -213,11 +213,11 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 
 #ifdef GEODE_IS_MOBILE
 bool TooltipHover::clickBegan(TouchEvent* touch) {
-    showTooltipWithTouch(touch);
     m_clicking = true;
     if (touch->getLocation().y > EditorUI::get()->m_toolbarHeight) {
         m_clickingOutside = true;
     }
+    showTooltipWithTouch(touch);
     return true;
 }
 

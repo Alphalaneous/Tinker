@@ -6,6 +6,7 @@
 #include "actions/CCValueTo.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
 using namespace alpha::prelude;
 
@@ -212,6 +213,21 @@ void InputEditorUI::onScroll() {
     }
 
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
+
+    auto mousePos = getMousePos();
+    if (mousePos.y < m_toolbarHeight) {
+        auto currentTabIDRes = alpha::editor_tabs::getCurrentTab();
+        if (currentTabIDRes) {
+            auto currentTabID = currentTabIDRes.unwrap();
+            auto currentTabRes = alpha::editor_tabs::nodeForTab(currentTabID);
+            if (currentTabRes) {
+                auto currentTab = currentTabRes.unwrap();
+                if (currentTab->getUserFlag("disable-editor-scroll"_spr)) {
+                    return;
+                }
+            }
+        }
+    }
 
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll()) {
         for (auto child : getChildrenExt()) {

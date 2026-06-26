@@ -1,3 +1,7 @@
+# 1.0.21
+- <c-dddddd>Actually fix the link controls position on mobile</c>
+- <c-dddddd>Fix tooltips showing when dragging the camera on mobile</c>
+
 # 1.0.20
 - <c-dddddd>Fix some features no longer working when entering the editor</c>
 - <c-dddddd>Fix hovering CreateMenuItems when alerts are visible</c>

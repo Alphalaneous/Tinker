@@ -316,13 +316,13 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
             if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
                 linkMenu->setAnchorPoint({0.5f, 0.5f});
                 if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                    if (ImprovedLinkControls::isEnabled()) {
-                        linkMenu->setScale(scale * 0.8f);
+                    if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
+                        linkMenu->setScale(scale GEODE_DESKTOP(* 0.8f));
                         linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 5 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 - 29.f * scale} + getSafeOffset());
                     }
                     else {
                         linkMenu->setScale(scale);
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - linkMenu->getScaledContentHeight() / 2 GEODE_MOBILE(- 24.f * scale)} + getSafeOffset());
+                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2 + 10 * scale, playtestMenu->getPositionY() + 3 * scale - (linkMenu->getScaledContentHeight() / 2)} + getSafeOffset());
                     }
                 }
             }

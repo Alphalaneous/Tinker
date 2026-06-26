@@ -84,32 +84,11 @@ void ObjectSearch::onEditor() {
     }));
 
     /*addEventListener(SetupCreateMenuEvent(), [this] () {
-        auto fields = static_cast<OSEditorUI*>(m_editorUI)->m_fields.self();
-        auto bar = fields->m_searchBar;
-        for (auto tab : m_editorUI->m_createButtonBars->asExt<EditButtonBar>()) {
-            if (!tab || !tab->m_hasCreateItems || bar == tab) continue;
-
-            for (auto node : tab->m_buttonArray->asExt<CCNode>()) {
-                auto cmi = typeinfo_cast<CreateMenuItem*>(node);
-                if (!cmi || cmi->m_objectID < 1 || cmi->m_tabIndex == 13) continue;
-
-                int bgID = 1;
-                auto bgObject = typeinfo_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
-                if (bgObject) {
-                    bgID = bgObject->getValue();
-                }
-
-                auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, m_editorUI, menu_selector(EditorUI::onCreateButton));
-
-                fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, cmi->m_tabIndex, cmi};
-                fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
-            }
-        }
+        static_cast<OSEditorUI*>(m_editorUI)->onSetupCreateMenu();
     });*/
 }
 
-void OSEditorUI::setupCreateMenu() {
-    EditorUI::setupCreateMenu();
+void OSEditorUI::onSetupCreateMenu() {
     auto fields = m_fields.self();
     auto bar = fields->m_searchBar;
     for (auto tab : m_createButtonBars->asExt<EditButtonBar>()) {
@@ -131,6 +110,11 @@ void OSEditorUI::setupCreateMenu() {
             fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
         }
     }
+}
+
+void OSEditorUI::setupCreateMenu() {
+    EditorUI::setupCreateMenu();
+    onSetupCreateMenu();
 }
 
 void OSEditorUI::onPause(CCObject* sender) {
