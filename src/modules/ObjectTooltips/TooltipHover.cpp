@@ -163,7 +163,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
             if (inScrollBounds) {
                 for (auto item : soEbbFields->m_visibleNodes) {
                     if (!nodeIsVisible(item)) continue;
-                    if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
+                    if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation()) && !m_clickingOutside) {
                         m_activeItem = static_cast<CreateMenuItem*>(item.data());
                         break;
                     }
@@ -173,7 +173,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         else {
             for (auto item : editButtonBar->m_buttonArray->asExt<CreateMenuItem>()) {
                 if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
-                if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
+                if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation()) && !m_clickingOutside) {
                     m_activeItem = item;
                     break;
                 }

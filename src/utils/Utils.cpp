@@ -194,19 +194,24 @@ namespace tinker::utils {
                     auto detailColorDataObj = detailColorData;
 
                     if (auto baseColor = gameObject->m_baseColor) {
+
+                        bool blending = false;
+
                         if (color1ID == 0) {
                             baseColor->m_colorID = baseColor->m_defaultColorID;
                             baseColorDataObj = getActiveColor(levelEditorLayer, baseColor->m_colorID);
+                            blending = false;
+                            baseColor->m_hsv = ccHSVValue{0, 1, 1, false, false};
+                            baseColor->m_opacity = 1.f;
                         }
                         else {
                             baseColor->m_colorID = color1ID;
+                            blending = baseColorDataObj.blending;
+                            baseColor->m_hsv = hsv1;
+                            baseColor->m_opacity = baseColorDataObj.opacity / 255.f;
                         }
 
-                        baseColor->m_hsv = hsv1;
-
                         auto color = baseColorDataObj.color;
-                        bool blending = baseColorDataObj.blending;
-                        baseColor->m_opacity = baseColorDataObj.opacity / 255.f;
 
                         if (color1ID == 0 && baseColor->m_colorID != 1010) {
                             color = ccColor3B{255, 255, 255};
@@ -255,19 +260,23 @@ namespace tinker::utils {
                         gameObject->updateMainColor(color);
                     }
                     if (auto detailColor = gameObject->m_detailColor) {
+                        bool blending = false;
+
                         if (color2ID == 0) {
                             detailColor->m_colorID = detailColor->m_defaultColorID;
                             detailColorDataObj = getActiveColor(levelEditorLayer, detailColor->m_colorID);
+                            blending = false;
+                            detailColor->m_hsv = ccHSVValue{0, 1, 1, false, false};
+                            detailColor->m_opacity = 1.f;
                         }
                         else {
                             detailColor->m_colorID = color2ID;
+                            blending = detailColorDataObj.blending;
+                            detailColor->m_hsv = hsv2;
+                            detailColor->m_opacity = detailColorDataObj.opacity / 255.f;
                         }
 
-                        detailColor->m_hsv = hsv2;
-
                         auto color = detailColorDataObj.color;
-                        bool blending = detailColorDataObj.blending;
-                        detailColor->m_opacity = detailColorDataObj.opacity / 255.f;
 
                         if (color2ID == 0 && detailColor->m_colorID != 1010) {
                             color = ccColor3B{200, 200, 255};

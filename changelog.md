@@ -1,3 +1,6 @@
+# 1.0.22
+- <c-dddddd>Fix preview object colors inheriting color channel 1 opacity and blending when default is set</c>
+
 # 1.0.21
 - <c-dddddd>Actually fix the link controls position on mobile</c>
 - <c-dddddd>Fix tooltips showing when dragging the camera on mobile</c>
