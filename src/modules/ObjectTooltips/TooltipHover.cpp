@@ -147,7 +147,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
     if (!editButtonBar->m_hasCreateItems) return;
 
     if (!isInObjectGroups) {
-        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()))) {
+        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
             m_activeItem = nullptr;
         }
 
