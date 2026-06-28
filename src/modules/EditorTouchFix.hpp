@@ -10,5 +10,11 @@ class $editorModule(EditorTouchFix) {
 class $modify(ETFEditorUI, EditorUI) {
     $registerEditorHooks(EditorTouchFix)
 
+    struct Fields {
+        Ref<CCTouch> m_lastTouch;
+    };
+
+    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void onPlaytest(cocos2d::CCObject* sender);
 };
