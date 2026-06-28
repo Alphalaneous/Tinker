@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.22",
+	"version": "v1.0.23",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -231,6 +231,12 @@
 			"default": true,
 			"name": "Enable Editor Slider Fix",
 			"description": "Fix the position slider not being based on level length."
+		},
+		"EditorTouchFix-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Editor Touch Fix",
+			"description": "Fix editor touch not working if you are dragging while pressing playtest."
 		},
 		"TransformFix-enabled": {
 			"type": "bool",
