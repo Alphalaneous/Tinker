@@ -1,5 +1,8 @@
 # 1.0.23
 - <c-dddddd>Add editor touch fix, useful for mobile users where touch stops working when dragging the camera and pressing playtest at the same time</c>
+- <c-dddddd>Add no touch fix when pasting object state. Fixes no touch not working until reopening the editor for those objects.</c>
+- <c-dddddd>Improved Group View now works for Spawn remap and Advanced Random Triggers</c>
+- <c-dddddd>Add Mixed Edit Extras visualization, darker button signifies a mixed checkbox</c>
 
 # 1.0.22
 - <c-dddddd>Fix preview object colors inheriting color channel 1 opacity and blending when default is set</c>

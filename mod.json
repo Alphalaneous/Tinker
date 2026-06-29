@@ -74,6 +74,12 @@
 			"name": "Enable Live Colors",
 			"description": "Show the levels' currently active colors on the bottom of the screen."
 		},
+		"MixedEditExtras-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Mixed Exit Extra Toggles",
+			"description": "Color the Edit Extra toggles to signify that they are not the same across the selected objects."
+		},
 		"ObjectSearch-enabled": {
 			"type": "bool",
 			"default": true,
@@ -237,6 +243,12 @@
 			"default": true,
 			"name": "Enable Editor Touch Fix",
 			"description": "Fix editor touch not working if you are dragging while pressing playtest."
+		},
+		"NoTouchPasteStateFix-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "No Touch Paste State Fix",
+			"description": "Fix No Touch not working when pasting state until reopening the editor."
 		},
 		"TransformFix-enabled": {
 			"type": "bool",
