@@ -16,6 +16,9 @@ void ETFEditorUI::ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event)
 }
 
 void ETFEditorUI::onPlaytest(cocos2d::CCObject* sender) {
-    ccTouchCancelled(m_fields->m_lastTouch, nullptr);
+    auto fields = m_fields.self();
+    if (fields->m_lastTouch) {
+        ccTouchCancelled(fields->m_lastTouch, nullptr);
+    }
     EditorUI::onPlaytest(sender);
 }

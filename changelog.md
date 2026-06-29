@@ -1,3 +1,6 @@
+# 1.0.24
+- <c-dddddd>Fix a crash when playtesting</c>
+
 # 1.0.23
 - <c-dddddd>Add editor touch fix, useful for mobile users where touch stops working when dragging the camera and pressing playtest at the same time</c>
 - <c-dddddd>Add no touch fix when pasting object state. Fixes no touch not working until reopening the editor for those objects.</c>
