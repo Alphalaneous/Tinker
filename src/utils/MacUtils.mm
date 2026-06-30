@@ -17,8 +17,8 @@ namespace tinker::utils {
     CCPoint getMousePos() {
         auto windowFrame = NSApp.mainWindow.frame;
         auto viewFrame = NSApp.mainWindow.contentView.frame;
-        auto scaleFactor = CCPoint{CCDirector::get()->getWinSize()} / CCPoint{viewFrame.size.width, viewFrame.size.height};
+        auto scaleFactor = CCPoint(CCDirector::get()->getWinSize()) / ccp(viewFrame.size.width, viewFrame.size.height);
         auto mouse = [NSEvent mouseLocation];
-        return CCPoint{mouse.x - windowFrame.origin.x, mouse.y - windowFrame.origin.y} * scaleFactor;
+        return ccp(mouse.x - windowFrame.origin.x, mouse.y - windowFrame.origin.y) * scaleFactor;
     }
 }
