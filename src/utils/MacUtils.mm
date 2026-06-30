@@ -1,4 +1,5 @@
 #include <Geode/Geode.hpp>
+#include "MacUtils.hpp"
 
 #include <objc/runtime.h>
 #include <mach-o/utils.h>

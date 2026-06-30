@@ -161,7 +161,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
 #ifdef GEODE_IS_MACOS
 #include <CoreFoundation/CoreFoundation.h>
-#include "utils/MacUtils.mm"
+#include "utils/MacUtils.hpp"
 
 bool InputEditorUI::isNaturalScrollEnabled() {
     if (!tinker::utils::getSetting<bool, "ignore-natural-scrolling">()) return false;
