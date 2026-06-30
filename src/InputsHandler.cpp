@@ -161,6 +161,8 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
 #ifdef GEODE_IS_MACOS
 #include <CoreFoundation/CoreFoundation.h>
+#include "utils/MacUtils.mm"
+
 bool InputEditorUI::isNaturalScrollEnabled() {
     if (!tinker::utils::getSetting<bool, "ignore-natural-scrolling">()) return false;
     CFPropertyListRef value =
@@ -185,6 +187,7 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 #endif
 
 CCPoint getRealMousePos() {
+    #ifdef GEODE_IS_WINDOWS
     auto director = CCDirector::get();
     auto gl = CCEGLView::get();
 
@@ -193,6 +196,11 @@ CCPoint getRealMousePos() {
     auto mouse = gl->getMousePosition() / frameSize;
 
     return CCPoint{mouse.x, 1.f - mouse.y} * winSize;
+    #elif GEODE_IS_MACOS
+    return tinker::utils::getMousePos();
+    #else
+    return CCPoint{0, 0};
+    #endif
 }
 
 void InputEditorUI::onScroll() {
