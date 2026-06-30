@@ -186,7 +186,7 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 }
 #endif
 
-CCPoint getRealMousePos() {
+CCPoint InputEditorUI::getRealMousePos() {
     #ifdef GEODE_IS_WINDOWS
     auto director = CCDirector::get();
     auto gl = CCEGLView::get();

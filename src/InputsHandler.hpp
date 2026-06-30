@@ -50,6 +50,7 @@ class $modify(InputEditorUI, EditorUI) {
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void blockPause();
     void unblockPause();
+    CCPoint getRealMousePos();
 
     void onPause(cocos2d::CCObject* sender);
 
