@@ -22,7 +22,6 @@ bool MEESetupObjectOptionsPopup::init(GameObject* object, cocos2d::CCArray* obje
 }
 
 void MEESetupObjectOptionsPopup::updateMixedToggles() {
-    log::info("update mixed");
     CCArray* objects;
     if (m_gameObjects && m_gameObjects->count() > 0) {
         objects = m_gameObjects;

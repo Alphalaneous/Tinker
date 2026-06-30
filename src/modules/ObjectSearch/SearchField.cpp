@@ -28,15 +28,16 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
     auto fields = m_editorUI->m_fields.self();
     auto arr = CCArray::createWithCapacity(fields->m_orderedItems.size());
 
-    if (search.empty()) {
+    auto lower = geode::utils::string::toLower(search);
+    geode::utils::string::trimIP(lower);
+
+    if (lower.empty()) {
         for (const auto& item : fields->m_orderedItems) {
             if (!item->item) continue;
             arr->addObject(item->item);
         }
         return arr;
     }
-
-    auto lower = geode::utils::string::toLower(search);
 
     if (lower.starts_with("id:")) {
         std::vector<std::string> parts = tinker::utils::split(lower, ":");
@@ -71,13 +72,37 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
 
         std::vector<NameScore> nameScores;
 
-        for (auto& [k, v] : ObjectNames::get()->getNames()) {
-            int score = 0;
-            if (!lower.empty() && !fts::fuzzy_match(lower.c_str(), v.c_str(), score)) continue;
-            std::string lowerV = geode::utils::string::toLower(v);
+        auto queryWords = geode::utils::string::split(lower, " ");
 
-            if (geode::utils::string::contains(lowerV, lower)) { 
-                nameScores.push_back({k, v, score});
+        for (const auto& [k, v] : ObjectNames::get()->getNames()) {
+            auto nameWords = geode::utils::string::split(geode::utils::string::toLower(v), " ");
+
+            int totalScore = 0;
+            bool matches = true;
+
+            for (const auto& queryWord : queryWords) {
+                bool found = false;
+                int bestScore = INT_MIN;
+
+                for (const auto& nameWord : nameWords) {
+                    int score = 0;
+
+                    if (fts::fuzzy_match(queryWord.c_str(), nameWord.c_str(), score)) {
+                        found = true;
+                        bestScore = std::max(bestScore, score);
+                    }
+                }
+
+                if (!found) {
+                    matches = false;
+                    break;
+                }
+
+                totalScore += bestScore;
+            }
+
+            if (matches) {
+                nameScores.push_back({k, v, totalScore});
             }
         }
 
@@ -107,7 +132,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
                 return a->size() > b->size();
             });
 
-            for (const auto section : sectionsVec) {
+            for (const auto& section : sectionsVec) {
                 for (const auto& item : *section) {
                     arr->addObject(item.item);
                 }

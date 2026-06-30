@@ -31,10 +31,7 @@ class $modify(MEESetupObjectOptionsPopup, SetupObjectOptionsPopup) {
         }
 
         auto toggler = static_cast<CCMenuItemToggler*>(m_buttonMenu->getChildByID(id));
-        if (!toggler) {
-            log::debug("{} not found", id);
-            return;
-        }
+        if (!toggler) return;
 
         float scaleOffset = 1.f;
 

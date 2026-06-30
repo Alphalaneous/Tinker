@@ -4,6 +4,7 @@
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/SetupSpawnPopup.hpp>
 #include <Geode/modify/SetupRandAdvTriggerPopup.hpp>
+#include <Geode/modify/SetupSequenceTriggerPopup.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
@@ -81,6 +82,21 @@ class $modify(IGVSetupRandAdvTriggerPopup, SetupRandAdvTriggerPopup) {
         AdvancedScrollLayer* m_scrollLayer;
         AdvancedScrollBar* m_scrollBar;
         CCLabelBMFont* m_groupCountLabel;
+    };
+
+    void updateGroupIDButtons();
+};
+
+class $modify(IGVSetupSequenceTriggerPopup, SetupSequenceTriggerPopup) {
+    $registerEditorHooks(ImprovedGroupView, true)
+
+    static void _onModify(auto& self) {
+        (void) self.setHookPriorityAfterPost("SetupRandAdvTriggerPopup::updateGroupIDButtons", "spaghettdev.named-editor-groups");
+    }
+
+    struct Fields {
+        AdvancedScrollLayer* m_scrollLayer;
+        AdvancedScrollBar* m_scrollBar;
     };
 
     void updateGroupIDButtons();

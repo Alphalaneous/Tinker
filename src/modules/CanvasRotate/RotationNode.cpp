@@ -23,6 +23,20 @@ bool RotationNode::init(EditorUI* editor) {
         m_alignKeyDown = down;
     });
 
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "CanvasRotate-reset-rotation-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        
+        m_smoothedCameraAngle = 0;
+        m_unsnappedCameraAngle = 0;
+        m_isSnapped = true;
+        m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = m_smoothedCameraAngle;
+        m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
+
+        DrawGridAPI::get().setLineSmoothing(static_cast<int>(std::round(m_rotation)) % 90 != 0);
+
+        DrawGridAPI::get().markDirty();
+    });
+
     return true;
 }
 

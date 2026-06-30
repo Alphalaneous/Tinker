@@ -1,5 +1,6 @@
 #include "ImprovedGroupView.hpp"
 #include "../../include/ImprovedGroupView.hpp"
+#include "utils/Utils.hpp"
 #include <spaghettdev.named-editor-groups/api/NIDManager.hpp>
 
 bool ImprovedGroupView::onToggled(bool state) {
@@ -244,7 +245,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 
     fields->m_scrollBar = AdvancedScrollBar::create(fields->m_scrollLayer, ScrollOrientation::VERTICAL);
     auto style = RoundedScrollStyle();
-    style.m_track = [] () {
+    style.m_track = [] {
         auto track = RoundedScrollTrack::create();
         track->setClickColor({0, 0, 0, 0});
         track->setBackgroundColor({0, 0, 0, 0});
@@ -494,7 +495,7 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
 
     fields->m_scrollBar = AdvancedScrollBar::create(fields->m_scrollLayer, ScrollOrientation::VERTICAL);
     auto style = RoundedScrollStyle();
-    style.m_track = [] () {
+    style.m_track = [] {
         auto track = RoundedScrollTrack::create();
         track->setClickColor({0, 0, 0, 0});
         track->setBackgroundColor({0, 0, 0, 0});
@@ -673,7 +674,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
 
     fields->m_scrollBar = AdvancedScrollBar::create(fields->m_scrollLayer, ScrollOrientation::VERTICAL);
     auto style = RoundedScrollStyle();
-    style.m_track = [] () {
+    style.m_track = [] {
         auto track = RoundedScrollTrack::create();
         track->setClickColor({0, 0, 0, 0});
         track->setBackgroundColor({0, 0, 0, 0});
@@ -698,6 +699,171 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
     fields->m_groupCountLabel->setPosition({fields->m_scrollLayer->getPositionX() - fields->m_scrollLayer->getContentWidth()/2, fields->m_scrollLayer->getPositionY() - fields->m_scrollLayer->getContentHeight()/2 - 2});
 
     m_mainLayer->addChild(fields->m_groupCountLabel);
+
+    if (groupsMenu->getScaledContentHeight() <= 90) {
+        fields->m_scrollLayer->setVerticalScroll(false);
+        fields->m_scrollLayer->setHorizontalScrollWheel(false);
+        fields->m_scrollBar->setVisible(false);
+    }
+
+    if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+        runAction(CallFuncExt::create([this] {
+            for (auto btn : CCArrayExt<CCNode, false>(m_groupButtons)) {
+                btn->setVisible(true);
+            }
+        }));
+    }
+}
+
+void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
+    auto fields = m_fields.self();
+
+    int selectedIndex = -1;
+    if (m_selectedButton) {
+        selectedIndex = m_selectedButton->getTag();
+        m_selectedButton = nullptr;
+    }
+
+    for (auto btn : CCArrayExt<CCNode, false>(m_groupButtons)) {
+        btn->removeFromParent();
+    }
+
+    auto namedEditorGroupsMenu = m_buttonMenu->getChildByID("spaghettdev.named-editor-groups/groups-list-menu");
+    if (namedEditorGroupsMenu) {
+        namedEditorGroupsMenu->setVisible(false);
+    }
+
+    m_groupButtons->removeAllObjects();
+
+    float currentScroll = 0;
+
+    if (fields->m_scrollLayer) {
+        currentScroll = fields->m_scrollLayer->getScrollPoint().y;
+        fields->m_scrollLayer->removeFromParent();
+    }
+
+    if (fields->m_scrollBar) {
+        fields->m_scrollBar->removeFromParent();
+    }
+
+    auto groupsMenu = CCMenu::create();
+
+    auto object = static_cast<SequenceTriggerGameObject*>(m_gameObject);
+
+    size_t count = object->m_chanceObjects.size();
+
+    int width;
+    float padding = 25.f;
+
+    if (count <= 10 || tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+        width = 40;
+    } else {
+        width = 15;
+        padding = 15.f;
+    }
+
+    auto winSize = CCDirector::get()->getWinSize();
+
+    int index = 0;
+    for (const auto& chance : object->m_chanceObjects) {
+        std::string label;
+
+        if (count <= 10 || tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+            label = fmt::format("{}-{}", chance.m_groupID, chance.m_chance);
+
+            std::string name = NIDManager::getNameForID(NID::GROUP, chance.m_groupID).unwrapOrDefault();
+            if (!name.empty()) {
+                label += fmt::format("\n{}", name);
+            }
+        }
+        else {
+            label = fmt::format("{}\n{}", chance.m_groupID, chance.m_chance);
+        }
+
+        auto sprite = (index == selectedIndex) ? "GJ_button_03.png" : "GJ_button_04.png";
+
+        auto buttonSprite = ButtonSprite::create(
+            label.c_str(),
+            width,
+            0,
+            0.35f,
+            true,
+            "bigFont.fnt",
+            sprite,
+            30.0f
+        );
+
+        auto button = CCMenuItemSpriteExtra::create(
+            buttonSprite,
+            this,
+            menu_selector(SetupSequenceTriggerPopup::onSelect)
+        );
+
+        button->setTag(index);
+
+        groupsMenu->addChild(button);
+        m_groupButtons->addObject(button);
+
+        if (index == selectedIndex) m_selectedButton = button;
+        index++;
+    }
+
+    auto layout = RowLayout::create();
+    layout->setGap(8);
+    layout->setAutoScale(false);
+    layout->setGrowCrossAxis(true);
+    layout->setCrossAxisOverflow(true);
+    layout->setPadding({padding, 10, padding, 10});
+
+    if (ImprovedGroupView::getSetting<bool, "left-align">()) {
+        layout->setAxisAlignment(AxisAlignment::Start);
+    }
+
+    groupsMenu->setLayout(layout);
+
+    groupsMenu->setContentSize({370, 90});
+    groupsMenu->setPosition({350/2.f, 0});
+    groupsMenu->setAnchorPoint({0.5, 0});
+    groupsMenu->updateLayout();
+    groupsMenu->setID("groups-menu"_spr);
+
+    if (groupsMenu->getScaledContentHeight() > 90) {
+        layout->setPadding({padding, 5, padding, 5});
+        groupsMenu->updateLayout();
+    }
+
+    fields->m_scrollLayer = AdvancedScrollLayer::create({370, 90});
+
+    fields->m_scrollLayer->setContentSize({370, 90});
+    fields->m_scrollLayer->setPosition({winSize.width/2, winSize.height/2 + 14});
+    fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
+    fields->m_scrollLayer->addChild(groupsMenu);
+    fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
+    fields->m_scrollLayer->setTouchPriority(-504);
+    fields->m_scrollLayer->setScrollDelta(1.5f);
+    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()->setCrossAxisScaling(AxisScaling::Grow)->setCrossAxisAlignment(CrossAxisAlignment::Start));
+
+    m_mainLayer->addChild(fields->m_scrollLayer);
+
+    fields->m_scrollLayer->getContentLayer()->updateLayout();
+    fields->m_scrollLayer->setScrollY(currentScroll, false);
+
+    fields->m_scrollBar = AdvancedScrollBar::create(fields->m_scrollLayer, ScrollOrientation::VERTICAL);
+    auto style = RoundedScrollStyle();
+    style.m_track = [] {
+        auto track = RoundedScrollTrack::create();
+        track->setClickColor({0, 0, 0, 0});
+        track->setBackgroundColor({0, 0, 0, 0});
+        return track;
+    };
+
+    fields->m_scrollBar->setStyle(style);
+    fields->m_scrollBar->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 10});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2 - fields->m_scrollBar->getContentWidth() / 2 + 1, fields->m_scrollLayer->getPositionY()});
+    fields->m_scrollBar->setZOrder(100);
+    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10);
+
+    m_mainLayer->addChild(fields->m_scrollBar);
 
     if (groupsMenu->getScaledContentHeight() <= 90) {
         fields->m_scrollLayer->setVerticalScroll(false);

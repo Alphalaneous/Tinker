@@ -1,9 +1,23 @@
+# 1.0.25
+- <c-dddddd>Add NaN/Infinity object position (`GJBaseGameLayer::addToSection`) crash fix for the Editor (Vanilla bug)</c>
+- <c-dddddd>Add Improved Group View support for Sequence Triggers</c>
+- <c-dddddd>Fix toggle trigger visibility when the trigger is meant to be hidden (Vanilla bug)</c>
+- <c-dddddd>Remove an unneeded log</c>
+- <c-dddddd>Scroll rewrite no longer interferes with DevTools</c>
+- <c-dddddd>Add keybind to open search tab</c>
+- <c-dddddd>Add keybind to set editor rotation back to 0</c>
+- <c-dddddd>Improve object search algorithm some more</c>
+- <c-dddddd>Fix blending not working if set by a color trigger before a start position (Vanilla bug)</c>
+- <c-dddddd>Fix undo not working properly with Single Deselect</c>
+- <c-dddddd>Maybe fix rare bug where the toolbar will be at a weird y position</c>
+- <c-dddddd>Add option to skip disabled Start Positions when switching</c>
+
 # 1.0.24
 - <c-dddddd>Fix a crash when playtesting</c>
 
 # 1.0.23
-- <c-dddddd>Add editor touch fix, useful for mobile users where touch stops working when dragging the camera and pressing playtest at the same time</c>
-- <c-dddddd>Add no touch fix when pasting object state. Fixes no touch not working until reopening the editor for those objects.</c>
+- <c-dddddd>Add editor touch fix, useful for mobile users where touch stops working when dragging the camera and pressing playtest at the same time (Vanilla bug)</c>
+- <c-dddddd>Add no touch fix when pasting object state. Fixes no touch not working until reopening the editor for those objects (Vanilla bug)</c>
 - <c-dddddd>Improved Group View now works for Spawn remap and Advanced Random Triggers</c>
 - <c-dddddd>Add Mixed Edit Extras visualization, darker button signifies a mixed checkbox</c>
 
@@ -27,7 +41,7 @@
 # 1.0.18
 - <c-dddddd>Fix editor slider not updating when camera moves from scroll and centering</c>
 - <c-dddddd>Add button to lock camera to music playback</c>
-- <c-dddddd>Add fix for the vanilla bug where the ground position is weird when zooming</c>
+- <c-dddddd>Add fix where the ground position is weird when zooming (Vanilla bug)</c>
 - <c-dddddd>Clean up module system a bit</c>
 - <c-dddddd>Rework Quick Extras to be cleaner</c>
 - <c-dddddd>Add Object Groups version check</c>

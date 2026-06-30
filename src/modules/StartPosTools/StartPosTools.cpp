@@ -368,6 +368,15 @@ void SPTLevelEditorLayer::prevStartPos() {
         fields->m_startPosIndex = fields->m_startPositions.size() - 1;
     }
 
+    if (StartPosTools::getSetting<bool, "skip-disabled">()) {
+        if (fields->m_startPosIndex > -1) {
+            if (fields->m_startPositions[fields->m_startPosIndex]->m_startSettings->m_disableStartPos) {
+                prevStartPos();
+                return;
+            }
+        }
+    }
+
     restartFromStartPos();
 }
 
@@ -377,6 +386,15 @@ void SPTLevelEditorLayer::nextStartPos() {
     fields->m_startPosIndex++;
     if (fields->m_startPosIndex >= fields->m_startPositions.size()) {
         fields->m_startPosIndex = -1;
+    }
+
+    if (StartPosTools::getSetting<bool, "skip-disabled">()) {
+        if (fields->m_startPosIndex > -1) {
+            if (fields->m_startPositions[fields->m_startPosIndex]->m_startSettings->m_disableStartPos) {
+                nextStartPos();
+                return;
+            }
+        }
     }
 
     restartFromStartPos();
@@ -391,8 +409,6 @@ void SPTLevelEditorLayer::restartFromStartPos() {
         alpha::level_storage::setSavedValue(this, "start-pos-index", fields->m_startPosIndexReal + 1);
         setHasSwitched();
     }
-
-    log::debug("Index from restart: {}", fields->m_startPosIndex);
 
     if (fields->m_startPosIndex == -1) {
         fields->m_activeStartPos = nullptr;
@@ -473,12 +489,6 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
     if ((!StartPosTools::getSetting<bool, "start-pos-switcher">() && fields->m_startPosIndex == -1) || (!hasSwitched() && !fields->m_fromStart)) {
         sortStartPositions();
 
-        log::debug("From start: {}", fields->m_fromStart);
-        log::debug("Index: {}", fields->m_startPosIndex);
-        log::debug("Has Switched: {}", hasSwitched());
-        log::debug("Has Switcher: {}", StartPosTools::getSetting<bool, "start-pos-switcher">());
-        log::debug("Start Positions Size: {}", fields->m_startPositions.size());
-        
         if (fields->m_startPositions.empty()) return nullptr;
         fields->m_startPosIndex = getLastEnabledStartposIndex();
 
@@ -486,12 +496,8 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
             fields->m_startPosIndexReal = fields->m_startPosIndex;
         }
 
-        log::debug("Index After: {}", fields->m_startPosIndex);
-
         fields->m_activeStartPos = fields->m_startPositions[fields->m_startPosIndex];
         
-        log::debug("Active Start Pos: {}", fields->m_activeStartPos);
-
         return fields->m_activeStartPos;
     }
 
@@ -500,7 +506,6 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
     auto& startPosVec = fields->m_startPositions;
     auto it = std::find(startPosVec.begin(), startPosVec.end(), fields->m_activeStartPos);
     if (it == startPosVec.end()) {
-        log::debug("Didn't find start position at index: {}", fields->m_startPosIndex);
         if (fields->m_startPositions.empty()) return nullptr;
 
         sortStartPositions();
@@ -518,16 +523,12 @@ StartPosObject* SPTLevelEditorLayer::getActiveStartPos() {
 void SPTLevelEditorLayer::setStartPosIndex(int idx) {
     sortStartPositions();
 
-    log::debug("Set index to: {}", idx);
-
     auto fields = m_fields.self();
     if (idx >= fields->m_startPositions.size()) {
         idx = fields->m_startPositions.size();
     }
 
     fields->m_startPosIndex = idx - 1;
-
-    log::debug("fields->m_startPosIndex after: {}", fields->m_startPosIndex);
 
     fields->m_startPosIndexReal = fields->m_startPosIndex;
     if (fields->m_startPosIndex == -1 || fields->m_startPositions.empty()) {
@@ -545,10 +546,6 @@ unsigned int SPTLevelEditorLayer::getStartPosCount() {
 
 unsigned int SPTLevelEditorLayer::getActiveStartPosIndex() {
     auto fields = m_fields.self();
-
-    if (!m_startPosObject) {
-        log::debug("No current start pos object");
-    }
 
     if (fields->m_startPositions.empty() || !m_startPosObject) return 0;
 

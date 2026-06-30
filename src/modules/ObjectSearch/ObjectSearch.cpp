@@ -83,6 +83,11 @@ void ObjectSearch::onEditor() {
         fields->m_searchField->setScale(0.6f * scale);
     }));
 
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "ObjectSearch-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        alpha::editor_tabs::switchTab("all-objects"_spr);
+    });
+
     /*addEventListener(SetupCreateMenuEvent(), [this] () {
         static_cast<OSEditorUI*>(m_editorUI)->onSetupCreateMenu();
     });*/

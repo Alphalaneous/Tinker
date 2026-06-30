@@ -15,10 +15,10 @@ class $editorModule(SingleDeselect) {
 class $modify(SDEditorUI, EditorUI) {
 	$registerEditorHooks(SingleDeselect)
 
-	void deselectSpecificObject(CCPoint pos);
 	void selectObject(GameObject* object, bool ignoreFilter);
     void selectObjects(CCArray* objects, bool ignoreFilter);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);
+	void createUndoSelectObject(bool redo);
+	void ccTouchEnded(CCTouch* touch, CCEvent* event);
 	bool getKeyPressed();
 
     CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);

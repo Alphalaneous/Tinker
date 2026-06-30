@@ -69,6 +69,8 @@ void ScrollableObjects::onEditor() {
             auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(tab));
             if (!bar) continue;
 
+            bar->setPositionY(0);
+
             if (tinker::utils::getMod<"razoom.object_groups">()) {
                 if (bar->m_hasCreateItems && bar->m_tabIndex != 13) {
                     if (fields->m_groupsGotoObjectsButton) {

@@ -7,6 +7,7 @@
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <geode.devtools/include/API.hpp>
 
 using namespace alpha::prelude;
 
@@ -183,6 +184,17 @@ bool InputEditorUI::isNaturalScrollEnabled() {
 }
 #endif
 
+CCPoint getRealMousePos() {
+    auto director = CCDirector::get();
+    auto gl = CCEGLView::get();
+
+    auto winSize = director->getWinSize();
+    auto frameSize = gl->getFrameSize();
+    auto mouse = gl->getMousePosition() / frameSize;
+
+    return CCPoint{mouse.x, 1.f - mouse.y} * winSize;
+}
+
 void InputEditorUI::onScroll() {
     auto quickVolume = CCScene::get()->getChildByID("hjfod.quick-volume-controls/overlay");
     if (quickVolume) {
@@ -215,6 +227,9 @@ void InputEditorUI::onScroll() {
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
     auto mousePos = getMousePos();
+
+    if (mousePos == getRealMousePos() && devtools::isOpen()) return;
+    
     if (mousePos.y < m_toolbarHeight) {
         auto currentTabIDRes = alpha::editor_tabs::getCurrentTab();
         if (currentTabIDRes) {

@@ -9,29 +9,6 @@ bool SingleDeselect::onSettingChanged(std::string_view key, const matjson::Value
     return true;
 }
 
-void SDEditorUI::deselectSpecificObject(CCPoint pos) {
-    auto mousePosToNode = m_editorLayer->m_objectLayer->convertToNodeSpace(pos);
-    int currentLayer = m_editorLayer->m_currentLayer;
-
-    for (auto object : CCArrayExt<GameObject*>(m_selectedObjects)) {
-        bool isOnCurrentEditorLayer1 = object->m_editorLayer == m_editorLayer->m_currentLayer;
-        bool isOnCurrentEditorLayer2 = (object->m_editorLayer2 == m_editorLayer->m_currentLayer) && object->m_editorLayer2 != 0;
-
-        bool locked = false;
-
-        auto max = std::max(object->m_editorLayer, object->m_editorLayer2);
-
-        if (m_editorLayer->m_lockedLayers.size() > max) {
-            locked = (object->m_editorLayer >= 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer]) || (object->m_editorLayer2 > 0 && m_editorLayer->m_lockedLayers[object->m_editorLayer2]);
-        }
-
-        if (object->boundingBox().containsPoint(mousePosToNode) && !locked && (currentLayer == -1 || (isOnCurrentEditorLayer1 || isOnCurrentEditorLayer2))) {
-            deselectObject(object);
-            break;
-        }
-    }
-}
-
 void SDEditorUI::selectObject(GameObject* object, bool ignoreFilter) {
     if (!getKeyPressed()) {
         EditorUI::selectObject(object, ignoreFilter);
@@ -43,16 +20,74 @@ void SDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
         EditorUI::selectObjects(objects, ignoreFilter);
         return;
     }
-    for (auto obj : objects->asExt<GameObject>()) {
-        deselectObject(obj);
+    if (objects->count() > 0) {
+        auto deselectable = CCArray::create();
+
+        for (auto obj : objects->asExt<GameObject>()) {
+            if (m_selectedObject == obj || m_selectedObjects->containsObject(obj)) {
+                deselectable->addObject(obj);
+            }
+        }
+
+        if (deselectable->count() == 0) {
+            m_editorLayer->m_undoObjects->removeLastObject();
+        }
+
+        if (deselectable->count() > 0) {
+            createUndoSelectObject(false);
+            for (auto obj : deselectable->asExt<GameObject>()) {
+                deselectObject(obj);
+            }
+        }
     }
 }
 
+void SDEditorUI::createUndoSelectObject(bool redo) {
+    EditorUI::createUndoSelectObject(redo);
+}
+
 void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    if (m_selectedMode == 3 && getKeyPressed()) {
-        deselectSpecificObject(touch->getLocation());
-    }
+    auto world = touch->getLocation();
+    bool tapCandidate = m_swipeStart.getDistance(world) < 2.f;
+
+    bool swipeSelected = m_swipeSelected;
+    bool swipeActive = m_swipeActive;
+    bool canActivateControls = m_canActivateControls;
+    bool editingObject = m_editingObject;
+    bool isDraggingCamera = m_isDraggingCamera;
+    auto swipeStart = m_swipeStart;
+    auto snapObject = m_snapObject;
+    int selectedMode = m_selectedMode;
+
     EditorUI::ccTouchEnded(touch, event);
+
+    if ((swipeActive && !tapCandidate) || isDraggingCamera) return;
+
+    float swipeDistance = swipeStart.getDistance(world);
+
+    if (swipeSelected && swipeDistance >= 20.f) return;
+    if (m_selectedMode != 3 || !getKeyPressed() || (snapObject && editingObject)) return;
+    if (world.y < m_toolbarHeight) return;
+
+    auto position = m_editorLayer->m_objectLayer->convertToNodeSpace(world);
+    auto object = m_editorLayer->objectAtPosition(position);
+
+    if (!object || (m_selectedObject != object && !m_selectedObjects->containsObject(object))) return;
+
+    createUndoSelectObject(false);
+
+    if (m_editorLayer->validGroup(object, true)) {
+        deselectObject(object);
+    }
+
+    updateEditMenu();
+
+    if (canActivateControls) {
+        updateSpecialUIElements();
+        updateTransformControl();
+    }
+
+    updateButtons();
 }
 
 bool SDEditorUI::getKeyPressed() {

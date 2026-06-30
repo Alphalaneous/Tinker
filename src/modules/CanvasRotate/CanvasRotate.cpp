@@ -227,7 +227,6 @@ void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
 }
 
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
-
     auto result = CCArray::create();
 
     auto center = rect.origin + CCPoint(rect.size.width * 0.5f, rect.size.height * 0.5f);
@@ -238,20 +237,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
     auto centerInObjectLayer = m_objectLayer->convertToNodeSpace(winSize/2);
 
     tinker::utils::forEachObject(this, [this, &rect, result, selectionOBB, &winSize, &centerInObjectLayer, &ignoreLayerCheck] (GameObject* object) {
-        if (!ignoreLayerCheck) {
-            bool isOnCurrentEditorLayer1 = object->m_editorLayer == m_currentLayer;
-            bool isOnCurrentEditorLayer2 = (object->m_editorLayer2 == m_currentLayer) && object->m_editorLayer2 != 0;
-
-            bool locked = false;
-
-            auto max = std::max(object->m_editorLayer, object->m_editorLayer2);
-
-            if (m_lockedLayers.size() > max) {
-                locked = (object->m_editorLayer >= 0 && m_lockedLayers[object->m_editorLayer]) || (object->m_editorLayer2 > 0 && m_lockedLayers[object->m_editorLayer2]);
-            }
-
-            if ((!isOnCurrentEditorLayer1 && !isOnCurrentEditorLayer2 && m_currentLayer != -1) || locked) return;
-        }
+        if (!validGroup(object, ignoreLayerCheck)) return;
 
         if (selectionOBB->overlaps(rotatedOBB2D(object, centerInObjectLayer, m_gameState.m_cameraAngle))) {
             result->addObject(object);
