@@ -3,5 +3,5 @@
 using namespace geode::prelude;
 
 namespace tinker::utils {
-    CCPoint getMousePos();
+    CCPoint getRealMousePos();
 }

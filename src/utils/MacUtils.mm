@@ -14,7 +14,7 @@
 using namespace geode::prelude;
 
 namespace tinker::utils {
-    CCPoint getMousePos() {
+    CCPoint getRealMousePos() {
         auto windowFrame = NSApp.mainWindow.frame;
         auto viewFrame = NSApp.mainWindow.contentView.frame;
         auto scaleFactor = CCPoint(CCDirector::get()->getWinSize()) / ccp(viewFrame.size.width, viewFrame.size.height);
