@@ -196,7 +196,7 @@ CCPoint InputEditorUI::getRealMousePos() {
     auto mouse = gl->getMousePosition() / frameSize;
 
     return CCPoint{mouse.x, 1.f - mouse.y} * winSize;
-    #elif GEODE_IS_MACOS
+    #elif defined(GEODE_IS_MACOS)
     return tinker::utils::getRealMousePos();
     #else
     return CCPoint{0, 0};
