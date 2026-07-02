@@ -7,8 +7,19 @@
 #include "modules/StartPosTools/StartPosTools.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../../include/UIScaling.hpp"
+#include "MainHooks.hpp"
+#include "utils/Utils.hpp"
 
 bool UIScaling::onToggled(bool state) {
+    if (!state) {
+        removeEventListener("on-pause");
+        removeEventListener("scale-factor");
+        removeEventListener("scale-build-tabs");
+        removeEventListener("scale-pause");
+    }
+    else {
+        setupEvents();
+    }
     setScaling(state ? UIScaling::getUIScale() : 1, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
     setPauseScaling(state ? (UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1) : 1);
     return true;
@@ -61,13 +72,12 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
     return true;
 }
 
-void UIScaling::onEditor() {
-
+void UIScaling::setupEvents() {
     if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
         using FloatSetting = typename SettingTypeForValueType<float>::SettingType;
         using BoolSetting = typename SettingTypeForValueType<bool>::SettingType;
 
-        addEventListener(SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener("scale-factor", SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<FloatSetting>(setting)) {
                 if (ty->getValue() == 1) {
                     setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
@@ -77,7 +87,7 @@ void UIScaling::onEditor() {
             }
         });
 
-        addEventListener(SettingChangedEvent(be, "scale-build-tabs"), [be, this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener("scale-build-tabs", SettingChangedEvent(be, "scale-build-tabs"), [be, this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
                 auto beScale = be->getSettingValue<float>("scale-factor");
                 if (beScale != 1) {
@@ -88,7 +98,7 @@ void UIScaling::onEditor() {
             }
         });
 
-        addEventListener(SettingChangedEvent(be, "scale-pause"), [be, this] (std::shared_ptr<SettingV3> setting) {
+        addEventListener("scale-pause", SettingChangedEvent(be, "scale-pause"), [be, this] (std::shared_ptr<SettingV3> setting) {
             if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
                 auto beScale = be->getSettingValue<float>("scale-factor");
                 if (beScale != 1) {
@@ -101,9 +111,13 @@ void UIScaling::onEditor() {
         });
     }
 
-    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+    addEventListener("on-pause", EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
         setPauseScaling(getSetting<float, "scale">());
     });
+}
+
+void UIScaling::onEditor() {
+    setupEvents();
 }
 
 bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
@@ -122,43 +136,74 @@ CCPoint UIScaling::getSafeOffset() {
 void UIScaling::setPauseScaling(float scale) {
     auto size = CCDirector::get()->getWinSize();
 
-    if (m_pauseLayer) {
-        if (auto resumeMenu = m_pauseLayer->getChildByID("resume-menu")) {
+    auto pauseLayer = MainEditorPauseLayer::get();
+
+    bool isNewNodeIDs = Loader::get()->getInstalledMod("geode.node-ids")->getVersion() > VersionInfo{1, 23, 3};
+
+    if (pauseLayer) {
+        if (auto resumeMenu = pauseLayer->getChildByID("resume-menu")) {
             resumeMenu->setScale(scale);
             resumeMenu->setPosition(size / 2);
         }
 
-        if (auto infoMenu = m_pauseLayer->getChildByID("info-menu")) {
-            infoMenu->setScale(scale);
-            infoMenu->setPosition(CCPoint{10 * scale + infoMenu->getScaledContentWidth() / 2, size.height - infoMenu->getScaledContentHeight() / 2 - 5 * scale} + getSafeOffset());
+        if (auto infoMenu = pauseLayer->getChildByID("info-menu")) {
+            infoMenu->setScale(scale * 0.927f);
+            infoMenu->setAnchorPoint({0.f, 1.f});
+            infoMenu->setPosition(10.f * scale, size.height - 6.f * scale);
         }
 
-        if (auto actionsMenu = m_pauseLayer->getChildByID("actions-menu")) {
+        if (auto actionsMenu = pauseLayer->getChildByID("actions-menu")) {
             actionsMenu->setScale(scale);
-            actionsMenu->setPosition(CCPoint{size.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10 * scale + actionsMenu->getScaledContentHeight() / 2} - getSafeOffset());
+            actionsMenu->setAnchorPoint({0.5f, 0.f});
+            actionsMenu->setPosition(CCPoint{size.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10 * scale} - getSafeOffset());
             
-            if (auto smallActionsMenu = m_pauseLayer->getChildByID("small-actions-menu")) {
+            if (auto smallActionsMenu = pauseLayer->getChildByID("small-actions-menu")) {
                 smallActionsMenu->setScale(scale);
-                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale + smallActionsMenu->getScaledContentHeight() / 2} - getSafeOffset());
+                smallActionsMenu->setAnchorPoint({0.5f, 0.f});
+                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale} - getSafeOffset());
             }
         }
 
-        if (auto optionsMenu = m_pauseLayer->getChildByID("options-menu")) {
-            optionsMenu->setScale(scale);
-            optionsMenu->setPosition(CCPoint{15 * scale + optionsMenu->getScaledContentWidth() / 2, 15 * scale + optionsMenu->getScaledContentHeight() / 2} + getSafeOffset());
+        if (auto optionsMenu = pauseLayer->getChildByID("options-menu")) {
+            if (tinker::utils::getMod<"razoom.improved_playtest">() && !isNewNodeIDs) {
+                optionsMenu->setScale(scale * 0.925f);
+            }
+            else {
+                optionsMenu->setScale(scale);
+            }
+            optionsMenu->setAnchorPoint({0.f, 0.f});
+            optionsMenu->setPosition(15.5f * scale, 14.5f * scale);
+            if (isNewNodeIDs) {
+                optionsMenu->setContentSize({ 120.f, (size.height - 62.f) / scale});
+                optionsMenu->updateLayout();
+            }
         }
 
-        if (auto settingsMenu = m_pauseLayer->getChildByID("settings-menu")) {
+        if (auto settingsMenu = pauseLayer->getChildByID("settings-menu")) {
             settingsMenu->setScale(scale);
-            settingsMenu->setPosition(CCPoint{size.width - 2 * scale - settingsMenu->getScaledContentWidth() / 2.f, size.height - 34 * scale - settingsMenu->getScaledContentHeight() / 2} - getSafeOffset());
+
+            if (isNewNodeIDs) {
+                if (auto actionsMenu = pauseLayer->getChildByID("actions-menu")) {
+                    settingsMenu->setAnchorPoint({0.5f, 1.f});
+                    settingsMenu->setPosition({actionsMenu->getPositionX(), size.height - 5.f * scale});
+                }
+                else {
+                    settingsMenu->setAnchorPoint({0.5f, 0.5f});
+                    settingsMenu->setPosition(CCPoint{size.width - 2 * scale - settingsMenu->getScaledContentWidth() / 2.f, size.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2} - getSafeOffset());
+                }
+            }
+            else {
+                settingsMenu->setAnchorPoint({0.5f, 0.5f});
+                settingsMenu->setPosition(CCPoint{size.width - 2 * scale - settingsMenu->getScaledContentWidth() / 2.f, size.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2} - getSafeOffset());
+            }
         }
 
-        if (auto guidelinesMenu = m_pauseLayer->getChildByID("guidelines-menu")) {
+        if (auto guidelinesMenu = pauseLayer->getChildByID("guidelines-menu")) {
             guidelinesMenu->setScale(scale);
             guidelinesMenu->setPosition({size.width / 2, 28 * scale});
         }
 
-        if (auto topMenu = m_pauseLayer->getChildByID("top-menu")) {
+        if (auto topMenu = pauseLayer->getChildByID("top-menu")) {
             topMenu->setScale(scale);
             topMenu->setPosition({size.width / 2, size.height - 30 * scale});
         }

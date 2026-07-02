@@ -57,11 +57,14 @@ class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
 
 class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
+    static EditorPauseLayer* s_editorPauseLayer;
+
     struct Fields {
         bool m_wasIgnored = false;
         ~Fields();
     };
 
+    static EditorPauseLayer* get();
     bool init(LevelEditorLayer* layer);
     void saveLevel();
 };

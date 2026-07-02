@@ -1,4 +1,5 @@
 #include "AutoBuildHelper.hpp"
+#include "MainHooks.hpp"
 
 void AutoBuildHelper::removeFromEditorUI() {
     if (!m_bhToggler) return;
@@ -13,11 +14,13 @@ void AutoBuildHelper::removeFromEditorUI() {
 }
 
 void AutoBuildHelper::removeFromPause() {
-    if (!m_bhToggler || !m_pauseLayer) return;
+    auto pauseLayer = MainEditorPauseLayer::get();
+
+    if (!m_bhToggler || !pauseLayer) return;
 
     m_bhToggler->removeFromParent();
 
-    auto menu = m_pauseLayer->getChildByID("guidelines-menu");
+    auto menu = pauseLayer->getChildByID("guidelines-menu");
     if (menu) {
         menu->updateLayout();
     }
@@ -25,15 +28,18 @@ void AutoBuildHelper::removeFromPause() {
 }
 
 bool AutoBuildHelper::onToggled(bool state) {
+    auto pauseLayer = MainEditorPauseLayer::get();
+
     if (state) {
         onEditor();
-        if (m_pauseLayer) {
+        if (pauseLayer) {
             if (getSetting<bool, "show-on-pause">()) {
                 showOnPause();
             }
         }
     }
     else {
+        removeEventListener("on-pause");
         if (getSetting<bool, "show-on-pause">()) {
             removeFromPause();
         }
@@ -95,9 +101,10 @@ void AutoBuildHelper::showOnEditorUI() {
 }
 
 void AutoBuildHelper::showOnPause() {
-    if (!m_pauseLayer) return;
+    auto pauseLayer = MainEditorPauseLayer::get();
+    if (!pauseLayer) return;
 
-    auto menu = m_pauseLayer->getChildByID("guidelines-menu");
+    auto menu = pauseLayer->getChildByID("guidelines-menu");
     if (!menu) return;
 
     auto autoBuildHelperSpr = CCSprite::create("build_helper.png"_spr);
@@ -119,16 +126,16 @@ void AutoBuildHelper::showOnPause() {
 
     menu->addChild(m_bhToggler);
     menu->updateLayout();
-
-    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
-        if (!getSetting<bool, "show-on-pause">()) return;
-        showOnPause();
-    });
 }
 
 void AutoBuildHelper::onEditor() {
     if (getSetting<bool, "show-on-pause">()) return;
     showOnEditorUI();
+
+    addEventListener("on-pause", EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        if (!getSetting<bool, "show-on-pause">()) return;
+        showOnPause();
+    });
 }
 
 void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {

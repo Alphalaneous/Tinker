@@ -601,7 +601,9 @@ void SOEditButtonBar::addToExtrasMenu(CCMenuItemSpriteExtra* button) {
 
     fields->m_separator->setVisible(true);
 
-    fields->m_extrasMenu->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2});
+    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2});
+    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
+
     fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
     fields->m_extrasMenu->addChild(button);
     fields->m_extrasMenu->updateLayout();

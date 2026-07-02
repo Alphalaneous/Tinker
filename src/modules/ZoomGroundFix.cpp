@@ -1,4 +1,5 @@
 #include "ZoomGroundFix.hpp"
+#include "utils/Utils.hpp"
 
 bool ZoomGroundFix::onToggled(bool state) {
     if (state) {
@@ -24,11 +25,26 @@ void ZoomGroundFix::fixPosition(float dt) {
             extra = -editorLayer->m_groundLayer->m_textureWidth;
         }
 
-        auto color1 = tinker::utils::getActiveColor(editorLayer, 1001).color;
-        auto color2 = tinker::utils::getActiveColor(editorLayer, 1009).color;
+        ccColor3B color1;
+        ccColor3B color2;
 
-        auto color1DataMG = tinker::utils::getActiveColor(editorLayer, 1013);
-        auto color2DataMG = tinker::utils::getActiveColor(editorLayer, 1014);
+        tinker::utils::ColorData color1DataMG;
+        tinker::utils::ColorData color2DataMG;
+
+        if (!editorLayer->m_previewMode) {
+            color1 = {166, 166, 166};
+            color2 = {166, 166, 166};
+
+            color1DataMG = {{100, 100, 100}, false, 255};
+            color2DataMG = {{150, 150, 150}, false, 255};
+        }
+        else {
+            color1 = tinker::utils::getActiveColor(editorLayer, 1001).color;
+            color2 = tinker::utils::getActiveColor(editorLayer, 1009).color;
+
+            color1DataMG = tinker::utils::getActiveColor(editorLayer, 1013);
+            color2DataMG = tinker::utils::getActiveColor(editorLayer, 1014);
+        }
 
         auto winSize = CCDirector::get()->getWinSize();
 

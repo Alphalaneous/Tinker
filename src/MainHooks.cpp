@@ -169,17 +169,20 @@ bool MainSetGroupIDLayer::init(GameObject* obj, cocos2d::CCArray* objs) {
     return true;
 }
 
+EditorPauseLayer* MainEditorPauseLayer::s_editorPauseLayer = nullptr;
+
 MainEditorPauseLayer::Fields::~Fields() {
+    s_editorPauseLayer = nullptr;
     auto editorLayer = MainLevelEditorLayer::get();
     if (editorLayer) {
-        editorLayer->forEachModule([this] (EditorModuleBase* module) {
-            module->m_pauseLayer = nullptr;
-        });
-        
         if (!m_wasIgnored) {
             EditorUnpausedEvent().send();
         }
     }
+}
+
+EditorPauseLayer* MainEditorPauseLayer::get() {
+    return s_editorPauseLayer;
 }
 
 bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
@@ -191,9 +194,7 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
         return true;
     }
 
-    MainLevelEditorLayer::get()->forEachModule([this] (EditorModuleBase* module) {
-        module->m_pauseLayer = this;
-    });
+    s_editorPauseLayer = this;
     EditorPausedEvent().send(this);
 
     auto guidelinesMenu = getChildByID("guidelines-menu");

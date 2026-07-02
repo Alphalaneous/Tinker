@@ -35,7 +35,6 @@ protected:
 struct EditorModuleBase : public ModuleBase {
     LevelEditorLayer* m_editorLayer = nullptr;
     EditorUI* m_editorUI = nullptr;
-    EditorPauseLayer* m_pauseLayer = nullptr;
 
     virtual ~EditorModuleBase() = default;
 

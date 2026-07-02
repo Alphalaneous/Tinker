@@ -1,3 +1,9 @@
+# 1.0.26
+- <c-dddddd>Fix some crashes</c>
+- <c-dddddd>Clean up UI Scaling</c>
+- <c-dddddd>Fix Preview Object Colors button being positioned off screen with UI scaling disabled</c>
+- <c-dddddd>Fix ground and middleground colors not updating when toggling preview mode off</c>
+
 # 1.0.25
 - <c-dddddd>Add NaN/Infinity object position (`GJBaseGameLayer::addToSection`) crash fix for the Editor (Vanilla bug)</c>
 - <c-dddddd>Add Improved Group View support for Sequence Triggers</c>

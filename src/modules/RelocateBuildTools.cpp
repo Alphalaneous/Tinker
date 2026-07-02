@@ -47,7 +47,12 @@ void RelocateBuildTools::onEditor() {
 
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
         if (auto smallActionsMenu = editorPauseLayer->getChildByID("small-actions-menu")) {
-            static_cast<AxisLayout*>(smallActionsMenu->getLayout())->ignoreInvisibleChildren(true);
+            if (auto layout = typeinfo_cast<AxisLayout*>(smallActionsMenu->getLayout())) {
+                layout->ignoreInvisibleChildren(true);
+            }
+            if (auto layout = typeinfo_cast<SimpleAxisLayout*>(smallActionsMenu->getLayout())) {
+                layout->ignoreInvisibleChildren(true);
+            }
             for (auto child : smallActionsMenu->getChildrenExt()) {
                 child->setVisible(false);
             }
@@ -55,8 +60,12 @@ void RelocateBuildTools::onEditor() {
         }
 
         if (auto actionsMenu = editorPauseLayer->getChildByID("actions-menu")) {
-            static_cast<AxisLayout*>(actionsMenu->getLayout())->ignoreInvisibleChildren(true);
-
+            if (auto layout = typeinfo_cast<AxisLayout*>(actionsMenu->getLayout())) {
+                layout->ignoreInvisibleChildren(true);
+            }
+            if (auto layout = typeinfo_cast<SimpleAxisLayout*>(actionsMenu->getLayout())) {
+                layout->ignoreInvisibleChildren(true);
+            }
             for (auto child : actionsMenu->getChildrenExt()) {
                 child->setVisible(false);
             }
