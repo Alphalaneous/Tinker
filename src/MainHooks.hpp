@@ -43,6 +43,7 @@ class $modify(MainEditorUI, EditorUI) {
 
     bool init(LevelEditorLayer* editorLayer);
     void checkForChange(float dt);
+    void fixTabPositions();
     void updateButtons();
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);

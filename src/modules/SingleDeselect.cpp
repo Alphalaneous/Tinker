@@ -80,8 +80,6 @@ void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
         deselectObject(object);
     }
 
-    updateEditMenu();
-
     if (canActivateControls) {
         updateSpecialUIElements();
         updateTransformControl();

@@ -4,6 +4,7 @@
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
 #include "Events.hpp"
+#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
@@ -98,6 +99,21 @@ void MainEditorUI::checkForChange(float dt) {
     }
 
     fields->m_wasPlatformer = isPlatformer;
+
+    // hack to fix y positions of tabs being wrong for some people (???)
+    fixTabPositions();
+}
+
+void MainEditorUI::fixTabPositions() {
+    for (auto tab : alpha::editor_tabs::getAllTabs().unwrapOrDefault()) {
+        if (!tab) continue;
+
+        float posY = tab->getContentHeight() * tab->getAnchorPoint().y;
+        if (tab->getContentHeight() == 0) {
+            posY = m_toolbarHeight / 2;
+        }
+        tab->setPositionY(posY);
+    }
 }
 
 void MainEditorUI::updateButtons() {

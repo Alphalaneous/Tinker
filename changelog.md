@@ -1,3 +1,8 @@
+# 1.0.27
+- <c-dddddd>Hackily fix toolbar tab position by setting it on a schedule (I still don't get what causes this rare bug)</c>
+- <c-dddddd>Fix layer locking not being respected when selecting</c>
+- <c-dddddd>Fix edit tab visibility when deselecting objects with single deselect</c>
+
 # 1.0.26
 - <c-dddddd>Fix some crashes</c>
 - <c-dddddd>Clean up UI Scaling</c>

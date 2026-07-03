@@ -237,7 +237,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
     auto centerInObjectLayer = m_objectLayer->convertToNodeSpace(winSize/2);
 
     tinker::utils::forEachObject(this, [this, &rect, result, selectionOBB, &winSize, &centerInObjectLayer, &ignoreLayerCheck] (GameObject* object) {
-        if (!validGroup(object, ignoreLayerCheck)) return;
+        if (!validGroup(object, !ignoreLayerCheck)) return;
 
         if (selectionOBB->overlaps(rotatedOBB2D(object, centerInObjectLayer, m_gameState.m_cameraAngle))) {
             result->addObject(object);
