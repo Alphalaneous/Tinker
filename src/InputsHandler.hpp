@@ -3,7 +3,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
-#include <unordered_map>
 
 using namespace geode::prelude;
 
@@ -11,10 +10,6 @@ class $modify(InputEditorUI, EditorUI) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchBegan", Priority::EarlyPre - 1);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchMoved", Priority::EarlyPre - 1);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchEnded", Priority::EarlyPre - 1);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchCancelled", Priority::EarlyPre - 1);
     }
 
     struct Fields {
@@ -38,7 +33,7 @@ class $modify(InputEditorUI, EditorUI) {
 
         float m_speedScale;
 
-        std::unordered_map<Ref<CCTouch>, CCPoint> m_touches;
+        std::set<Ref<CCTouch>> m_touches;
 
         Ref<CCTouch> m_touch1;
         Ref<CCTouch> m_touch2;
@@ -64,6 +59,8 @@ class $modify(InputEditorUI, EditorUI) {
     bool hasActiveAlerts();
 
     bool isNaturalScrollEnabled();
+
+    CCPoint getTouchLocation(CCTouch* touch);
     
     bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);

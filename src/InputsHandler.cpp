@@ -451,6 +451,13 @@ void InputEditorUI::scrollWheel(float y, float x) {
     onScroll();
 }
 
+CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
+    if (CanvasRotate::isEnabled()) {
+        return CanvasRotate::get()->getPreTransformPoint(touch);
+    }
+    return touch->getLocation();
+}
+
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
@@ -467,14 +474,14 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 1) {
             stopActionByTag(123);
             
-            auto firstPos = m_fields->m_touches.begin()->second;
-            auto secondPos = touch->getLocation();
+            auto firstPos = getTouchLocation(*m_fields->m_touches.begin());
+            auto secondPos = getTouchLocation(touch);
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
             fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
 
-            fields->m_touches[touch] = touch->getLocation();
+            fields->m_touches.insert(touch);
             fields->m_touch2 = touch;
 
             if (CanvasRotate::isEnabled()) {
@@ -490,7 +497,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return true;
         }
         else if (EditorUI::ccTouchBegan(touch, event)) {
-            fields->m_touches[touch] = touch->getLocation();
+            fields->m_touches.insert(touch);
             fields->m_touch1 = touch;
             return true;
         }
@@ -511,12 +518,8 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto firstTouch = *it;
             auto secondTouch = *++it;
 
-            if (fields->m_touches.contains(touch)) {
-                fields->m_touches[touch] = touch->getLocation();
-            }
-
-            auto firstPos = firstTouch.second;
-            auto secondPos = secondTouch.second;
+            auto firstPos = getTouchLocation(firstTouch);
+            auto secondPos = getTouchLocation(secondTouch);
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
@@ -538,7 +541,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
-                auto diff = fields->m_touches[fields->m_touch2] - fields->m_touches[fields->m_touch1];
+                auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
 
                 auto angle = std::atan2(diff.y, diff.x);
 

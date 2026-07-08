@@ -51,6 +51,13 @@ bool CanvasRotate::isRotating() {
     return m_rotationNode->isRotating();
 }
 
+CCPoint CanvasRotate::getPreTransformPoint(CCTouch* touch) {
+    auto iter = m_preTransformTouch.find(touch);
+    if (iter == m_preTransformTouch.end()) return touch->getLocation();
+
+    return iter->second;
+}
+
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);
@@ -188,6 +195,8 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     }
 
     auto preTransform = touch->getLocation();
+    module->m_preTransformTouch[touch] = preTransform;
+
     module->m_rotationNode->translate(touch);
 
     auto oldToolbarHeight = m_toolbarHeight;
@@ -207,6 +216,8 @@ void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (m_swipeActive || CanvasRotate::get()->isLassoActive()) {
         return EditorUI::ccTouchMoved(touch, event);
     }
+
+    module->m_preTransformTouch[touch] = touch->getLocation();
     
     module->m_rotationNode->translate(touch);
     EditorUI::ccTouchMoved(touch, event);
@@ -215,15 +226,24 @@ void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 void CREditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
 
+    auto fields = m_fields.self();
+    module->m_preTransformTouch[touch] = touch->getLocation();
+
     module->m_rotationNode->translate(touch);
     EditorUI::ccTouchEnded(touch, event);
+
+    module->m_preTransformTouch.erase(touch);
 }
 
 void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto module = CanvasRotate::get();
 
+    module->m_preTransformTouch[touch] = touch->getLocation();
+
     module->m_rotationNode->translate(touch);
     EditorUI::ccTouchCancelled(touch, event);
+
+    module->m_preTransformTouch.erase(touch);
 }
 
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
