@@ -6,6 +6,24 @@
 
 using namespace geode::prelude;
 
+class TouchForward : public CCLayer {
+public:
+    static TouchForward* create(EditorUI* editorUI);
+    static TouchForward* get();
+
+    void registerWithTouchDispatcher() override;
+
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
+    void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
+    void ccTouchEnded(CCTouch* touch, CCEvent* event) override;
+    void ccTouchCancelled(CCTouch* touch, CCEvent* event) override;
+protected:
+
+    bool init(EditorUI* editorUI);
+
+    EditorUI* m_editorUI;
+};
+
 class $modify(InputEditorUI, EditorUI) {
 
     static void onModify(auto& self) {
@@ -42,6 +60,8 @@ class $modify(InputEditorUI, EditorUI) {
 
         bool m_isPinching = false;
         float m_lastAngle;
+
+        TouchForward* m_forward;
     };
 
     bool init(LevelEditorLayer* editorLayer);
@@ -60,10 +80,15 @@ class $modify(InputEditorUI, EditorUI) {
 
     CCPoint getTouchLocation(CCTouch* touch);
     float getToolbarHeight();
+
+    bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
+    void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+    void onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+    void onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
     
-    bool ccTouchBegan(CCTouch* touch, CCEvent* event);
+    /*bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);
+    void ccTouchEnded(CCTouch* touch, CCEvent* event);*/
 
     void blockPause();
     void unblockPause();

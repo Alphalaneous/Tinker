@@ -22,6 +22,11 @@ class $editorModule(CanvasRotate) {
 
     CCPoint getPreTransformPoint(CCTouch* touch);
 
+    bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
+    void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+    void onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+    void onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+
     bool onToggled(bool state) override;
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 };
@@ -48,9 +53,9 @@ class $modify(CREditorUI, EditorUI) {
     GameObject* createObject(int objectID, CCPoint position);
     void playtestStopped();
     void clickOnPosition(CCPoint pos);
-    bool ccTouchBegan(CCTouch* touch, CCEvent* event);
+    /*bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);
+    void ccTouchEnded(CCTouch* touch, CCEvent* event);*/
     void triggerSwipeMode();
     void updateSliderRotation(float dt);
 };
