@@ -537,7 +537,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             updateZoom(zoom);
 
-            auto centerDiff = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint - center, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+            auto centerDiff = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle) - center;
 
             objLayer->setPosition(objLayer->getPosition() - centerDiff);
             if (ZoomGroundFix::isEnabled()) {
