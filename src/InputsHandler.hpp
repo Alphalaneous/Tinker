@@ -39,7 +39,7 @@ class $modify(InputEditorUI, EditorUI) {
         CCPoint m_touchMidPoint;
 
         bool m_isPinching = false;
-        float m_initialAngle;
+        float m_lastAngle;
     };
 
     bool init(LevelEditorLayer* editorLayer);
