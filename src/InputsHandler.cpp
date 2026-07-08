@@ -466,14 +466,8 @@ float InputEditorUI::getToolbarHeight() {
 }
 
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
-    if (!touch) {
-        return EditorUI::ccTouchBegan(touch, event);
-    }
-
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
-
-    fields->m_touches.insert(touch);
 
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
@@ -524,6 +518,8 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return true;
         }
     }
+
+    if (fields->m_isPinching) return false;
     return EditorUI::ccTouchBegan(touchRef, event);
 }
 
@@ -533,7 +529,6 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
-            fields->m_touches.clear();
             fields->m_touch1 = nullptr;
             fields->m_touch2 = nullptr;
             fields->m_isPinching = false;
@@ -598,7 +593,6 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
-    fields->m_touches.erase(touch);
     bool wasPinching = fields->m_isPinching;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
@@ -623,7 +617,6 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
-    fields->m_touches.erase(touch);
     bool wasPinching = fields->m_isPinching;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
