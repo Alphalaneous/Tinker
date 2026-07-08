@@ -477,6 +477,13 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
 
             fields->m_touches.insert(touch);
+
+            fields->m_isPinching = true;
+            m_swipeModeTriggered = false;
+            m_isDraggingCamera = true;
+            m_swipeSelected = false;
+            m_swipeActive = false;
+
             return true;
         }
         else if (EditorUI::ccTouchBegan(touch, event)) {
@@ -494,6 +501,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
             auto objLayer = m_editorLayer->m_objectLayer;
+            stopActionByTag(123);
 
             auto it = fields->m_touches.begin();
             auto firstTouch = *it;
@@ -518,8 +526,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             }
 
             fields->m_touchMidPoint = center;
-            fields->m_isPinching = true;
-            m_swipeModeTriggered = false;
+            m_isDraggingCamera = true;
             return;
         }
     }
@@ -539,7 +546,6 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
         }
-        return;
     }
     EditorUI::ccTouchEnded(touch, event);
 }
@@ -554,7 +560,6 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
         }
-        return;
     }
     EditorUI::ccTouchCancelled(touch, event);
 }
