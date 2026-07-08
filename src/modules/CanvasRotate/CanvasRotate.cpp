@@ -58,6 +58,11 @@ CCPoint CanvasRotate::getPreTransformPoint(CCTouch* touch) {
     return iter->second;
 }
 
+
+float CanvasRotate::getRealToolbarHeight() {
+    return m_realToolbarHeight;
+}
+
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);
@@ -171,10 +176,10 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
     auto module = CanvasRotate::get();
     if (module->m_rotationNode->isRotating()) return;
 
-    auto oldToolbarHeight = m_toolbarHeight;
+    CanvasRotate::get()->m_realToolbarHeight = m_toolbarHeight;
     m_toolbarHeight = -1;
     EditorUI::clickOnPosition(pos);
-    m_toolbarHeight = oldToolbarHeight;
+    m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
 };
 
 void CREditorUI::triggerSwipeMode() {
@@ -200,14 +205,14 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
     module->m_rotationNode->translate(touchRef);
 
-    auto oldToolbarHeight = m_toolbarHeight;
+    CanvasRotate::get()->m_realToolbarHeight = m_toolbarHeight;
     m_toolbarHeight = -1;
-    if (preTransform.y <= oldToolbarHeight) {
-        m_toolbarHeight = oldToolbarHeight;
+    if (preTransform.y <= CanvasRotate::get()->m_realToolbarHeight) {
+        m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
         return true;
     }
     auto ret = EditorUI::ccTouchBegan(touchRef, event);
-    m_toolbarHeight = oldToolbarHeight;
+    m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
     return ret;
 }
 

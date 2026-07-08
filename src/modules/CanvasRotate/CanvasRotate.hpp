@@ -12,11 +12,13 @@ namespace tinker::ui {
 class $editorModule(CanvasRotate) {
     tinker::ui::RotationNode* m_rotationNode;
     std::unordered_map<Ref<CCTouch>, CCPoint> m_preTransformTouch;
+    float m_realToolbarHeight;
 
     void onEditor() override;
     void toggleBetterEditHook(bool enabled);
     bool isLassoActive();
     bool isRotating();
+    float getRealToolbarHeight();
 
     CCPoint getPreTransformPoint(CCTouch* touch);
 

@@ -61,6 +61,7 @@ class $modify(InputEditorUI, EditorUI) {
     bool isNaturalScrollEnabled();
 
     CCPoint getTouchLocation(CCTouch* touch);
+    float getToolbarHeight();
     
     bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);

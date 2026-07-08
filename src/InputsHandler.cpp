@@ -247,7 +247,7 @@ void InputEditorUI::onScroll() {
 
     if (mousePos == getRealMousePos() && devtools::isOpen()) return;
     
-    if (mousePos.y < m_toolbarHeight) {
+    if (mousePos.y < getToolbarHeight()) {
         auto currentTabIDRes = alpha::editor_tabs::getCurrentTab();
         if (currentTabIDRes) {
             auto currentTabID = currentTabIDRes.unwrap();
@@ -458,6 +458,13 @@ CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
     return touch->getLocation();
 }
 
+float InputEditorUI::getToolbarHeight() {
+    if (CanvasRotate::isEnabled()) {
+        return CanvasRotate::get()->getRealToolbarHeight();
+    }
+    return m_toolbarHeight;
+}
+
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
@@ -472,7 +479,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touch);
-        if (mainPos.y <= m_toolbarHeight) {
+        if (mainPos.y <= getToolbarHeight()) {
             auto ret = EditorUI::ccTouchBegan(touch, event);
             if (ret) {
                 fields->m_touches.insert(touch);
