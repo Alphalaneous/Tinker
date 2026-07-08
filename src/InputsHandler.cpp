@@ -514,6 +514,8 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_touches.clear();
             fields->m_touch1 = nullptr;
             fields->m_touch2 = nullptr;
+            fields->m_isPinching = false;
+            fields->m_lastAngle = 0;
         }
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
             auto objLayer = m_editorLayer->m_objectLayer;
