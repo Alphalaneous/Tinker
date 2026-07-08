@@ -535,7 +535,12 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
-    if (fields->m_isPinching) return;
+    if (fields->m_isPinching) {
+        if (fields->m_touches.empty()) {
+            fields->m_isPinching = false;
+        }
+        return;
+    }
     EditorUI::ccTouchEnded(touch, event);
 }
 
@@ -545,7 +550,12 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
-    if (fields->m_isPinching) return;
+    if (fields->m_isPinching) {
+        if (fields->m_touches.empty()) {
+            fields->m_isPinching = false;
+        }
+        return;
+    }
     EditorUI::ccTouchCancelled(touch, event);
 }
 
