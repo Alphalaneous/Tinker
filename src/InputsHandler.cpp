@@ -681,7 +681,6 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
 
 void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
-    bool wasPinching = fields->m_isPinching;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (fields->m_touch1 == touch) {
@@ -697,9 +696,7 @@ void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* t
         }
     }
 
-    if (!wasPinching) {
-        next(touch);
-    }
+    next(touch);
 }
 
 void InputEditorUI::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
