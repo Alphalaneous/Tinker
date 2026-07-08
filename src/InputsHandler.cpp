@@ -451,12 +451,6 @@ void InputEditorUI::scrollWheel(float y, float x) {
     onScroll();
 }
 
-CCPoint InputEditorUI::getRealTouchPos(CCTouch* touch) {
-    auto winSize = CCDirector::get()->getWinSize();
-    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, -m_editorLayer->m_gameState.m_cameraAngle);
-    return CCPoint{newPoint.x, winSize.height - newPoint.y};
-}
-
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
@@ -475,8 +469,8 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             
             auto firstTouch = *m_fields->m_touches.begin();
 
-            auto firstPos = getRealTouchPos(firstTouch);
-            auto secondPos = getRealTouchPos(touch);
+            auto firstPos = firstTouch->getLocation();
+            auto secondPos = touch->getLocation();
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
@@ -519,8 +513,8 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto firstTouch = *it;
             auto secondTouch = *++it;
 
-            auto firstPos = getRealTouchPos(firstTouch);
-            auto secondPos = getRealTouchPos(secondTouch);
+            auto firstPos = firstTouch->getLocation();
+            auto secondPos = secondTouch->getLocation();
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
@@ -541,7 +535,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
-                auto diff = getRealTouchPos(fields->m_touch2) - getRealTouchPos(fields->m_touch1);
+                auto diff = fields->m_touch2->getLocation() - fields->m_touch1->getLocation();
 
                 auto angle = std::atan2(diff.y, diff.x);
 

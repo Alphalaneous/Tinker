@@ -10,6 +10,10 @@ class $modify(InputEditorUI, EditorUI) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
+        (void) self.setHookPriorityPre("EditorUI::ccTouchBegan", Priority::EarlyPre - 1);
+        (void) self.setHookPriorityPre("EditorUI::ccTouchMoved", Priority::EarlyPre - 1);
+        (void) self.setHookPriorityPre("EditorUI::ccTouchEnded", Priority::EarlyPre - 1);
+        (void) self.setHookPriorityPre("EditorUI::ccTouchCancelled", Priority::EarlyPre - 1);
     }
 
     struct Fields {
@@ -67,8 +71,6 @@ class $modify(InputEditorUI, EditorUI) {
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
-
-    CCPoint getRealTouchPos(CCTouch* touch);
 
     void addTextInput(TextInput* input);
     void removeTextInput(TextInput* input);
