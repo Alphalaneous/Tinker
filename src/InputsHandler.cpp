@@ -469,13 +469,18 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return false;
         }
     }
-
+    
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        auto mainPos = getTouchLocation(touch);
+        if (mainPos.y <= m_toolbarHeight) {
+            return EditorUI::ccTouchBegan(touch, event);
+        }
+        
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
             stopActionByTag(123);
             
             auto firstPos = getTouchLocation(*fields->m_touches.begin());
-            auto secondPos = getTouchLocation(touch);
+            auto secondPos = mainPos;
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
@@ -509,7 +514,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
-    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
             fields->m_touches.clear();
             fields->m_touch1 = nullptr;
