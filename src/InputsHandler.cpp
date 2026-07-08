@@ -518,34 +518,8 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_lastAngle = 0;
         }
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
-            auto objLayer = m_editorLayer->m_objectLayer;
+            auto layer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
-
-            auto it = fields->m_touches.begin();
-            auto firstTouch = *it;
-            auto secondTouch = *++it;
-
-            auto firstPos = getTouchLocation(firstTouch);
-            auto secondPos = getTouchLocation(secondTouch);
-
-            auto center = (firstPos + secondPos) / 2.f;
-            auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
-            
-            auto mult = fields->m_initialDistance / distNow;
-
-            auto zoom = std::clamp(fields->m_initialScale / mult, .1f, 10000000.f);
-
-            updateZoom(zoom);
-
-            auto centerDiff = fields->m_touchMidPoint - tinker::utils::rotatePointAroundPivot(center, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
-
-            objLayer->setPosition(objLayer->getPosition() - centerDiff);
-            if (ZoomGroundFix::isEnabled()) {
-                ZoomGroundFix::get()->fixPosition(0);
-            }
-
-            fields->m_touchMidPoint = center;
-            m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
                 auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
@@ -566,6 +540,35 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
                 CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
             }
+
+            auto it = fields->m_touches.begin();
+            auto firstTouch = *it;
+            auto secondTouch = *++it;
+
+            auto firstPos = getTouchLocation(firstTouch);
+            auto secondPos = getTouchLocation(secondTouch);
+
+            auto center = (firstPos + secondPos) / 2.f;
+            auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
+            
+            auto mult = fields->m_initialDistance / distNow;
+
+            auto zoom = std::clamp(fields->m_initialScale / mult, .1f, 10000000.f);
+
+            auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2, m_editorLayer->m_gameState.m_cameraAngle);
+            auto prevPos = layer->convertToNodeSpace(midPos);
+        
+            updateZoom(zoom);
+
+            auto newPos = layer->convertToWorldSpace(prevPos);
+            layer->setPosition(layer->getPosition() + midPos - newPos);
+
+            if (ZoomGroundFix::isEnabled()) {
+                ZoomGroundFix::get()->fixPosition(0);
+            }
+
+            fields->m_touchMidPoint = center;
+            m_isDraggingCamera = true;
             return;
         }
     }
