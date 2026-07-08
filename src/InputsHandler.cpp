@@ -473,7 +473,11 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touch);
         if (mainPos.y <= m_toolbarHeight) {
-            return EditorUI::ccTouchBegan(touch, event);
+            auto ret = EditorUI::ccTouchBegan(touch, event);
+            if (ret) {
+                fields->m_touches.insert(touch);
+            }
+            return ret;
         }
         
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
@@ -498,7 +502,12 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             m_isDraggingCamera = true;
             m_swipeSelected = false;
             m_swipeActive = false;
+            m_touchID = touch->m_nId;
 
+            double t = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000.0;
+
+            m_keyTime = t;
+            m_keyTime2 = t;
             return true;
         }
         else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touch, event)) {
@@ -507,8 +516,11 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return true;
         }
     }
-
-    return EditorUI::ccTouchBegan(touch, event);
+    if (EditorUI::ccTouchBegan(touch, event)) {
+        fields->m_touches.insert(touch);
+        return true;
+    }
+    return false;
 }
 
 void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
@@ -557,9 +569,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             
             if (CanvasRotate::isEnabled() && CanvasRotate::getSetting<bool, "pinch-to-rotate">()) {
                 auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
-
                 auto angle = std::atan2(diff.y, diff.x);
-
                 auto delta = angle - fields->m_lastAngle;
 
                 while (delta > M_PI) {
@@ -571,7 +581,6 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
                 }
 
                 fields->m_lastAngle = angle;
-
                 CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
             }
             return;
@@ -587,44 +596,47 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
 void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
+    Ref<CCTouch> touchRef = touch;
+    fields->m_touches.erase(touch);
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (fields->m_touch1 == touch) {
+        if (fields->m_touch1 == touchRef) {
             fields->m_touch1 = fields->m_touch2;
             fields->m_touch2 = nullptr;
         }
-        else if (fields->m_touch2 == touch) {
+        else if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
         fields->m_lastAngle = 0;
 
-        fields->m_touches.erase(touch);
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
         }
     }
-    EditorUI::ccTouchEnded(touch, event);
+    
+    EditorUI::ccTouchEnded(touchRef, event);
 }
 
 void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
+    Ref<CCTouch> touchRef = touch;
+    fields->m_touches.erase(touch);
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (fields->m_touch1 == touch) {
+        if (fields->m_touch1 == touchRef) {
             fields->m_touch1 = fields->m_touch2;
             fields->m_touch2 = nullptr;
         }
-        else if (fields->m_touch2 == touch) {
+        else if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
         fields->m_lastAngle = 0;
 
-        fields->m_touches.erase(touch);
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
         }
     }
-    EditorUI::ccTouchCancelled(touch, event);
+    EditorUI::ccTouchCancelled(touchRef, event);
 }
 
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
