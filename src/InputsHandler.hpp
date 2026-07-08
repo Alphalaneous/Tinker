@@ -36,7 +36,7 @@ class $modify(InputEditorUI, EditorUI) {
         std::set<Ref<CCTouch>> m_touches;
         Ref<CCTouch> m_touch1;
         Ref<CCTouch> m_touch2;
-        
+
         float m_initialDistance = 0.f;
         float m_initialScale = 1.f;
         CCPoint m_touchMidPoint;
@@ -67,6 +67,8 @@ class $modify(InputEditorUI, EditorUI) {
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
+
+    CCPoint getRealTouchPos(CCTouch* touch);
 
     void addTextInput(TextInput* input);
     void removeTextInput(TextInput* input);

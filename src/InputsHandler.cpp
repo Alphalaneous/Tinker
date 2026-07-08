@@ -451,6 +451,12 @@ void InputEditorUI::scrollWheel(float y, float x) {
     onScroll();
 }
 
+CCPoint InputEditorUI::getRealTouchPos(CCTouch* touch) {
+    auto winSize = CCDirector::get()->getWinSize();
+    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, -m_editorLayer->m_gameState.m_cameraAngle);
+    return CCPoint{newPoint.x, winSize.height - newPoint.y};
+}
+
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
@@ -469,8 +475,8 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             
             auto firstTouch = *m_fields->m_touches.begin();
 
-            auto firstPos = firstTouch->getLocation();
-            auto secondPos = touch->getLocation();
+            auto firstPos = getRealTouchPos(firstTouch);
+            auto secondPos = getRealTouchPos(touch);
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
@@ -509,38 +515,12 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto objLayer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
 
-            if (CanvasRotate::isEnabled()) {
-                auto diff = fields->m_touch2->getLocation() - fields->m_touch1->getLocation();
-
-                auto angle = std::atan2(diff.y, diff.x);
-
-                auto delta = angle - fields->m_lastAngle;
-
-                while (delta > M_PI) {
-                    delta -= 2.f * M_PI;
-                }
-
-                while (delta < -M_PI) {
-                    delta += 2.f * M_PI;
-                }
-
-                fields->m_lastAngle = angle;
-
-                auto angleDelta = CC_RADIANS_TO_DEGREES(delta);
-
-                if (std::abs(angleDelta) > 0.5f) {
-                    m_isDraggingCamera = true;
-                    CanvasRotate::get()->m_rotationNode->updateCanvasRotation(angleDelta);
-                    return;
-                }
-            }
-
             auto it = fields->m_touches.begin();
             auto firstTouch = *it;
             auto secondTouch = *++it;
 
-            auto firstPos = firstTouch->getLocation();
-            auto secondPos = secondTouch->getLocation();
+            auto firstPos = getRealTouchPos(firstTouch);
+            auto secondPos = getRealTouchPos(secondTouch);
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
@@ -559,7 +539,26 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             fields->m_touchMidPoint = center;
             m_isDraggingCamera = true;
+            
+            if (CanvasRotate::isEnabled()) {
+                auto diff = getRealTouchPos(fields->m_touch2) - getRealTouchPos(fields->m_touch1);
 
+                auto angle = std::atan2(diff.y, diff.x);
+
+                auto delta = angle - fields->m_lastAngle;
+
+                while (delta > M_PI) {
+                    delta -= 2.f * M_PI;
+                }
+
+                while (delta < -M_PI) {
+                    delta += 2.f * M_PI;
+                }
+
+                fields->m_lastAngle = angle;
+
+                CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
+            }
             return;
         }
     }
