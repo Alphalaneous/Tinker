@@ -496,10 +496,9 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
             return true;
         }
-        else if (m_fields->m_touches.size() == 0 && EditorUI::ccTouchBegan(touch, event)) {
+        else if (EditorUI::ccTouchBegan(touch, event)) {
             fields->m_touches.insert(touch);
             fields->m_touch1 = touch;
-
             return true;
         }
     }
@@ -511,6 +510,11 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+            fields->m_touches.clear();
+            fields->m_touch1 = nullptr;
+            fields->m_touch2 = nullptr;
+        }
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
             auto objLayer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
@@ -531,7 +535,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             updateZoom(zoom);
 
-            auto centerDiff = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint - center, CCDirector::get()->getWinSize() / 2.f, -m_editorLayer->m_gameState.m_cameraAngle);
+            auto centerDiff = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint - center, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
 
             objLayer->setPosition(objLayer->getPosition() - centerDiff);
             if (ZoomGroundFix::isEnabled()) {
