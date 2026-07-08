@@ -466,25 +466,25 @@ float InputEditorUI::getToolbarHeight() {
 }
 
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+    auto fields = m_fields.self();
+    Ref<CCTouch> touchRef = touch;
+
+    fields->m_touches.insert(touch);
+
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
     }
-    auto fields = m_fields.self();
 
     for (auto textInput : fields->m_textInputs) {
-        if (nodeIsVisible(textInput) && isPointInsideNode(textInput, touch->getLocation())) {
+        if (nodeIsVisible(textInput) && isPointInsideNode(textInput, getTouchLocation(touchRef))) {
             return false;
         }
     }
     
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        auto mainPos = getTouchLocation(touch);
+        auto mainPos = getTouchLocation(touchRef);
         if (mainPos.y <= getToolbarHeight()) {
-            auto ret = EditorUI::ccTouchBegan(touch, event);
-            if (ret) {
-                fields->m_touches.insert(touch);
-            }
-            return ret;
+            return EditorUI::ccTouchBegan(touchRef, event);
         }
         
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
@@ -497,8 +497,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
             fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
 
-            fields->m_touches.insert(touch);
-            fields->m_touch2 = touch;
+            fields->m_touch2 = touchRef;
 
             if (CanvasRotate::isEnabled()) {
                 fields->m_lastAngle = std::atan2(secondPos.y - firstPos.y, secondPos.x - firstPos.x);
@@ -512,21 +511,17 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
             return true;
         }
-        else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touch, event)) {
-            fields->m_touches.insert(touch);
-            fields->m_touch1 = touch;
+        else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touchRef, event)) {
+            fields->m_touch1 = touchRef;
             return true;
         }
     }
-    if (EditorUI::ccTouchBegan(touch, event)) {
-        fields->m_touches.insert(touch);
-        return true;
-    }
-    return false;
+    return EditorUI::ccTouchBegan(touchRef, event);
 }
 
 void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
+    Ref<CCTouch> touchRef = touch;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -589,7 +584,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         }
     }
     if (!fields->m_isPinching) {
-        EditorUI::ccTouchMoved(touch, event);
+        EditorUI::ccTouchMoved(touchRef, event);
     }
     if (ZoomGroundFix::isEnabled()) {
         ZoomGroundFix::get()->fixPosition(0);
@@ -609,13 +604,11 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
         else if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
-        fields->m_lastAngle = 0;
 
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
         }
     }
-    
     EditorUI::ccTouchEnded(touchRef, event);
 }
 
@@ -632,7 +625,6 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
         else if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
-        fields->m_lastAngle = 0;
 
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
