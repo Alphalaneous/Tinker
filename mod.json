@@ -143,7 +143,6 @@
 			"description": "Show a label with your current zoom as you zoom.",
 			"enable-if": "!loaded:hjfod.betteredit",
 			"enable-if-description": "This feature is not compatible with BetterEdit."
-
 		},
 		"scrolling-title": {
 			"type": "title",
@@ -186,7 +185,8 @@
 			"type": "bool",
 			"default": true,
 			"name": "Pinch to Zoom",
-			"description": "Allow pinching 2 fingers to zoom."
+			"description": "Allow pinching 2 fingers to zoom.",
+			"platforms": ["android", "ios"]
 		},
 		"scroll-delegate-to-vanilla": {
 			"type": "bool",
@@ -487,6 +487,13 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable Right Click Dragging"
+		},
+		"CanvasRotate-pinch-to-rotate": {
+			"type": "bool",
+			"default": true,
+			"name": "Pinch to Rotate",
+			"description": "Allow pinching and rotating 2 fingers to rotate the editor.",
+			"platforms": ["android", "ios"]
 		},
 		"CanvasRotate-align-modifier": {
 			"name": "Align Modifier",

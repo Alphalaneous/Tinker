@@ -471,10 +471,10 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     }
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 1) {
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
             stopActionByTag(123);
             
-            auto firstPos = getTouchLocation(*m_fields->m_touches.begin());
+            auto firstPos = getTouchLocation(*fields->m_touches.begin());
             auto secondPos = getTouchLocation(touch);
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
@@ -517,7 +517,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_isPinching = false;
             fields->m_lastAngle = 0;
         }
-        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 2) {
             auto layer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
 
@@ -533,9 +533,9 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             
             auto mult = fields->m_initialDistance / distNow;
 
-            auto zoom = std::clamp(fields->m_initialScale / mult, .1f, 10000000.f);
+            auto zoom = std::clamp(fields->m_initialScale / mult, tinker::utils::getSetting<float, "zoom-minimum">(), tinker::utils::getSetting<float, "zoom-maximum">());
 
-            auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2, m_editorLayer->m_gameState.m_cameraAngle);
+            auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
             auto prevPos = layer->convertToNodeSpace(midPos);
         
             updateZoom(zoom);
@@ -550,7 +550,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_touchMidPoint = center;
             m_isDraggingCamera = true;
             
-            if (CanvasRotate::isEnabled()) {
+            if (CanvasRotate::isEnabled() && CanvasRotate::getSetting<bool, "pinch-to-rotate">()) {
                 auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
 
                 auto angle = std::atan2(diff.y, diff.x);
