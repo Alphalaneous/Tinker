@@ -172,7 +172,7 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
     if (module->m_rotationNode->isRotating()) return;
 
     auto oldToolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = INT_MIN;
+    m_toolbarHeight = -1;
     EditorUI::clickOnPosition(pos);
     m_toolbarHeight = oldToolbarHeight;
 };
@@ -201,7 +201,7 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     module->m_rotationNode->translate(touchRef);
 
     auto oldToolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = INT_MIN;
+    m_toolbarHeight = -1;
     if (preTransform.y <= oldToolbarHeight) {
         m_toolbarHeight = oldToolbarHeight;
         return EditorUI::ccTouchBegan(touchRef, event);
