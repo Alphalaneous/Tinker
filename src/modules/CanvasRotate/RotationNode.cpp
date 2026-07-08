@@ -128,9 +128,9 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
     #ifdef GEODE_IS_DESKTOP
     const float snapThreshold = 2.0f;
     #else
-    const float snapThreshold = 4.0f;
+    const float snapThreshold = 8.0f;
     #endif
-    const float unsnapThreshold = 5.0f;
+    const float unsnapThreshold = 10.0f;
     const float smoothingFactor = 0.2f;
 
     m_unsnappedCameraAngle = std::fmod(m_unsnappedCameraAngle - deltaAngle, 360.0f);
