@@ -614,29 +614,6 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     }
 }
 
-void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    auto fields = m_fields.self();
-    Ref<CCTouch> touchRef = touch;
-    bool wasPinching = fields->m_isPinching;
-
-    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (fields->m_touch1 == touchRef) {
-            fields->m_touch1 = fields->m_touch2;
-            fields->m_touch2 = nullptr;
-        }
-        if (fields->m_touch2 == touchRef) {
-            fields->m_touch2 = nullptr;
-        }
-
-        if (!fields->m_touch1 && !fields->m_touch2) {
-            fields->m_isPinching = false;
-        }
-    }
-    if (!wasPinching) {
-        EditorUI::ccTouchCancelled(touchRef, event);
-    }
-}
-
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
     if (!m_fields->m_blockPause) {
         EditorUI::onPause(sender);

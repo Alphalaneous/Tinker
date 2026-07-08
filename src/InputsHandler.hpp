@@ -64,7 +64,6 @@ class $modify(InputEditorUI, EditorUI) {
     bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
     void ccTouchEnded(CCTouch* touch, CCEvent* event);
-    void ccTouchCancelled(CCTouch* touch, CCEvent* event);
 
     void blockPause();
     void unblockPause();
