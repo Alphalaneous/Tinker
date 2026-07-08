@@ -528,7 +528,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
                 auto angleDelta = CC_RADIANS_TO_DEGREES(delta);
 
-                if (angleDelta > 5.f) {
+                if (std::abs(angleDelta) > 0.5f) {
                     m_isDraggingCamera = true;
                     CanvasRotate::get()->m_rotationNode->updateCanvasRotation(angleDelta);
                     return;
