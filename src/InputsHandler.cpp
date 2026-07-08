@@ -496,7 +496,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
             return true;
         }
-        else if (EditorUI::ccTouchBegan(touch, event)) {
+        else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touch, event)) {
             fields->m_touches.insert(touch);
             fields->m_touch1 = touch;
             return true;
