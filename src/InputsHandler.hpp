@@ -39,8 +39,9 @@ class $modify(InputEditorUI, EditorUI) {
         float m_speedScale;
 
         std::unordered_map<Ref<CCTouch>, CCPoint> m_touches;
-        CCPoint m_pos1;
-        CCPoint m_pos2;
+
+        Ref<CCTouch> m_touch1;
+        Ref<CCTouch> m_touch2;
 
         float m_initialDistance = 0.f;
         float m_initialScale = 1.f;

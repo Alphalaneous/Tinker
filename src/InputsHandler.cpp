@@ -475,7 +475,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
 
             fields->m_touches[touch] = touch->getLocation();
-            fields->m_pos2 = touch->getLocation();
+            fields->m_touch2 = touch;
 
             if (CanvasRotate::isEnabled()) {
                 fields->m_lastAngle = std::atan2(secondPos.y - firstPos.y, secondPos.x - firstPos.x);
@@ -491,7 +491,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
         }
         else if (EditorUI::ccTouchBegan(touch, event)) {
             fields->m_touches[touch] = touch->getLocation();
-            fields->m_pos1 = touch->getLocation();
+            fields->m_touch1 = touch;
             return true;
         }
     }
@@ -510,6 +510,10 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto it = fields->m_touches.begin();
             auto firstTouch = *it;
             auto secondTouch = *++it;
+
+            if (fields->m_touches.contains(touch)) {
+                fields->m_touches[touch] = touch->getLocation();
+            }
 
             auto firstPos = firstTouch.second;
             auto secondPos = secondTouch.second;
@@ -534,7 +538,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
-                auto diff = fields->m_pos2 - fields->m_pos1;
+                auto diff = fields->m_touches[fields->m_touch2] - fields->m_touches[fields->m_touch1];
 
                 auto angle = std::atan2(diff.y, diff.x);
 
@@ -567,8 +571,12 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (fields->m_pos1 == fields->m_touches[touch]) {
-            fields->m_pos1 = fields->m_pos2;
+        if (fields->m_touch1 == touch) {
+            fields->m_touch1 = fields->m_touch2;
+            fields->m_touch2 = nullptr;
+        }
+        else if (fields->m_touch2 == touch) {
+            fields->m_touch2 = nullptr;
         }
         fields->m_lastAngle = 0;
 
@@ -584,8 +592,12 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (fields->m_pos1 == fields->m_touches[touch]) {
-            fields->m_pos1 = fields->m_pos2;
+        if (fields->m_touch1 == touch) {
+            fields->m_touch1 = fields->m_touch2;
+            fields->m_touch2 = nullptr;
+        }
+        else if (fields->m_touch2 == touch) {
+            fields->m_touch2 = nullptr;
         }
         fields->m_lastAngle = 0;
 
