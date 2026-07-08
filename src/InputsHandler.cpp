@@ -488,6 +488,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touchRef);
         if (mainPos.y <= getToolbarHeight()) {
+            if (fields->m_isPinching) return false;
             return EditorUI::ccTouchBegan(touchRef, event);
         }
         
