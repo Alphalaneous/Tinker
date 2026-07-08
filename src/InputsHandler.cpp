@@ -718,7 +718,7 @@ void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* t
 }
 
 void InputEditorUI::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
-    next(touch);
+    onTouchEnded(touch, std::move(next));
 }
 
 /*bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
