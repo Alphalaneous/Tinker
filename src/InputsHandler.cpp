@@ -102,6 +102,19 @@ void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     }
 }
 
+void InputAppDelegate::applicationDidEnterBackground() {
+    auto editor = InputEditorUI::get();
+    if (!editor) return;
+
+    auto fields = editor->m_fields.self();
+    fields->m_touch1 = nullptr;
+    fields->m_touch2 = nullptr;
+    fields->m_isPinching = false;
+    fields->m_lastAngle = 0;
+
+    AppDelegate::applicationDidEnterBackground();
+}
+
 InputEditorUI* InputEditorUI::get() {
     return static_cast<InputEditorUI*>(EditorUI::get());
 }

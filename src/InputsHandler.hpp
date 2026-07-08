@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
+#include <Geode/modify/AppDelegate.hpp>
 
 using namespace geode::prelude;
 
@@ -22,6 +23,10 @@ protected:
     bool init(EditorUI* editorUI);
 
     EditorUI* m_editorUI;
+};
+
+class $modify(InputAppDelegate, AppDelegate) {
+    void applicationDidEnterBackground();
 };
 
 class $modify(InputEditorUI, EditorUI) {
