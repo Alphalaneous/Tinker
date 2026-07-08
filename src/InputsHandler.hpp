@@ -34,6 +34,9 @@ class $modify(InputEditorUI, EditorUI) {
         float m_speedScale;
 
         std::set<Ref<CCTouch>> m_touches;
+        Ref<CCTouch> m_touch1;
+        Ref<CCTouch> m_touch2;
+        
         float m_initialDistance = 0.f;
         float m_initialScale = 1.f;
         CCPoint m_touchMidPoint;
