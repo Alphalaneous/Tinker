@@ -514,7 +514,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
-    if (::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
             fields->m_touches.clear();
             fields->m_touch1 = nullptr;
