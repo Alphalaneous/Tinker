@@ -204,7 +204,7 @@ bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     m_toolbarHeight = -1;
     if (preTransform.y <= oldToolbarHeight) {
         m_toolbarHeight = oldToolbarHeight;
-        return EditorUI::ccTouchBegan(touchRef, event);
+        return true;
     }
     auto ret = EditorUI::ccTouchBegan(touchRef, event);
     m_toolbarHeight = oldToolbarHeight;
