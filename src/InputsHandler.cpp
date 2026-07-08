@@ -535,12 +535,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_isPinching = false;
             fields->m_lastAngle = 0;
         }
-        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 2) {
-            if (!fields->m_touch1 || !fields->m_touch2) {
-                EditorUI::ccTouchMoved(touchRef, event);
-                return;
-            }
-
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touch1 && fields->m_touch2) {
             auto layer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
 
