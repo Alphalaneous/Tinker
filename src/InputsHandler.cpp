@@ -43,6 +43,7 @@ void TouchForward::registerWithTouchDispatcher() {
 }
 
 bool TouchForward::ccTouchBegan(CCTouch* touch, CCEvent* event) {
+    m_touches.insert(touch);
     if (CanvasRotate::isEnabled()) {
         return CanvasRotate::get()->onTouchBegan(touch, [this] (CCTouch* touch) -> bool {
             return InputEditorUI::get()->onTouchBegan(touch, [this] (CCTouch* touch) -> bool {
@@ -73,6 +74,7 @@ void TouchForward::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 }
 
 void TouchForward::ccTouchEnded(CCTouch* touch, CCEvent* event) {
+    m_touches.erase(touch);
     if (CanvasRotate::isEnabled()) {
         CanvasRotate::get()->onTouchEnded(touch, [this] (CCTouch* touch) {
             InputEditorUI::get()->onTouchEnded(touch, [this] (CCTouch* touch) {
@@ -88,6 +90,7 @@ void TouchForward::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 }
 
 void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
+    m_touches.erase(touch);
     if (CanvasRotate::isEnabled()) {
         CanvasRotate::get()->onTouchCancelled(touch, [this] (CCTouch* touch) {
             InputEditorUI::get()->onTouchCancelled(touch, [this] (CCTouch* touch) {
@@ -102,15 +105,17 @@ void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     }
 }
 
+void TouchForward::cancelAllTouches() {
+    for (const auto& touch : m_touches) {
+        ccTouchCancelled(touch, nullptr);
+    }
+}
+
 void InputAppDelegate::applicationDidEnterBackground() {
     auto editor = InputEditorUI::get();
     if (!editor) return;
 
-    auto fields = editor->m_fields.self();
-    fields->m_touch1 = nullptr;
-    fields->m_touch2 = nullptr;
-    fields->m_isPinching = false;
-    fields->m_lastAngle = 0;
+    TouchForward::get()->cancelAllTouches();
 
     AppDelegate::applicationDidEnterBackground();
 }

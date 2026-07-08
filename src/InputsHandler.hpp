@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Geode/cocos/touch_dispatcher/CCTouch.h"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/AppDelegate.hpp>
+#include <unordered_set>
 
 using namespace geode::prelude;
 
@@ -18,10 +20,13 @@ public:
     void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
     void ccTouchEnded(CCTouch* touch, CCEvent* event) override;
     void ccTouchCancelled(CCTouch* touch, CCEvent* event) override;
+
+    void cancelAllTouches();
 protected:
 
     bool init(EditorUI* editorUI);
 
+    std::unordered_set<Ref<CCTouch>> m_touches;
     EditorUI* m_editorUI;
 };
 
