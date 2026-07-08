@@ -490,7 +490,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
             stopActionByTag(123);
             
-            auto firstPos = getTouchLocation(*fields->m_touches.begin());
+            auto firstPos = getTouchLocation(fields->m_touch1);
             auto secondPos = mainPos;
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
@@ -532,15 +532,16 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             fields->m_lastAngle = 0;
         }
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 2) {
+            if (!fields->m_touch1 || !fields->m_touch2) {
+                EditorUI::ccTouchMoved(touchRef, event);
+                return;
+            }
+
             auto layer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
 
-            auto it = fields->m_touches.begin();
-            auto firstTouch = *it;
-            auto secondTouch = *++it;
-
-            auto firstPos = getTouchLocation(firstTouch);
-            auto secondPos = getTouchLocation(secondTouch);
+            auto firstPos = getTouchLocation(fields->m_touch1);
+            auto secondPos = getTouchLocation(fields->m_touch2);
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
