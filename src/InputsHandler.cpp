@@ -527,6 +527,23 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             fields->m_touchMidPoint = center;
             m_isDraggingCamera = true;
+            
+            if (CanvasRotate::isEnabled()) {
+                auto screenCenter = CCDirector::get()->getWinSize() / 2;
+
+                auto v1 = firstTouch->getLocation() - screenCenter;
+                auto v2 = secondTouch->getLocation() - screenCenter;
+
+                float angle1 = std::atan2f(v1.y, v1.x);
+                float angle2 = std::atan2f(v2.y, v2.x);
+                float deltaAngle = CC_RADIANS_TO_DEGREES(angle2 - angle1);
+
+                if (deltaAngle > 180.f) deltaAngle -= 360.f;
+                if (deltaAngle < -180.f) deltaAngle += 360.f;
+
+                CanvasRotate::get()->m_rotationNode->updateCanvasRotation(deltaAngle);
+            }
+
             return;
         }
     }
