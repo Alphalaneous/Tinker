@@ -489,7 +489,10 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
         auto mainPos = getTouchLocation(touchRef);
         if (mainPos.y <= getToolbarHeight()) {
             if (fields->m_isPinching) return false;
-            return EditorUI::ccTouchBegan(touchRef, event);
+            if (m_editorLayer->m_playbackMode != PlaybackMode::Playing || m_playbackBtn->isVisible()) return false;
+
+            m_editorLayer->m_uiLayer->ccTouchBegan(touch, event);
+            return true;
         }
         
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touch1 && !fields->m_touch2) {
@@ -596,42 +599,49 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
     fields->m_touches.erase(touch);
+    bool wasPinching = fields->m_isPinching;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (fields->m_touch1 == touchRef) {
             fields->m_touch1 = fields->m_touch2;
             fields->m_touch2 = nullptr;
         }
-        else if (fields->m_touch2 == touchRef) {
+        if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
 
-        if (fields->m_touches.empty()) {
+        if (!fields->m_touch1 && !fields->m_touch2) {
             fields->m_isPinching = false;
         }
     }
-    EditorUI::ccTouchEnded(touchRef, event);
+
+    if (!wasPinching) {
+        EditorUI::ccTouchEnded(touchRef, event);
+    }
 }
 
 void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
     fields->m_touches.erase(touch);
+    bool wasPinching = fields->m_isPinching;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (fields->m_touch1 == touchRef) {
             fields->m_touch1 = fields->m_touch2;
             fields->m_touch2 = nullptr;
         }
-        else if (fields->m_touch2 == touchRef) {
+        if (fields->m_touch2 == touchRef) {
             fields->m_touch2 = nullptr;
         }
 
-        if (fields->m_touches.empty()) {
+        if (!fields->m_touch1 && !fields->m_touch2) {
             fields->m_isPinching = false;
         }
     }
-    EditorUI::ccTouchCancelled(touchRef, event);
+    if (!wasPinching) {
+        EditorUI::ccTouchCancelled(touchRef, event);
+    }
 }
 
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
