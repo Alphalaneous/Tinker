@@ -502,12 +502,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             m_isDraggingCamera = true;
             m_swipeSelected = false;
             m_swipeActive = false;
-            m_touchID = touch->m_nId;
 
-            double t = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000.0;
-
-            m_keyTime = t;
-            m_keyTime2 = t;
             return true;
         }
         else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touch, event)) {
