@@ -17,12 +17,14 @@ void ZoomGroundFix::onEditor() {
 
 void ZoomGroundFix::fixPosition(float dt) {
     auto editorLayer = LevelEditorLayer::get();
-    if (editorLayer->m_playbackMode == PlaybackMode::Not) {
+    if (editorLayer && editorLayer->m_playbackMode == PlaybackMode::Not) {
         float zoom = editorLayer->m_objectLayer->getScale();
         auto x = editorLayer->m_objectLayer->getPositionX() / zoom;
         float extra = 0;
         if (x > 0) {
-            extra = -editorLayer->m_groundLayer->m_textureWidth;
+            if (editorLayer->m_groundLayer) {
+                extra = -editorLayer->m_groundLayer->m_textureWidth;
+            }
         }
 
         ccColor3B color1;
@@ -48,9 +50,9 @@ void ZoomGroundFix::fixPosition(float dt) {
 
         auto winSize = CCDirector::get()->getWinSize();
 
-        auto mod = std::fmod(x, editorLayer->m_groundLayer->m_textureWidth) - editorLayer->m_groundLayer->m_textureWidth * 3 + extra;
-
         if (editorLayer->m_groundLayer) {
+            auto mod = std::fmod(x, editorLayer->m_groundLayer->m_textureWidth) - editorLayer->m_groundLayer->m_textureWidth * 3 + extra;
+
             editorLayer->m_groundLayer->scaleGround(zoom);
             editorLayer->m_groundLayer->m_groundWidth = winSize.width / zoom + 10.f;
 
@@ -64,6 +66,8 @@ void ZoomGroundFix::fixPosition(float dt) {
             editorLayer->m_groundLayer->updateGround02Color(color2);
         }
         if (editorLayer->m_groundLayer2) {
+            auto mod = std::fmod(x, editorLayer->m_groundLayer2->m_textureWidth) - editorLayer->m_groundLayer2->m_textureWidth * 3 + extra;
+
             editorLayer->m_groundLayer2->scaleGround(zoom);
 
             int count = std::ceilf(editorLayer->m_groundLayer2->m_groundWidth / editorLayer->m_groundLayer2->m_textureWidth) + 10.f;
@@ -100,5 +104,21 @@ void ZoomGroundFix::fixPosition(float dt) {
             editorLayer->m_middleground->updateMG01Blend(color1DataMG.blending);
             editorLayer->m_middleground->updateMG02Blend(color2DataMG.blending);
         }
+    }
+}
+
+void ZGFEditorUI::updateZoom(float zoom) {
+    EditorUI::updateZoom(zoom);
+    auto fix = ZoomGroundFix::get();
+    if (fix) {
+        ZoomGroundFix::get()->fixPosition(0);
+    }
+}
+
+void ZGFEditorUI::constrainGameLayerPosition(float x, float y) {
+    EditorUI::constrainGameLayerPosition(x, y);
+    auto fix = ZoomGroundFix::get();
+    if (fix) {
+        ZoomGroundFix::get()->fixPosition(0);
     }
 }

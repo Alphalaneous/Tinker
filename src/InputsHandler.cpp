@@ -464,6 +464,8 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 1) {
+            stopActionByTag(123);
+            
             auto firstTouch = *m_fields->m_touches.begin();
 
             auto firstPos = firstTouch->getLocation();

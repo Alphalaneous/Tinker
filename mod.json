@@ -184,7 +184,7 @@
 		},
 		"pinch-to-zoom": {
 			"type": "bool",
-			"default": false,
+			"default": true,
 			"name": "Pinch to Zoom",
 			"description": "Allow pinching 2 fingers to zoom."
 		},
