@@ -466,7 +466,7 @@ float InputEditorUI::getToolbarHeight() {
 }
 
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
-    auto fields = m_fields.self();
+    /*auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
 
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
@@ -520,11 +520,12 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     }
 
     if (fields->m_isPinching) return false;
-    return EditorUI::ccTouchBegan(touchRef, event);
+    return EditorUI::ccTouchBegan(touchRef, event);*/
+    return EditorUI::ccTouchBegan(touch, event);
 }
 
 void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    auto fields = m_fields.self();
+    /*auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
@@ -587,11 +588,12 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     }
     if (ZoomGroundFix::isEnabled()) {
         ZoomGroundFix::get()->fixPosition(0);
-    }
+    }*/
+    EditorUI::ccTouchMoved(touch, event);
 }
 
 void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    auto fields = m_fields.self();
+    /*auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
     bool wasPinching = fields->m_isPinching;
 
@@ -611,7 +613,8 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 
     if (!wasPinching) {
         EditorUI::ccTouchEnded(touchRef, event);
-    }
+    }*/
+    EditorUI::ccTouchEnded(touch, event);
 }
 
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
