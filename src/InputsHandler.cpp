@@ -509,6 +509,32 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto objLayer = m_editorLayer->m_objectLayer;
             stopActionByTag(123);
 
+            if (CanvasRotate::isEnabled()) {
+                auto diff = fields->m_touch2->getLocation() - fields->m_touch1->getLocation();
+
+                auto angle = std::atan2(diff.y, diff.x);
+
+                auto delta = angle - fields->m_lastAngle;
+
+                while (delta > M_PI) {
+                    delta -= 2.f * M_PI;
+                }
+
+                while (delta < -M_PI) {
+                    delta += 2.f * M_PI;
+                }
+
+                fields->m_lastAngle = angle;
+
+                auto angleDelta = CC_RADIANS_TO_DEGREES(delta);
+
+                if (angleDelta > 5.f) {
+                    m_isDraggingCamera = true;
+                    CanvasRotate::get()->m_rotationNode->updateCanvasRotation(angleDelta);
+                    return;
+                }
+            }
+
             auto it = fields->m_touches.begin();
             auto firstTouch = *it;
             auto secondTouch = *++it;
@@ -533,26 +559,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             fields->m_touchMidPoint = center;
             m_isDraggingCamera = true;
-            
-            if (CanvasRotate::isEnabled()) {
-                auto diff = fields->m_touch2->getLocation() - fields->m_touch1->getLocation();
 
-                auto angle = std::atan2(diff.y, diff.x);
-
-                auto delta = angle - fields->m_lastAngle;
-
-                while (delta > M_PI) {
-                    delta -= 2.f * M_PI;
-                }
-
-                while (delta < -M_PI) {
-                    delta += 2.f * M_PI;
-                }
-
-                fields->m_lastAngle = angle;
-
-                CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
-            }
             return;
         }
     }
