@@ -530,7 +530,9 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             return;
         }
     }
-    EditorUI::ccTouchMoved(touch, event);
+    if (!fields->m_isPinching) {
+        EditorUI::ccTouchMoved(touch, event);
+    }
     if (ZoomGroundFix::isEnabled()) {
         ZoomGroundFix::get()->fixPosition(0);
     }
@@ -542,10 +544,8 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
-    if (fields->m_isPinching) {
-        if (fields->m_touches.empty()) {
-            fields->m_isPinching = false;
-        }
+    if (fields->m_touches.empty()) {
+        fields->m_isPinching = false;
     }
     EditorUI::ccTouchEnded(touch, event);
 }
@@ -556,10 +556,8 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
-    if (fields->m_isPinching) {
-        if (fields->m_touches.empty()) {
-            fields->m_isPinching = false;
-        }
+    if (fields->m_touches.empty()) {
+        fields->m_isPinching = false;
     }
     EditorUI::ccTouchCancelled(touch, event);
 }
