@@ -478,6 +478,10 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
             fields->m_touches.insert(touch);
 
+            if (CanvasRotate::isEnabled()) {
+                fields->m_initialAngle = std::atan2(secondPos.y - firstPos.y, secondPos.x - firstPos.x);
+            }
+
             fields->m_isPinching = true;
             m_swipeModeTriggered = false;
             m_isDraggingCamera = true;
@@ -529,14 +533,15 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
-                auto screenCenter = CCDirector::get()->getWinSize() / 2;
+                auto firstPos = firstTouch->getLocation();
+                auto secondPos = secondTouch->getLocation();
 
-                auto v1 = firstTouch->getLocation() - screenCenter;
-                auto v2 = secondTouch->getLocation() - screenCenter;
+                auto currentAngle = std::atan2(
+                    secondPos.y - firstPos.y,
+                    secondPos.x - firstPos.x
+                );
 
-                float angle1 = std::atan2f(v1.y, v1.x);
-                float angle2 = std::atan2f(v2.y, v2.x);
-                float deltaAngle = CC_RADIANS_TO_DEGREES(angle2 - angle1);
+                auto deltaAngle = CC_RADIANS_TO_DEGREES(currentAngle - fields->m_initialAngle);
 
                 if (deltaAngle > 180.f) deltaAngle -= 360.f;
                 if (deltaAngle < -180.f) deltaAngle += 360.f;
