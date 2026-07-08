@@ -466,6 +466,10 @@ float InputEditorUI::getToolbarHeight() {
 }
 
 bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+    if (!touch) {
+        return EditorUI::ccTouchBegan(touch, event);
+    }
+
     auto fields = m_fields.self();
     Ref<CCTouch> touchRef = touch;
 
@@ -487,7 +491,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return EditorUI::ccTouchBegan(touchRef, event);
         }
         
-        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touches.size() == 1) {
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touch1 && !fields->m_touch2) {
             stopActionByTag(123);
             
             auto firstPos = getTouchLocation(fields->m_touch1);
@@ -511,7 +515,7 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
 
             return true;
         }
-        else if (fields->m_touches.empty() && EditorUI::ccTouchBegan(touchRef, event)) {
+        else if (!fields->m_touch1 && EditorUI::ccTouchBegan(touchRef, event)) {
             fields->m_touch1 = touchRef;
             return true;
         }
