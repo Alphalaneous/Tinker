@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
+#include <unordered_map>
 
 using namespace geode::prelude;
 
@@ -37,9 +38,9 @@ class $modify(InputEditorUI, EditorUI) {
 
         float m_speedScale;
 
-        std::set<Ref<CCTouch>> m_touches;
-        Ref<CCTouch> m_touch1;
-        Ref<CCTouch> m_touch2;
+        std::unordered_map<Ref<CCTouch>, CCPoint> m_touches;
+        CCPoint m_pos1;
+        CCPoint m_pos2;
 
         float m_initialDistance = 0.f;
         float m_initialScale = 1.f;

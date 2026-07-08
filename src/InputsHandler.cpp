@@ -467,17 +467,15 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
         if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 1) {
             stopActionByTag(123);
             
-            auto firstTouch = *m_fields->m_touches.begin();
-
-            auto firstPos = firstTouch->getLocation();
+            auto firstPos = m_fields->m_touches.begin()->second;
             auto secondPos = touch->getLocation();
 
             fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
             fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
             fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
 
-            fields->m_touches.insert(touch);
-            fields->m_touch2 = touch;
+            fields->m_touches[touch] = touch->getLocation();
+            fields->m_pos2 = touch->getLocation();
 
             if (CanvasRotate::isEnabled()) {
                 fields->m_lastAngle = std::atan2(secondPos.y - firstPos.y, secondPos.x - firstPos.x);
@@ -492,8 +490,8 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
             return true;
         }
         else if (EditorUI::ccTouchBegan(touch, event)) {
-            fields->m_touches.insert(touch);
-            fields->m_touch1 = touch;
+            fields->m_touches[touch] = touch->getLocation();
+            fields->m_pos1 = touch->getLocation();
             return true;
         }
     }
@@ -513,8 +511,8 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             auto firstTouch = *it;
             auto secondTouch = *++it;
 
-            auto firstPos = firstTouch->getLocation();
-            auto secondPos = secondTouch->getLocation();
+            auto firstPos = firstTouch.second;
+            auto secondPos = secondTouch.second;
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
@@ -526,6 +524,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             updateZoom(zoom);
 
             auto centerDiff = fields->m_touchMidPoint - center;
+
             objLayer->setPosition(objLayer->getPosition() - centerDiff);
             if (ZoomGroundFix::isEnabled()) {
                 ZoomGroundFix::get()->fixPosition(0);
@@ -535,7 +534,7 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             m_isDraggingCamera = true;
             
             if (CanvasRotate::isEnabled()) {
-                auto diff = fields->m_touch2->getLocation() - fields->m_touch1->getLocation();
+                auto diff = fields->m_pos2 - fields->m_pos1;
 
                 auto angle = std::atan2(diff.y, diff.x);
 
@@ -568,16 +567,14 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        if (fields->m_pos1 == fields->m_touches[touch]) {
+            fields->m_pos1 = fields->m_pos2;
+        }
+        fields->m_lastAngle = 0;
+
         fields->m_touches.erase(touch);
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
-        }
-        if (touch == fields->m_touch1) {
-            fields->m_touch1 = fields->m_touch2;
-            fields->m_touch2 = nullptr;
-        }
-        else if (touch == fields->m_touch2) {
-            fields->m_touch2 = nullptr;
         }
     }
     EditorUI::ccTouchEnded(touch, event);
@@ -587,16 +584,14 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     auto fields = m_fields.self();
 
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        if (fields->m_pos1 == fields->m_touches[touch]) {
+            fields->m_pos1 = fields->m_pos2;
+        }
+        fields->m_lastAngle = 0;
+
         fields->m_touches.erase(touch);
         if (fields->m_touches.empty()) {
             fields->m_isPinching = false;
-        }
-        if (touch == fields->m_touch1) {
-            fields->m_touch1 = fields->m_touch2;
-            fields->m_touch2 = nullptr;
-        }
-        else if (touch == fields->m_touch2) {
-            fields->m_touch2 = nullptr;
         }
     }
     EditorUI::ccTouchCancelled(touch, event);
