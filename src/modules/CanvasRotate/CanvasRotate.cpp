@@ -243,18 +243,6 @@ void CREditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     module->m_preTransformTouch.erase(touchRef);
 }
 
-void CREditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    auto module = CanvasRotate::get();
-    Ref<CCTouch> touchRef = touch;
-
-    module->m_preTransformTouch[touchRef] = touchRef->getLocation();
-
-    module->m_rotationNode->translate(touchRef);
-    EditorUI::ccTouchCancelled(touchRef, event);
-
-    module->m_preTransformTouch.erase(touchRef);
-}
-
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
     auto result = CCArray::create();
 

@@ -33,7 +33,6 @@ class $modify(CREditorUI, EditorUI) {
         (void) self.setHookPriorityPre("EditorUI::ccTouchBegan", Priority::EarlyPre);
         (void) self.setHookPriorityPre("EditorUI::ccTouchMoved", Priority::EarlyPre);
         (void) self.setHookPriorityPre("EditorUI::ccTouchEnded", Priority::EarlyPre);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchCancelled", Priority::EarlyPre);
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre);
     }
 
@@ -52,7 +51,6 @@ class $modify(CREditorUI, EditorUI) {
     bool ccTouchBegan(CCTouch* touch, CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
     void ccTouchEnded(CCTouch* touch, CCEvent* event);
-    void ccTouchCancelled(CCTouch* touch, CCEvent* event);
     void triggerSwipeMode();
     void updateSliderRotation(float dt);
 };

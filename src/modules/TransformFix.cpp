@@ -80,21 +80,6 @@ void TFGJTransformControl::ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEven
     GJTransformControl::ccTouchEnded(touch, event);
 }
 
-void TFGJTransformControl::ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
-
-    auto fields = m_fields.self();
-    if (fields->m_touchInMenu) {
-        fields->m_touchInMenu = false;
-
-        auto menu = getMenu();
-        if (!menu) return;
-
-        menu->ccTouchCancelled(touch, event);
-        return;
-    }
-    GJTransformControl::ccTouchCancelled(touch, event);
-}
-
 void TFGJTransformControl::scaleButtons(float scale) {
     GJTransformControl::scaleButtons(scale);
     if (tinker::utils::getMod<"razoom.improved_transform_controls">()) return;
@@ -171,18 +156,4 @@ void TFGJScaleControl::ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
         return;
     }
     GJScaleControl::ccTouchEnded(touch, event);
-}
-
-void TFGJScaleControl::ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
-    auto fields = m_fields.self();
-    if (fields->m_touchInMenu) {
-        fields->m_touchInMenu = false;
-
-        auto menu = getMenu();
-        if (!menu) return;
-
-        menu->ccTouchCancelled(touch, event);
-        return;
-    }
-    GJScaleControl::ccTouchCancelled(touch, event);
 }

@@ -24,13 +24,11 @@ class $modify(TFGJTransformControl, GJTransformControl) {
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
-    void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 
     static void _onModify(auto& self) {
         (void) self.setHookPriorityBeforePre("GJTransformControl::ccTouchBegan", "razoom.improved_transform_controls");
         (void) self.setHookPriorityBeforePre("GJTransformControl::ccTouchMoved", "razoom.improved_transform_controls");
         (void) self.setHookPriorityBeforePre("GJTransformControl::ccTouchEnded", "razoom.improved_transform_controls");
-        (void) self.setHookPriorityBeforePre("GJTransformControl::ccTouchCancelled", "razoom.improved_transform_controls");
     }
 };
 
@@ -49,5 +47,4 @@ class $modify(TFGJScaleControl, GJScaleControl) {
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
-    void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 };
