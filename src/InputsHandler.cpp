@@ -574,7 +574,6 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touch);
         if (mainPos.y <= getToolbarHeight()) {
-            if (fields->m_isPinching) return false;
             if (m_editorLayer->m_playbackMode != PlaybackMode::Playing || m_playbackBtn->isVisible()) return false;
 
             m_editorLayer->m_uiLayer->ccTouchBegan(touch, nullptr);
@@ -611,7 +610,6 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
         }
     }
 
-    if (fields->m_isPinching) return false;
     return next(touch);
 }
 
