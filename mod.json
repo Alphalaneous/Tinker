@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.27",
+	"version": "v1.0.28",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -60,11 +60,51 @@
 			"description": "Customize different aspects of the editor's interface.",
 			"color": "#000000"
 		},
+		"GridControl-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Grid Controls",
+			"description": "Add buttons to change the grid size.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
+		},
+		"HideUI-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Hide UI Toggle",
+			"description": "Add a Hide UI toggle next to the undo buttons.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
+		},
+		"HideTriggerUI-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Slider Hides Trigger UI",
+			"description": "Dragging any slider in any trigger hides the trigger UI.",
+			"enable-if": "!loaded:hjfod.betteredit && !loaded:ninkaz.editor_utils",
+			"enable-if-description": "This feature is not compatible with BetterEdit and Ninkaz's Editor Utils."
+		},
+		"ImprovedControls-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Improved Scale and Rotate Controls",
+			"description": "Add snapping and position locking to scale and rotate controls.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
+		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",
 			"default": true,
 			"name": "Enable Improved Link Controls",
 			"description": "Fix the link control buttons being clickable when toggled off, also fixes the size."
+		},
+		"LDMObjectCount-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "LDM Object Count",
+			"description": "Show the total objects marked as high detail next to the total object count.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
 		},
 		"LengthInEditor-enabled": {
 			"type": "bool",
@@ -95,6 +135,15 @@
 			"default": true,
 			"name": "Enable Reference Image",
 			"description": "A button to import reference images into a level."
+		},
+		"ZoomText-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Zoom Text",
+			"description": "Show a label with your current zoom as you zoom.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
+
 		},
 		"scrolling-title": {
 			"type": "title",
@@ -132,6 +181,12 @@
 			"description": "How far you can zoom in when scrolling.",
 			"min": 2,
 			"max": 10000000
+		},
+		"pinch-to-zoom": {
+			"type": "bool",
+			"default": false,
+			"name": "Pinch to Zoom",
+			"description": "Allow pinching 2 fingers to zoom."
 		},
 		"scroll-delegate-to-vanilla": {
 			"type": "bool",
@@ -298,6 +353,22 @@
 			"type": "info",
 			"description": "Stuff that just doesn't fit in any other category.",
 			"color": "#000000"
+		},
+		"ButtonRowsBypass-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Button Rows Bypass",
+			"description": "Bypass the 3x12 Button Grid settings.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
+		},
+		"CopyObjectString-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Copy Object String",
+			"description": "Copy object string to clipboard when copying in the editor.",
+			"enable-if": "!loaded:hjfod.betteredit",
+			"enable-if-description": "This feature is not compatible with BetterEdit."
 		},
 		"hIDe-enabled": {
 			"type": "bool",
@@ -1089,6 +1160,21 @@
 			"default": ["Escape"],
 			"category": "editor",
 			"platforms": ["win", "android", "ios"]
+		},
+		"Debug-title": {
+			"type": "title",
+			"name": "Debug"
+		},
+		"Debug-description": {
+			"type": "info",
+			"description": "Debug settings for developers.",
+			"color": "#000000"
+		},
+		"Debug-module-logs": {
+			"type": "bool",
+			"name": "Module Logs",
+			"default": false,
+			"description": "Show Module Created, Destroyed, and Toggled logs"
 		}
 	},
 	"api": {

@@ -1,1 +1,130 @@
 #include "GridControl.hpp"
+#include "InputsHandler.hpp"
+#include "../../include/UIScaling.hpp"
+
+void GridControl::onEditor() {
+    auto container = CCMenu::create();
+    container->setContentSize({80.f, 35.f});
+    container->ignoreAnchorPointForPosition(false);
+    container->setAnchorPoint({0.5f, 0.5f});
+    container->setLayout(SimpleRowLayout::create()
+        ->setGap(3.f)
+    );
+
+    static std::array gridSizes {
+        3.75f, 7.5f, 15.f, 30.f, 60.f, 90.f, 120.f
+    };
+
+    auto decBtn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_zoomInBtn_001.png", 0.4f, [this] (auto sender) {
+        auto value = Mod::get()->getSavedValue<float>("grid-size");
+        auto next = std::lower_bound(gridSizes.begin(), gridSizes.end(), value);
+        if (next != gridSizes.begin()) {
+            next--;
+        }
+        value = *next;
+        updateGrid(value);
+    });
+    container->addChild(decBtn);
+
+    m_input = TextInput::create(60.f, "Grid");
+    m_input->setCommonFilter(CommonFilter::Float);
+    m_input->setCallback([this] (std::string const& num) {
+        if (auto value = numFromString<float>(num)) {
+            updateGrid(value.unwrap(), false);
+        }
+    });
+    m_input->setScale(.55f);
+    m_input->setID("grid-size-input"_spr);
+    m_input->getBGSprite()->setScaleMultiplier(2.f);
+    m_input->addOnEnterCallback([this] {
+        InputEditorUI::get()->addTextInput(m_input);
+    });
+    m_input->addOnExitCallback([this] {
+        InputEditorUI::get()->removeTextInput(m_input);
+    });
+
+    container->addChild(m_input);
+
+    auto incBtn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_zoomOutBtn_001.png", 0.4f, [this] (auto sender) {
+        auto value = Mod::get()->getSavedValue<float>("grid-size");
+        auto next = std::upper_bound(gridSizes.begin(), gridSizes.end(), value);
+        if (next == gridSizes.end()) {
+            next--;
+        }
+        value = *next;
+        updateGrid(value);
+    });
+    container->addChild(incBtn);
+
+    container->updateLayout();
+    container->setID("grid-size-controls"_spr);
+
+    addEventListener(tinker::api::ui_scaling::UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool topAlign) {
+        auto size = CCDirector::get()->getWinSize();
+
+        container->setScale(scale);
+        auto settingsMenu = m_editorUI->getChildByID("settings-menu");
+
+        if (size.aspect() <= 1.6f) {
+            if (scale <= 0.8f) {
+                container->setPosition({settingsMenu->getPositionX() - 75.f * scale, settingsMenu->getPositionY()});
+            }
+            else {
+                auto x = size.width / 2;
+                if (auto slider = m_editorUI->getChildByID("position-slider")) {
+                    x = slider->getPositionX();
+                }
+                container->setPosition({x, settingsMenu->getPositionY() - settingsMenu->getScaledContentHeight() / 2 - container->getScaledContentHeight() / 2 + 10 * scale});
+            }
+        }
+        else {
+            float offset = 50.f;
+            if (scale <= 0.95f) {
+                offset = 55.f;
+            }
+            if (auto slider = m_editorUI->getChildByID("position-slider")) {
+                slider->setPosition({size.width / 2 + 22 * scale, size.height - 20 * scale});
+            }
+            container->setPosition({settingsMenu->getPositionX() - offset * scale, settingsMenu->getPositionY()});
+        }
+    });
+    
+    m_editorUI->m_uiItems->addObject(container);
+    m_editorUI->addChild(container);
+    updateGrid();
+}
+
+void GridControl::updateGrid(float newValue, bool updateInput) {
+    if (newValue < 0.9f || newValue > 120.1f) {
+        newValue = 30;
+    }
+
+    Mod::get()->setSavedValue("grid-size", newValue);
+    m_editorUI->updateGridNodeSize();
+
+    if (updateInput) {
+        m_input->setString(numToString(newValue));
+    }
+}
+
+float GCObjectToolbox::gridNodeSizeForKey(int id) {
+    auto size = Mod::get()->getSavedValue<float>("grid-size");
+
+    if (size < 1 || std::roundf(size) == 30) {
+        return ObjectToolbox::gridNodeSizeForKey(id);
+    }
+
+    return size;
+}
+
+void GCEditorUI::updateGridNodeSize() {
+    auto size = Mod::get()->getSavedValue<float>("grid-size");
+    if (size < 1 || std::roundf(size) == 30) {
+        return EditorUI::updateGridNodeSize();
+    }
+
+    auto orig = m_selectedMode;
+    m_selectedMode = 2;
+    EditorUI::updateGridNodeSize();
+    m_selectedMode = orig;
+}

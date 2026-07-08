@@ -15,6 +15,7 @@ class $editorModule(SingleDeselect) {
 class $modify(SDEditorUI, EditorUI) {
 	$registerEditorHooks(SingleDeselect)
 
+	GameObject* selectedObjectAtPosition(CCPoint pos);
 	void selectObject(GameObject* object, bool ignoreFilter);
     void selectObjects(CCArray* objects, bool ignoreFilter);
 	void createUndoSelectObject(bool redo);

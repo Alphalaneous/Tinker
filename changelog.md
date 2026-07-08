@@ -1,3 +1,22 @@
+# 1.0.28
+- <c-dddddd>Make SingleDeselect better when clicking the same position</c>
+- <c-dddddd>Add a module logs toggle</c>
+
+### BetterEdit ports
+
+*These will only show when BetterEdit is disabled*
+
+---
+
+- <c-dddddd>Add Hide UI Toggle</c>
+- <c-dddddd>Add Improved Scale and Rotate controls</c>
+- <c-dddddd>Add Zoom Text</c>
+- <c-dddddd>Add Grid Size Controls</c>
+- <c-dddddd>Add LDM Object Count</c>
+- <c-dddddd>Add Copy object string to clipboard</c>
+- <c-dddddd>Add Hide Trigger UI</c>
+- <c-dddddd>Add Pinch to Zoom</c>
+
 # 1.0.27
 - <c-dddddd>Hackily fix toolbar tab position by setting it on a schedule (I still don't get what causes this rare bug)</c>
 - <c-dddddd>Fix layer locking not being respected when selecting</c>

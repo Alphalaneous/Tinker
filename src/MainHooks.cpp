@@ -5,6 +5,7 @@
 #include "modules/UIScaling.hpp"
 #include "Events.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include "../../include/UIScaling.hpp"
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
@@ -70,27 +71,35 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     if (UIScaling::isEnabled()) {
         UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), UIScaling::getSetting<bool, "top-align">(), true);
     }
+    else {
+        tinker::api::ui_scaling::UIScaleUpdated().send(1, true, false);
+    }
 
     EditorEnterEvent().send(this);
     updateButtons();
 
-    schedule(schedule_selector(MainEditorUI::checkForChange));
+    schedule(schedule_selector(MainEditorUI::mainUpdate));
 
     return true;
 }
 
-void MainEditorUI::checkForChange(float dt) {
+void MainEditorUI::showUI(bool show) {
+    EditorUI::showUI(show);
+    ShowUIEvent().send(show);
+}
+
+void MainEditorUI::mainUpdate(float dt) {
     auto fields = m_fields.self();
 
-    int last = fields->m_lastObjectCount;
-    int cur = m_editorLayer->m_objectCount;
+    checkObjectPlacement(fields);
+    checkPlatformerState(fields);
+    checkModifierState(fields);
 
-    if (last != cur) {
-        ObjectChangeEvent().send(m_editorLayer->getLastObjectX());
-    }
+    // hack to fix y positions of tabs being wrong for some people (???)
+    fixTabPositions();
+}
 
-    fields->m_lastObjectCount = cur;
-
+void MainEditorUI::checkPlatformerState(MainEditorUI::Fields* fields) {
     bool wasPlatformer = fields->m_wasPlatformer;
     bool isPlatformer = m_editorLayer->m_levelSettings->m_platformerMode;
 
@@ -99,9 +108,32 @@ void MainEditorUI::checkForChange(float dt) {
     }
 
     fields->m_wasPlatformer = isPlatformer;
+}
 
-    // hack to fix y positions of tabs being wrong for some people (???)
-    fixTabPositions();
+void MainEditorUI::checkObjectPlacement(MainEditorUI::Fields* fields) {
+    int last = fields->m_lastObjectCount;
+    int cur = m_editorLayer->m_objectCount;
+
+    if (last != cur) {
+        ObjectChangeEvent().send(m_editorLayer->getLastObjectX());
+    }
+
+    fields->m_lastObjectCount = cur;
+}
+
+void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
+    auto dispatcher = CCKeyboardDispatcher::get();
+
+    KeyboardModifier mods;
+
+    if (dispatcher->getShiftKeyPressed()) mods |= KeyboardModifier::Shift;
+    if (dispatcher->getControlKeyPressed()) mods |= KeyboardModifier::Control;
+    if (dispatcher->getAltKeyPressed()) mods |= KeyboardModifier::Alt;
+
+    if (fields->m_lastModifier != mods) {
+        ModifierEvent().send(mods, fields->m_lastModifier);
+    }
+    fields->m_lastModifier = mods;
 }
 
 void MainEditorUI::fixTabPositions() {

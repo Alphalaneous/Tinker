@@ -159,6 +159,14 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     return true;
 }
 
+void InputEditorUI::addTextInput(TextInput* input) {
+    m_fields->m_textInputs.insert(input);
+}
+
+void InputEditorUI::removeTextInput(TextInput* input) {
+    m_fields->m_textInputs.erase(input);
+}
+
 #ifdef GEODE_IS_MACOS
 #include <CoreFoundation/CoreFoundation.h>
 #include "utils/MacUtils.hpp"
@@ -303,7 +311,6 @@ void InputEditorUI::onScroll() {
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
 
-
                 fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, layer->getScale(), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
                     scale = start + (end - start) * t;
 
@@ -447,8 +454,86 @@ bool InputEditorUI::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* even
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
     }
+    auto fields = m_fields.self();
+
+    for (auto textInput : fields->m_textInputs) {
+        if (nodeIsVisible(textInput) && isPointInsideNode(textInput, touch->getLocation())) {
+            return false;
+        }
+    }
+
+    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 1) {
+            auto firstTouch = *m_fields->m_touches.begin();
+
+            auto firstPos = firstTouch->getLocation();
+            auto secondPos = touch->getLocation();
+
+            fields->m_touchMidPoint = (firstPos + secondPos) / 2.f;
+            fields->m_initialScale = std::max(m_editorLayer->m_objectLayer->getScale(), 0.01f);
+            fields->m_initialDistance = std::max(firstPos.getDistance(secondPos), 0.01f);
+
+            fields->m_touches.insert(touch);
+            return true;
+        }
+        else if (EditorUI::ccTouchBegan(touch, event)) {
+            fields->m_touches.insert(touch);
+            return true;
+        }
+    }
 
     return EditorUI::ccTouchBegan(touch, event);
+}
+
+void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
+    auto fields = m_fields.self();
+
+    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && m_fields->m_touches.size() == 2) {
+            auto objLayer = m_editorLayer->m_objectLayer;
+
+            auto it = fields->m_touches.begin();
+            auto firstTouch = *it;
+            auto secondTouch = *++it;
+
+            auto firstPos = firstTouch->getLocation();
+            auto secondPos = secondTouch->getLocation();
+
+            auto center = (firstPos + secondPos) / 2.f;
+            auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
+            
+            auto mult = fields->m_initialDistance / distNow;
+
+            auto zoom = std::clamp(fields->m_initialScale / mult, .1f, 10000000.f);
+
+            updateZoom(zoom);
+
+            auto centerDiff = fields->m_touchMidPoint - center;
+            objLayer->setPosition(objLayer->getPosition() - centerDiff);
+
+            fields->m_touchMidPoint = center;
+            return;
+        }
+    }
+    EditorUI::ccTouchMoved(touch, event);
+}
+
+void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
+    auto fields = m_fields.self();
+
+    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        fields->m_touches.erase(touch);
+    }
+    EditorUI::ccTouchEnded(touch, event);
+}
+
+void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
+    auto fields = m_fields.self();
+
+    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+        fields->m_touches.erase(touch);
+    }
+    EditorUI::ccTouchCancelled(touch, event);
 }
 
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {

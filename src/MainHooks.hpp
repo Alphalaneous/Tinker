@@ -31,6 +31,7 @@ class $modify(MainEditorUI, EditorUI) {
     struct Fields {
         int m_lastObjectCount;
         bool m_wasPlatformer;
+        KeyboardModifier m_lastModifier;
 
         ~Fields();
     };
@@ -42,8 +43,12 @@ class $modify(MainEditorUI, EditorUI) {
     }
 
     bool init(LevelEditorLayer* editorLayer);
-    void checkForChange(float dt);
+    void showUI(bool show);
+    void mainUpdate(float dt);
     void fixTabPositions();
+    void checkPlatformerState(MainEditorUI::Fields* fields);
+    void checkObjectPlacement(MainEditorUI::Fields* fields);
+    void checkModifierState(MainEditorUI::Fields* fields);
     void updateButtons();
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);

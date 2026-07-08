@@ -14,6 +14,7 @@ class $modify(InputEditorUI, EditorUI) {
 
     struct Fields {
         std::set<CCNode*> m_activeAlerts;
+        std::set<TextInput*> m_textInputs;
 
         Ref<CCActionInterval> m_moveX = nullptr;
         Ref<CCActionInterval> m_moveY = nullptr;
@@ -31,6 +32,11 @@ class $modify(InputEditorUI, EditorUI) {
         float m_targetScale;
 
         float m_speedScale;
+
+        std::set<Ref<CCTouch>> m_touches;
+        float m_initialDistance = 0.f;
+        float m_initialScale = 1.f;
+        CCPoint m_touchMidPoint;
     };
 
     bool init(LevelEditorLayer* editorLayer);
@@ -47,10 +53,17 @@ class $modify(InputEditorUI, EditorUI) {
 
     bool isNaturalScrollEnabled();
     
-    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event);
+    void ccTouchMoved(CCTouch* touch, CCEvent* event);
+    void ccTouchEnded(CCTouch* touch, CCEvent* event);
+    void ccTouchCancelled(CCTouch* touch, CCEvent* event);
+
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
+
+    void addTextInput(TextInput* input);
+    void removeTextInput(TextInput* input);
 
     void onPause(cocos2d::CCObject* sender);
 

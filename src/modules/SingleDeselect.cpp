@@ -46,6 +46,23 @@ void SDEditorUI::createUndoSelectObject(bool redo) {
     EditorUI::createUndoSelectObject(redo);
 }
 
+GameObject* SDEditorUI::selectedObjectAtPosition(CCPoint pos) {
+    CCArray* objs;
+    if (m_selectedObject && m_selectedObjects->count() == 0) {
+        objs = CCArray::createWithObject(m_selectedObject);
+    }
+    else {
+        objs = m_selectedObjects;
+    }
+
+    for (auto obj : CCArrayExt<GameObject, false>(objs)) {
+        if (obj->boundingBox().containsPoint(pos)) {
+            return obj;
+        }
+    }
+    return nullptr;
+}
+
 void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     auto world = touch->getLocation();
     bool tapCandidate = m_swipeStart.getDistance(world) < 2.f;
@@ -70,7 +87,7 @@ void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     if (world.y < m_toolbarHeight) return;
 
     auto position = m_editorLayer->m_objectLayer->convertToNodeSpace(world);
-    auto object = m_editorLayer->objectAtPosition(position);
+    auto object = selectedObjectAtPosition(position);
 
     if (!object || (m_selectedObject != object && !m_selectedObjects->containsObject(object))) return;
 

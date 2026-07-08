@@ -1,4 +1,5 @@
 #include "UIScaling.hpp"
+#include "modules/GridControl.hpp"
 #include "modules/ImprovedLinkControls.hpp"
 #include "modules/LengthInEditor.hpp"
 #include "modules/LiveColors/LiveColors.hpp"
@@ -20,8 +21,8 @@ bool UIScaling::onToggled(bool state) {
     else {
         setupEvents();
     }
-    setScaling(state ? UIScaling::getUIScale() : 1, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-    setPauseScaling(state ? (UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1) : 1);
+    setScaling(state ? UIScaling::getUIScale(true) : 1, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
+    setPauseScaling(state ? (UIScaling::shouldScalePause() ? UIScaling::getUIScale(true) : 1) : 1);
     return true;
 }
 
@@ -218,7 +219,9 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     if (auto slider = m_editorUI->getChildByID("position-slider")) {
         slider->ignoreAnchorPointForPosition(false);
         slider->setContentSize({0, 0});
-        slider->setPosition({size.width / 2 + 30 * scale, size.height - 20 * scale});
+        if (!GridControl::isEnabled()) {
+            slider->setPosition({size.width / 2 + 30 * scale, size.height - 20 * scale});
+        }
         slider->setScale(scale);
     }
     
@@ -228,7 +231,6 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         settingsMenu->setPosition(size - settingsMenu->getScaledContentSize() / 2 - CCSize{scale, 0} - getSafeOffset());
 
         if (auto gridSizeControls = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls")) {
-
             gridSizeControls->setScale(scale);
 
             if (size.aspect() <= 1.6f) {
@@ -507,7 +509,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     tinker::api::ui_scaling::UIScaleUpdated().send(scale, toolbar, topAlign);
 }
 
-float UIScaling::getUIScale() {
+float UIScaling::getUIScale(bool ignoreEnabled) {
     if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
         auto beScale = be->getSettingValue<float>("scale-factor");
         if (beScale != 1) {
@@ -515,7 +517,7 @@ float UIScaling::getUIScale() {
         }
     }
     else {
-        if (!UIScaling::isEnabled()) return 1;
+        if (!UIScaling::isEnabled() && !ignoreEnabled) return 1;
     }
 
     return UIScaling::getSetting<float, "scale">();

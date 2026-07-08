@@ -12,6 +12,14 @@ struct EditorExitEvent final : Event<EditorExitEvent, bool()> {
     using Event::Event;
 };
 
+struct ShowUIEvent final : Event<ShowUIEvent, bool(bool show)> {
+    using Event::Event;
+};
+
+struct ModifierEvent final : Event<ModifierEvent, bool(KeyboardModifier modifier, KeyboardModifier lastModifier)> {
+    using Event::Event;
+};
+
 struct UpdateButtonsEvent final : Event<UpdateButtonsEvent, bool()> {
     using Event::Event;
 };

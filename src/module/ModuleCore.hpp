@@ -22,7 +22,9 @@ private:
     static inline matjson::Value $queuedSettings;
 public:
     virtual ~ModuleCore() {
-        log::debug("Destroyed: {}", Name.data());
+        if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+            log::debug("Destroyed: {}", Name.data());
+        }
     }
 
     bool moduleEnabled() override {
@@ -32,7 +34,9 @@ public:
     static std::shared_ptr<T> create() {
         auto ret = std::make_shared<T>();
 
-        log::debug("Created: {}", Name.data());
+        if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+            log::debug("Created: {}", Name.data());
+        }
 
         bool moduleEnabled = isEnabled();
 
@@ -131,7 +135,9 @@ public:
             if (!valueRes) return;
 
             matjson::Value s = valueRes.unwrap();
-            log::debug("[{}]: {}", fullKey.data(), s.dump(4));
+            if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+                log::debug("[{}]: {}", fullKey.data(), s.dump(4));
+            }
 
             setting = s.as<S>().unwrapOrDefault();
             if constexpr (tinker::utils::equals<fullKey, tinker::utils::concat<Name, "-enabled">()>()) {

@@ -14,7 +14,7 @@ class $editorModule(UIScaling) {
 
     static CCPoint getSafeOffset();
 
-    static float getUIScale();
+    static float getUIScale(bool ignoreEnabled = false);
     static bool shouldScaleToolbar();
     static bool shouldScalePause();
 };
