@@ -37,6 +37,8 @@ class $modify(InputEditorUI, EditorUI) {
         float m_initialDistance = 0.f;
         float m_initialScale = 1.f;
         CCPoint m_touchMidPoint;
+
+        bool m_isPinching = false;
     };
 
     bool init(LevelEditorLayer* editorLayer);

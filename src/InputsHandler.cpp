@@ -1,4 +1,5 @@
 #include "InputsHandler.hpp"
+#include "modules/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
@@ -512,12 +513,20 @@ void InputEditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
             auto centerDiff = fields->m_touchMidPoint - center;
             objLayer->setPosition(objLayer->getPosition() - centerDiff);
+            if (ZoomGroundFix::isEnabled()) {
+                ZoomGroundFix::get()->fixPosition(0);
+            }
 
             fields->m_touchMidPoint = center;
+            fields->m_isPinching = true;
+            m_swipeModeTriggered = false;
             return;
         }
     }
     EditorUI::ccTouchMoved(touch, event);
+    if (ZoomGroundFix::isEnabled()) {
+        ZoomGroundFix::get()->fixPosition(0);
+    }
 }
 
 void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
@@ -526,6 +535,7 @@ void InputEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
+    if (fields->m_isPinching) return;
     EditorUI::ccTouchEnded(touch, event);
 }
 
@@ -535,6 +545,7 @@ void InputEditorUI::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         fields->m_touches.erase(touch);
     }
+    if (fields->m_isPinching) return;
     EditorUI::ccTouchCancelled(touch, event);
 }
 
