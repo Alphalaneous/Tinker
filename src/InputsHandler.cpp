@@ -113,7 +113,10 @@ void TouchForward::cancelAllTouches() {
 
 void InputAppDelegate::applicationDidEnterBackground() {
     auto editor = InputEditorUI::get();
-    if (!editor) return;
+    if (!editor) {
+        AppDelegate::applicationDidEnterBackground();
+        return;
+    }
 
     TouchForward::get()->cancelAllTouches();
 
