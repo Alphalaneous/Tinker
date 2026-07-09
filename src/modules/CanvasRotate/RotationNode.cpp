@@ -127,10 +127,10 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
     const float snapIncrement = 45.0f;
     #ifdef GEODE_IS_DESKTOP
     const float snapThreshold = 2.0f;
-    const float unsnapThreshold = 7.5f;
+    const float unsnapThreshold = 5.0f;
     #else
     const float snapThreshold = 4.0f;
-    const float unsnapThreshold = 15.0f;
+    const float unsnapThreshold = 10.0f;
     #endif
     const float smoothingFactor = 0.2f;
 
