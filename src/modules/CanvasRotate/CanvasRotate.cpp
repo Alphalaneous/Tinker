@@ -176,7 +176,6 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
     auto module = CanvasRotate::get();
     if (module->m_rotationNode->isRotating()) return;
 
-    CanvasRotate::get()->m_realToolbarHeight = m_toolbarHeight;
     m_toolbarHeight = INT_MIN;
     EditorUI::clickOnPosition(pos);
     m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
