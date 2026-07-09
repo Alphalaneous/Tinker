@@ -177,7 +177,7 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
     if (module->m_rotationNode->isRotating()) return;
 
     CanvasRotate::get()->m_realToolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = -1;
+    m_toolbarHeight = INT_MIN;
     EditorUI::clickOnPosition(pos);
     m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
 };
@@ -203,7 +203,7 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
     m_rotationNode->translate(touch);
 
     m_realToolbarHeight = m_editorUI->m_toolbarHeight;
-    m_editorUI->m_toolbarHeight = -1;
+    m_editorUI->m_toolbarHeight = INT_MIN;
     if (preTransform.y <= m_realToolbarHeight) {
         m_editorUI->m_toolbarHeight = m_realToolbarHeight;
         return true;
