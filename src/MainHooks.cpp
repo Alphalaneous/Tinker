@@ -3,6 +3,7 @@
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
+#include "InputsHandler.hpp"
 #include "Events.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
@@ -143,14 +144,14 @@ void MainEditorUI::fixTabPositions() {
 
         float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y;
         if (tab->getScaledContentHeight() == 0) {
-            posY = m_toolbarHeight / 2.f;
+            posY = InputEditorUI::get()->getToolbarHeight() / 2.f;
         }
         tab->setPositionY(posY);
     }
 
     float posY = m_deleteMenu->getScaledContentHeight() * m_deleteMenu->getAnchorPoint().y;
     if (m_deleteMenu->getScaledContentHeight() == 0) {
-        posY = m_toolbarHeight / 2.f;
+        posY = InputEditorUI::get()->getToolbarHeight() / 2.f;
     }
     m_deleteMenu->setPositionY(posY);
 }
