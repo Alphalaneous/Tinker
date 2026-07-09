@@ -237,61 +237,6 @@ void CanvasRotate::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch
     onTouchEnded(touch, std::move(next));
 }
 
-/*bool CREditorUI::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    auto module = CanvasRotate::get();
-    Ref<CCTouch> touchRef = touch;
-
-    if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
-        return EditorUI::ccTouchBegan(touchRef, event);
-    }
-
-    if (((m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_selectedMode == 3) || CanvasRotate::get()->isLassoActive()) {
-        return EditorUI::ccTouchBegan(touchRef, event);
-    }
-
-    auto preTransform = touchRef->getLocation();
-    module->m_preTransformTouch[touchRef] = preTransform;
-
-    module->m_rotationNode->translate(touchRef);
-
-    CanvasRotate::get()->m_realToolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = -1;
-    if (preTransform.y <= CanvasRotate::get()->m_realToolbarHeight) {
-        m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
-        return true;
-    }
-    auto ret = EditorUI::ccTouchBegan(touchRef, event);
-    m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
-    return ret;
-}
-
-void CREditorUI::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    auto module = CanvasRotate::get();
-    Ref<CCTouch> touchRef = touch;
-
-    if (m_swipeActive || CanvasRotate::get()->isLassoActive()) {
-        return EditorUI::ccTouchMoved(touchRef, event);
-    }
-
-    module->m_preTransformTouch[touchRef] = touchRef->getLocation();
-    
-    module->m_rotationNode->translate(touchRef);
-    EditorUI::ccTouchMoved(touchRef, event);
-}
-
-void CREditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    auto module = CanvasRotate::get();
-    Ref<CCTouch> touchRef = touch;
-
-    auto fields = m_fields.self();
-    module->m_preTransformTouch[touchRef] = touchRef->getLocation();
-
-    module->m_rotationNode->translate(touchRef);
-    EditorUI::ccTouchEnded(touchRef, event);
-
-    module->m_preTransformTouch.erase(touchRef);
-}*/
-
 CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
     auto result = CCArray::create();
 

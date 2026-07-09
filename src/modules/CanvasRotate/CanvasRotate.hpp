@@ -35,9 +35,6 @@ class $modify(CREditorUI, EditorUI) {
     $registerEditorHooks(CanvasRotate, true);
 
 	static void _onModify(auto& self) {
-        (void) self.setHookPriorityPre("EditorUI::ccTouchBegan", Priority::EarlyPre);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchMoved", Priority::EarlyPre);
-        (void) self.setHookPriorityPre("EditorUI::ccTouchEnded", Priority::EarlyPre);
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre);
     }
 
@@ -53,9 +50,6 @@ class $modify(CREditorUI, EditorUI) {
     GameObject* createObject(int objectID, CCPoint position);
     void playtestStopped();
     void clickOnPosition(CCPoint pos);
-    /*bool ccTouchBegan(CCTouch* touch, CCEvent* event);
-    void ccTouchMoved(CCTouch* touch, CCEvent* event);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);*/
     void triggerSwipeMode();
     void updateSliderRotation(float dt);
 };

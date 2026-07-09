@@ -161,7 +161,7 @@ void UIScaling::setPauseScaling(float scale) {
             if (auto smallActionsMenu = pauseLayer->getChildByID("small-actions-menu")) {
                 smallActionsMenu->setScale(scale);
                 smallActionsMenu->setAnchorPoint({0.5f, 0.f});
-                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale} - getSafeOffset());
+                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6 * scale - smallActionsMenu->getScaledContentWidth() / 2, 10 * scale});
             }
         }
 
@@ -277,10 +277,34 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
                 layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale} - getSafeOffset());
                 
+                if (m_editorUI->m_layerLockSprite) {
+                    m_editorUI->m_layerLockSprite->setScale(rightSideScale * 0.5f);
+                    if (m_editorUI->m_currentLayerLabel) {
+                        auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f - CCPoint{0, 2});
+                        auto nodePos = m_editorUI->convertToNodeSpace(worldPos);
+                        m_editorUI->m_layerLockSprite->setPosition(nodePos + m_editorUI->m_layerLockSprite->getScaledContentSize() / 2.f);
+                    }
+                }
+
+                for (auto node : m_editorUI->m_uiItems->asExt<CCNode>()) {
+                    if (node->getID() == "lock-layer-button") {
+                        node->setScale(rightSideScale);
+                        static_cast<CCMenuItemSpriteExtra*>(node)->m_baseScale = rightSideScale;
+
+                        auto parent = node->getParent();
+                        if (m_editorUI->m_currentLayerLabel && parent) {
+                            auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f);
+                            auto nodePos = parent->convertToNodeSpace(worldPos);
+                            node->setPosition(nodePos);
+                        }
+                        break;
+                    }
+                }
+
                 if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
                     namedLayerMenu->setScale(rightSideScale);
-                    namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale} - getSafeOffset());
+                    namedLayerMenu->setAnchorPoint({1.f, 0.5f});
+                    namedLayerMenu->setPosition(CCPoint{size.width - 6.f * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2.f - namedLayerMenu->getScaledContentHeight() / 2.f - 2.f * scale} - getSafeOffset());
                 }
             }
         }
@@ -335,10 +359,34 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
                 layerMenu->setAnchorPoint({0.5f, 0.5f});
                 layerMenu->setPosition(CCPoint{size.width - layerMenu->getScaledContentWidth() / 2 - 6 * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2 + 0.5f * scale} - getSafeOffset());
                 
+                if (m_editorUI->m_layerLockSprite) {
+                    m_editorUI->m_layerLockSprite->setScale(rightSideScale * 0.5f);
+                    if (m_editorUI->m_currentLayerLabel) {
+                        auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f - CCPoint{0, 2});
+                        auto nodePos = m_editorUI->convertToNodeSpace(worldPos);
+                        m_editorUI->m_layerLockSprite->setPosition(nodePos + m_editorUI->m_layerLockSprite->getScaledContentSize() / 2.f);
+                    }
+                }
+
+                for (auto node : m_editorUI->m_uiItems->asExt<CCNode>()) {
+                    if (node->getID() == "lock-layer-button") {
+                        node->setScale(rightSideScale);
+                        static_cast<CCMenuItemSpriteExtra*>(node)->m_baseScale = rightSideScale;
+
+                        auto parent = node->getParent();
+                        if (m_editorUI->m_currentLayerLabel && parent) {
+                            auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f);
+                            auto nodePos = parent->convertToNodeSpace(worldPos);
+                            node->setPosition(nodePos);
+                        }
+                        break;
+                    }
+                }
+
                 if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
                     namedLayerMenu->setScale(rightSideScale);
-                    namedLayerMenu->setAnchorPoint({0.5f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{size.width - namedLayerMenu->getScaledContentWidth() / 2 - 6 * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2 - namedLayerMenu->getScaledContentHeight() / 2 - 2.f * scale} - getSafeOffset());
+                    namedLayerMenu->setAnchorPoint({1.f, 0.5f});
+                    namedLayerMenu->setPosition(CCPoint{size.width - 6.f * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2.f - namedLayerMenu->getScaledContentHeight() / 2.f - 2.f * scale} - getSafeOffset());
                 }
             }
         }

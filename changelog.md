@@ -1,8 +1,11 @@
 # 1.0.28
 - <c-dddddd>Make SingleDeselect better when clicking the same position</c>
 - <c-dddddd>Add a module logs toggle</c>
+- <c-dddddd>Fix search tab position on mobile</c>
+- <c-dddddd>Fix delete tab position</c>
+- <c-dddddd>Fix some UI scaling issues</c>
 
-### BetterEdit ports
+### BetterEdit ports Part 1
 
 *These will only show when BetterEdit is disabled*
 

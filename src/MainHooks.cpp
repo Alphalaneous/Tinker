@@ -139,13 +139,20 @@ void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
 void MainEditorUI::fixTabPositions() {
     for (auto tab : alpha::editor_tabs::getAllTabs().unwrapOrDefault()) {
         if (!tab) continue;
+        if (tab->getID() == "all-objects-tab-bar"_spr) continue;
 
-        float posY = tab->getContentHeight() * tab->getAnchorPoint().y;
-        if (tab->getContentHeight() == 0) {
-            posY = m_toolbarHeight / 2;
+        float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y;
+        if (tab->getScaledContentHeight() == 0) {
+            posY = m_toolbarHeight / 2.f;
         }
         tab->setPositionY(posY);
     }
+
+    float posY = m_deleteMenu->getScaledContentHeight() * m_deleteMenu->getAnchorPoint().y;
+    if (m_deleteMenu->getScaledContentHeight() == 0) {
+        posY = m_toolbarHeight / 2.f;
+    }
+    m_deleteMenu->setPositionY(posY);
 }
 
 void MainEditorUI::updateButtons() {

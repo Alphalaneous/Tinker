@@ -1,11 +1,18 @@
 #include "HideUI.hpp"
 
-// todo make sprites
 void HideUI::onEditor() {
     auto undoMenu = m_editorUI->getChildByID("undo-menu");
     if (!undoMenu) return;
-    
-    auto toggler = CCMenuItemExt::createTogglerWithFrameName("GJ_likeBtn_001.png", "GJ_dislikeBtn_001.png", 0.6f, [this] (auto sender) {
+
+    auto showEye = CCSprite::create("show-eye.png"_spr);
+    showEye->setOpacity(100);
+    showEye->setScale(0.75f);
+
+    auto hideEye = CCSprite::create("hide-eye.png"_spr);
+    hideEye->setOpacity(50);
+    hideEye->setScale(0.75f);
+
+    auto toggler = CCMenuItemExt::createToggler(hideEye, showEye, [this] (auto sender) {
         m_editorUI->showUI(sender->isToggled());
     });
     toggler->m_notClickable = true;

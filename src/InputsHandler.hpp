@@ -96,10 +96,6 @@ class $modify(InputEditorUI, EditorUI) {
     void onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
     void onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
     
-    /*bool ccTouchBegan(CCTouch* touch, CCEvent* event);
-    void ccTouchMoved(CCTouch* touch, CCEvent* event);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);*/
-
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
