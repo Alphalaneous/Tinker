@@ -1,3 +1,6 @@
+# 1.0.29
+- <c-dddddd>Fix unfocusing while in full screen not pausing audio</c>
+
 # 1.0.28
 - <c-dddddd>Make SingleDeselect better when clicking the same position</c>
 - <c-dddddd>Add a module logs toggle</c>
