@@ -1,4 +1,5 @@
 #include "InputsHandler.hpp"
+#include "modules/UIScaling.hpp"
 #include "modules/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
@@ -574,7 +575,15 @@ CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
 
 float InputEditorUI::getToolbarHeight() {
     if (CanvasRotate::isEnabled()) {
-        return CanvasRotate::get()->getRealToolbarHeight();
+        auto height = CanvasRotate::get()->getRealToolbarHeight();
+        if (height == 0) height = m_toolbarHeight;
+        if (height == INT_MIN) {
+            height = 92;
+            if (UIScaling::isEnabled() && UIScaling::shouldScaleToolbar()) {
+                height *= UIScaling::getUIScale();
+            }
+        }
+        return height;
     }
     return m_toolbarHeight;
 }

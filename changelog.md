@@ -1,3 +1,6 @@
+# 1.0.32
+- <c-dddddd>Fix the delete tab position being different levels of wonky for different people</c>
+
 # 1.0.30 & 1.0.31
 - <c-dddddd>Fix edit tab scale and delete tab height if free move is enabled and you tap the screen</c>
 
