@@ -493,7 +493,8 @@
 			"default": true,
 			"name": "Pinch to Rotate",
 			"description": "Allow pinching and rotating 2 fingers to rotate the editor.",
-			"platforms": ["android", "ios"]
+			"platforms": ["android", "ios"],
+			"enable-if": "pinch-to-zoom"
 		},
 		"CanvasRotate-align-modifier": {
 			"name": "Align Modifier",
