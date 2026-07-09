@@ -1,4 +1,4 @@
-# 1.0.30
+# 1.0.30 & 1.0.31
 - <c-dddddd>Fix edit tab scale and delete tab height if free move is enabled and you tap the screen</c>
 
 # 1.0.29
