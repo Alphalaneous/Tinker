@@ -721,7 +721,6 @@ void InputEditorUI::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouc
     onTouchEnded(touch, std::move(next));
 }
 
-    
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
     if (!m_fields->m_blockPause) {
         EditorUI::onPause(sender);
