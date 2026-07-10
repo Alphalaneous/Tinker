@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.33",
+	"version": "v1.0.34",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -484,7 +484,7 @@
 		},
 		"CanvasRotate-pinch-to-rotate": {
 			"type": "bool",
-			"default": true,
+			"default": false,
 			"name": "Pinch to Rotate",
 			"description": "Allow pinching and rotating 2 fingers to rotate the editor.",
 			"platforms": ["android", "ios"],

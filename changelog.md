@@ -1,3 +1,13 @@
+# 1.0.34
+- <c-dddddd>Disable pinch to rotate by default due to the following feedback:</c>
+  - <c-dddddd>"EW EWWWW THE TINKER UPDATE MADE THE CAMERA TURN WHEN YOU ZOOM OUT"</c>
+  - <c-dddddd>"Trash! Destory it"</c>
+  - <c-dddddd>"Oh ye I downloaded that mod to try it out and deleted it in 5 mins"</c>
+  - <c-dddddd>"There's no checkbox to disable it" (There is)</c>
+  - <c-dddddd>"Same here but i deleted it in 1 mins, Trash mod"</c>
+  - <c-dddddd>"thats vile thats disgusting"</c>
+  - <c-dddddd>"Why would they added that shit"</c>
+  
 # 1.0.33
 - <c-dddddd>Fix a crash that happens when Editor Rotation was disabled</c>
 
