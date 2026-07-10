@@ -1,4 +1,6 @@
 #include "EditTools.hpp"
+#include "utils/Utils.hpp"
+#include "utils/Constants.hpp"
 
 void EditTools::onEditor() {
     auto fields = static_cast<ETEditorUI*>(m_editorUI)->m_fields.self();
@@ -62,18 +64,69 @@ void ETEditorUI::setButtonColor(CCMenuItemSpriteExtra* btn, const ccColor3B& col
 void ETEditorUI::objectMoved(GameObject* object) {
     if (!object) return;
 
+    using namespace tinker::constants::objects;
+
     constexpr std::array<int, 51> effectObjects = {
-        22, 23, 24, 25, 26, 27, 28, 31, 32, 33,
-        55, 56, 57, 58, 59, 1915, 2067,2903, 
-        2904, 2905, 2907, 2909, 2910, 2911, 2912, 
-        2913, 2914, 2915, 2916, 2917, 2919, 2920,
-        2921, 2922, 2923, 2924, 3006, 3007, 3008, 
-        3009, 3010, 3016, 3017, 3018, 3019, 3020, 
-        3021, 3022, 3023, 3024, 3660
+        NoEnterEffect,
+        FadeBottomEnterEffect,
+        FadeTopEnterEffect,
+        FadeLeftEnterEffect,
+        FadeRightEnterEffect,
+        SmallToBigEnterEffect,
+        BigToSmallEnterEffect,
+        StartPosition,
+        EnableGhostTrail,
+        DisableGhostTrail,
+        ChaoticEnterEffect,
+        HalveLeftEnterEffect,
+        HalveRightEnterEffect,
+        HalveEnterEffect,
+        HalveInverseEnterEffect,
+        NoEnterExitEffect,
+        ScaleTrigger,
+        GradientTrigger,
+        ShaderTrigger,
+        ShockWaveShaderTrigger,
+        ShockLineShaderTrigger,
+        GlitchShaderTrigger,
+        ChromaticShaderTrigger,
+        ChromaticGlitchShaderTrigger,
+        PixelateShaderTrigger,
+        LensCircleShaderTrigger,
+        RadialBlurShaderTrigger,
+        MotionBlurShaderTrigger,
+        BulgeShaderTrigger,
+        PinchShaderTrigger,
+        GrayscaleShaderTrigger,
+        SepiaShaderTrigger,
+        InvertColorShaderTrigger,
+        HueShaderTrigger,
+        EditColorShaderTrigger,
+        SplitScreenShaderTrigger,
+        AreaMoveTrigger,
+        AreaRotateTrigger,
+        AreaScaleTrigger,
+        AreaFadeTrigger,
+        AreaTintTrigger,
+        AdvancedFollowTrigger,
+        EnterMoveTrigger,
+        EnterRotateTrigger,
+        EnterScaleTrigger,
+        EnterFadeTrigger,
+        EnterTintTrigger,
+        TeleportTrigger,
+        EnterStopTrigger,
+        AreaStopTrigger,
+        EditAdvancedFollowTrigger
     };
 
     constexpr std::array<int, 6> colorObjects = {
-        29, 30, 105, 899, 900, 915
+        BackgroundColorTrigger,
+        Ground1ColorTrigger,
+        ObjColorTrigger,
+        ColorTrigger,
+        Ground2ColorTrigger, 
+        LineColorTrigger
     };
 
     if (std::find(effectObjects.begin(), effectObjects.end(), object->m_objectID) != effectObjects.end()) {
@@ -82,13 +135,13 @@ void ETEditorUI::objectMoved(GameObject* object) {
     else if (std::find(colorObjects.begin(), colorObjects.end(), object->m_objectID) != colorObjects.end()) {
         m_editorLayer->m_colorTriggersChanged = true;
     }
-    else if (object->m_objectID == 1007) {
+    else if (object->m_objectID == AlphaTrigger) {
         m_editorLayer->m_alphaTriggersChanged = true;
     }
-    else if (object->m_objectID == 1006) {
+    else if (object->m_objectID == PulseTrigger) {
         m_editorLayer->m_pulseTriggersChanged = true;
     }
-    else if (object->m_objectID == 1268 || object->m_objectID == 2068) {
+    else if (object->m_objectID == SpawnTrigger || object->m_objectID == AdvancedRandomTrigger) {
         m_editorLayer->m_spawnTriggersChanged = true;
     }
 
@@ -96,12 +149,14 @@ void ETEditorUI::objectMoved(GameObject* object) {
         m_editorLayer->m_spawnOrderObjectsChanged = true;
     }
     if (object->m_dontIgnoreDuration) {
-        static_cast<EffectGameObject*>(object)->m_endPosition = CCPoint{0, 0};
+        static_cast<EffectGameObject*>(object)->m_endPosition = CCPoint{0.f, 0.f};
     }
 }
 
 void ETEditorUI::moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos) {
     if (objects->count() == 0) return;
+
+    using namespace tinker::constants::objects;
 
     for (auto object : objects->asExt<GameObject>()) {
         CCPoint limitedPos = getLimitedPosition(object->getPosition() + deltaPos);
@@ -110,7 +165,7 @@ void ETEditorUI::moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos) {
 
         m_editorLayer->reorderObjectSection(object);
 
-        if (object->m_objectID == 747) {
+        if (object->m_objectID == LinkedTeleportPortal) {
             TeleportPortalObject* teleportObject = static_cast<TeleportPortalObject*>(object);
             if (teleportObject->m_orangePortal) {
                 m_editorLayer->reorderObjectSection(teleportObject->m_orangePortal);
@@ -136,7 +191,7 @@ void ETEditorUI::onCenterObjects(CCObject* sender) {
 
     auto center = getGroupCenter(arr, false);
 
-    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2 + CCPoint{0, m_toolbarHeight / 2});
+    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::getToolbarHeight() / 2.f});
     CCPoint snapped = getGridSnappedPos(camCenter);
 
     auto offset = snapped - center;
@@ -151,7 +206,7 @@ void ETEditorUI::onCenterObjects(CCObject* sender) {
     m_pivotPoint = getGroupCenter(selectArr, false);
 
     m_transformControl->setPosition(snapped);
-    m_scaleControl->setPosition(snapped + CCPoint{0, 40});
+    m_scaleControl->setPosition(snapped + CCPoint{0.f, 40.f});
     m_rotationControl->setPosition(snapped);
 }
 
@@ -165,7 +220,7 @@ void ETEditorUI::onCenterCamera(CCObject* sender) {
     auto winSize = CCDirector::get()->getWinSize();
 
     auto center = getGroupCenter(arr, false);
-    m_editorLayer->m_objectLayer->setPosition(-(center * m_editorLayer->m_objectLayer->getScale()) + winSize / 2 + CCPoint{0, m_toolbarHeight / 2});
+    m_editorLayer->m_objectLayer->setPosition(-(center * m_editorLayer->m_objectLayer->getScale()) + winSize / 2.f + CCPoint{0.f, tinker::utils::getToolbarHeight() / 2.f});
 
     auto pos = m_editorLayer->m_objectLayer->convertToWorldSpace(center);
 

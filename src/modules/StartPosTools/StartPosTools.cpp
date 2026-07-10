@@ -2,6 +2,7 @@
 #include <Geode/ui/Button.hpp>
 #include <Geode/ui/NineSlice.hpp>
 #include "StartPosOverlay.hpp"
+#include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
 using namespace tinker::ui;
@@ -35,7 +36,7 @@ void StartPosTools::onEditor() {
         if (layout) {
             layout->ignoreInvisibleChildren(true);
             layout->setAutoScale(false);
-            layout->setAutoGrowAxis(0);
+            layout->setAutoGrowAxis(0.f);
         }
         if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
             playtestMenu->addChild(fields->m_startPosBtn);
@@ -48,8 +49,8 @@ void StartPosTools::onEditor() {
         fields->m_switcherContainer = geode::NineSlice::create("square02b_001.png");
         fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
         fields->m_switcherContainer->setZOrder(500);
-        fields->m_switcherContainer->setContentSize({200, 30});
-        fields->m_switcherContainer->setPosition({m_editorUI->getContentWidth() / 2, 20});
+        fields->m_switcherContainer->setContentSize({200.f, 30.f});
+        fields->m_switcherContainer->setPosition({m_editorUI->getContentWidth() / 2.f, 20.f});
         fields->m_switcherContainer->setID("startpos-switcher"_spr);
         fields->m_switcherContainer->setVisible(false);
         fields->m_switcherContainer->setColor({0, 0, 0});
@@ -57,7 +58,7 @@ void StartPosTools::onEditor() {
         m_editorUI->addChild(fields->m_switcherContainer);
 
         fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
-        fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2);
+        fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f);
         fields->m_switcherLabel->setScale(0.5f);
         fields->m_switcherLabel->setID("switcher-index-label"_spr);
 
@@ -166,11 +167,11 @@ void SPTEditorUI::updateSwitcherLabel() {
     }
 
     fields->m_switcherLabel->setString(fmt::format("{} / {}", editorLayer->getActiveStartPosIndex(), editorLayer->getStartPosCount()).c_str());
-    fields->m_switcherContainer->setContentSize({fields->m_switcherLabel->getScaledContentWidth() + offset, fields->m_switcherLabel->getScaledContentHeight() + 10});
-    fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2 + CCPoint{0, 0.65f});
+    fields->m_switcherContainer->setContentSize({fields->m_switcherLabel->getScaledContentWidth() + offset, fields->m_switcherLabel->getScaledContentHeight() + 10.f});
+    fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f + CCPoint{0.f, 0.65f});
 
-    fields->m_prevButton->setPosition({fields->m_prevButton->getScaledContentWidth() / 2 + 5, fields->m_switcherContainer->getContentHeight() / 2});
-    fields->m_nextButton->setPosition({fields->m_switcherContainer->getContentWidth() - fields->m_nextButton->getScaledContentWidth() / 2 - 5, fields->m_switcherContainer->getContentHeight() / 2});
+    fields->m_prevButton->setPosition({fields->m_prevButton->getScaledContentWidth() / 2.f + 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
+    fields->m_nextButton->setPosition({fields->m_switcherContainer->getContentWidth() - fields->m_nextButton->getScaledContentWidth() / 2.f - 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
 }
 
 void SPTEditorUI::updateOverlay() {
@@ -190,7 +191,7 @@ void SPTEditorUI::updatePlaytestMenu() {
     runAction(CallFuncExt::create([this] {
         auto playtestMenu = getChildByID("playtest-menu");
         if (playtestMenu) {
-            playtestMenu->setAnchorPoint({0, 0.5f});
+            playtestMenu->setAnchorPoint({0.f, 0.5f});
             playtestMenu->updateLayout();
             auto playbackMenu = getChildByID("playback-menu");
             if (playbackMenu) {
@@ -198,7 +199,7 @@ void SPTEditorUI::updatePlaytestMenu() {
             }
             auto objectInfoLabel = getChildByID("object-info-label");
             if (objectInfoLabel) {
-                objectInfoLabel->setPositionX(playtestMenu->boundingBox().getMaxX() + 5);
+                objectInfoLabel->setPositionX(playtestMenu->boundingBox().getMaxX() + 5.f);
             }
         }
         updateSwitcherLabel();
@@ -288,7 +289,7 @@ void SPTGJBaseGameLayer::orderSpawnObjects() {
 void SPTLevelEditorLayer::addSpecial(GameObject* object) {
     LevelEditorLayer::addSpecial(object);
     
-    if (object->m_objectID == 31) {
+    if (object->m_objectID == tinker::constants::objects::StartPosition) {
         addStartPos(static_cast<StartPosObject*>(object));
     }
 }

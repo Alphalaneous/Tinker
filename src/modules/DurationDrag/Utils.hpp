@@ -1,20 +1,23 @@
 #include <Geode/Geode.hpp>
+#include "utils/Constants.hpp"
 
 using namespace geode::prelude;
 
 namespace tinker::utils::duration_drag {
 
     static inline CCPoint getEndPos(EffectGameObject* object) {
+        using namespace tinker::constants::objects;
+
         auto dgl = LevelEditorLayer::get()->m_drawGridLayer;
         const auto* settings = dgl->m_editorLayer->m_levelSettings;
         const int startSpeed = static_cast<int>(settings->m_startSpeed);
 
         float duration;
 
-        if (object->m_objectID == 1006) {
+        if (object->m_objectID == PulseTrigger) {
             duration = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
         }
-        else if (object->m_objectID == 3602) {
+        else if (object->m_objectID == SFXTrigger) {
             SFXTriggerGameObject* sfxTrigger = static_cast<SFXTriggerGameObject*>(object);
             duration = sfxTrigger->m_soundDuration;
         }
@@ -65,11 +68,8 @@ namespace tinker::utils::duration_drag {
 
         const bool nowRotated = LevelTools::getLastGameplayRotated();
 
-
         if (wasRotated == nowRotated) {
-            return wasRotated
-                ? CCPoint{currentPos.x, newPos.y}
-                : CCPoint{newPos.x, currentPos.y};
+            return wasRotated ? CCPoint{currentPos.x, newPos.y} : CCPoint{newPos.x, currentPos.y};
         }
 
         return newPos;
@@ -128,9 +128,11 @@ namespace tinker::utils::duration_drag {
     }
 
     static inline geode::Result<std::pair<CCPoint, CCPoint>> getCenter(EditorUI* editorUI) {
+        using namespace tinker::constants::objects;
+
         std::vector<EffectGameObject*> objects;
         for (auto obj : CCArrayExt<GameObject*>(editorUI->m_selectedObjects)) {
-            if (obj->m_dontIgnoreDuration && obj->m_objectID != 3602) {
+            if (obj->m_dontIgnoreDuration && obj->m_objectID != SFXTrigger) {
                 objects.push_back(static_cast<EffectGameObject*>(obj));
             }
         }
@@ -138,27 +140,26 @@ namespace tinker::utils::duration_drag {
         if (objects.size() < 2) return geode::Err("Need at least two EffectGameObjects");
 
         CCPoint refStart = objects[0]->getPosition();
-        CCPoint refEnd   = objects[0]->m_endPosition;
+        CCPoint refEnd = objects[0]->m_endPosition;
 
         if (!objects[0]->m_isSpawnTriggered) {
             refStart.x = std::max(refStart.x, 0.f);
-            refEnd.x = std::max(refEnd.x, 0.0f);
+            refEnd.x = std::max(refEnd.x, 0.f);
         }
 
         if (refEnd == CCPointZero) refEnd = refStart; 
 
-        bool refNoDuration = objects[0]->m_duration == 0 || (objects[0]->m_objectID == 1006 && objects[0]->m_fadeInDuration + objects[0]->m_holdDuration + objects[0]->m_fadeOutDuration == 0);
+        bool refNoDuration = objects[0]->m_duration == 0 || (objects[0]->m_objectID == PulseTrigger && objects[0]->m_fadeInDuration + objects[0]->m_holdDuration + objects[0]->m_fadeOutDuration == 0);
 
         CCPoint refDir = refEnd - refStart;
 
-        if (refDir.x <= 0) refDir.x = 0.00001f;
+        if (refDir.x <= 0.f) refDir.x = 0.00001f;
 
         float refLen = std::sqrt(refDir.x * refDir.x + refDir.y * refDir.y);
         if (refLen == 0.f) refLen = 0.00001f;
 
         CCPoint unitRefDir = { refDir.x / refLen, refDir.y / refLen };
         CCPoint ortho = { -unitRefDir.y, unitRefDir.x };
-
 
         float minProj = FLT_MAX;
         float maxProj = -FLT_MAX;
@@ -197,20 +198,19 @@ namespace tinker::utils::duration_drag {
 
         float startAlongWith60 = startAlong + offset;
 
-        CCPoint startCenter = {
+        auto startCenter = CCPoint{
             refStart.x + unitRefDir.x * startAlongWith60 + ortho.x * (centerProj - refProj),
             refStart.y + unitRefDir.y * startAlongWith60 + ortho.y * (centerProj - refProj)
         };
 
-        float maxAlongDir = (furthestEnd.x - refStart.x) * unitRefDir.x +
-                        (furthestEnd.y - refStart.y) * unitRefDir.y;
+        float maxAlongDir = (furthestEnd.x - refStart.x) * unitRefDir.x + (furthestEnd.y - refStart.y) * unitRefDir.y;
 
-        CCPoint endCenter = {
+        auto endCenter = CCPoint{
             refStart.x + unitRefDir.x * maxAlongDir + ortho.x * (centerProj - refProj),
             refStart.y + unitRefDir.y * maxAlongDir + ortho.y * (centerProj - refProj)
         };
 
-        CCPoint past = {
+        auto past = CCPoint{
             endCenter.x + unitRefDir.x * offset,
             endCenter.y + unitRefDir.y * offset
         };

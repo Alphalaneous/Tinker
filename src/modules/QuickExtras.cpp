@@ -1,4 +1,5 @@
 #include "QuickExtras.hpp"
+#include "utils/Constants.hpp"
 
 void QuickExtras::onEditor() {
     if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
@@ -12,14 +13,14 @@ void QuickExtras::onEditor() {
                 onEditExtras();
             });
 
-            m_editExtrasBtn->setContentSize({40, 40});
+            m_editExtrasBtn->setContentSize({40.f, 40.f});
             m_editExtrasBtn->setOpacity(175);
             m_editExtrasBtn->setColor({166, 166, 166});
             m_editExtrasBtn->m_animationEnabled = false;
             m_editExtrasBtn->setID("edit-extras-button"_spr);
 
-            spr->setAnchorPoint({0, 0});
-            spr->setPosition({1, 0});
+            spr->setAnchorPoint({0.f, 0.f});
+            spr->setPosition({1.f, 0.f});
 
             editorButtonsMenu->addChild(m_editExtrasBtn);
             m_editorUI->m_uiItems->addObject(m_editExtrasBtn);
@@ -41,11 +42,11 @@ void QuickExtras::onEditor() {
             else {
                 auto spr = CCSprite::create("edit_extras.png"_spr);
                 m_editorUI->m_editSpecialBtn->setSprite(spr);
-                spr->setAnchorPoint({0, 0});
-                spr->setPosition({1, 0});
+                spr->setAnchorPoint({0.f, 0.f});
+                spr->setPosition({1.f, 0.f});
             }
 
-            m_editorUI->m_editSpecialBtn->setContentSize({40, 40});
+            m_editorUI->m_editSpecialBtn->setContentSize({40.f, 40.f});
             m_editorUI->m_editSpecialBtn->setColor(selected ? ccColor3B{255, 255, 255} : ccColor3B{166, 166, 166});
             m_editorUI->m_editSpecialBtn->setOpacity(selected ? 255 : 175);
             m_editorUI->m_editSpecialBtn->m_animationEnabled = selected;
@@ -81,28 +82,32 @@ void QEEditorUI::editObjectSpecial(int type) {
 }
 
 bool QEEditorUI::_isAllowedObjectID(int id) {
-    return id == 3643 // toggle block
-        || id == 1594 // toggle orb
-        || id == 2903 // gradient
-        || id == 1615 // counter
-        || id == 1704 // green dash orb
-        || id == 1751 // pink dash orb
-        || id == 2063 // checkpoint
-        || id == 2065 // particle
-        || id == 1329 // user coin
-        || id == 142; // gold coin
+    using namespace tinker::constants::objects;
+
+    return id == PlayerTouchToggle
+        || id == ToggleOrb
+        || id == GradientTrigger
+        || id == Counter
+        || id == GreenDashOrb
+        || id == PinkDashOrb
+        || id == Checkpoint
+        || id == Particle
+        || id == UserCoin
+        || id == GoldCoin;
 }
 
 bool QEEditorUI::isDisallowedObjectID(int id) {
-    return id == 2064 // orange teleport portal
-        || id == 749  // linked orange teleport portal
-        || id == 918  // monster chompy
-        || id == 1327 // small monster
-        || id == 1328 // medium monster
-        || id == 1584 // bat monster
-        || id == 2012 // spike ball monster
-        || id == 919  // animated spike pit
-        || id == 914; // text object
+    using namespace tinker::constants::objects;
+
+    return id == OrangeTeleportPortal
+        || id == LinkedOrangeTeleportPortal
+        || id == LargeBeast
+        || id == SmallMonster
+        || id == MediumMonster
+        || id == BatMonster
+        || id == SpikeBallMonster
+        || id == AnimatedBlackPit
+        || id == Text;
 }
 
 bool QEEditorUI::isSpecialEdit(GameObject* obj) {

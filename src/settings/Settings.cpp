@@ -125,7 +125,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         void search(ZStringView search, bool& bg, bool full = true) {
             for (auto setting : settings) {
                 if (checkSearch(search, setting, full)) {
-                    setting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+                    setting->setDefaultBGColor({0, 0, 0, static_cast<GLubyte>(bg ? 60 : 20)});
                     bg = !bg;
                 }
             }
@@ -173,10 +173,10 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         auto ret = ListBorders::create();
         const bool geodeTheme = isGeodeTheme();
         if (geodeTheme) {
-            ret->setSpriteFrames("geode.loader/geode-list-top.png", "geode.loader/geode-list-side.png", 2);
+            ret->setSpriteFrames("geode.loader/geode-list-top.png", "geode.loader/geode-list-side.png", 2.f);
             ret->setContentSize(size);
         } else {
-            ret->setContentSize(size + ccp(5, 5));
+            ret->setContentSize(size + CCSize{5.f, 5.f});
         }
         return ret;
     }
@@ -228,7 +228,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         if (!fields->m_activeCategory) {
             for (auto& category : fields->m_categories) {
                 category.updateState(false, true);
-                category.titleSetting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+                category.titleSetting->setDefaultBGColor({0, 0, 0, static_cast<GLubyte>(bg ? 60 : 20)});
                 bg = !bg;
 
                 category.search(search, bg);
@@ -239,7 +239,7 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                 category.collapse();
             }
             fields->m_activeCategory->updateState();
-            fields->m_activeCategory->titleSetting->setDefaultBGColor(ccc4(0, 0, 0, bg ? 60 : 20));
+            fields->m_activeCategory->titleSetting->setDefaultBGColor({0, 0, 0, static_cast<GLubyte>(bg ? 60 : 20)});
             bg = !bg;
 
             fields->m_activeCategory->search(search, bg, false);
@@ -309,10 +309,10 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         layerColor->setScale(0.75f);
         layerColor->setAnchorPoint({1.f, 0.5f});
 
-        scrollLayer->setContentHeight(layerColor->getContentHeight() - 30);
+        scrollLayer->setContentHeight(layerColor->getContentHeight() - 30.f);
 
-        layerColor->setPositionX(alert->m_mainLayer->getContentWidth() - 50);
-        listBorders->setPositionX(alert->m_mainLayer->getContentWidth() - 50);
+        layerColor->setPositionX(alert->m_mainLayer->getContentWidth() - 50.f);
+        listBorders->setPositionX(alert->m_mainLayer->getContentWidth() - 50.f);
 
         fields->m_scrollBar->setScale(0.8);
         fields->m_scrollBar->addOnEnterCallback([fields] () {
@@ -323,18 +323,18 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         listBorders->setAnchorPoint({1.f, 0.5f});
 
         auto background = CCLayerColor::create({0, 0, 0, 75});
-        background->setContentSize({100, layerColor->getScaledContentHeight()});
-        background->setPosition({25, alert->m_mainLayer->getContentHeight() / 2});
+        background->setContentSize({100.f, layerColor->getScaledContentHeight()});
+        background->setPosition({25.f, alert->m_mainLayer->getContentHeight() / 2.f});
         background->setAnchorPoint({0.f, 0.5f});
         background->ignoreAnchorPointForPosition(false);
 
-        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create({100, layerColor->getScaledContentHeight()});
-        fields->m_scrollLayer->setPosition(background->getContentSize() / 2);
-        fields->m_scrollLayer->setContentSize({100, layerColor->getScaledContentHeight()});
+        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create({100.f, layerColor->getScaledContentHeight()});
+        fields->m_scrollLayer->setPosition(background->getContentSize() / 2.f);
+        fields->m_scrollLayer->setContentSize({100.f, layerColor->getScaledContentHeight()});
         fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
 
         auto layout = static_cast<SimpleAxisLayout*>(ScrollLayer::createDefaultListLayout());
-        layout->setPadding({4, 4, 4, 4});
+        layout->setPadding({4.f, 4.f, 4.f, 4.f});
         fields->m_scrollLayer->getContentLayer()->setLayout(layout);
 
         background->addChild(fields->m_scrollLayer);
@@ -342,13 +342,13 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         alert->m_mainLayer->addChild(background);
 
         auto allBtnBg = geode::NineSlice::create("tab-bg.png"_spr);
-        allBtnBg->setContentSize({90, 20});
+        allBtnBg->setContentSize({90.f, 20.f});
         allBtnBg->setScaleMultiplier(0.5f);
         allBtnBg->setColor(geodeTheme ? ccColor3B{168, 147, 185} : ccColor3B{248, 200, 43});
 
         auto label = CCLabelBMFont::create("All Settings", "bigFont.fnt");
-        label->setPosition(allBtnBg->getContentSize() / 2 + CCPoint{0, 0.5f});
-        geode::cocos::limitNodeSize(label, allBtnBg->getContentSize() - CCSize{12, 8}, 1.f, 0.05f);
+        label->setPosition(allBtnBg->getContentSize() / 2.f + CCPoint{0.f, 0.5f});
+        geode::cocos::limitNodeSize(label, allBtnBg->getContentSize() - CCSize{12.f, 8.f}, 1.f, 0.05f);
         allBtnBg->addChild(label);
 
         auto tabButton = geode::Button::createWithNode(allBtnBg, [this, scrollLayer, geodeTheme, fields, allBtnBg] (auto sender) {
@@ -374,13 +374,13 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         tabButton->setEnabled(false);
         fields->m_scrollLayer->getContentLayer()->addChild(tabButton);
         
-        fields->m_replacementScrollLayer = geode::ScrollLayer::create({0, 0, scrollLayer->getContentWidth(), scrollLayer->getContentHeight()});
+        fields->m_replacementScrollLayer = geode::ScrollLayer::create({scrollLayer->getContentWidth(), scrollLayer->getContentHeight()});
         fields->m_replacementScrollLayer->setPosition(scrollLayer->getPosition());
         fields->m_replacementScrollLayer->setAnchorPoint(scrollLayer->getAnchorPoint());
         fields->m_replacementScrollLayer->setContentSize(scrollLayer->getContentSize());
         fields->m_replacementScrollLayer->setZOrder(scrollLayer->getZOrder());
         fields->m_replacementScrollLayer->setScale(scrollLayer->getScale());
-        fields->m_replacementScrollLayer->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout(0));
+        fields->m_replacementScrollLayer->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout(0.f));
         fields->m_scrollBar->setTarget(fields->m_replacementScrollLayer);
 
         layerColor->addChild(fields->m_replacementScrollLayer);
@@ -398,13 +398,13 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
                 auto category = Category{toggler, setting->getDisplayName()};
 
                 auto btnBg = geode::NineSlice::create("tab-bg.png"_spr);
-                btnBg->setContentSize({90, 20});
+                btnBg->setContentSize({90.f, 20.f});
                 btnBg->setScaleMultiplier(0.5f);
                 btnBg->setColor(geodeTheme ? ccColor3B{26, 24, 29} : ccColor3B{54, 31, 16});
 
                 auto label = CCLabelBMFont::create(setting->getDisplayName().c_str(), "bigFont.fnt");
                 label->setPosition(allBtnBg->getContentSize() / 2 + CCPoint{0, 0.5f});
-                geode::cocos::limitNodeSize(label, btnBg->getContentSize() - CCSize{12, 8}, 1.f, 0.05f);
+                geode::cocos::limitNodeSize(label, btnBg->getContentSize() - CCSize{12.f, 8.f}, 1.f, 0.05f);
                 btnBg->addChild(label);
 
                 category.buttonBg = btnBg;
@@ -447,9 +447,9 @@ class $nodeModify(TinkerModSettingsPopup, ModSettingsPopup) {
         updateState();
         fields->m_replacementScrollLayer->scrollToTop();
 
-        float offset = geodeTheme ? 0 : -5;
+        float offset = geodeTheme ? 0.f : -5.f;
 
-        auto tabListBorders = createGeodeListBorders({100 / 0.75f + offset, height + offset});
+        auto tabListBorders = createGeodeListBorders({100.f / 0.75f + offset, height + offset});
         tabListBorders->setAnchorPoint({0.f, 0.5f});
         tabListBorders->setPosition(background->getPosition());
         tabListBorders->setZOrder(1);

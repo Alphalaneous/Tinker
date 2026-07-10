@@ -259,7 +259,7 @@ void PerfEditorUI::setupCreateMenu() {
         }
     
         auto screenBottom = CCDirector::get()->getScreenBottom();
-        auto point = CCPoint{winSize.width / 2 - 5.f, screenBottom + m_toolbarHeight - 6.f};
+        auto point = CCPoint{winSize.width / 2 - 5.f, screenBottom + tinker::utils::getToolbarHeight() - 6.f};
 
         for (auto& tab : s_createTabs) {
             addChild(tab.m_editButtonBar, 10);

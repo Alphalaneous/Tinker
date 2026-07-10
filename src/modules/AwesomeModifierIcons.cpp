@@ -1,11 +1,14 @@
 #include "AwesomeModifierIcons.hpp"
+#include "utils/Constants.hpp"
+
+using namespace tinker::constants::objects;
 
 std::unordered_map<int, std::string> AwesomeModifierIcons::s_textureMap = {
-    {1755, "d_block.png"_spr},
-    {1813, "j_block.png"_spr},
-    {1829, "s_block.png"_spr},
-    {1859, "h_block.png"_spr},
-    {2866, "f_block.png"_spr}
+    {DragModifier, "d_block.png"_spr},
+    {JumpModifier, "j_block.png"_spr},
+    {StopModifier, "s_block.png"_spr},
+    {HeadModifier, "h_block.png"_spr},
+    {FlipModifier, "f_block.png"_spr}
 };
 
 void AMIEffectGameObject::customSetup() {
@@ -42,9 +45,9 @@ void AMIEffectGameObject::updateLetters() {
     if (!label) return;
 
     if (showLetter) {
-        label->setPosition({2, getContentHeight()});
+        label->setPosition({2.f, getContentHeight()});
         label->setScale(0.3f);
-        label->setAnchorPoint({0, 1});
+        label->setAnchorPoint({0.f, 1.f});
     }
     else {
         label->setVisible(false);
@@ -83,11 +86,11 @@ void AwesomeModifierIcons::onEditor() {
             }
         }
 
-        if (item->m_objectID == 2866) {
+        if (item->m_objectID == FlipModifier) {
             fIndex = index;
             fItem = item;
         }
-        else if (item->m_objectID == 1859) {
+        else if (item->m_objectID == HeadModifier) {
             hIndex = index;
         }
         if (fItem && hIndex != -1) {

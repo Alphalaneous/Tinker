@@ -1,4 +1,5 @@
 #include "MultiTextEdit.hpp"
+#include "utils/Constants.hpp"
 
 bool MultiTextEdit::onToggled(bool state) {
     return true;
@@ -8,7 +9,7 @@ bool MTECustomizeObjectLayer::init(GameObject* object, CCArray* objects) {
     if (object) return CustomizeObjectLayer::init(object, objects);
 
     for (auto obj : CCArrayExt<GameObject*>(objects)) {
-        if (obj->m_objectID != 914) {
+        if (obj->m_objectID != tinker::constants::objects::Text) {
             return CustomizeObjectLayer::init(object, objects);
         }
     }
@@ -43,7 +44,7 @@ void MTECustomizeObjectLayer::sliderChanged(CCObject* sender) {
     if (!fields->m_textObjects) return CustomizeObjectLayer::sliderChanged(sender);
 
     auto thumb = static_cast<SliderThumb*>(sender);
-    m_kerningAmount = thumb->getValue() * 30.0f - 10.0f;
+    m_kerningAmount = thumb->getValue() * 30.f - 10.f;
 
     for (auto object : CCArrayExt<TextGameObject*>(m_targetObjects)) {
         object->updateTextKerning(m_kerningAmount);

@@ -91,6 +91,8 @@ CCSprite* RelocateBuildTools::addIcon(CCNode* node, CCLabelBMFont* label) {
     }
 
     if (auto spr = CCSprite::create(iconTexture.c_str())) {
+        if (spr->isUsingFallback()) return nullptr;
+
         spr->setZOrder(1);
         spr->setID("tool-sprite"_spr);
         if (!iconsOnly) {
@@ -98,8 +100,8 @@ CCSprite* RelocateBuildTools::addIcon(CCNode* node, CCLabelBMFont* label) {
             spr->setOpacity(96);
         }
         spr->setScale(0.7f);
-        spr->setPosition({node->getContentSize().width/2, node->getContentSize().height/2});
-        if (spr->getUserObject("geode.texture-loader/fallback")) return nullptr;
+        spr->setPosition({node->getContentSize().width / 2.f, node->getContentSize().height / 2.f});
+
         node->addChild(spr);
         return spr;
     }
@@ -108,14 +110,14 @@ CCSprite* RelocateBuildTools::addIcon(CCNode* node, CCLabelBMFont* label) {
 
 void RelocateBuildTools::rebuildButtons(std::vector<Ref<CCNode>> nodes) {
     for (auto child : nodes) {
-        child->setContentSize({40, 40});
+        child->setContentSize({40.f, 40.f});
         child->setVisible(true);
         auto childSize = child->getContentSize();
         
         if (auto buttonSprite = child->getChildByType<ButtonSprite>(0)) {
-            buttonSprite->setContentSize({40, 40});
-            buttonSprite->setScale(1);
-            buttonSprite->setPosition({childSize.width/2, childSize.height/2});
+            buttonSprite->setContentSize({40.f, 40.f});
+            buttonSprite->setScale(1.f);
+            buttonSprite->setPosition({childSize.width / 2.f, childSize.height / 2.f});
 
             if (auto bg = buttonSprite->getChildByType<CCScale9Sprite>(0)) {
                 bg->removeFromParent();
@@ -123,7 +125,7 @@ void RelocateBuildTools::rebuildButtons(std::vector<Ref<CCNode>> nodes) {
             if (auto label = buttonSprite->getChildByType<CCLabelBMFont>(0)) {
                 label->setScale(0.25f);
                 label->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
-                label->setPosition({childSize.width/2, childSize.height/2});
+                label->setPosition({childSize.width / 2.f, childSize.height / 2.f});
                 auto labelText = std::string(label->getString());
 
                 utils::string::replaceIP(labelText, " ", "\n");

@@ -3,7 +3,6 @@
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
-#include "InputsHandler.hpp"
 #include "Events.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
@@ -144,16 +143,13 @@ void MainEditorUI::fixTabPositions() {
 
         float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y;
         if (tab->getScaledContentHeight() == 0) {
-            posY = InputEditorUI::get()->getToolbarHeight() / 2.f;
+            posY = tinker::utils::getToolbarHeight() / 2.f;
         }
         tab->setPositionY(posY);
     }
 
-    float posY = m_deleteMenu->getScaledContentHeight() * m_deleteMenu->getAnchorPoint().y;
-    if (m_deleteMenu->getScaledContentHeight() == 0) {
-        posY = InputEditorUI::get()->getToolbarHeight() / 2.f;
-    }
-    m_deleteMenu->setPositionY(posY);
+    m_deleteMenu->setContentSize({0, 0});
+    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight() / 2.f);
 }
 
 void MainEditorUI::updateButtons() {

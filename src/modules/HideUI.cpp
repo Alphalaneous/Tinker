@@ -18,7 +18,15 @@ void HideUI::onEditor() {
     toggler->m_notClickable = true;
 
     undoMenu->addChild(toggler);
+
     undoMenu->updateLayout();
+
+    undoMenu->addOnEnterCallback([this, undoMenu] {
+        m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
+        if (m_oldBEButton) {
+            m_oldBEButton->removeFromParent();
+        }
+    });
 
     addEventListener(ShowUIEvent(), [this, toggler] (bool show) {
         toggler->toggle(!show);

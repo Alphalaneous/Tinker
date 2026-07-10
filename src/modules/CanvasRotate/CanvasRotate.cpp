@@ -22,10 +22,10 @@ bool CanvasRotate::onToggled(bool state) {
         if (m_rotationNode) {
             m_rotationNode->removeFromParent();
         }
-        m_editorLayer->m_gameState.m_cameraAngle = 0;
+        m_editorLayer->m_gameState.m_cameraAngle = 0.f;
 
         if (m_editorUI->m_positionSlider && m_editorUI->m_positionSlider->getThumb()) {
-            m_editorUI->m_positionSlider->getThumb()->setRotation(0);
+            m_editorUI->m_positionSlider->getThumb()->setRotation(0.f);
         }
     }
     if (JoystickNavigation::isEnabled()) {
@@ -37,7 +37,7 @@ bool CanvasRotate::onToggled(bool state) {
 bool CanvasRotate::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "rotate-slider-thumb") {
         if (m_editorUI->m_positionSlider && m_editorUI->m_positionSlider->getThumb()) {
-            m_editorUI->m_positionSlider->getThumb()->setRotation(value.asBool().unwrapOrDefault() ? m_editorLayer->m_gameState.m_cameraAngle : 0);
+            m_editorUI->m_positionSlider->getThumb()->setRotation(value.asBool().unwrapOrDefault() ? m_editorLayer->m_gameState.m_cameraAngle : 0.f);
         }
     }
     return true;
@@ -141,18 +141,19 @@ GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     
     int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
     float rotationValue = ret->getRotation();
+
     if (!module->m_rotationNode->isAlignKeyDown()) {
         if (rot < 45 || rot >= 315) {
-            rotationValue += 0;
+            rotationValue += 0.f;
         }
         else if (rot < 135) {
-            rotationValue += 270;
+            rotationValue += 270.f;
         }
         else if (rot < 225) {
-            rotationValue += 180;
+            rotationValue += 180.f;
         }
         else {
-            rotationValue += 90;
+            rotationValue += 90.f;
         }
     }
     else {
@@ -183,7 +184,7 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
 
 void CREditorUI::triggerSwipeMode() {
     auto winSize = CCDirector::get()->getWinSize();
-    m_swipeStart = tinker::utils::rotatePointAroundPivot(m_swipeStart, winSize/2, -m_editorLayer->m_gameState.m_cameraAngle);
+    m_swipeStart = tinker::utils::rotatePointAroundPivot(m_swipeStart, winSize / 2.f, -m_editorLayer->m_gameState.m_cameraAngle);
     EditorUI::triggerSwipeMode();
 }
 
@@ -240,11 +241,11 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
     auto result = CCArray::create();
 
     auto center = rect.origin + CCPoint(rect.size.width * 0.5f, rect.size.height * 0.5f);
-    auto selectionOBB = OBB2D::create(center, rect.size.width, rect.size.height, 0);
+    auto selectionOBB = OBB2D::create(center, rect.size.width, rect.size.height, 0.f);
     
     auto winSize = CCDirector::get()->getWinSize();
 
-    auto centerInObjectLayer = m_objectLayer->convertToNodeSpace(winSize/2);
+    auto centerInObjectLayer = m_objectLayer->convertToNodeSpace(winSize / 2.f);
 
     tinker::utils::forEachObject(this, [this, &rect, result, selectionOBB, &winSize, &centerInObjectLayer, &ignoreLayerCheck] (GameObject* object) {
         if (!validGroup(object, !ignoreLayerCheck)) return;
@@ -258,7 +259,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
 }
 
 OBB2D* CRLevelEditorLayer::rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees) {
-    auto obb = OBB2D::create(object->getPosition(), object->boundingBox().size.width, object->boundingBox().size.height, 0);
+    auto obb = OBB2D::create(object->getPosition(), object->boundingBox().size.width, object->boundingBox().size.height, 0.f);
 
     auto center = obb->m_center;
 

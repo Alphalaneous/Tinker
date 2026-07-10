@@ -18,7 +18,7 @@ bool StartPosOverlay::init() {
 
     schedule(schedule_selector(StartPosOverlay::updatePos));
 
-    setContentSize({40, 40});
+    setContentSize({40.f, 40.f});
 
     setZOrder(10000);
     setAnchorPoint({0.5f, 0.f});
@@ -29,7 +29,7 @@ bool StartPosOverlay::init() {
     m_background->setOpacity(127);
     m_background->setColor({0, 0, 0});
     m_background->setContentSize(getContentSize());
-    m_background->setPosition(getContentSize() / 2);
+    m_background->setPosition(getContentSize() / 2.f);
     m_background->setID("background"_spr);
 
     addChild(m_background);
@@ -46,7 +46,7 @@ bool StartPosOverlay::init() {
     m_button->setID("playtest-button"_spr);
 
     m_background->addChild(m_button);
-    m_button->setPosition(getContentSize() / 2);
+    m_button->setPosition(getContentSize() / 2.f);
 
     return true;
 }
@@ -69,7 +69,7 @@ void StartPosOverlay::updateOverlay() {
 
 void StartPosOverlay::updatePos(float dt) {
     if (!m_startPos) return;
-    setPosition({m_startPos->getPositionX(), m_startPos->boundingBox().getMaxY() + 3});
+    setPosition({m_startPos->getPositionX(), m_startPos->boundingBox().getMaxY() + 3.f});
     setScale(0.8f / LevelEditorLayer::get()->m_objectLayer->getScale());
 }
 

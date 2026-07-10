@@ -1,6 +1,7 @@
 #include "ObjectList.hpp"
 #include <Geode/ui/NineSlice.hpp>
 #include "ObjectItem.hpp"
+#include "utils/Constants.hpp"
 
 using namespace tinker::ui;
 
@@ -40,7 +41,7 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
     m_bg = geode::NineSlice::create("square02b_001.png");
     m_bg->setColor({ 0, 0, 0 });
     m_bg->setOpacity(75);
-    m_bg->setScaleMultiplier(.3f);
+    m_bg->setScaleMultiplier(0.3f);
     m_bg->setContentSize(size);
     m_bg->setID("background"_spr);
 
@@ -76,7 +77,7 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
 
     for (const auto& [k, v] : pairs){
 
-        if (k == 749) continue; //orange part of teleport
+        if (k == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
 
         if (sortOptions.sortType == SummarySortType::Portals  && std::find(portalObjects.begin(),  portalObjects.end(),  k) == portalObjects.end() ) continue;
         if (sortOptions.sortType == SummarySortType::PadsOrbs && std::find(padOrbObjects.begin(),  padOrbObjects.end(),  k) == padOrbObjects.end() ) continue;

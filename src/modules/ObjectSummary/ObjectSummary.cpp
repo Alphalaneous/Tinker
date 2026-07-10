@@ -24,11 +24,9 @@ bool OSLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* l
     });
 
     auto winSize = CCDirector::get()->getWinSize();
-    summaryButton->setPosition({winSize.width/2 - 185, winSize.height/2 - 115});
+    summaryButton->setPosition({winSize.width / 2.f - 185, winSize.height / 2.f - 115.f});
 
     newMenu->addChild(summaryButton);
-
-    handleTouchPriority(this);
 
     return true;
 }

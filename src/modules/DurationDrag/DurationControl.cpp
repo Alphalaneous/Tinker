@@ -1,6 +1,7 @@
 #include "DurationControl.hpp"
 #include <Geode/ui/NineSlice.hpp>
 #include "Utils.hpp"
+#include "utils/Constants.hpp"
 
 using namespace tinker::ui;
 
@@ -17,13 +18,13 @@ DurationControl* DurationControl::create() {
 CCMenuItemSpriteExtra* DurationControl::createButton(const std::string& text, cocos2d::SEL_MenuHandler method) {
 
     auto container = CCNode::create();
-    container->setContentSize({80, 30});
+    container->setContentSize({80.f, 30.f});
     container->ignoreAnchorPointForPosition(false);
     container->setAnchorPoint({0.5f, 0.5f});
     container->setID("container"_spr);
 
     auto bg = NineSlice::create("GJ_square07.png");
-    bg->setPosition(container->getContentSize()/2);
+    bg->setPosition(container->getContentSize() / 2.f);
     bg->setScale(0.75f);
     bg->setContentSize(container->getContentSize() / bg->getScale());
     bg->setID("background"_spr);
@@ -31,7 +32,7 @@ CCMenuItemSpriteExtra* DurationControl::createButton(const std::string& text, co
 
     auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
 
-    label->setPosition({container->getContentWidth()/2, container->getContentHeight()/2 + 1.5f});
+    label->setPosition({container->getContentWidth()/2, container->getContentHeight() / 2.f + 1.5f});
     label->setScale(0.7f);
     label->setID("value-label"_spr);
     container->addChild(label);
@@ -49,7 +50,7 @@ bool DurationControl::init() {
     layout->ignoreInvisibleChildren(true);
 
     m_buttonsMenu->setLayout(layout);
-    m_buttonsMenu->setContentSize({120, 10});
+    m_buttonsMenu->setContentSize({120.f, 10.f});
     m_buttonsMenu->setScale(0.5f);
 
     m_alignAllButton = createButton("Align", menu_selector(DurationControl::onAlign));
@@ -68,24 +69,31 @@ EffectGameObject* DurationControl::getEndObject() {
     std::vector<EffectGameObject*> objects;
     objects.reserve(m_objects.size());
 
-    std::transform(m_objects.begin(), m_objects.end(), std::back_inserter(objects),
-                    [](const auto& pair) { return pair.first; });
+    std::transform(
+        m_objects.begin(), 
+        m_objects.end(), 
+        std::back_inserter(objects),
+        [](const auto& pair) { 
+            return pair.first; 
+        }
+    );
 
-    CCPoint refStart = objects[0]->getPosition();
-    CCPoint refEnd   = objects[0]->m_endPosition;
-    CCPoint refDir   = refEnd - refStart;
+    auto refStart = objects[0]->getPosition();
+    auto refEnd = objects[0]->m_endPosition;
+    auto refDir = refEnd - refStart;
     float refLen = std::sqrt(refDir.x * refDir.x + refDir.y * refDir.y);
-    if (refLen == 0.f) refLen = 0.00001f;
+    if (refLen == 0.f) {
+        refLen = 0.00001f;
+    }
 
-    CCPoint unitRefDir = { refDir.x / refLen, refDir.y / refLen };
+    auto unitRefDir = CCPoint{ refDir.x / refLen, refDir.y / refLen };
 
     return tinker::utils::duration_drag::getFurthestEndObject(objects, unitRefDir);
 }
 
 void DurationControl::onAlign(CCObject* obj) {
-    createQuickPopup("Align All?", "Align all to the furthest duration?", "Cancel", "Yes", [&](FLAlertLayer*, bool btn){
+    createQuickPopup("Align All?", "Align all to the furthest duration?", "Cancel", "Yes", [&] (FLAlertLayer*, bool btn){
         if (btn) {
-
             auto endObj = getEndObject();
             auto endPos = tinker::utils::duration_drag::getEndPos(endObj);
 
@@ -136,7 +144,7 @@ void DurationControl::onAlign(CCObject* obj) {
 
                 auto newTime = std::abs(endTime - objStartTime);
 
-                if (k->m_objectID == 1006) {
+                if (k->m_objectID == constants::objects::PulseTrigger) {
                     k->m_holdDuration = newTime - k->m_fadeInDuration - k->m_fadeOutDuration;
                 }
                 else {
@@ -211,13 +219,13 @@ void DurationControl::updateObjects(EditorUI* editorUI) {
         m_objects.clear();
 
         if (auto object = editorUI->m_selectedObject) {
-            if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
+            if (object->m_dontIgnoreDuration && object->m_objectID != constants::objects::SFXTrigger) {
                 addObject(static_cast<EffectGameObject*>(object));
             }
         }
 
         for (auto object : CCArrayExt<GameObject*>(editorUI->m_selectedObjects)) {
-            if (object->m_dontIgnoreDuration && object->m_objectID != 3602) {
+            if (object->m_dontIgnoreDuration && object->m_objectID != constants::objects::SFXTrigger) {
                 addObject(static_cast<EffectGameObject*>(object));
             }
         }

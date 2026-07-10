@@ -1,5 +1,12 @@
 # 1.0.32
 - <c-dddddd>Fix the delete tab position being different levels of wonky for different people</c>
+- <c-dddddd>Rework some UI scaling stuff to hopefully prevent that issue in the future</c>
+- <c-dddddd>Cleanup some touch code</c>
+- <c-dddddd>Replace some BE features altogether rather than disabling</c>
+  - <c-dddddd>Improved Scale and Rotate controls</c>
+  - <c-dddddd>Hide UI Toggle</c>
+  - <c-dddddd>Grid Size Controls</c>
+- <c-dddddd>Clean up remnants of old scale control code that broke bypass</c>
 
 # 1.0.30 & 1.0.31
 - <c-dddddd>Fix edit tab scale and delete tab height if free move is enabled and you tap the screen</c>

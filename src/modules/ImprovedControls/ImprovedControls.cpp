@@ -4,7 +4,7 @@
 void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
     auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
     label->setScale(0.25f);
-    label->setPosition({node->getContentWidth() / 2, -(label->getScaledContentHeight() / 2.f)});
+    label->setPosition({node->getContentWidth() / 2.f, -(label->getScaledContentHeight() / 2.f)});
 
     node->addChild(label);
 }
@@ -12,6 +12,55 @@ void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
 void ImprovedControls::addLabelToToggle(CCMenuItemToggler* toggler, ZStringView text) {
     addLabelToNode(toggler->m_onButton->getNormalImage(), text);
     addLabelToNode(toggler->m_offButton->getNormalImage(), text);
+}
+
+ImprovedControls::ImprovedControls() {
+    if (!ImprovedControls::isEnabled()) return;
+
+    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
+    if (!betterEdit) return;
+
+    for (auto hook : betterEdit->getHooks()) {
+        if (hook->getDisplayName() == "GJScaleControl::init") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::loadValues") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelX") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelY") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelXY") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::onToggleLockScale") (void) hook->disable();
+        if (hook->getDisplayName() == "GJScaleControl::ccTouchMoved") (void) hook->disable();
+
+        if (hook->getDisplayName() == "GJRotationControl::init") (void) hook->disable();
+        if (hook->getDisplayName() == "GJRotationControl::draw") (void) hook->disable();
+        if (hook->getDisplayName() == "GJRotationControl::ccTouchMoved") (void) hook->disable();
+
+        if (hook->getDisplayName() == "EditorUI::activateRotationControl") (void) hook->disable();
+        if (hook->getDisplayName() == "EditorUI::angleChanged") (void) hook->disable();
+        if (hook->getDisplayName() == "EditorUI::moveObject") (void) hook->disable();
+
+    }
+}
+
+ImprovedControls::~ImprovedControls() {    
+    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
+    if (!betterEdit) return;
+
+    for (auto hook : betterEdit->getHooks()) {
+        if (hook->getDisplayName() == "GJScaleControl::init") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::loadValues") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelX") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelY") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::updateLabelXY") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::onToggleLockScale") (void) hook->enable();
+        if (hook->getDisplayName() == "GJScaleControl::ccTouchMoved") (void) hook->enable();
+
+        if (hook->getDisplayName() == "GJRotationControl::init") (void) hook->enable();
+        if (hook->getDisplayName() == "GJRotationControl::draw") (void) hook->enable();
+        if (hook->getDisplayName() == "GJRotationControl::ccTouchMoved") (void) hook->enable();
+
+        if (hook->getDisplayName() == "EditorUI::activateRotationControl") (void) hook->enable();
+        if (hook->getDisplayName() == "EditorUI::angleChanged") (void) hook->enable();
+        if (hook->getDisplayName() == "EditorUI::moveObject") (void) hook->enable();
+    }
 }
 
 void ICEditorUI::activateRotationControl(CCObject* sender) {
@@ -89,7 +138,7 @@ bool ICGJScaleControl::init() {
     fields->m_sliderX->setMax(1.f);
     fields->m_sliderX->setPosition(m_sliderX->getPosition());
     fields->m_sliderX->getBar()->setVisible(false);
-    fields->m_sliderX->setContentWidth(210);
+    fields->m_sliderX->setContentWidth(210.f);
     fields->m_sliderX->setSliderBypass(true);
     addChild(fields->m_sliderX);
 
@@ -109,7 +158,7 @@ bool ICGJScaleControl::init() {
     fields->m_sliderY->setMax(1.f);
     fields->m_sliderY->setPosition(m_sliderY->getPosition());
     fields->m_sliderY->getBar()->setVisible(false);
-    fields->m_sliderY->setContentWidth(210);
+    fields->m_sliderY->setContentWidth(210.f);
     fields->m_sliderY->setSliderBypass(true);
     addChild(fields->m_sliderY);
 
@@ -129,18 +178,18 @@ bool ICGJScaleControl::init() {
     fields->m_sliderXY->setMax(1.f);
     fields->m_sliderXY->setPosition(m_sliderXY->getPosition());
     fields->m_sliderXY->getBar()->setVisible(false);
-    fields->m_sliderXY->setContentWidth(210);
+    fields->m_sliderXY->setContentWidth(210.f);
     fields->m_sliderXY->setSliderBypass(true);
     addChild(fields->m_sliderXY);
 
-    m_scaleXLabel->setPositionX(-20);
-    m_scaleYLabel->setPositionX(-20);
-    m_scaleLabel->setPositionX(-22);
+    m_scaleXLabel->setPositionX(-20.f);
+    m_scaleYLabel->setPositionX(-20.f);
+    m_scaleLabel->setPositionX(-22.f);
 
-    fields->m_inputX = TextInput::create(50, "Num");
-    fields->m_inputX->setScale(.8f);
+    fields->m_inputX = TextInput::create(50.f, "Num");
+    fields->m_inputX->setScale(0.8f);
     fields->m_inputX->setID("scale-x-input"_spr);
-    fields->m_inputX->setPosition(40, m_scaleXLabel->getPositionY());
+    fields->m_inputX->setPosition(40.f, m_scaleXLabel->getPositionY());
     fields->m_inputX->setCommonFilter(CommonFilter::Float);
     fields->m_inputX->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
@@ -152,10 +201,10 @@ bool ICGJScaleControl::init() {
     });
     addChild(fields->m_inputX);
 
-    fields->m_inputY = TextInput::create(50, "Num");
-    fields->m_inputY->setScale(.8f);
+    fields->m_inputY = TextInput::create(50.f, "Num");
+    fields->m_inputY->setScale(0.8f);
     fields->m_inputY->setID("scale-y-input"_spr);
-    fields->m_inputY->setPosition(40, m_scaleYLabel->getPositionY());
+    fields->m_inputY->setPosition(40.f, m_scaleYLabel->getPositionY());
     fields->m_inputY->setCommonFilter(CommonFilter::Float);
     fields->m_inputY->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
@@ -167,17 +216,33 @@ bool ICGJScaleControl::init() {
     });
     addChild(fields->m_inputY);
 
-    fields->m_inputXY = TextInput::create(50, "Num");
-    fields->m_inputXY->setScale(.8f);
+    fields->m_inputXY = TextInput::create(50.f, "Num");
+    fields->m_inputXY->setScale(0.8f);
     fields->m_inputXY->setID("scale-input"_spr);
-    fields->m_inputXY->setPosition(28, m_scaleLabel->getPositionY());
+    fields->m_inputXY->setPosition(28.f, m_scaleLabel->getPositionY());
     fields->m_inputXY->setCommonFilter(CommonFilter::Float);
     fields->m_inputXY->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
         if (!scaleRes) return;
 
-        auto scale = scaleRes.unwrap();
-        m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
+        auto scaleX = scaleRes.unwrap();
+        auto scaleY = scaleFromValue(fields->m_sliderY->getPercent());
+
+        auto ratio = scaleY / scaleX;
+        if (fields->m_snapLock) {
+            scaleX = std::roundf(scaleX / fields->m_snapSize) * fields->m_snapSize;
+            scaleY = std::roundf(scaleY / fields->m_snapSize) * fields->m_snapSize;
+        }
+
+        float scale = scaleX;
+        if (scaleX < scaleY) {
+            scale = scaleY;
+            m_delegate->scaleXYChanged(scaleY / ratio, scaleY, m_scaleLocked);
+        }
+        else {
+            m_delegate->scaleXYChanged(scaleX, scaleX * ratio, m_scaleLocked);
+        }
+
         fields->m_sliderXY->setPercent(trueValueFromScale(scale));
     });
     addChild(fields->m_inputXY);
@@ -188,7 +253,7 @@ bool ICGJScaleControl::init() {
     ImprovedControls::addLabelToNode(m_scaleLockButton->getNormalImage(), "Pos");
 
     auto menu = m_scaleLockButton->getParent();
-    menu->setContentSize({50, 80});
+    menu->setContentSize({50.f, 80.f});
     menu->setLayout(SimpleRowLayout::create()
         ->setGap(3.f)
         ->setMainAxisScaling(AxisScaling::Grow)
@@ -199,7 +264,7 @@ bool ICGJScaleControl::init() {
         fields->m_valueToggler->setEnabled(fields->m_snapLock);
         fields->m_valueToggler->setOpacity(fields->m_snapLock ? 255 : 127);
 
-        auto snap = fields->m_snapLock ? 1.f / fields->m_snapSize : 4;
+        auto snap = fields->m_snapLock ? 1.f / fields->m_snapSize : 4.f;
         
         fields->m_sliderX->updateSnap(snap);
         fields->m_sliderY->updateSnap(snap);
@@ -247,9 +312,9 @@ bool ICGJScaleControl::init() {
         m_scaleLockButton->setEnabled(!(modifier & KeyboardModifier::Control));
     });
 
-    fields->m_sliderX->updateSnap(4);
-    fields->m_sliderY->updateSnap(4);
-    fields->m_sliderXY->updateSnap(4);
+    fields->m_sliderX->updateSnap(4.f);
+    fields->m_sliderY->updateSnap(4.f);
+    fields->m_sliderXY->updateSnap(4.f);
 
     return true;
 }
@@ -330,51 +395,7 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
 }
 
 void ICGJScaleControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    auto fields = m_fields.self();
-
-    if (!fields->m_inputX || !fields->m_inputY || !fields->m_inputXY) {
-        return GJScaleControl::ccTouchMoved(touch, event);
-    }
-
-    auto delegate = m_delegate;
-    m_delegate = nullptr;
-    GJScaleControl::ccTouchMoved(touch, event);
-    m_delegate = delegate;
-
-    auto scaleX = scaleFromValue(m_sliderX->getThumb()->getValue());
-    auto scaleY = scaleFromValue(m_sliderY->getThumb()->getValue());
-
-    auto ratio = scaleY / scaleX;
-    if (fields->m_snapLock) {
-        scaleX = std::roundf(scaleX / fields->m_snapSize) * fields->m_snapSize;
-        scaleY = std::roundf(scaleY / fields->m_snapSize) * fields->m_snapSize;
-    }
-
-    if (m_scaleButtonType == ScaleButtonType::X) {
-        m_delegate->scaleXChanged(scaleX, m_scaleLocked);
-        m_sliderX->setValue(trueValueFromScale(scaleX));
-        fields->m_inputX->setString(numToString(scaleX, 3));
-    }
-    else if (m_scaleButtonType == ScaleButtonType::Y) {
-        m_delegate->scaleYChanged(scaleY, m_scaleLocked);
-        m_sliderY->setValue(trueValueFromScale(scaleY));
-        fields->m_inputY->setString(numToString(scaleY, 3));
-    }
-    else {
-        float scale = scaleX;
-        if (scaleX < scaleY) {
-            scale = scaleY;
-            m_delegate->scaleXYChanged(scaleY / ratio, scaleY, m_scaleLocked);
-        }
-        else {
-            m_delegate->scaleXYChanged(scaleX, scaleX * ratio, m_scaleLocked);
-        }
-
-        auto value = std::max(0.f, (scale - m_lowerBound) / (m_upperBound - m_lowerBound));
-        log::info("value: {}", value);
-        m_sliderXY->setValue(value);
-        fields->m_inputXY->setString(numToString(scale, 3));
-    }
+    // do nothing
 }
 
 CCPoint ICGJRotationControl::pointOnCircle(float degrees, float radius) {
@@ -394,7 +415,7 @@ bool ICGJRotationControl::init() {
     auto fields = m_fields.self();
 
     auto menu = CCMenu::create();
-    menu->setContentSize({50, 80});
+    menu->setContentSize({50.f, 80.f});
     menu->setAnchorPoint({0.f, 0.5f});
     menu->setID("lock-menu"_spr);
     menu->setLayout(SimpleRowLayout::create()
@@ -427,7 +448,7 @@ bool ICGJRotationControl::init() {
 
     menu->addChild(fields->m_valueToggler);
 
-    menu->setPosition(80, 35);
+    menu->setPosition(80.f, 35.f);
     menu->updateLayout();
 
     addEventListener(ModifierEvent(), [this, fields] (KeyboardModifier modifier, KeyboardModifier lastModifier) {
@@ -457,8 +478,8 @@ bool ICGJRotationControl::init() {
 
     addChild(menu);
 
-    fields->m_input = TextInput::create(50, "Num");
-    fields->m_input->setScale(.8f);
+    fields->m_input = TextInput::create(50.f, "Num");
+    fields->m_input->setScale(0.8f);
     fields->m_input->setID("angle-input"_spr);
     fields->m_input->setPosition(menu->getPositionX() + menu->getScaledContentWidth() / 2.f, 0.f);
     fields->m_input->setCommonFilter(CommonFilter::Float);
@@ -500,7 +521,7 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 
     if (fields->m_snapLock) {
         angle = std::roundf(angle / fields->m_snapSize) * fields->m_snapSize;
-        m_controlSprite->setPosition(pointOnCircle(-angle, 60));
+        m_controlSprite->setPosition(pointOnCircle(-angle, 60.f));
     }
 
     m_delegate->angleChanged(angle);
@@ -513,7 +534,7 @@ void ICGJRotationControl::draw() {
 
     auto snapSize = fields->m_snapLock ? fields->m_snapSize : 15.f;
 
-    for (float angle = 0; angle < 360.f; angle += snapSize) {
+    for (float angle = 0.f; angle < 360.f; angle += snapSize) {
 
         bool isBigTick = std::fmod(angle, 45.f);
         glLineWidth(isBigTick ? 1.f : 2.f);
@@ -550,6 +571,6 @@ float ICGJRotationControl::getThumbValue() const {
 }
 
 void ICGJRotationControl::setControlRotation(float degrees) {
-    m_controlPosition = pointOnCircle(-degrees, 60);
+    m_controlPosition = pointOnCircle(-degrees, 60.f);
     m_controlSprite->setPosition(m_controlPosition);
 }

@@ -13,6 +13,9 @@ using namespace tinker::ui;
 class $editorModule(ImprovedControls) {
     static void addLabelToNode(CCNode* node, ZStringView text);
     static void addLabelToToggle(CCMenuItemToggler* toggler, ZStringView text);
+
+    ImprovedControls();
+    virtual ~ImprovedControls();
 };
 
 class $modify(ICEditorUI, EditorUI) {

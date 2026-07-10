@@ -9,8 +9,9 @@ bool NegateInput::onSettingChanged(std::string_view key, const matjson::Value& v
 
 bool NECCTextInputNode::allowedInput() {
     if (!LevelEditorLayer::get()) return false;
-    for (char c : std::string_view(m_allowedChars)) {
-        if (!((c >= '0' && c <= '9') || c == '-' || c == '.')) {
+
+    for (const char& c : std::string_view(m_allowedChars)) {
+        if (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '.') {
             return false;
         }
     }
@@ -27,7 +28,7 @@ bool NECCTextInputNode::init(float width, float height, char const* placeholder,
 
         auto spr = CCSprite::createWithSpriteFrameName("edit_delCBtn_001.png");
 
-        auto btnSpr = ButtonSprite::create(spr, 30, 1, 30, 1, false, "GJ_button_06.png", false);
+        auto btnSpr = ButtonSprite::create(spr, 30, 1, 30.f, 1.f, false, "GJ_button_06.png", false);
         btnSpr->setScale(0.3f);
 
         fields->m_button = geode::Button::createWithNode(btnSpr, [this] (auto sender) {
@@ -36,7 +37,7 @@ bool NECCTextInputNode::init(float width, float height, char const* placeholder,
 
         fields->m_button->setID("negate-button"_spr);
 
-        fields->m_button->setPosition(getContentSize() / 2 + CCPoint{1, -3});
+        fields->m_button->setPosition(getContentSize() / 2.f + CCPoint{1.f, -3.f});
 
         schedule(schedule_selector(NECCTextInputNode::showOnFocus));
 

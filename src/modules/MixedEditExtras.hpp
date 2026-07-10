@@ -48,7 +48,7 @@ class $modify(MEESetupObjectOptionsPopup, SetupObjectOptionsPopup) {
         toggler->m_offButton->setNormalImage(newSpr);
 
         newSpr->setAnchorPoint({0.5f, 0.5f});
-        newSpr->setPosition(toggler->m_offButton->getContentSize() / 2);
-        newSpr->setScale(0.7 * scaleOffset);
+        newSpr->setPosition(toggler->m_offButton->getContentSize() / 2.f);
+        newSpr->setScale(0.7f * scaleOffset);
     }
 };

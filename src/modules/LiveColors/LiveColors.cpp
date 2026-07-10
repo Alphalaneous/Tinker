@@ -1,5 +1,6 @@
 #include "LiveColors.hpp"
 #include "utils/Utils.hpp"
+#include "utils/Constants.hpp"
 #include "ColorVisualButton.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
@@ -8,7 +9,7 @@ using namespace tinker::ui;
 void LiveColors::onEditor() {
     m_colorsMenu = CCMenu::create();
     m_colorsMenu->ignoreAnchorPointForPosition(false);
-    m_colorsMenu->setAnchorPoint({0.5f, 0});
+    m_colorsMenu->setAnchorPoint({0.5f, 0.f});
     m_colorsMenu->setID("live-colors-menu"_spr);
     
     auto rowLayout = RowLayout::create();
@@ -22,7 +23,7 @@ void LiveColors::onEditor() {
 
     m_editorUI->addChild(m_colorsMenu);
 
-    m_editorUI->schedule(schedule_selector(LCEditorUI::checkColors), 1/60.f);
+    m_editorUI->schedule(schedule_selector(LCEditorUI::checkColors), 1.f / 60.f);
     
     m_editorUI->runAction(CallFuncExt::create([this] {
         float scale = m_editorUI->m_positionSlider->getScale();
@@ -33,21 +34,21 @@ void LiveColors::onEditor() {
 void LiveColors::updateScale(float scale) {
     auto winSize = CCDirector::get()->getWinSize();
 
-    bool isLowScale = scale <= 0.925;
+    bool isLowScale = scale <= 0.925f;
 
     m_colorsMenu->setScale(std::max(0.35f * scale, 0.15f));
 
-    float maxWidth = 0;
+    float maxWidth = 0.f;
     if (isLowScale) {
-        maxWidth = (winSize.width - 20 * scale) / m_colorsMenu->getScale();
+        maxWidth = (winSize.width - 20.f * scale) / m_colorsMenu->getScale();
     }
     else {
-        maxWidth = (winSize.width - 210 * scale) / m_colorsMenu->getScale();
+        maxWidth = (winSize.width - 210.f * scale) / m_colorsMenu->getScale();
     }
     float btnWidth = CCSprite::createWithSpriteFrameName("GJ_colorBtn_001.png")->getContentWidth();
-    m_availableBtnCount = std::floor((maxWidth + 5)/ (btnWidth + 5));
+    m_availableBtnCount = std::floor((maxWidth + 5.f)/ (btnWidth + 5.f));
 
-    m_colorsMenu->setContentSize({maxWidth, 30});
+    m_colorsMenu->setContentSize({maxWidth, 30.f});
 
     m_buttons.clear();
     m_colorsMenu->removeAllChildren();
@@ -84,6 +85,8 @@ void LCEditorUI::showUI(bool show) {
 void LCEditorUI::checkColors(float dt) {
     std::set<int> activeColors;
 
+    using namespace tinker::constants::color_channels;
+
     auto module = LiveColors::get();
 
     for (auto btn : module->m_buttons) {
@@ -108,7 +111,7 @@ void LCEditorUI::checkColors(float dt) {
     int count = 0;
     for (auto action : m_editorLayer->m_effectManager->m_colorActionSpriteVector) {
         static const std::unordered_set<int> invalidColorIDs = {
-            1005, 1006, 1010, 1011, 1012
+            PlayerColor1, PlayerColor2, Black, White, Lighter
         };
 
         if (!action || action->m_colorID <= 0 || invalidColorIDs.count(action->m_colorID)) continue;
@@ -132,12 +135,12 @@ void LCEditorUI::checkColors(float dt) {
     }
     module->m_lastBtnCount = count;
 
-    float heightOffset = m_toolbarHeight;
+    float heightOffset = tinker::utils::getToolbarHeight();
 
     if (m_tabsMenu && m_tabsMenu->isVisible()) {
-        heightOffset = m_toolbarHeight + m_tabsMenu->getScaledContentHeight();
+        heightOffset += m_tabsMenu->getScaledContentHeight();
     }
 
     auto fields = m_fields.self();
-    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0) + 5 * m_positionSlider->getScale());
+    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0.f) + 5.f * m_positionSlider->getScale());
 }

@@ -28,11 +28,11 @@ protected:
 
         int precision = 0;
         if constexpr (std::is_floating_point_v<T>) {
-            slice->setContentSize({35, 20});
+            slice->setContentSize({35.f, 20.f});
             precision = 2;
         }
         else {
-            slice->setContentSize({20, 20});
+            slice->setContentSize({20.f, 20.f});
         }
 
         slice->setScaleMultiplier(0.6f);

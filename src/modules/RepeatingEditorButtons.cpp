@@ -40,7 +40,7 @@ void REBCCMenuItemSpriteExtra::selected() {
 
     auto fields = m_fields.self();
     if (fields->m_repeatable) {
-        schedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold), RepeatingEditorButtons::getSetting<int, "repeat-rate">()/1000.f, kCCRepeatForever, RepeatingEditorButtons::getSetting<int, "repeat-delay">()/1000.f);
+        schedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold), RepeatingEditorButtons::getSetting<int, "repeat-rate">() / 1000.f, kCCRepeatForever, RepeatingEditorButtons::getSetting<int, "repeat-delay">() / 1000.f);
     }
 }
 

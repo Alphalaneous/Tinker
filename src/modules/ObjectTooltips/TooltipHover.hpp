@@ -8,9 +8,9 @@ using namespace alpha::prelude;
 
 namespace tinker::ui {
     #ifdef GEODE_IS_DESKTOP
-    static constexpr float HEIGHT_OFFSET = 5.f;
+    constexpr float HeightOffset = 5.f;
     #else
-    static constexpr float HEIGHT_OFFSET = 15.f;
+    constexpr float HeightOffset = 15.f;
     #endif
 
     class TooltipHover : public CCNode, public TouchDelegate {

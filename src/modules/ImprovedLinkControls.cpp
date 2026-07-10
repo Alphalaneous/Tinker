@@ -6,7 +6,7 @@ void ImprovedLinkControls::onEditor() {
     auto zoomMenu = m_editorUI->getChildByID("zoom-menu");
     auto linkMenu = m_editorUI->getChildByID("link-menu");
     linkMenu->setContentSize({ 125.f, zoomMenu->getContentHeight() + 29.f });
-    linkMenu->setPosition({linkMenu->getPositionX() - 5, zoomMenu->getPositionY()});
+    linkMenu->setPosition({linkMenu->getPositionX() - 5.f, zoomMenu->getPositionY()});
     static_cast<AxisLayout*>(linkMenu->getLayout())->setGap(3.f);
     linkMenu->updateLayout();
     

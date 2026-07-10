@@ -1,4 +1,6 @@
 #include "Utils.hpp"
+#include "modules/UIScaling.hpp"
+#include "utils/Constants.hpp"
 
 namespace tinker::utils {
 
@@ -13,7 +15,9 @@ namespace tinker::utils {
     std::pair<std::string, std::string> splitIntoPair(const std::string& str) {
         auto split = geode::utils::string::split(str, ":");
         auto& key = split[0];
-        if (split.size() < 2) return {key, ""};
+        if (split.size() < 2) {
+            return {key, ""};
+        }
         auto value = str.substr(key.size() + 1);
 
         return {key, value};
@@ -93,16 +97,32 @@ namespace tinker::utils {
         return result;
     }
 
+    float getToolbarHeight() {
+        float height = tinker::constants::ToolbarHeight;
+        if (UIScaling::isEnabled() && UIScaling::shouldScaleToolbar()) {
+            height *= UIScaling::getUIScale();
+        }
+
+        return height;
+    }
+
     bool isColorable(GameObject* object) {
-        const auto type = object->m_objectType;
-        const auto id = object->m_objectID;
+        using namespace tinker::constants::objects;
 
         static const std::unordered_set<int> allowedIDs = {
-            3027, 1594
+            TeleportOrb, 
+            ToggleOrb
         };
 
         static const std::unordered_set<int> disallowedIDs = {
-            2069, 3645, 3032, 2016, 1816, 3642, 3643, 2064
+            ForceBlock, 
+            ForceCircle, 
+            KeyframePoint, 
+            CameraGuide, 
+            CollisionBlock, 
+            BPMTrigger, 
+            PlayerTouchToggle, 
+            OrangeTeleportPortal
         };
 
         static const std::unordered_set<GameObjectType> disallowedTypes = {
@@ -142,26 +162,27 @@ namespace tinker::utils {
             GameObjectType::UserCoin
         };
 
-        if (allowedIDs.contains(id)) return true;
-        if (disallowedIDs.contains(id)) return false;
+        if (allowedIDs.contains(object->m_objectID)) return true;
+        if (disallowedIDs.contains(object->m_objectID)) return false;
         if (object->isTrigger() || object->isSpeedObject()) return false;
-        if (disallowedTypes.contains(type)) return false;
+        if (disallowedTypes.contains(object->m_objectType)) return false;
 
         return true;
     }
 
     ColorData getActiveColor(LevelEditorLayer* editorLayer, int colorID) {
+        using namespace tinker::constants::color_channels;
         for (ColorActionSprite* action : editorLayer->m_effectManager->m_colorActionSpriteVector) {
             if (!action) continue;
             if (action->m_colorID != colorID || action->m_colorID <= 0) continue;
 
             ccColor3B color = action->m_color;
 
-            if (colorID == 1005) color = GameManager::get()->colorForIdx(GameManager::get()->m_playerColor.value());
-            if (colorID == 1006) color = GameManager::get()->colorForIdx(GameManager::get()->m_playerColor2.value());
+            if (colorID == PlayerColor1) color = GameManager::get()->colorForIdx(GameManager::get()->m_playerColor.value());
+            if (colorID == PlayerColor2) color = GameManager::get()->colorForIdx(GameManager::get()->m_playerColor2.value());
 
-            if (colorID == 1010) color = {0, 0, 0};
-            if (colorID == 1011) color = {255, 255, 255};
+            if (colorID == Black) color = {0, 0, 0};
+            if (colorID == White) color = {255, 255, 255};
 
             for (auto& pulse : editorLayer->m_effectManager->m_pulseEffectVector) {
                 if (pulse.m_targetGroupID == action->m_colorID) {
@@ -182,6 +203,8 @@ namespace tinker::utils {
     }
 
     void updateCreateButtonColor(LevelEditorLayer* levelEditorLayer, CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
+        using namespace tinker::constants;
+        
         auto baseColorData = getActiveColor(levelEditorLayer, color1ID);
         auto detailColorData = getActiveColor(levelEditorLayer, color2ID);
 
@@ -201,7 +224,7 @@ namespace tinker::utils {
                             baseColor->m_colorID = baseColor->m_defaultColorID;
                             baseColorDataObj = getActiveColor(levelEditorLayer, baseColor->m_colorID);
                             blending = false;
-                            baseColor->m_hsv = ccHSVValue{0, 1, 1, false, false};
+                            baseColor->m_hsv = ccHSVValue{0.f, 1.f, 1.f, false, false};
                             baseColor->m_opacity = 1.f;
                         }
                         else {
@@ -213,7 +236,7 @@ namespace tinker::utils {
 
                         auto color = baseColorDataObj.color;
 
-                        if (color1ID == 0 && baseColor->m_colorID != 1010) {
+                        if (color1ID == 0 && baseColor->m_colorID != color_channels::Black) {
                             color = ccColor3B{255, 255, 255};
                         }
 
@@ -243,8 +266,7 @@ namespace tinker::utils {
                             }
                         }
 
-                        const auto& id = gameObject->m_objectID;
-                        if (id == 1701 || id == 1702 || id == 1703) {
+                        if (gameObject->m_objectID == objects::SpikedSquareHazard || gameObject->m_objectID == objects::SpikedCircleHazard || gameObject->m_objectID == objects::TriangleHazard) {
                             for (auto child : gameObject->getChildrenExt()) {
                                 if (child->getChildrenCount() == 0) {
                                     if (auto spr = typeinfo_cast<CCSprite*>(child)) {
@@ -256,7 +278,9 @@ namespace tinker::utils {
 
                         gameObject->setBlendFunc(blend);
 
-                        if (baseColor->m_usesHSV) color = GameToolbox::transformColor(color, baseColor->m_hsv);
+                        if (baseColor->m_usesHSV) {
+                            color = GameToolbox::transformColor(color, baseColor->m_hsv);
+                        }
                         gameObject->updateMainColor(color);
                     }
                     if (auto detailColor = gameObject->m_detailColor) {
@@ -266,7 +290,7 @@ namespace tinker::utils {
                             detailColor->m_colorID = detailColor->m_defaultColorID;
                             detailColorDataObj = getActiveColor(levelEditorLayer, detailColor->m_colorID);
                             blending = false;
-                            detailColor->m_hsv = ccHSVValue{0, 1, 1, false, false};
+                            detailColor->m_hsv = ccHSVValue{0.f, 1.f, 1.f, false, false};
                             detailColor->m_opacity = 1.f;
                         }
                         else {
@@ -278,7 +302,7 @@ namespace tinker::utils {
 
                         auto color = detailColorDataObj.color;
 
-                        if (color2ID == 0 && detailColor->m_colorID != 1010) {
+                        if (color2ID == 0 && detailColor->m_colorID != color_channels::Black) {
                             color = ccColor3B{200, 200, 255};
                         }
 
@@ -313,8 +337,7 @@ namespace tinker::utils {
                             }
                         }
                         else {
-                            const auto& id = gameObject->m_objectID;
-                            if (id == 1701 || id == 1702 || id == 1703) {
+                            if (gameObject->m_objectID == objects::SpikedSquareHazard || gameObject->m_objectID == objects::SpikedCircleHazard || gameObject->m_objectID == objects::TriangleHazard) {
                                 for (auto child : gameObject->getChildrenExt()) {
                                     if (child->getChildrenCount() > 0) {
                                         applyBlend(child);
@@ -333,7 +356,9 @@ namespace tinker::utils {
                             spr->setBlendFunc(blend);
                         }
 
-                        if (detailColor->m_usesHSV) color = GameToolbox::transformColor(color, detailColor->m_hsv);
+                        if (detailColor->m_usesHSV) {
+                            color = GameToolbox::transformColor(color, detailColor->m_hsv);
+                        }
                         gameObject->updateSecondaryColor(color);
                     }
                     gameObject->setOpacity(255);
@@ -343,13 +368,9 @@ namespace tinker::utils {
     }
 
     namespace color {
-        constexpr float clamp01(float v) {
-            return std::clamp(v, 0.0f, 1.0f);
-        }
-
         float wrapDegrees(float h) {
-            h = std::fmod(h, 360.0f);
-            if (h < 0.0f) h += 360.0f;
+            h = std::fmod(h, 360.f);
+            if (h < 0.f) h += 360.f;
             return h;
         }
 
@@ -361,62 +382,77 @@ namespace tinker::utils {
             HSV out{};
             out.v = max;
 
-            if (max == 0.0f) {
-                out.s = 0.0f;
-                out.h = 0.0f;
+            if (max == 0.f) {
+                out.s = 0.f;
+                out.h = 0.f;
                 return out;
             }
 
             out.s = delta / max;
 
-            if (delta == 0.0f) {
-                out.h = 0.0f;
-            } else if (max == in.r) {
-                out.h = 60.0f * std::fmod((in.g - in.b) / delta, 6.0f);
-            } else if (max == in.g) {
-                out.h = 60.0f * (((in.b - in.r) / delta) + 2.0f);
-            } else {
-                out.h = 60.0f * (((in.r - in.g) / delta) + 4.0f);
+            if (delta == 0.f) {
+                out.h = 0.f;
+            } 
+            else if (max == in.r) {
+                out.h = 60.f * std::fmod((in.g - in.b) / delta, 6.f);
+            } 
+            else if (max == in.g) {
+                out.h = 60.f * (((in.b - in.r) / delta) + 2.f);
+            } 
+            else {
+                out.h = 60.f * (((in.r - in.g) / delta) + 4.f);
             }
 
-            if (out.h < 0.0f) out.h += 360.0f;
+            if (out.h < 0.f) out.h += 360.f;
             return out;
         }
 
         RGB hsvToRgb(HSV in) {
             const float c = in.v * in.s;
-            const float hPrime = in.h / 60.0f;
-            const float x = c * (1.0f - std::fabs(std::fmod(hPrime, 2.0f) - 1.0f));
+            const float hPrime = in.h / 60.f;
+            const float x = c * (1.f - std::fabs(std::fmod(hPrime, 2.f) - 1.f));
             const float m = in.v - c;
 
-            float r1 = 0.0f, g1 = 0.0f, b1 = 0.0f;
+            float r1 = 0.f, g1 = 0.f, b1 = 0.f;
 
-            if (hPrime < 1.0f)       { r1 = c; g1 = x; }
-            else if (hPrime < 2.0f)  { r1 = x; g1 = c; }
-            else if (hPrime < 3.0f)  { g1 = c; b1 = x; }
-            else if (hPrime < 4.0f)  { g1 = x; b1 = c; }
-            else if (hPrime < 5.0f)  { r1 = x; b1 = c; }
-            else                     { r1 = c; b1 = x; }
+            if (hPrime < 1.f) { 
+                r1 = c; g1 = x; 
+            }
+            else if (hPrime < 2.f) { 
+                r1 = x; g1 = c; 
+            }
+            else if (hPrime < 3.f) { 
+                g1 = c; b1 = x; 
+            }
+            else if (hPrime < 4.f) { 
+                g1 = x; b1 = c; 
+            }
+            else if (hPrime < 5.f) { 
+                r1 = x; b1 = c; 
+            }
+            else { 
+                r1 = c; b1 = x; 
+            }
 
-            return { r1 + m, g1 + m, b1 + m };
+            return {r1 + m, g1 + m, b1 + m};
         }
 
         cocos2d::ccColor4B hueShift(cocos2d::ccColor4B color, float shiftDegrees) {
-            RGB rgb {
-                color.r / 255.0f,
-                color.g / 255.0f,
-                color.b / 255.0f
+            auto rgb = RGB{
+                color.r / 255.f,
+                color.g / 255.f,
+                color.b / 255.f
             };
 
-            HSV hsv = rgbToHsv(rgb);
+            auto hsv = rgbToHsv(rgb);
             hsv.h = wrapDegrees(hsv.h + shiftDegrees);
 
             RGB out = hsvToRgb(hsv);
 
             return cocos2d::ccColor4B{
-                static_cast<std::uint8_t>(clamp01(out.r) * 255.0f),
-                static_cast<std::uint8_t>(clamp01(out.g) * 255.0f),
-                static_cast<std::uint8_t>(clamp01(out.b) * 255.0f),
+                static_cast<std::uint8_t>(std::clamp(out.r, 0.f, 1.f) * 255.f),
+                static_cast<std::uint8_t>(std::clamp(out.g, 0.f, 1.f) * 255.f),
+                static_cast<std::uint8_t>(std::clamp(out.b, 0.f, 1.f) * 255.f),
                 color.a
             };
         }

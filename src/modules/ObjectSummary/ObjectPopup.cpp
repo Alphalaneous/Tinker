@@ -17,13 +17,13 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     );
 
     setTitle("Object Summary");
-    m_title->limitLabelWidth(m_mainLayer->getContentSize().width - 50, .7f, .1f);
+    m_title->limitLabelWidth(m_mainLayer->getContentSize().width - 50.f, 0.7f, 0.1f);
     m_title->setID("title"_spr);
 
     m_uniqueLabel = CCLabelBMFont::create("0 unique objects", "bigFont.fnt");
     m_uniqueLabel->setScale(0.25f);
     m_uniqueLabel->setOpacity(127);
-    m_uniqueLabel->setAnchorPoint({1, 0.5});
+    m_uniqueLabel->setAnchorPoint({1.f, 0.5f});
     m_uniqueLabel->setID("unique-label"_spr);
 
     m_mainLayer->addChildAtPosition(
@@ -35,7 +35,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     generateList(m_sortOptions);
 
     m_sortButtons = CCMenu::create();
-    m_sortButtons->setContentSize({30, m_mainLayer->getContentHeight()});
+    m_sortButtons->setContentSize({30.f, m_mainLayer->getContentHeight()});
     m_sortButtons->setScale(0.7f);
     m_sortButtons->setID("sort-menu"_spr);
 
@@ -51,7 +51,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     m_sortButtons->addChild(sortToggler);
 
     auto emptyDivider = CCNode::create();
-    emptyDivider->setContentSize({1, 5});
+    emptyDivider->setContentSize({1.f, 5.f});
     emptyDivider->setID("divider"_spr);
 
     m_sortButtons->addChild(emptyDivider);
@@ -68,17 +68,17 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     m_mainLayer->addChildAtPosition(
         m_sortButtons,
         Anchor::Left,
-        { 24.0f, -5.0f }
+        { 24.f, -5.f }
     );
 
     m_mainLayer->setID("main-layer"_spr);
 
-    auto hideToggle = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(ObjectPopup::onShowHidden), 1);
+    auto hideToggle = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(ObjectPopup::onShowHidden), 1.f);
     hideToggle->toggle(true);
     hideToggle->setID("hide-toggler"_spr);
 
     auto hideMenu = CCMenu::create();
-    hideMenu->setContentSize({35, 35});
+    hideMenu->setContentSize({35.f, 35.f});
     hideMenu->setScale(0.5f);
     hideMenu->setID("hide-menu"_spr);
 
@@ -91,17 +91,17 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     m_mainLayer->addChildAtPosition(
         hideMenu,
         Anchor::BottomLeft,
-        { 24.0f, 20.0f }
+        { 24.f, 20.f }
     );
 
     auto countHiddenLabel = CCLabelBMFont::create("Count Hidden", "bigFont.fnt");
     countHiddenLabel->setScale(0.25f);
     countHiddenLabel->setID("count-hidden-label"_spr);
-    countHiddenLabel->setAnchorPoint({0, 0.5});
+    countHiddenLabel->setAnchorPoint({0.f, 0.5f});
     m_mainLayer->addChildAtPosition(
         countHiddenLabel,
         Anchor::BottomLeft,
-        { 36.0f, 20.5f }
+        { 36.f, 20.5f }
     );
 
     return true;
@@ -133,11 +133,11 @@ CCMenuItemToggler* ObjectPopup::createToggler(const std::string& spr, cocos2d::S
         offSprStr = "GJ_button_02.png";
     }
 
-    auto on = ButtonSprite::create(onSpr, 30, true, 30, onSprStr.c_str(), scale);
-    auto off = ButtonSprite::create(offSpr, 30, true, 30, offSprStr.c_str(), scale);
+    auto on = ButtonSprite::create(onSpr, 30, true, 30.f, onSprStr.c_str(), scale);
+    auto off = ButtonSprite::create(offSpr, 30, true, 30.f, offSprStr.c_str(), scale);
 
-    onSpr->setPosition({on->getContentSize().width/2, on->getContentSize().height/2});
-    offSpr->setPosition({off->getContentSize().width/2, off->getContentSize().height/2});
+    onSpr->setPosition({on->getContentSize().width / 2.f, on->getContentSize().height / 2.f});
+    offSpr->setPosition({off->getContentSize().width / 2.f, off->getContentSize().height / 2.f});
 
     return CCMenuItemToggler::create(on, off, this, selector);
 }
@@ -200,7 +200,7 @@ void ObjectPopup::generateList(const SortOptions& sortOptions) {
     m_mainLayer->addChildAtPosition(
         m_objectList,
         Anchor::Center,
-        {15.0f, -5.0f }
+        {15.f, -5.f }
     );
 
     std::string text;

@@ -74,14 +74,14 @@ void MCLEditorUI::lockCamera(float dt) {
         x = m_editorLayer->m_objectLayer->getPositionX();
     }
     else {
-        x = -((dgl->m_playbackX) * scale - winSize.width / 4);
+        x = -((dgl->m_playbackX) * scale - winSize.width / 4.f);
     }
 
     if (dgl->m_playbackY == 0) {
         y = m_editorLayer->m_objectLayer->getPositionY();
     }
     else {
-        y = -((dgl->m_playbackY) * scale - winSize.height / 2 - m_toolbarHeight / 2);
+        y = -((dgl->m_playbackY) * scale - winSize.height / 2.f - tinker::utils::getToolbarHeight() / 2.f);
     }
 
     m_editorLayer->m_objectLayer->setPosition(CCPoint{x, y});

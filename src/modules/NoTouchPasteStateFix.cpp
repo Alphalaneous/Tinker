@@ -10,16 +10,14 @@ void NoTouchPasteStateFix::fixNoTouch(GameObject* object, CCArray* objects) {
         objects = CCArray::createWithObject(object);
     }
 
-    auto lel = LevelEditorLayer::get();
-
     for (auto obj : CCArrayExt<GameObject, false>(objects)) {
         if (obj->m_isNoTouch) {
-            lel->removeObjectFromSection(obj);
+            m_editorLayer->removeObjectFromSection(obj);
 
             obj->setType(obj->m_savedObjectType);
             obj->saveActiveColors();
 
-            lel->addToSection(obj);
+            m_editorLayer->addToSection(obj);
         }
     }
 }
@@ -32,6 +30,8 @@ void NTPSFEditorUI::onPasteState(cocos2d::CCObject* sender) {
 class $nodeModify(PasteStatePopup) {
 
     void modify() {
+        if (!NoTouchPasteStateFix::isEnabled()) return;
+
         addOnExitCallback([] {
             auto editorUI = EditorUI::get();
             if (!editorUI) return;

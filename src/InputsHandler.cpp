@@ -1,5 +1,4 @@
 #include "InputsHandler.hpp"
-#include "modules/UIScaling.hpp"
 #include "modules/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
@@ -12,6 +11,8 @@
 #include <geode.devtools/include/API.hpp>
 
 using namespace alpha::prelude;
+
+namespace tinker::ui {
 
 TouchForward* TouchForward::create(EditorUI* editorUI) {
     auto ret = new TouchForward();
@@ -36,6 +37,9 @@ bool TouchForward::init(EditorUI* editorUI) {
         CCTouchDispatcher::get()->removeDelegate(m_editorUI);
     });
 
+    registerTouch<CanvasRotate>(2);
+    registerTouch<InputEditorUI>(1);
+
     return true;
 }
 
@@ -45,71 +49,52 @@ void TouchForward::registerWithTouchDispatcher() {
 
 bool TouchForward::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     m_touches.insert(touch);
-    if (CanvasRotate::isEnabled()) {
-        return CanvasRotate::get()->onTouchBegan(touch, [this] (CCTouch* touch) -> bool {
-            return InputEditorUI::get()->onTouchBegan(touch, [this] (CCTouch* touch) -> bool {
-                return m_editorUI->ccTouchBegan(touch, nullptr);
-            });
-        });
-    }
-    else {
-        return InputEditorUI::get()->onTouchBegan(touch, [this] (CCTouch* touch) -> bool {
-            return m_editorUI->ccTouchBegan(touch, nullptr);
-        });
-    }
+
+    return dispatch(0, touch,
+        [] (auto& h) -> auto& { return h.beganCallback; },
+        [this] (CCTouch* t) {
+            return m_editorUI->ccTouchBegan(t, nullptr);
+        }
+    );
 }
 
 void TouchForward::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    if (CanvasRotate::isEnabled()) {
-        CanvasRotate::get()->onTouchMoved(touch, [this] (CCTouch* touch) {
-            InputEditorUI::get()->onTouchMoved(touch, [this] (CCTouch* touch) {
-                m_editorUI->ccTouchMoved(touch, nullptr);
-            });
-        });
-    }
-    else {
-        InputEditorUI::get()->onTouchMoved(touch, [this] (CCTouch* touch) {
-            m_editorUI->ccTouchMoved(touch, nullptr);
-        });
-    }
+    dispatch(0, touch,
+        [] (auto& h) -> auto& { return h.movedCallback; },
+        [this] (CCTouch* t) {
+            return m_editorUI->ccTouchMoved(t, nullptr);
+        }
+    );
 }
 
 void TouchForward::ccTouchEnded(CCTouch* touch, CCEvent* event) {
     m_touches.erase(touch);
-    if (CanvasRotate::isEnabled()) {
-        CanvasRotate::get()->onTouchEnded(touch, [this] (CCTouch* touch) {
-            InputEditorUI::get()->onTouchEnded(touch, [this] (CCTouch* touch) {
-                m_editorUI->ccTouchEnded(touch, nullptr);
-            });
-        });
-    }
-    else {
-        InputEditorUI::get()->onTouchEnded(touch, [this] (CCTouch* touch) {
-            m_editorUI->ccTouchEnded(touch, nullptr);
-        });
-    }
+
+    dispatch(0, touch,
+        [] (auto& h) -> auto& { return h.endedCallback; },
+        [this] (CCTouch* t) {
+            return m_editorUI->ccTouchEnded(t, nullptr);
+        }
+    );
 }
 
 void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
     m_touches.erase(touch);
-    if (CanvasRotate::isEnabled()) {
-        CanvasRotate::get()->onTouchCancelled(touch, [this] (CCTouch* touch) {
-            InputEditorUI::get()->onTouchCancelled(touch, [this] (CCTouch* touch) {
-                m_editorUI->ccTouchCancelled(touch, nullptr);
-            });
-        });
-    }
-    else {
-        InputEditorUI::get()->onTouchCancelled(touch, [this] (CCTouch* touch) {
-            m_editorUI->ccTouchCancelled(touch, nullptr);
-        });
-    }
+
+    dispatch(0, touch,
+        [] (auto& h) -> auto& { return h.cancelledCallback; },
+        [this] (CCTouch* t) {
+            return m_editorUI->ccTouchCancelled(t, nullptr);
+        }
+    );
 }
 
 void TouchForward::cancelAllTouches() {
     for (const auto& touch : m_touches) {
         ccTouchCancelled(touch, nullptr);
     }
+}
+
 }
 
 void InputAppDelegate::applicationDidEnterBackground() {
@@ -119,8 +104,7 @@ void InputAppDelegate::applicationDidEnterBackground() {
         return;
     }
 
-    TouchForward::get()->cancelAllTouches();
-
+    tinker::ui::TouchForward::get()->cancelAllTouches();
     AppDelegate::applicationDidEnterBackground();
 }
 
@@ -269,7 +253,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         editorLayer->m_objectLayer->setPosition({0, 90});
     }
 
-    fields->m_forward = TouchForward::create(this);
+    fields->m_forward = tinker::ui::TouchForward::create(this);
     editorLayer->addChild(fields->m_forward);
 
     return true;
@@ -573,21 +557,6 @@ CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
     return touch->getLocation();
 }
 
-float InputEditorUI::getToolbarHeight() {
-    if (CanvasRotate::isEnabled()) {
-        auto height = CanvasRotate::get()->getRealToolbarHeight();
-        if (height == 0) height = m_toolbarHeight;
-        if (height == INT_MIN) {
-            height = 92;
-            if (UIScaling::isEnabled() && UIScaling::shouldScaleToolbar()) {
-                height *= UIScaling::getUIScale();
-            }
-        }
-        return height;
-    }
-    return m_toolbarHeight;
-}
-
 bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
     auto fields = m_fields.self();
 
@@ -603,7 +572,7 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touch);
-        if (mainPos.y <= getToolbarHeight()) {
+        if (mainPos.y <= tinker::utils::getToolbarHeight()) {
             if (m_editorLayer->m_playbackMode != PlaybackMode::Playing || m_playbackBtn->isVisible()) return false;
 
             m_editorLayer->m_uiLayer->ccTouchBegan(touch, nullptr);

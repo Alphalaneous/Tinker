@@ -1,4 +1,5 @@
 #include "ScaleSlider.hpp"
+#include "modules/ImprovedControls/ImprovedControls.hpp"
 
 using namespace tinker::ui;
 
@@ -17,8 +18,12 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
         CCSprite::create("GJ_moveBtn.png"),
         CCSprite::create("GJ_moveSBtn.png"),
         NineSlice::create("geode.loader/slider-groove-2.png"),
-        nullptr,
+        "sliderBar.png",
         [this, callback = std::move(callback)] (SliderNode* sender, float value) mutable {
+            auto scale = m_scaleControl->scaleFromValue(value);
+            if (scale > 0.97f && scale < 1.03f) {
+                value = static_cast<ICGJScaleControl*>(m_scaleControl)->trueValueFromScale(1);
+            }
             updateExtendedGroove();
             if (m_skipCallback) return;
             if (callback) callback(static_cast<ScaleSlider*>(sender), value);
@@ -29,7 +34,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
     setMin(0.f);
     setMax(1.f);
     getBar()->setVisible(false);
-    setContentWidth(210);
+    setContentWidth(210.f);
     setSliderBypass(true);
 
     m_scaleControl = control;
@@ -62,7 +67,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
 
 void ScaleSlider::updateExtendedGroove() {
     auto percent = getPercent();
-    if (percent < 0) {
+    if (percent < 0.f) {
         m_extendedGroove->setAnchorPoint({1.f, 0.5f});
         m_extendedGroove->setContentWidth(getGroove()->getContentWidth() * (1 - percent));
         m_extendedGroove->setPositionX(getGroove()->getContentWidth());
@@ -75,14 +80,14 @@ void ScaleSlider::updateExtendedGroove() {
     else {
         m_extendedGroove->setAnchorPoint({0.f, 0.5f});
         m_extendedGroove->setContentWidth(getGroove()->getContentWidth() * percent);
-        m_extendedGroove->setPositionX(0);
+        m_extendedGroove->setPositionX(0.f);
         m_extendedGroove->setColor({127, 255, 127});
 
         m_snapPointContainer->setAnchorPoint({0.f, 0.5f});
         m_snapPointContainer->setContentSize(m_extendedGroove->getContentSize());
-        m_snapPointContainer->setPositionX(0);
+        m_snapPointContainer->setPositionX(0.f);
     }
-    m_extendedGroove->setVisible(percent < 0 || percent > 1);
+    m_extendedGroove->setVisible(percent < 0.f || percent > 1.f);
     updateSnap(m_snap);
 }
 
@@ -108,21 +113,21 @@ void ScaleSlider::updateSnap(float snap) {
 
     m_snap = snap;
 
-    auto rightGrooveEdgeWorld = convertToWorldSpace({getGroove()->getContentWidth() - 1.f, 0});
+    auto rightGrooveEdgeWorld = convertToWorldSpace({getGroove()->getContentWidth() - 1.f, 0.f});
     auto rightGrooveEdgeInContainer = m_snapPointContainer->convertToNodeSpace(rightGrooveEdgeWorld);
 
-    auto rightEdgeWorld = convertToWorldSpace({std::max(getGroove()->getContentWidth(), getGroove()->getContentWidth() * getPercent()) - 1.f, 0});
+    auto rightEdgeWorld = convertToWorldSpace({std::max(getGroove()->getContentWidth(), getGroove()->getContentWidth() * getPercent()) - 1.f, 0.f});
     auto rightEdgeInContainer = m_snapPointContainer->convertToNodeSpace(rightEdgeWorld);
 
     int i = 1;
     while (true) {
         auto value = (i - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0});
+        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0.f});
         auto posInContainer = m_snapPointContainer->convertToNodeSpace(posWorld);
 
         for (int j = 1; j < m_snap; j++) {
             auto smallValue = (i + (j * (1 / m_snap)) - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0});
+            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0.f});
             auto smallPosInContainer = m_snapPointContainer->convertToNodeSpace(smallPosWorld);
 
             if (smallPosInContainer.x > rightEdgeInContainer.x) {
@@ -137,11 +142,11 @@ void ScaleSlider::updateSnap(float snap) {
                 spr->setColor({127, 255, 127});
                 spr->setOpacity(52);
                 auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(smallPosWorld);
-                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2});
+                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
                 m_extendedGroove->addChild(spr);
             }
             else {
-                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2});
+                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
                 m_snapPointContainer->addChild(spr);
             }
         }
@@ -158,11 +163,11 @@ void ScaleSlider::updateSnap(float snap) {
             spr->setColor({127, 255, 127});
             spr->setOpacity(127);
             auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(posWorld);
-            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2});
+            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
             m_extendedGroove->addChild(spr);
         }
         else {
-            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2});
+            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
             m_snapPointContainer->addChild(spr);
         }
 
@@ -170,21 +175,21 @@ void ScaleSlider::updateSnap(float snap) {
         if (i > 100) break;
     }
 
-    auto leftGrooveEdgeWorld = convertToWorldSpace({1.f, 0});
+    auto leftGrooveEdgeWorld = convertToWorldSpace({1.f, 0.f});
     auto leftGrooveEdgeInContainer = m_snapPointContainer->convertToNodeSpace(leftGrooveEdgeWorld);
 
-    auto leftEdgeWorld = convertToWorldSpace({std::min(0.f, getGroove()->getContentWidth() * getPercent()) + 1.f, 0});
+    auto leftEdgeWorld = convertToWorldSpace({std::min(0.f, getGroove()->getContentWidth() * getPercent()) + 1.f, 0.f});
     auto leftEdgeInContainer = m_snapPointContainer->convertToNodeSpace(leftEdgeWorld);
 
     i = 1;
     while (true) {
         auto value = (i - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0});
+        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0.f});
         auto posInContainer = m_snapPointContainer->convertToNodeSpace(posWorld);
 
         for (int j = 1; j < m_snap; j++) {
-            auto smallValue = (i - (j * (1 / m_snap)) - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0});
+            auto smallValue = (i - (j * (1.f / m_snap)) - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
+            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0.f});
             auto smallPosInContainer = m_snapPointContainer->convertToNodeSpace(smallPosWorld);
 
             if (smallPosInContainer.x < leftEdgeInContainer.x) {
@@ -199,11 +204,11 @@ void ScaleSlider::updateSnap(float snap) {
                 spr->setColor({255, 127, 127});
                 spr->setOpacity(52);
                 auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(smallPosWorld);
-                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2});
+                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
                 m_extendedGroove->addChild(spr);
             }
             else {
-                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2});
+                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
                 m_snapPointContainer->addChild(spr);
             }
         }
@@ -225,11 +230,11 @@ void ScaleSlider::updateSnap(float snap) {
             spr->setOpacity(127);
 
             auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(posWorld);
-            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2});
+            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
             m_extendedGroove->addChild(spr);
         } 
         else {
-            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2});
+            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
             m_snapPointContainer->addChild(spr);
         }
 

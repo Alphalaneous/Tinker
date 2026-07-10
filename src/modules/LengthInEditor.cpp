@@ -12,13 +12,13 @@ bool LengthInEditor::onToggled(bool state) {
 
         auto winSize = CCDirector::get()->getWinSize();
         auto undoMenu = m_editorUI->getChildByID("undo-menu");
-        float scale = 1;
+        float scale = 1.f;
         if (undoMenu) {
             scale = undoMenu->getScale();
         }
 
         auto objectInfoLabel = m_editorUI->getChildByID("object-info-label");
-        objectInfoLabel->setPosition({objectInfoLabel->getPositionX(), winSize.height - 50 * scale});
+        objectInfoLabel->setPosition({objectInfoLabel->getPositionX(), winSize.height - 50.f * scale});
     }
     return true;
 }
@@ -34,7 +34,7 @@ void LengthInEditor::onEditor() {
     auto scale = playbackMenu->getScale();
 
     m_lengthContainer = CCNode::create();
-    m_lengthContainer->setContentSize({80, 36});
+    m_lengthContainer->setContentSize({80.f, 36.f});
     m_lengthContainer->setAnchorPoint({0.f, 1.f});
     m_lengthContainer->setID("length-container"_spr);
 
@@ -42,13 +42,13 @@ void LengthInEditor::onEditor() {
 
     auto lengthLabel = CCLabelBMFont::create("Length", "bigFont.fnt");
     lengthLabel->setAnchorPoint({0.5f, 1.f});
-    lengthLabel->setPosition({m_lengthContainer->getContentWidth() / 2, m_lengthContainer->getContentHeight() - 2});
+    lengthLabel->setPosition({m_lengthContainer->getContentWidth() / 2, m_lengthContainer->getContentHeight() - 2.f});
     lengthLabel->setScale(0.5f);
     lengthLabel->setID("length-label"_spr);
 
     m_timeLabel = CCLabelBMFont::create("1s", "chatFont.fnt");
     m_timeLabel->setAnchorPoint({0.5f, 0.f});
-    m_timeLabel->setPosition({m_lengthContainer->getContentWidth() / 2, 2});
+    m_timeLabel->setPosition({m_lengthContainer->getContentWidth() / 2.f, 2.f});
 
     m_timeLabel->setID("time-label"_spr);
 
@@ -88,25 +88,25 @@ void LengthInEditor::updateScale(float scale) {
 
         if (UIScaling::isEnabled()) {
             if (!UIScaling::getSetting<bool, "top-align">() && UIScaling::getSetting<float, "scale">() <= 0.85f) {
-                m_lengthContainer->setPosition(CCPoint{6 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale} + UIScaling::getSafeOffset());
+                m_lengthContainer->setPosition(CCPoint{6.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
                 return;
             }
         }
 
-        m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2 * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2 - 6 * scale} + UIScaling::getSafeOffset());
+        m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
 
         if (auto objectInfoLabel = m_editorUI->getChildByID("object-info-label")) {
-            objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10 * scale);
+            objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
         }
     }));
 }
 
 std::string LengthInEditor::getTime(float x) {
-    auto point = CCPoint{x + 340, 0};
+    auto point = CCPoint{x + 340.f, 0.f};
     
     int seconds = LevelTools::timeForPos(point, m_editorLayer->m_drawGridLayer->m_speedObjects, (int)m_editorLayer->m_levelSettings->m_startSpeed, 0, 0, 0, 0, 0, 0, 0);
     int timestamp = m_editorLayer->m_level->m_timestamp;
-    float time = timestamp/240.0f;
+    float time = timestamp / 240.0f;
     if (timestamp > 0 && seconds < time) {
         seconds = time;
     }

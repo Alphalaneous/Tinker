@@ -13,6 +13,7 @@ namespace tinker::utils {
 		GLubyte opacity;
 	};
 
+    float getToolbarHeight();
     bool isColorable(GameObject* object);
     ColorData getActiveColor(LevelEditorLayer* editorLayer, int colorID);
     void updateCreateButtonColor(LevelEditorLayer* levelEditorLayer, CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2);
@@ -65,7 +66,7 @@ namespace tinker::utils {
     }
 
     template<class S, geode::utils::string::ConstexprString key>
-    S getSetting() {
+    const S& getSetting() {
         static auto setting = Mod::get()->getSettingValue<S>(key.data());
         static auto listener = listenForSettingChanges<S>(key.data(), [] (S value) {
             setting = std::move(value);

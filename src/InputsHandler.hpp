@@ -1,18 +1,69 @@
 #pragma once
 
-#include "Geode/cocos/touch_dispatcher/CCTouch.h"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/AppDelegate.hpp>
-#include <unordered_set>
 
 using namespace geode::prelude;
 
+namespace tinker::ui {
+
 class TouchForward : public CCLayer {
 public:
+    using Next = geode::Function<bool(CCTouch*)>;
+
+    struct TouchHook {
+        int priority;
+        geode::Function<bool()> enabled;
+        geode::Function<bool(CCTouch*, geode::Function<bool(CCTouch*)>)> beganCallback;
+        geode::Function<void(CCTouch*, geode::Function<void(CCTouch*)>)> movedCallback;
+        geode::Function<void(CCTouch*, geode::Function<void(CCTouch*)>)> endedCallback;
+        geode::Function<void(CCTouch*, geode::Function<void(CCTouch*)>)> cancelledCallback;
+    };
+
     static TouchForward* create(EditorUI* editorUI);
     static TouchForward* get();
+
+    template<class T>
+    void registerTouch(int priority) {
+        m_touchHooks.push_back(TouchHook{priority, 
+            [] -> bool {
+                return T::isEnabled();
+            },
+            [] (CCTouch* touch, geode::Function<bool(CCTouch*)> next) -> bool {
+                return T::get()->onTouchBegan(touch, std::move(next));
+            },
+            [] (CCTouch* touch, geode::Function<void(CCTouch*)> next) {
+                T::get()->onTouchMoved(touch, std::move(next));
+            },
+            [] (CCTouch* touch, geode::Function<void(CCTouch*)> next) {
+                T::get()->onTouchEnded(touch, std::move(next));
+            },
+            [] (CCTouch* touch, geode::Function<void(CCTouch*)> next) {
+                T::get()->onTouchCancelled(touch, std::move(next));
+            },
+        });
+
+        std::sort(m_touchHooks.begin(), m_touchHooks.end(), 
+            [] (const auto& a, const auto& b) {
+                return a.priority > b.priority;
+            }
+        );
+    }
+
+    template<class CallbackGetter, class FinalCall>
+    decltype(auto) dispatch(size_t i, CCTouch* touch, CallbackGetter&& getCallback, FinalCall&& finalCall) {
+        if (i == m_touchHooks.size()) {
+            return finalCall(touch);
+        }
+
+        return getCallback(m_touchHooks[i]) (touch,
+            [this, i, &getCallback, &finalCall] (CCTouch* touch) -> decltype(auto) {
+                return dispatch(i + 1, touch, getCallback, finalCall);
+            }
+        );
+    }
 
     void registerWithTouchDispatcher() override;
 
@@ -26,9 +77,11 @@ protected:
 
     bool init(EditorUI* editorUI);
 
+    std::vector<TouchHook> m_touchHooks;
     std::unordered_set<Ref<CCTouch>> m_touches;
     EditorUI* m_editorUI;
 };
+}
 
 class $modify(InputAppDelegate, AppDelegate) {
     void applicationDidEnterBackground();
@@ -71,8 +124,12 @@ class $modify(InputEditorUI, EditorUI) {
         bool m_isPinching = false;
         float m_lastAngle;
 
-        TouchForward* m_forward;
+        tinker::ui::TouchForward* m_forward;
     };
+
+    static bool isEnabled() {
+        return true;
+    }
 
     bool init(LevelEditorLayer* editorLayer);
     void onScroll();
@@ -89,7 +146,6 @@ class $modify(InputEditorUI, EditorUI) {
     bool isNaturalScrollEnabled();
 
     CCPoint getTouchLocation(CCTouch* touch);
-    float getToolbarHeight();
 
     bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
     void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);

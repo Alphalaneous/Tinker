@@ -157,16 +157,16 @@ bool SearchField::init(OSEditorUI* editorUI) {
     m_editorUI = editorUI;
 
     setAnchorPoint({0.5f, 0.f});
-    setContentSize({300, 45});
+    setContentSize({300.f, 45.f});
 
-    m_searchInput = geode::TextInput::create(getContentWidth() - 55, "Search...");
+    m_searchInput = geode::TextInput::create(getContentWidth() - 55.f, "Search...");
     m_searchInput->setDelegate(this);
     m_searchInput->setCommonFilter(CommonFilter::Any);
-    m_searchInput->setPosition({6 + m_searchInput->getContentWidth() / 2, getContentHeight() / 2});
+    m_searchInput->setPosition({6.f + m_searchInput->getContentWidth() / 2.f, getContentHeight() / 2.f});
     m_searchInput->setID("search-input"_spr);
 
     m_searchBG = geode::NineSlice::create("GJ_square02.png");
-    m_searchBG->setAnchorPoint({0, 0});
+    m_searchBG->setAnchorPoint({0.f, 0.f});
     m_searchBG->setContentSize(getContentSize());
     m_searchBG->setID("background"_spr);
 
@@ -191,7 +191,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
         #endif
     });
 
-    m_clearButton->setPosition({getContentWidth() - 6 - m_clearButton->getContentWidth() / 2, getContentHeight() / 2});
+    m_clearButton->setPosition({getContentWidth() - 6.f - m_clearButton->getContentWidth() / 2.f, getContentHeight() / 2.f});
     m_searchBG->addChild(m_clearButton);
 
     m_tabBG = geode::NineSlice::create("square02b_001.png");
@@ -241,7 +241,7 @@ void SearchField::textChanged(CCTextInputNode* node) {
         auto winSize = CCDirector::get()->getWinSize();
 
         auto tab = m_editorUI->m_fields->m_searchBar;
-        tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10);
+        tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10.f);
         #endif
     }));
 }
@@ -275,18 +275,18 @@ void SearchField::textInputClosed(CCTextInputNode* node) {
 void SearchField::onClosed() {
     m_inputFocused = false;
 
-    float buildTabHeight = 0;
+    float buildTabHeight = 0.f;
     float scale = 1.f;
     if (auto node = m_editorUI->getChildByID("build-tabs-menu")) {
         buildTabHeight = node->getScaledContentHeight();
         scale = node->getScale();
     }
 
-    setPosition({m_editorUI->getContentWidth() / 2, m_editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
+    setPosition({m_editorUI->getContentWidth() / 2, tinker::utils::getToolbarHeight() + 5.f * scale + buildTabHeight});
 
     auto tab = m_editorUI->m_fields->m_searchBar;
 
-    tab->setPositionY(0);
+    tab->setPositionY(0.f);
     m_tabBG->removeFromParent();
 
     tab->setZOrder(10);
@@ -294,7 +294,7 @@ void SearchField::onClosed() {
 
 void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
     #ifdef GEODE_IS_MOBILE
-    m_yOffset = std::max(yOffset, m_editorUI->m_toolbarHeight + 15);
+    m_yOffset = std::max(yOffset, tinker::utils::getToolbarHeight() + 15.f);
    
     runAction(CallFuncExt::create([this] {
         setupTabOffset();
@@ -307,20 +307,20 @@ void SearchField::setupTabOffset() {
     auto tab = m_editorUI->m_fields->m_searchBar;
 
     #ifdef GEODE_IS_ANDROID
-        m_yOffset = winSize.height - tab->getScaledContentHeight() - 20 - getScaledContentHeight();
+        m_yOffset = winSize.height - tab->getScaledContentHeight() - 20.f - getScaledContentHeight();
     #endif
 
     setPositionY(m_yOffset);
 
-    float heightOffset = 2;
+    float heightOffset = 2.f;
     if (ScrollableObjects::isEnabled()) {
         heightOffset = ScrollableObjects::getSetting<float, "y-offset">();
     }
 
-    tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10);
+    tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10.f);
     
-    m_tabBG->setContentSize(tab->getScaledContentSize() + CCSize{0, 10 - heightOffset * tab->getScale() + 2});
-    m_tabBG->setPosition(tab->getPosition() + CCPoint{0, tab->getScaledContentHeight() / 2});
+    m_tabBG->setContentSize(tab->getScaledContentSize() + CCSize{0.f, 10.f - heightOffset * tab->getScale() + 2.f});
+    m_tabBG->setPosition(tab->getPosition() + CCPoint{0.f, tab->getScaledContentHeight() / 2.f});
     tab->setZOrder(20);
     m_tabBG->setZOrder(19);
 

@@ -1,6 +1,7 @@
 #include "DurationThumb.hpp"
 #include "DurationControl.hpp"
 #include "Utils.hpp"
+#include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
 using namespace tinker::ui;
@@ -35,28 +36,26 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         m_thumbSpr = CCSprite::create("sliderthumb.png");
         m_thumbSpr->setScale(0.75f);
         m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize());
-        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2);
+        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2.f);
     }
     else if (thumbType == ThumbType::Multi) {
         m_thumbSpr = CCSprite::create("sliderthumb.png");
         m_thumbContainer->setColor({50, 215, 245});
         m_thumbSpr->setScale(0.6f);
         m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize());
-        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2);
+        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2.f);
     }
     else {
         m_thumbSpr = CCSprite::create("drag-bar.png"_spr);
-        const float contentW = m_thumbSpr->getScaledContentWidth();
-        const float contentH = m_thumbSpr->getScaledContentHeight() + 18.0f;
-        m_thumbContainer->setContentSize({contentW, contentH});
+        m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize() + CCSize{0.1, 18.f});
 
         switch (thumbType) {
             case ThumbType::FadeIn:
-                m_centerNode->setPosition({contentW / 2, 8.f});
+                m_centerNode->setPosition({m_thumbSpr->getScaledContentWidth() / 2.f, 8.f});
                 break;
             case ThumbType::FadeOut:
                 m_thumbSpr->setFlipY(true);
-                m_centerNode->setPosition({contentW / 2, contentH - 8.f});
+                m_centerNode->setPosition({m_thumbSpr->getScaledContentWidth() / 2.f, m_thumbSpr->getScaledContentHeight() - 8.f});
                 break;
             default:
                 break;
@@ -68,8 +67,8 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     setCascadeColorEnabled(true);
     setCascadeOpacityEnabled(true);
 
-    m_thumbSpr->setPosition(m_thumbContainer->getContentSize() / 2);
-    m_thumbContainer->setPosition(getContentSize() / 2);
+    m_thumbSpr->setPosition(m_thumbContainer->getContentSize() / 2.f);
+    m_thumbContainer->setPosition(getContentSize() / 2.f);
     m_thumbContainer->addChild(m_thumbSpr);
 
     if (thumbType == ThumbType::Default || thumbType == ThumbType::Multi) {
@@ -77,7 +76,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         m_thumbSelectedSpr->setScale(m_thumbSpr->getScale());
         m_thumbSelectedSpr->setOpacity(175);
         m_thumbSelectedSpr->setVisible(false);
-        m_thumbSelectedSpr->setPosition(getContentSize() / 2);
+        m_thumbSelectedSpr->setPosition(getContentSize() / 2.f);
         m_thumbContainer->addChild(m_thumbSelectedSpr);
     }
 
@@ -92,14 +91,14 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
             break;
         case ThumbType::FadeIn:
             m_thumbSpr->setAnchorPoint({0.5f, 0.f});
-            m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2, 0.f});
-            m_labelPosMultiplier = -1;
+            m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2.f, 0.f});
+            m_labelPosMultiplier = -1.f;
             m_labelY = -10.f;
             m_durationLabel->setAnchorPoint({0.5f, 0.f});
             break;
         case ThumbType::FadeOut:
             m_thumbSpr->setAnchorPoint({0.5f, 1.f});
-            m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2, m_thumbContainer->getContentHeight()});
+            m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2.f, m_thumbContainer->getContentHeight()});
             break;
     }
 
@@ -136,7 +135,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     m_overlapping = getTouchBounds().intersectsRect(m_object->boundingBox());
     setOpacity(m_overlapping ? 127 : 255);
 
-    if (m_object->m_objectID == 1006 && thumbType != ThumbType::Default) {
+    if (m_object->m_objectID == constants::objects::PulseTrigger && thumbType != ThumbType::Default) {
         const float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
         setVisible(total > 0.003f);
     }
@@ -147,34 +146,34 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
 void DurationThumb::resetText() {
     m_durationLabel->stopAllActions();
     m_durationLabel->setScale(0.2f);
-    m_durationLabel->setPosition({getContentWidth()/2, m_labelY + 5 * m_labelPosMultiplier});
+    m_durationLabel->setPosition({getContentWidth() / 2.f, m_labelY + 5.f * m_labelPosMultiplier});
     m_durationLabel->setOpacity(0);
 }
 
 void DurationThumb::hideText(float dt) {
     m_durationLabel->stopAllActions();
-    m_durationLabel->runAction(CCEaseOut::create(CCScaleTo::create(0.1f, 0.2f), 0.5));
-    m_durationLabel->runAction(CCEaseOut::create(CCMoveTo::create(0.1f, {getContentWidth()/2, m_labelY + 5 * m_labelPosMultiplier}), 0.5));
-    m_durationLabel->runAction(CCEaseOut::create(CCFadeTo::create(0.1f, 0), 0.5));
+    m_durationLabel->runAction(CCEaseOut::create(CCScaleTo::create(0.1f, 0.2f), 0.5f));
+    m_durationLabel->runAction(CCEaseOut::create(CCMoveTo::create(0.1f, {getContentWidth() / 2.f, m_labelY + 5.f * m_labelPosMultiplier}), 0.5f));
+    m_durationLabel->runAction(CCEaseOut::create(CCFadeTo::create(0.1f, 0), 0.5f));
 }
 
 void DurationThumb::showText(float dt) {
     m_durationLabel->stopAllActions();
-    m_durationLabel->runAction(CCEaseIn::create(CCScaleTo::create(0.1f, 0.4f), 0.5));
-    m_durationLabel->runAction(CCEaseIn::create(CCMoveTo::create(0.1f, {getContentWidth()/2, m_labelY + 15 * m_labelPosMultiplier}), 0.5));
-    m_durationLabel->runAction(CCEaseIn::create(CCFadeTo::create(0.1f, 255), 0.5));
+    m_durationLabel->runAction(CCEaseIn::create(CCScaleTo::create(0.1f, 0.4f), 0.5f));
+    m_durationLabel->runAction(CCEaseIn::create(CCMoveTo::create(0.1f, {getContentWidth() / 2.f, m_labelY + 15.f * m_labelPosMultiplier}), 0.5f));
+    m_durationLabel->runAction(CCEaseIn::create(CCFadeTo::create(0.1f, 255), 0.5f));
 }
 
 CCRect DurationThumb::getTouchBounds() {
-    auto size = CCSize{22, 22};
+    auto size = CCSize{22.f, 22.f};
     return {
-        m_parent->convertToNodeSpace(m_centerNode->convertToWorldSpace(CCPointZero)) - size/2, size
+        m_parent->convertToNodeSpace(m_centerNode->convertToWorldSpace({0.f, 0.f})) - size / 2.f, size
     };
 }
 
 void DurationThumb::positionPulseSlider() {
     const float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
-    float percent = 1.0f;
+    float percent = 1.f;
 
     if (total > 0.f) {
         switch (m_thumbType) {
@@ -198,22 +197,20 @@ void DurationThumb::positionPulseSlider() {
         }));
     }
 
-    CCPoint start = m_object->getPosition();
-    if (start.x < 0 && !m_object->m_isSpawnTriggered)
-        start.x = 0;
+    auto start = m_object->getPosition();
+    if (start.x < 0.f && !m_object->m_isSpawnTriggered) {
+        start.x = 0.f;
+    }
 
-    CCPoint end = tinker::utils::duration_drag::getEndPos(m_object);
+    auto end = tinker::utils::duration_drag::getEndPos(m_object);
 
-    const CCPoint newPos = {
+    setPosition({
         std::lerp(start.x, end.x, percent),
         std::lerp(start.y, end.y, percent)
-    };
-
-    setPosition(newPos);
+    });
 }
 
 void DurationThumb::update(float dt) {
-
     geode::Result<std::pair<CCPoint, CCPoint>> center = geode::Err("");
 
     if (m_thumbType == ThumbType::Multi) {
@@ -226,11 +223,11 @@ void DurationThumb::update(float dt) {
     }
 
     if (!m_dragging) {
-        const bool isPulse = (m_object->m_objectID == 1006);
+        bool isPulse = (m_object->m_objectID == constants::objects::PulseTrigger);
         float duration = 0.f;
 
         if (isPulse && m_thumbType != ThumbType::Multi) {
-            const float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
+            float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
 
             switch (m_thumbType) {
                 case ThumbType::Multi:
@@ -252,33 +249,39 @@ void DurationThumb::update(float dt) {
 
         if (duration == 0.f) {
             if (m_thumbType != ThumbType::Multi) {
-                CCPoint start = m_object->getPosition();
-                if (start.x < 0 && !m_object->m_isSpawnTriggered)
-                    start.x = 0;
+                auto start = m_object->getPosition();
+                if (start.x < 0.f && !m_object->m_isSpawnTriggered) {
+                    start.x = 0.f;
+                }
                 setPosition(start);
             }
             else {
-                if (center) setPosition(center.unwrap().second);
+                if (center) {
+                    setPosition(center.unwrap().second);
+                }
             }
         } else {
-            if (isPulse && m_thumbType != ThumbType::Multi)
+            if (isPulse && m_thumbType != ThumbType::Multi) {
                 positionPulseSlider();
+            }
             else {
                 if (m_thumbType == ThumbType::Multi) {
-                    if (center) setPosition(center.unwrap().second);
+                    if (center) {
+                        setPosition(center.unwrap().second);
+                    }
                 }
                 else {
                     setPosition(tinker::utils::duration_drag::getEndPos(m_object));
                 }
             }
         }
-        setVisible(duration >= 0);
+        setVisible(duration >= 0.f);
     } 
     else if (m_object->m_isDirty) {
         m_dragging = false;
     }
 
-    const bool overlap = getTouchBounds().intersectsRect(m_object->boundingBox());
+    bool overlap = getTouchBounds().intersectsRect(m_object->boundingBox());
     if (overlap != m_overlapping) {
         stopAction(m_fadeInAction);
         stopAction(m_fadeOutAction);
@@ -299,7 +302,9 @@ void DurationThumb::update(float dt) {
     auto start = m_object->getPosition();
     auto end = m_object->m_endPosition;
 
-    if (end == CCPointZero) end = start;
+    if (end == CCPoint{0, 0}) {
+        end = start;
+    }
 
     bool isLesser = end.x < start.x;
 
@@ -309,7 +314,9 @@ void DurationThumb::update(float dt) {
     }
 
     float angle = CC_RADIANS_TO_DEGREES(std::atan2(end.y - start.y, end.x - start.x));
-    if (angle < 0) angle += 360.f;
+    if (angle < 0) {
+        angle += 360.f;
+    }
     bool flip = (angle > 90.f && angle < 270.f);
 
     if (flip) {
@@ -380,16 +387,24 @@ void DurationThumb::checkForNewLongest() {
     std::vector<EffectGameObject*> objects;
     objects.reserve(m_selectedStartingDurations.size());
 
-    std::transform(m_selectedStartingDurations.begin(), m_selectedStartingDurations.end(), std::back_inserter(objects),
-                    [](const auto& pair) { return pair.first; });
+    std::transform(
+        m_selectedStartingDurations.begin(), 
+        m_selectedStartingDurations.end(), 
+        std::back_inserter(objects),
+        [](const auto& pair) { 
+            return pair.first; 
+        }
+    );
 
-    CCPoint refStart = objects[0]->getPosition();
-    CCPoint refEnd   = objects[0]->m_endPosition;
-    CCPoint refDir   = refEnd - refStart;
+    auto refStart = objects[0]->getPosition();
+    auto refEnd = objects[0]->m_endPosition;
+    auto refDir = refEnd - refStart;
     float refLen = std::sqrt(refDir.x * refDir.x + refDir.y * refDir.y);
-    if (refLen == 0.f) refLen = 0.00001f;
+    if (refLen == 0.f) {
+        refLen = 0.00001f;
+    }
 
-    CCPoint unitRefDir = { refDir.x / refLen, refDir.y / refLen };
+    auto unitRefDir = CCPoint{refDir.x / refLen, refDir.y / refLen};
 
     m_object = tinker::utils::duration_drag::getFurthestEndObject(objects, unitRefDir);
 }
@@ -401,7 +416,7 @@ void DurationThumb::select(bool select) {
     }
 
     if (!select) {
-        scheduleOnce(schedule_selector(DurationThumb::hideText), 1);
+        scheduleOnce(schedule_selector(DurationThumb::hideText), 1.f);
 
         if (m_thumbType == ThumbType::Multi) {
             checkForNewLongest();
@@ -419,28 +434,25 @@ void DurationThumb::select(bool select) {
 
 bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     auto winSize = CCDirector::get()->getWinSize();
-    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
+    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
 
-    CCPoint touchPos = getParent()->convertToNodeSpace(convertedPos);
-    if (!isVisible() || m_disabled || !getTouchBounds().containsPoint(touchPos))
+    auto touchPos = getParent()->convertToNodeSpace(convertedPos);
+    if (!isVisible() || m_disabled || !getTouchBounds().containsPoint(touchPos)) {
         return false;
+    }
 
     m_dragging = true;
     bool skipSet = false;
 
-    const auto type = m_thumbType;
-
-    auto ensureNonZero = [](float& value) {
+    auto ensureNonZero = [] (float& value) {
         if (value <= 0.f) value = 0.00001f;
     };
 
-    if (m_object->m_objectID == 1006 && m_thumbType != ThumbType::Multi) {
-        switch (type) {
+    if (m_object->m_objectID == constants::objects::PulseTrigger && m_thumbType != ThumbType::Multi) {
+        switch (m_thumbType) {
             case ThumbType::Multi:
             case ThumbType::Default:
-                m_startingDuration = m_object->m_fadeInDuration
-                    + m_object->m_holdDuration
-                    + m_object->m_fadeOutDuration;
+                m_startingDuration = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
                 if (m_startingDuration <= 0.f) {
                     m_object->m_holdDuration = 0.00001f;
                     m_startingDuration = 0.00001f;
@@ -463,19 +475,23 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
                 break;
         }
 
-        if (m_startingDuration <= 0) m_object->m_holdDuration = 0.00001f;
+        if (m_startingDuration <= 0.f) {
+            m_object->m_holdDuration = 0.00001f;
+        }
         m_startingHoldDuration = m_object->m_holdDuration;
     }
     else {
         m_startingDuration = m_object->m_duration;
-        if (m_startingDuration <= 0) m_object->m_duration = 0.00001f;
+        if (m_startingDuration <= 0.f) {
+            m_object->m_duration = 0.00001f;
+        }
     }
 
     if (m_thumbType == ThumbType::Multi) {
         for (auto obj : CCArrayExt<GameObject*>(EditorUI::get()->m_selectedObjects)) {
             if (obj->m_dontIgnoreDuration) {
                 auto effectObj = static_cast<EffectGameObject*>(obj);
-                if (effectObj->m_objectID == 1006) {
+                if (effectObj->m_objectID == constants::objects::PulseTrigger) {
                     m_selectedStartingDurations[effectObj] = effectObj->m_holdDuration;
                 }
                 else {
@@ -485,16 +501,18 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
         }
         checkForNewLongest();
 
-        if (m_object->m_objectID == 1006) {
-            m_startingDuration = m_object->m_fadeInDuration
-                    + m_object->m_holdDuration
-                    + m_object->m_fadeOutDuration;
-            if (m_startingDuration <= 0) m_object->m_holdDuration = 0.00001f;
+        if (m_object->m_objectID == constants::objects::PulseTrigger) {
+            m_startingDuration = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
+            if (m_startingDuration <= 0.f) {
+                m_object->m_holdDuration = 0.00001f;
+            } 
             m_startingHoldDuration = m_object->m_holdDuration;
         }
         else {
             m_startingDuration = m_object->m_duration;
-            if (m_startingDuration <= 0) m_object->m_duration = 0.00001f;
+            if (m_startingDuration <= 0.f) {
+                m_object->m_duration = 0.00001f;
+            }
         }
 
         auto center = tinker::utils::duration_drag::getCenter(EditorUI::get());
@@ -508,14 +526,15 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     }
     else {
         m_startingEndPos = tinker::utils::duration_drag::getEndPos(m_object);
-        if (skipSet)
+        if (skipSet) {
             m_object->m_endPosition = m_startingEndPos;
+        }
         m_durationLabel->setString(fmt::format("{:.2f}", m_startingDuration).c_str());
     }
 
     ensureNonZero(m_startingDuration);
 
-    showText(0);
+    showText(0.f);
     select(true);
     return true;
 }
@@ -524,7 +543,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (!m_dragging) return;
 
     auto winSize = CCDirector::get()->getWinSize();
-    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
+    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
 
     CCPoint start;
 
@@ -533,17 +552,18 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     }
     else {
         start = m_object->getPosition();
-        if (start.x < 0 && !m_object->m_isSpawnTriggered)
-            start.x = 0;
+        if (start.x < 0.f && !m_object->m_isSpawnTriggered) {
+            start.x = 0.f;
+        }
     }
 
-    const CCPoint line = m_startingEndPos - start;
-    const float lineLen = std::sqrt(line.x * line.x + line.y * line.y);
+    CCPoint line = m_startingEndPos - start;
+    float lineLen = std::sqrt(line.x * line.x + line.y * line.y);
     if (lineLen == 0.f) return;
 
-    const CCPoint touchPos = getParent()->convertToNodeSpace(convertedPos);
+    auto touchPos = getParent()->convertToNodeSpace(convertedPos);
 
-    const CCPoint ap = touchPos - start;
+    auto ap = touchPos - start;
     float percent;
 
     if (m_thumbType == ThumbType::Multi) {
@@ -554,16 +574,18 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     }
 
     float duration = 0.f;
-    const bool isPulse = (m_object->m_objectID == 1006);
+    bool isPulse = (m_object->m_objectID == constants::objects::PulseTrigger);
 
     if (isPulse && m_thumbType != ThumbType::Multi) {
-        const float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
+        float total = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
 
         switch (m_thumbType) {
             case ThumbType::Multi: 
             case ThumbType::Default: {
                 float newHold = m_startingDuration * percent - m_object->m_fadeInDuration - m_object->m_fadeOutDuration;
-                if (newHold < 0) newHold = 0;
+                if (newHold < 0.f) {
+                    newHold = 0.f;
+                }
                 m_object->m_holdDuration = newHold;
                 duration = m_object->m_fadeInDuration + m_object->m_holdDuration + m_object->m_fadeOutDuration;
                 break;
@@ -613,12 +635,16 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
             if (isPulse) {
                 m_object->m_holdDuration = m_startingDuration * percent - m_object->m_fadeInDuration - m_object->m_fadeOutDuration;
                 duration = m_object->m_holdDuration - m_startingHoldDuration;
-                if (m_object->m_holdDuration < 0) m_object->m_holdDuration = 0.00001f;
+                if (m_object->m_holdDuration < 0.f) {
+                    m_object->m_holdDuration = 0.00001f;
+                }
             }
             else {
                 m_object->m_duration = m_startingDuration * percent;
                 duration = m_object->m_duration - m_startingDuration;
-                if (m_object->m_duration < 0) m_object->m_duration = 0.00001f;
+                if (m_object->m_duration < 0.f) {
+                    m_object->m_duration = 0.00001f;
+                }
             }
 
             m_object->m_endPosition = tinker::utils::duration_drag::getEndPos(m_object);
@@ -634,13 +660,17 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         for (auto obj : CCArrayExt<GameObject*>(EditorUI::get()->m_selectedObjects)) {
             if (obj->m_dontIgnoreDuration) {
                 auto effectObj = static_cast<EffectGameObject*>(obj);
-                if (effectObj->m_objectID == 1006) {
+                if (effectObj->m_objectID == constants::objects::PulseTrigger) {
                     effectObj->m_holdDuration = m_selectedStartingDurations[effectObj] + duration;
-                    if (effectObj->m_holdDuration <= 0) effectObj->m_holdDuration = 0.00001;
+                    if (effectObj->m_holdDuration <= 0.f) {
+                        effectObj->m_holdDuration = 0.00001f;
+                    }
                 }
                 else {
                     effectObj->m_duration = m_selectedStartingDurations[effectObj] + duration;
-                    if (effectObj->m_duration <= 0) effectObj->m_duration = 0.00001;
+                    if (effectObj->m_duration <= 0.f) {
+                        effectObj->m_duration = 0.00001f;
+                    }
                 }
                 effectObj->m_endPosition = tinker::utils::duration_drag::getEndPos(effectObj);
             }
@@ -662,9 +692,7 @@ void DurationThumb::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
 }
 
 void DurationThumb::registerWithTouchDispatcher() {
-    CCDirector::get()
-        ->getTouchDispatcher()
-        ->addTargetedDelegate(this, -1000, true);
+    CCTouchDispatcher::get()->addTargetedDelegate(this, -1000, true);
 }
 
 void DurationThumb::onEnter() {
@@ -674,5 +702,5 @@ void DurationThumb::onEnter() {
 
 void DurationThumb::onExit() {
     CCNode::onExit();
-    CCDirector::get()->getTouchDispatcher()->removeDelegate(this);
+    CCTouchDispatcher::get()->removeDelegate(this);
 }

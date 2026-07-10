@@ -3,6 +3,8 @@
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <razoom.object_groups/include/ObjectFoundEvent.hpp>
 #include "modules/ObjectSearch/ObjectSearch.hpp"
+#include "utils/Constants.hpp"
+#include "utils/Utils.hpp"
 
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "invert-scroll") return true;
@@ -135,7 +137,7 @@ bool ScrollableObjects::canScroll() {
     }
 
     auto mousePos = getMousePos();
-    if (mousePos.y < EditorUI::get()->m_toolbarHeight) {
+    if (mousePos.y < tinker::utils::getToolbarHeight()) {
         return false;
     }
 
@@ -253,7 +255,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     setAnchorPoint({0.5f, 0.f});
 
     fields->m_initialized = true;
-    auto widthOffset = 180;
+    float widthOffset = 180.f;
 
     auto spacerLeft = editorUI->getChildByID("spacer-line-left");
     auto spacerRight = editorUI->getChildByID("spacer-line-right");
@@ -262,15 +264,15 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         widthOffset = spacerLeft->getPositionX() + (editorUI->getContentWidth() - spacerRight->getPositionX());
     }
 
-    auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), editorUI->m_toolbarHeight / getScale()};
+    auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), tinker::constants::ToolbarHeight};
     setContentSize(size);
 
     if (spacerLeft && spacerRight) {
-        float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2;
-        setPosition({x, 0});
+        float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2.f;
+        setPosition({x, 0.f});
     }
     else {
-        setPosition({getContentWidth() / 2, 0});
+        setPosition({getContentWidth() / 2.f, 0.f});
     }
 
     auto dots = getChildByID("alphalaneous.editortab_api/dots");
@@ -296,7 +298,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     fields->m_objectsMenu->setContentSize({newSize.width, height});
     fields->m_objectsMenu->setScale(scale);
     fields->m_objectsMenu->setAnchorPoint({0.f, 0.f});
-    fields->m_objectsMenu->setPosition({0, 0});
+    fields->m_objectsMenu->setPosition({0.f, 0.f});
     fields->m_objectsMenu->setID("items-menu"_spr);
 
     std::vector<Ref<CreateMenuItem>> customControls;
@@ -306,8 +308,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     int rowIdx = 0;
     int colIdx = 0;
 
-    float width = 0;
-
+    float width = 0.f;
 
     for (auto object : objects->asExt<CCNode>()) {
         rIdx--;
@@ -329,7 +330,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
             continue;
         }
 
-        object->setPosition({object->getContentWidth() / 2 + (object->getContentWidth() + gap) * colIdx, fields->m_objectsMenu->getContentHeight() - object->getContentHeight() / 2 - (object->getContentHeight() + gap) * rowIdx});
+        object->setPosition({object->getContentWidth() / 2.f + (object->getContentWidth() + gap) * colIdx, fields->m_objectsMenu->getContentHeight() - object->getContentHeight() / 2.f - (object->getContentHeight() + gap) * rowIdx});
 
         if (rowIdx == 0) {
             width += object->getContentWidth() + gap;
@@ -350,7 +351,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     fields->m_objectsMenu->setContentSize({width, height});
 
     fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize);
-    fields->m_scrollLayer->setPosition({0, scrollPadding + bottomPadding + scrollHeight});
+    fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight});
     fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
     fields->m_scrollLayer->setHorizontalScroll(true);
     fields->m_scrollLayer->setHorizontalScrollWheel(true);
@@ -379,17 +380,17 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     fields->m_scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_scrollLayer, alpha::ui::ScrollOrientation::HORIZONTAL);
     fields->m_scrollBar->setContentWidth(scrollHeight);
-    fields->m_scrollBar->setContentHeight(newSize.width - 10);
-    fields->m_scrollBar->setPosition({fields->m_scrollBar->getPosition().x, bottomPadding + scrollHeight / 2});
+    fields->m_scrollBar->setContentHeight(newSize.width - 10.f);
+    fields->m_scrollBar->setPosition({fields->m_scrollBar->getPosition().x, bottomPadding + scrollHeight / 2.f});
     fields->m_scrollBar->setID("buttons-scroll-bar"_spr);
 
     addChild(fields->m_scrollLayer);
     addChild(fields->m_scrollBar);
 
     auto spacerStart = CCNode::create();
-    spacerStart->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 5});
+    spacerStart->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
     auto spacerEnd = CCNode::create();
-    spacerEnd->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 5});
+    spacerEnd->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
 
     fields->m_scrollLayer->addChild(spacerStart);
     fields->m_scrollLayer->addChild(fields->m_objectsMenu);
@@ -411,7 +412,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         AxisLayout* layout = nullptr;
 
         if (!editTabBar) {
-            fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20) / scale);
+            fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20.f) / scale);
             fields->m_scrollLayer->setHorizontalScroll(false);
             layout = RowLayout::create();
         }
@@ -433,7 +434,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
         fields->m_objectsMenu->setLayout(layout);
 
-        float maxX = 0;
+        float maxX = 0.f;
 
         for (auto child : fields->m_objectsMenu->getChildrenExt()) {
             auto bb = child->boundingBox();
@@ -516,7 +517,7 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
         if (visibleUntilX == -1.0f && idx % fields->m_rows == 0) {
             visible = child->getPositionX() + child->getContentWidth() > scaledX;
 
-            if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.0f) + child->getContentWidth() / 2;
+            if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.0f) + child->getContentWidth() / 2.f;
 
         } else {
             visible = child->getPositionX() < visibleUntilX;
@@ -552,15 +553,15 @@ void SOEditButtonBar::createExtrasMenu() {
     if (!fields->m_initialized) return;
     
     fields->m_extrasMenuContainer = CCNode::create();
-    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2});
-    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
+    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2.f});
+    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
     fields->m_extrasMenuContainer->setAnchorPoint({1.f, 0.5f});
     fields->m_extrasMenuContainer->ignoreAnchorPointForPosition(false);
     fields->m_extrasMenuContainer->setID("extras-menu-container"_spr);
 
     fields->m_extrasMenu = CCMenu::create();
-    fields->m_extrasMenu->setPosition({0, 0});
-    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
+    fields->m_extrasMenu->setPosition({0.f, 0.f});
+    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
     fields->m_extrasMenu->setAnchorPoint({0.f, 0.f});
     fields->m_extrasMenu->ignoreAnchorPointForPosition(false);
     fields->m_extrasMenu->setID("extras-menu"_spr);
@@ -572,7 +573,7 @@ void SOEditButtonBar::createExtrasMenu() {
     fields->m_extrasLayout->setCrossAxisReverse(true);
     fields->m_extrasLayout->setAutoScale(true);
     fields->m_extrasLayout->setGrowCrossAxis(true);
-    fields->m_extrasLayout->setDefaultScaleLimits(0.4, 0.7);
+    fields->m_extrasLayout->setDefaultScaleLimits(0.4f, 0.7f);
     fields->m_extrasLayout->setCrossAxisOverflow(false);
     fields->m_extrasLayout->setAxisAlignment(AxisAlignment::End);
     fields->m_extrasLayout->setCrossAxisLineAlignment(AxisAlignment::End);
@@ -583,7 +584,7 @@ void SOEditButtonBar::createExtrasMenu() {
 
     fields->m_separator = CCSprite::createWithSpriteFrameName("edit_vLine_001.png");
     fields->m_separator->setZOrder(11);
-    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2});
+    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
     fields->m_separator->setVisible(false);
 
     addChild(fields->m_separator);
@@ -601,21 +602,21 @@ void SOEditButtonBar::addToExtrasMenu(CCMenuItemSpriteExtra* button) {
 
     fields->m_separator->setVisible(true);
 
-    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2});
-    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
+    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2.f});
+    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
 
-    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5, getContentHeight() - 10});
+    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
     fields->m_extrasMenu->addChild(button);
     fields->m_extrasMenu->updateLayout();
 
-    auto size = fields->m_scrollLayer->getContentSize() + CCSize{fields->m_widthOffset, -18};
+    auto size = fields->m_scrollLayer->getContentSize() + CCSize{fields->m_widthOffset, -18.f};
 
     fields->m_scrollLayer->setContentWidth(size.width);
-    fields->m_scrollBar->setContentHeight(size.width - 10);
+    fields->m_scrollBar->setContentHeight(size.width - 10.f);
 
-    fields->m_scrollBar->setPositionX(fields->m_scrollLayer->getContentWidth() / 2);
+    fields->m_scrollBar->setPositionX(fields->m_scrollLayer->getContentWidth() / 2.f);
 
-    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2});
+    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
 }
 
 void SOEditButtonBar::goToPage(int page) {
@@ -641,17 +642,17 @@ void SOEditorOptionsLayer::setupOptions() {
     btn2->setOpacity(0);
 
     auto label3 = m_mainLayer->getChildByType<CCLabelBMFont>(2);
-    label3->setPositionX(m_mainLayer->getContentWidth() / 2);
+    label3->setPositionX(m_mainLayer->getContentWidth() / 2.f);
 
     auto label4 = m_mainLayer->getChildByType<CCLabelBMFont>(3);
-    label4->setPositionX(m_mainLayer->getContentWidth() / 2);
+    label4->setPositionX(m_mainLayer->getContentWidth() / 2.f);
 
     for (auto btn : m_buttonMenu->getChildrenExt()) {
         if (btn->getTag() == 0) {
-            btn->setPositionX(m_mainLayer->getContentWidth() / 2 - 40 - m_buttonMenu->getContentWidth() / 2);
+            btn->setPositionX(m_mainLayer->getContentWidth() / 2.f - 40.f - m_buttonMenu->getContentWidth() / 2.f);
         }
         if (btn->getTag() == 1) {
-            btn->setPositionX(m_mainLayer->getContentWidth() / 2 + 40 - m_buttonMenu->getContentWidth() / 2);
+            btn->setPositionX(m_mainLayer->getContentWidth() / 2.f + 40.f - m_buttonMenu->getContentWidth() / 2.f);
         }
     }
 }
@@ -677,7 +678,7 @@ class $nodeModify(SOGroup, Group) {
                 return someBar->getScale() * menu->getScale();
             }
         }
-        return 0.8;
+        return 0.8f;
     }
 
     void modify() {

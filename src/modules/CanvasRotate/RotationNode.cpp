@@ -19,7 +19,7 @@ RotationNode* RotationNode::create(EditorUI* editor) {
 bool RotationNode::init(EditorUI* editor) {
     m_editorUI = editor;
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "CanvasRotate-align-modifier"), [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "CanvasRotate-align-modifier"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         m_alignKeyDown = down;
     });
 
@@ -41,7 +41,7 @@ bool RotationNode::init(EditorUI* editor) {
 }
 
 bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
-    if (touch->getLocation().y < m_editorUI->m_toolbarHeight) return false;
+    if (touch->getLocation().y < tinker::utils::getToolbarHeight()) return false;
     if (!CanvasRotate::getSetting<bool, "use-modifier">()) return false;
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return false;
     
@@ -59,7 +59,7 @@ void RotationNode::clickMoved(alpha::dispatcher::TouchEvent* touch) {
     
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         auto currentPos = getMousePos();
-        auto screenCenter = CCDirector::get()->getWinSize() / 2;
+        auto screenCenter = CCDirector::get()->getWinSize() / 2.f;
 
         auto v1 = m_lastPos - screenCenter;
         auto v2 = currentPos - screenCenter;
@@ -116,7 +116,7 @@ void RotationNode::onExit() {
 
 void RotationNode::translate(CCTouch* touch) {
     auto winSize = CCDirector::get()->getWinSize();
-    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize/2, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
+    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
     touch->setTouchInfo(touch->getID(), newPoint.x, winSize.height - newPoint.y);
 }
 
@@ -124,18 +124,18 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
 
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return;
 
-    const float snapIncrement = 45.0f;
+    const float snapIncrement = 45.f;
     #ifdef GEODE_IS_DESKTOP
-    const float snapThreshold = 2.0f;
-    const float unsnapThreshold = 5.0f;
+    const float snapThreshold = 2.f;
+    const float unsnapThreshold = 5.f;
     #else
-    const float snapThreshold = 4.0f;
-    const float unsnapThreshold = 10.0f;
+    const float snapThreshold = 4.f;
+    const float unsnapThreshold = 10.f;
     #endif
     const float smoothingFactor = 0.2f;
 
-    m_unsnappedCameraAngle = std::fmod(m_unsnappedCameraAngle - deltaAngle, 360.0f);
-    if (m_unsnappedCameraAngle < 0) m_unsnappedCameraAngle += 360.0f;
+    m_unsnappedCameraAngle = std::fmod(m_unsnappedCameraAngle - deltaAngle, 360.f);
+    if (m_unsnappedCameraAngle < 0.f) m_unsnappedCameraAngle += 360.f;
 
     float nearestSnap = std::round(m_unsnappedCameraAngle / snapIncrement) * snapIncrement;
     float diff = std::fabs(std::fmod(m_unsnappedCameraAngle - nearestSnap + 180.f, 360.f) - 180.f);
@@ -154,8 +154,8 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
         m_isSnapped = false;
     }
 
-    auto shortestDelta = std::fmod(targetAngle - m_smoothedCameraAngle + 540.0f, 360.0f) - 180.0f;
-    m_smoothedCameraAngle = std::fmod(m_smoothedCameraAngle + shortestDelta * smoothingFactor + 360.0f, 360.0f);
+    auto shortestDelta = std::fmod(targetAngle - m_smoothedCameraAngle + 540.f, 360.f) - 180.f;
+    m_smoothedCameraAngle = std::fmod(m_smoothedCameraAngle + shortestDelta * smoothingFactor + 360.f, 360.f);
 
     m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = m_smoothedCameraAngle;
 

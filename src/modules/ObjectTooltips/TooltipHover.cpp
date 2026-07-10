@@ -21,7 +21,7 @@ TooltipHover* TooltipHover::create() {
 bool TooltipHover::init() {
     if (!CCNode::init()) return false;
 
-    setAnchorPoint({0, 0});
+    setAnchorPoint({0.f, 0.f});
     setID("tooltip-hover-node"_spr);
     setZOrder(500);
     setContentSize(CCDirector::get()->getWinSize());
@@ -75,7 +75,7 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
         m_tooltipBG->setVisible(false);
     }
     m_clicking = true;
-    if (touch->getLocation().y > EditorUI::get()->m_toolbarHeight) {
+    if (touch->getLocation().y > tinker::utils::getToolbarHeight()) {
         m_clickingOutside = true;
     }
     return true;
@@ -84,9 +84,9 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
 void TooltipHover::clickEnded(TouchEvent* touch) {
     if (m_activeItem && m_activeItem->m_objectID > 0) {
         m_tooltipBG->setVisible(true);
-        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
+        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
 
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HEIGHT_OFFSET});
+        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HeightOffset});
         auto positionHere = convertToNodeSpace(positionWorld);
 
         m_tooltipBG->setPosition(positionHere);
@@ -194,7 +194,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         m_tooltipBG->stopAllActions();
         m_tooltipBG->setOpacity(220);
 
-        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
+        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
 
         auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HEIGHT_OFFSET});
         auto positionHere = convertToNodeSpace(positionWorld);
@@ -214,7 +214,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 #ifdef GEODE_IS_MOBILE
 bool TooltipHover::clickBegan(TouchEvent* touch) {
     m_clicking = true;
-    if (touch->getLocation().y > EditorUI::get()->m_toolbarHeight) {
+    if (touch->getLocation().y > tinker::utils::getToolbarHeight()) {
         m_clickingOutside = true;
     }
     showTooltipWithTouch(touch);
@@ -224,7 +224,7 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
 void TooltipHover::clickEnded(TouchEvent* touch) {
     m_clicking = false;
     m_clickingOutside = false;
-    scheduleOnce(schedule_selector(TooltipHover::scheduleHide), 2);
+    scheduleOnce(schedule_selector(TooltipHover::scheduleHide), 2.f);
 }
 
 void TooltipHover::clickMoved(TouchEvent* touch) {
@@ -263,20 +263,20 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         name = fmt::format("Unnamed {}", item->m_objectID);
     }
 
-    auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2;
+    auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
 
-    auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), y + HEIGHT_OFFSET});
+    auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), y + HeightOffset});
     auto positionHere = convertToNodeSpace(positionWorld);
     m_tooltipLabel->setString(std::string(name).c_str());
 
-    float heightOffset = 0;
+    float heightOffset = 0.f;
     if (ObjectTooltips::getSetting<bool, "show-object-id">() && item->m_objectID != 0) {
         m_tooltipIDLabel->setString(numToString(item->m_objectID).c_str());
         heightOffset = m_tooltipIDLabel->getScaledContentHeight();
     }
 
     m_tooltipBG->setPosition(positionHere);
-    m_tooltipBG->setContentSize(m_tooltipLabel->getScaledContentSize() + CCSize{5, 5 + heightOffset});
+    m_tooltipBG->setContentSize(m_tooltipLabel->getScaledContentSize() + CCSize{5.f, 5.f + heightOffset});
     m_tooltipBG->setScale(ObjectTooltips::getSetting<float, "scale">() * UIScaling::getUIScale());
 
     m_tooltipLabel->setPosition({2.5f, m_tooltipBG->getContentHeight() - 2.5f});

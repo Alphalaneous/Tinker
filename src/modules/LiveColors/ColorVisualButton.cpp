@@ -1,4 +1,5 @@
 #include "ColorVisualButton.hpp"
+#include "utils/Constants.hpp"
 
 using namespace tinker::ui;
 
@@ -16,10 +17,11 @@ bool ColorVisualButton::init(EditorUI* editorUI) {
     m_colorChannelSprite = ColorChannelSprite::create();
     CCMenuItemSpriteExtra::init(m_colorChannelSprite, nullptr, this, menu_selector(ColorVisualButton::openColorPicker));
     m_editorUI = editorUI;
+
     m_IDLabel = CCLabelBMFont::create("", "bigFont.fnt");
     m_IDLabel->setScale(0.4f);
-    m_IDLabel->setPositionX(getContentSize().width/2);
-    m_IDLabel->setPositionY(getContentSize().height/2 + 1);
+    m_IDLabel->setPositionX(getContentSize().width / 2.f);
+    m_IDLabel->setPositionY(getContentSize().height / 2.f + 1.f);
 
     addChild(m_IDLabel);
 
@@ -61,21 +63,23 @@ void ColorVisualButton::openColorPicker(CCObject* obj) {
 }
 
 std::string ColorVisualButton::idToString(int ID) {
+    using namespace tinker::constants::color_channels;
+
     switch (ID) {
-        case 1000: return "BG";
-        case 1001: return "G1";
-        case 1002: return "L";
-        case 1003: return "3DL";
-        case 1004: return "Obj";
-        case 1005: return "P1";
-        case 1006: return "P2";
-        case 1007: return "LBG";
-        case 1009: return "G2";
-        case 1010: return "B";
-        case 1011: return "W";
-        case 1012: return "LTR";
-        case 1013: return "MG";
-        case 1014: return "MG2";
+        case Background: return "BG";
+        case Ground1: return "G1";
+        case Line: return "L";
+        case Line3D: return "3DL";
+        case Obj: return "Obj";
+        case PlayerColor1: return "P1";
+        case PlayerColor2: return "P2";
+        case LightBackground: return "LBG";
+        case Ground2: return "G2";
+        case Black: return "B";
+        case White: return "W";
+        case Lighter: return "LTR";
+        case Middleground1: return "MG";
+        case Middleground2: return "MG2";
         default: return utils::numToString(ID);
     }
 }

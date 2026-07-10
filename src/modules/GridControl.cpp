@@ -33,7 +33,7 @@ void GridControl::onEditor() {
             updateGrid(value.unwrap(), false);
         }
     });
-    m_input->setScale(.55f);
+    m_input->setScale(0.55f);
     m_input->setID("grid-size-input"_spr);
     m_input->getBGSprite()->setScaleMultiplier(2.f);
     m_input->addOnEnterCallback([this] {
@@ -70,11 +70,11 @@ void GridControl::onEditor() {
                 container->setPosition({settingsMenu->getPositionX() - 75.f * scale, settingsMenu->getPositionY()});
             }
             else {
-                auto x = size.width / 2;
+                auto x = size.width / 2.f;
                 if (auto slider = m_editorUI->getChildByID("position-slider")) {
                     x = slider->getPositionX();
                 }
-                container->setPosition({x, settingsMenu->getPositionY() - settingsMenu->getScaledContentHeight() / 2 - container->getScaledContentHeight() / 2 + 10 * scale});
+                container->setPosition({x, settingsMenu->getPositionY() - settingsMenu->getScaledContentHeight() / 2.f - container->getScaledContentHeight() / 2.f + 10.f * scale});
             }
         }
         else {
@@ -83,7 +83,7 @@ void GridControl::onEditor() {
                 offset = 55.f;
             }
             if (auto slider = m_editorUI->getChildByID("position-slider")) {
-                slider->setPosition({size.width / 2 + 22 * scale, size.height - 20 * scale});
+                slider->setPosition({size.width / 2.f + 22.f * scale, size.height - 20.f * scale});
             }
             container->setPosition({settingsMenu->getPositionX() - offset * scale, settingsMenu->getPositionY()});
         }
@@ -91,12 +91,20 @@ void GridControl::onEditor() {
     
     m_editorUI->m_uiItems->addObject(container);
     m_editorUI->addChild(container);
+
+    m_editorUI->addOnEnterCallback([this] {
+        m_oldBEControl = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls");
+        if (m_oldBEControl) {
+            m_oldBEControl->removeFromParent();
+        }
+    });
+
     updateGrid();
 }
 
 void GridControl::updateGrid(float newValue, bool updateInput) {
     if (newValue < 0.9f || newValue > 120.1f) {
-        newValue = 30;
+        newValue = 30.f;
     }
 
     Mod::get()->setSavedValue("grid-size", newValue);
@@ -110,7 +118,7 @@ void GridControl::updateGrid(float newValue, bool updateInput) {
 float GCObjectToolbox::gridNodeSizeForKey(int id) {
     auto size = Mod::get()->getSavedValue<float>("grid-size");
 
-    if (size < 1 || std::roundf(size) == 30) {
+    if (size < 1.f || std::roundf(size) == 30.f) {
         return ObjectToolbox::gridNodeSizeForKey(id);
     }
 
@@ -119,7 +127,7 @@ float GCObjectToolbox::gridNodeSizeForKey(int id) {
 
 void GCEditorUI::updateGridNodeSize() {
     auto size = Mod::get()->getSavedValue<float>("grid-size");
-    if (size < 1 || std::roundf(size) == 30) {
+    if (size < 1.f || std::roundf(size) == 30.f) {
         return EditorUI::updateGridNodeSize();
     }
 

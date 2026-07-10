@@ -1,7 +1,8 @@
 #include "SingleDeselect.hpp"
 
 bool SingleDeselect::onToggled(bool state) {
-    onEditor();
+    if (state) onEditor();
+    else removeEventListener("deselect-listener"_spr);
     return true;
 }
 
@@ -10,9 +11,8 @@ bool SingleDeselect::onSettingChanged(std::string_view key, const matjson::Value
 }
 
 void SDEditorUI::selectObject(GameObject* object, bool ignoreFilter) {
-    if (!getKeyPressed()) {
-        EditorUI::selectObject(object, ignoreFilter);
-    }
+    if (getKeyPressed()) return;
+    EditorUI::selectObject(object, ignoreFilter);
 }
 
 void SDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
@@ -84,7 +84,7 @@ void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 
     if (swipeSelected && swipeDistance >= 20.f) return;
     if (m_selectedMode != 3 || !getKeyPressed() || (snapObject && editingObject)) return;
-    if (world.y < m_toolbarHeight) return;
+    if (world.y < tinker::utils::getToolbarHeight()) return;
 
     auto position = m_editorLayer->m_objectLayer->convertToNodeSpace(world);
     auto object = selectedObjectAtPosition(position);
@@ -117,8 +117,7 @@ CCArray* SDEditorUI::pasteObjects(gd::string str, bool withColor, bool noUndo) {
 }
 
 void SingleDeselect::onEditor() {
-    m_editorUI->removeEventListener("deselect-listener"_spr);
-    m_editorUI->addEventListener(
+    addEventListener(
         "deselect-listener"_spr,
         KeybindSettingPressedEvent(Mod::get(), "SingleDeselect-key"),
         [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {

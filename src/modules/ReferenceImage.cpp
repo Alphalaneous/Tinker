@@ -1,5 +1,4 @@
 #include "ReferenceImage.hpp"
-#include "../Utils.hpp"
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
 
@@ -79,13 +78,13 @@ void RITextGameObject::onImageFail() {
     node->addChild(spr);
 
     node->setContentSize(spr->getContentSize());
-    node->setPosition(node->getContentSize()/2);
-    spr->setPosition(node->getContentSize()/2);
+    node->setPosition(node->getContentSize() / 2.f);
+    spr->setPosition(node->getContentSize() / 2.f);
 
     auto label = CCLabelBMFont::create("Image Not Found", "chatFont.fnt");
     label->setAnchorPoint({0.5f, 0.f});
-    label->setPositionX(node->getContentWidth()/2);
-    label->setPositionY(node->getContentHeight() + 3);
+    label->setPositionX(node->getContentWidth() / 2.f);
+    label->setPositionY(node->getContentHeight() + 3.f);
 
     node->addChild(label);
     addChild(node);
@@ -107,9 +106,10 @@ void RITextGameObject::setAttributes() {
         node->removeFromParent();
     }
     setContentSize(fields->m_spr->getContentSize());
-    fields->m_spr->setPosition(getContentSize()/2);
+    fields->m_spr->setPosition(getContentSize() / 2.f);
     fields->m_spr->setColor(getColor());
     fields->m_spr->setOpacity(getOpacity());
+
     m_width = getContentWidth();
     m_height = getContentHeight();
     updateOrientedBox();
@@ -156,9 +156,9 @@ void RITextGameObject::setupImage(const std::string& path) {
     fields->m_isReferenceImage = true;
 
     if (std::filesystem::exists(decoded) && !std::filesystem::is_directory(decoded)) {
-        fields->m_spr = LazySprite::create({60, 60}, true);
+        fields->m_spr = LazySprite::create({60.f, 60.f}, true);
         fields->m_spr->setZOrder(1);
-        fields->m_spr->setPosition(getContentSize()/2);
+        fields->m_spr->setPosition(getContentSize() / 2.f);
         fields->m_spr->setID("image-reference"_spr);
         addChild(fields->m_spr);
 
@@ -214,8 +214,8 @@ void RIEditorUI::onImport(CCObject* sender) {
             }
             else {
                 auto winSize = CCDirector::get()->getWinSize();
-                auto localPosAR = m_editorLayer->m_objectLayer->convertToNodeSpaceAR(winSize/2);
-                pos = CCPoint{localPosAR.x, localPosAR.y + m_toolbarHeight};
+                auto localPosAR = m_editorLayer->m_objectLayer->convertToNodeSpaceAR(winSize / 2.f);
+                pos = CCPoint{localPosAR.x, localPosAR.y + tinker::utils::getToolbarHeight()};
             }
 
             std::string objStr = fmt::format("1,914,2,{},3,{},31,{}", pos.x, pos.y, utils::base64::encode("image:" + utils::base64::encode(utils::string::pathToString(path))));

@@ -1,5 +1,6 @@
 #include "DurationSlider.hpp"
 #include "DurationThumb.hpp"
+#include "utils/Constants.hpp"
 
 using namespace tinker::ui;
 
@@ -18,7 +19,7 @@ bool DurationSlider::init(EffectGameObject* object) {
     mainThumb->setID("main-thumb"_spr);
     addChild(mainThumb);
     
-    if (object->m_objectID == 1006) {
+    if (object->m_objectID == constants::objects::PulseTrigger) {
         auto fadeInThumb = DurationThumb::create(this, object, ThumbType::FadeIn);
         fadeInThumb->setID("fade-in-thumb"_spr);
         addChild(fadeInThumb);

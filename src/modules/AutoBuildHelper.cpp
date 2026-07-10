@@ -75,16 +75,16 @@ void AutoBuildHelper::showOnEditorUI() {
     auto autoBuildHelperSpr = CCSprite::create("build_helper.png"_spr);
     autoBuildHelperSpr->setID("auto-build-helper-sprite"_spr);
     
-    auto autoBuildHelperSprOn = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40, "GJ_button_02.png", 1);
-    auto autoBuildHelperSprOff = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40, "GJ_button_01.png", 1);
+    auto autoBuildHelperSprOn = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40.f, "GJ_button_02.png", 1.f);
+    auto autoBuildHelperSprOff = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40.f, "GJ_button_01.png", 1.f);
     
     autoBuildHelperSprOn->setID("auto-build-helper-sprite-on"_spr);
     autoBuildHelperSprOff->setID("auto-build-helper-sprite-off"_spr);
 
-    autoBuildHelperSpr->setPositionY(autoBuildHelperSpr->getPositionY()-2);
+    autoBuildHelperSpr->setPositionY(autoBuildHelperSpr->getPositionY() - 2.f);
 
-    autoBuildHelperSprOn->setContentSize({40, 40});
-    autoBuildHelperSprOff->setContentSize({40, 40});
+    autoBuildHelperSprOn->setContentSize({40.f, 40.f});
+    autoBuildHelperSprOff->setContentSize({40.f, 40.f});
 
     m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, m_editorUI, menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
@@ -116,8 +116,8 @@ void AutoBuildHelper::showOnPause() {
     autoBuildHelperSprOn->setID("auto-build-helper-sprite-on"_spr);
     autoBuildHelperSprOff->setID("auto-build-helper-sprite-off"_spr);
 
-    autoBuildHelperSprOn->setContentSize({40, 40});
-    autoBuildHelperSprOff->setContentSize({40, 40});
+    autoBuildHelperSprOn->setContentSize({40.f, 40.f});
+    autoBuildHelperSprOff->setContentSize({40.f, 40.f});
 
     m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, EditorUI::get(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);

@@ -1,5 +1,6 @@
 #include "DurationDrag.hpp"
 #include "Utils.hpp"
+#include "utils/Constants.hpp"
 
 using namespace tinker::ui;
 
@@ -83,23 +84,23 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
     if (!dgl->m_editorLayer->m_showDurationLines || dgl->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
     auto& api = DrawGridAPI::get();
-    const LineColor color = { 100, 100, 100, 75};
+    const LineColor color = {100, 100, 100, 75};
 
-    auto drawPulseLine = [&](EffectGameObject* object, float x) {
-        const ccVertex2F start = {x, object->getPositionY()};
-        const ccVertex2F end = {object->m_endPosition.x, object->m_endPosition.y};
+    auto drawPulseLine = [&] (EffectGameObject* object, float x) {
+        auto start = ccVertex2F{x, object->getPositionY()};
+        auto end = ccVertex2F{object->m_endPosition.x, object->m_endPosition.y};
 
         const float total = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
-        if (total <= 0.0f) return;
+        if (total <= 0.f) return;
 
         const float fadeInPct = object->m_fadeInDuration / total;
         const float holdPct   = (object->m_fadeInDuration + object->m_holdDuration) / total;
 
-        const ccVertex2F p1 = {std::lerp(start.x, end.x, fadeInPct), std::lerp(start.y, end.y, fadeInPct)};
-        const ccVertex2F p2 = {std::lerp(start.x, end.x, holdPct), std::lerp(start.y, end.y, holdPct)};
+        auto p1 = ccVertex2F{std::lerp(start.x, end.x, fadeInPct), std::lerp(start.y, end.y, fadeInPct)};
+        auto p2 = ccVertex2F{std::lerp(start.x, end.x, holdPct), std::lerp(start.y, end.y, holdPct)};
 
-        const LineColor startColor{{0,0,0,0}, color.getColorA()};
-        const LineColor endColor{color.getColorA(), {0,0,0,0}};
+        auto startColor = LineColor{{0, 0, 0, 0}, color.getColorA()};
+        auto endColor = LineColor{color.getColorA(), {0, 0, 0, 0}};
 
         api.drawLine(start, p1, startColor, 2.f);
         api.drawLine(p1, p2, color, 2.f);
@@ -115,7 +116,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
             bool drawCenter = true;
 
             for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
-                if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
+                if (!object->m_dontIgnoreDuration || object->m_objectID == tinker::constants::objects::SFXTrigger) continue;
                 if (first) {
                     refChannel = object->m_channelValue;
                     first = false;
@@ -127,13 +128,13 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
 
             if (drawCenter) {
                 for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
-                    if (!object->m_dontIgnoreDuration || object->m_objectID == 3602) continue;
+                    if (!object->m_dontIgnoreDuration || object->m_objectID == tinker::constants::objects::SFXTrigger) continue;
 
                     auto centerPoint = center.unwrap().second;
                     auto start = object->getPosition();
                     auto end = object->m_endPosition;
 
-                    if (end == CCPointZero) end = start;
+                    if (end == CCPoint{0.f, 0.f}) end = start;
 
                     bool isLesser = end.x < start.x;
 
@@ -151,7 +152,7 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
     for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_durationObjects)) {
         if (!DrawGridAPI::get().isObjectVisible(object)) continue;
 
-        if (object->m_endPosition.x < 0 && !object->m_isSpawnTriggered) {
+        if (object->m_endPosition.x < 0.f && !object->m_isSpawnTriggered) {
             object->m_endPosition = CCPointZero;
         }
 
@@ -163,19 +164,19 @@ void DurationDragDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float mi
             }));
         }
         
-        if (object->getPositionX() < 0 && !object->m_isSpawnTriggered) {
+        if (object->getPositionX() < 0.f && !object->m_isSpawnTriggered) {
 
-            drawDottedLine(object->getPosition(), {0, object->getPositionY()}, color, minX, maxX, minY, maxY);
+            drawDottedLine(object->getPosition(), {0.f, object->getPositionY()}, color, minX, maxX, minY, maxY);
 
-            if (object->m_objectID == 1006) {
-                drawPulseLine(object, 0);
+            if (object->m_objectID == tinker::constants::objects::PulseTrigger) {
+                drawPulseLine(object, 0.f);
                 continue;
             }
 
-            api.drawLine({0, object->getPositionY()}, {object->m_endPosition.x, object->m_endPosition.y}, color, 2.f);
+            api.drawLine({0.f, object->getPositionY()}, {object->m_endPosition.x, object->m_endPosition.y}, color, 2.f);
         }
 
-        if (object->m_objectID == 1006) {
+        if (object->m_objectID == tinker::constants::objects::PulseTrigger) {
             drawPulseLine(object, object->getPositionX());
         }
     }
@@ -197,8 +198,8 @@ $on_mod(Loaded) {
 
 		durationLines.setPropertiesForObject([] (LineColor& color, EffectGameObject* object, float& lineWidth) {
             if (!DurationDrag::isEnabled()) return;
-			if (object->getPositionX() < 0 && !object->m_isSpawnTriggered || object->m_objectID == 1006) {
-				color = {0,0,0,0};
+			if (object->getPositionX() < 0.f && !object->m_isSpawnTriggered || object->m_objectID == tinker::constants::objects::PulseTrigger) {
+				color = {0, 0, 0, 0};
 			}
 		});
 	}

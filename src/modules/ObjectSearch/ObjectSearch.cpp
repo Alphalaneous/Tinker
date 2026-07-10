@@ -7,6 +7,7 @@
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "third-party/ObjectIDDisplay.hpp"
+#include "utils/Constants.hpp"
 
 using namespace alpha::prelude;
 
@@ -72,14 +73,14 @@ void ObjectSearch::onEditor() {
     });
     
     m_editorUI->runAction(CallFuncExt::create([this, fields, objectSearch] {
-        float buildTabHeight = 0;
+        float buildTabHeight = 0.f;
         float scale = 1.f;
         if (auto node = m_editorUI->getChildByID("build-tabs-menu")) {
             buildTabHeight = node->getScaledContentHeight();
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({m_editorUI->getContentWidth() / 2, m_editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
+        fields->m_searchField->setPosition({m_editorUI->getContentWidth() / 2.f, tinker::utils::getToolbarHeight() + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
     }));
 
@@ -166,7 +167,7 @@ CreateMenuItem* OSCreateMenuItem::create(cocos2d::CCNode* normal, cocos2d::CCNod
 CreateMenuItem* OSCreateMenuItem::createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector) {
     auto m_dummy = CCSprite::create();
 
-    auto btnSpr = ButtonSprite::create(m_dummy, 32, 0, 32.0, 1.0, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
+    auto btnSpr = ButtonSprite::create(m_dummy, 32, 0, 32.f, 1.f, true, fmt::format("GJ_button_0{}.png", bgID).c_str(), true);
     
     auto ret = CreateMenuItem::create(btnSpr, nullptr, target, selector);
     ret->m_objectID = item->m_objectID;
@@ -187,11 +188,13 @@ void OSCreateMenuItem::loadObject() {
     auto fields = m_fields.self();
     if (!fields->m_isLazy || fields->m_loaded) return;
 
+    using namespace tinker::constants;
+
     auto buttonSprite = getChildByType<ButtonSprite*>(0);
 
     GameObject* obj = nullptr;
 
-    if (m_objectID == 0x392 || m_objectID == 0x64F) {
+    if (m_objectID == objects::Text || m_objectID == objects::Counter) {
         auto texture = CCTextureCache::get()->addImage("bigFont.png", false);
         obj = TextGameObject::create(texture);
     }
@@ -205,13 +208,13 @@ void OSCreateMenuItem::loadObject() {
     obj->addColorSprite(frame);
     obj->setupCustomSprites(frame);
 
-    if (m_objectID == 0x392) {
+    if (m_objectID == objects::Text) {
         static_cast<TextGameObject*>(obj)->updateTextObject("A", true);
     }
-    else if (m_objectID == 0x64F) {
+    else if (m_objectID == objects::Counter) {
         static_cast<TextGameObject*>(obj)->updateTextObject("0", true);
     }
-    else if (m_objectID == 0x419) {
+    else if (m_objectID == objects::ToggleTrigger) {
         static_cast<EffectGameObject*>(obj)->updateSpecialColor();
     }
 
@@ -220,12 +223,12 @@ void OSCreateMenuItem::loadObject() {
 
         bool colorable = (effect->m_customColorType == 1) || (effect->m_customColorType == 0 && effect->m_maybeNotColorable);
 
-        if (!colorable && !effect->m_colorSprite && effect->m_baseColor->m_defaultColorID != 1004 && effect->m_shouldPreview) {
+        if (!colorable && !effect->m_colorSprite && effect->m_baseColor->m_defaultColorID != color_channels::Obj && effect->m_shouldPreview) {
             obj->setColor({200, 200, 255});
         }
     }
 
-    if (obj->m_opacityMod2 > 0.0f) {
+    if (obj->m_opacityMod2 > 0.f) {
         obj->setOpacity(255);
     }
 
@@ -234,7 +237,7 @@ void OSCreateMenuItem::loadObject() {
     float maxSize = std::max(rect.size.width, rect.size.height);
     float scale = obj->getScale();
 
-    if (32.f / maxSize < scale || obj->m_pixelScaleX > 1.0f) {
+    if (32.f / maxSize < scale || obj->m_pixelScaleX > 1.f) {
         obj->setScale(32.f / maxSize);
     }
 
@@ -245,13 +248,13 @@ void OSCreateMenuItem::loadObject() {
     buttonSprite->m_subSprite = obj;
     buttonSprite->addChild(obj);
 
-    geode::cocos::limitNodeSize(obj, {32, 32}, 1.f, 0.01f);
+    geode::cocos::limitNodeSize(obj, {32.f, 32.f}, 1.f, 0.01f);
     
     if (CenteredObjectButtons::isEnabled()) {
         buttonSprite->updateSpriteOffset({-0.25f, -1.5f});
     }
     else {
-        buttonSprite->updateSpriteOffset({0, 0});
+        buttonSprite->updateSpriteOffset({0.f, 0.f});
     }
 
     if (obj->m_colorSprite && !obj->m_unk28c) {
@@ -259,9 +262,9 @@ void OSCreateMenuItem::loadObject() {
         obj->addChild(obj->m_colorSprite, z);
 
         auto size = obj->getContentSize();
-        obj->m_colorSprite->setPosition(size / 2);
+        obj->m_colorSprite->setPosition(size / 2.f);
         obj->m_colorSprite->setColor({200, 200, 255});
-        obj->m_colorSprite->setScale(1);
+        obj->m_colorSprite->setScale(1.f);
     }
 
     fields->m_loaded = true;

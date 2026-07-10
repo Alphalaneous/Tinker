@@ -20,13 +20,13 @@ void AlternateLassoLocation::onEditor() {
     auto sprite = CCSprite::create("lasso.png"_spr);
     sprite->setID("undefined0.lasso-select/lasso-button-sprite");
     
-    auto sprOn = ButtonSprite::create(sprite, 40, true, 40, "GJ_button_01.png", 1);
-    auto sprOff = ButtonSprite::create(sprite, 40, true, 40, "GJ_button_02.png", 1);
+    auto sprOn = ButtonSprite::create(sprite, 40, true, 40.f, "GJ_button_01.png", 1.f);
+    auto sprOff = ButtonSprite::create(sprite, 40, true, 40.f, "GJ_button_02.png", 1.f);
     
-    sprite->setPositionY(sprite->getPositionY()-2);
+    sprite->setPositionY(sprite->getPositionY() - 2.f);
 
-    sprOn->setContentSize({40, 40});
-    sprOff->setContentSize({40, 40});
+    sprOn->setContentSize({40.f, 40.f});
+    sprOff->setContentSize({40.f, 40.f});
 
     auto toggler = CCMenuItemToggler::create(sprOn, sprOff, m_editorUI, menu_selector(AlternateLassoLocation::onLasso));
     toggler->setID("undefined0.lasso-select/lasso-button-toggler");

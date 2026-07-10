@@ -3,7 +3,6 @@
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjson::Value& value) {
-    
     if (key == "blur-behind") {
         return false;
     }
@@ -33,21 +32,21 @@ void CustomToolbarBackground::onEditor() {
     auto toolbarBG = static_cast<CCSprite*>(m_editorUI->getChildByID("background-sprite"));
     
     auto oldContentSize = toolbarBG->getContentSize();
-    toolbarBG->setTextureRect({-1, -1, 0, 0});
+    toolbarBG->setTextureRect({-1.f, -1.f, 0.f, 0.f});
     toolbarBG->setContentSize(oldContentSize);
 
     m_gradient = CCLayerGradient::create(getSetting<ccColor4B, "gradient-start-color">(), getSetting<ccColor4B, "gradient-end-color">());
-    m_gradient->setContentSize(oldContentSize + CCSize{0, -1});
+    m_gradient->setContentSize(oldContentSize + CCSize{0.f, -1.f});
     m_gradient->ignoreAnchorPointForPosition(false);
-    m_gradient->setAnchorPoint({0, 0});
+    m_gradient->setAnchorPoint({0.f, 0.f});
 
     toolbarBG->addChild(m_gradient);
 
     m_line = CCLayerColor::create(getSetting<ccColor4B, "line-color">());
-    m_line->setContentSize({oldContentSize.width, 1});
+    m_line->setContentSize({oldContentSize.width, 1.f});
     m_line->ignoreAnchorPointForPosition(false);
-    m_line->setAnchorPoint({0, 1});
-    m_line->setPosition({0, oldContentSize.height});
+    m_line->setAnchorPoint({0.f, 1.f});
+    m_line->setPosition({0.f, oldContentSize.height});
     m_line->setZOrder(1);
 
     toolbarBG->addChild(m_line);

@@ -64,33 +64,27 @@
 			"type": "bool",
 			"default": true,
 			"name": "Grid Controls",
-			"description": "Add buttons to change the grid size.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Add buttons to change the grid size."
 		},
 		"HideUI-enabled": {
 			"type": "bool",
 			"default": true,
 			"name": "Hide UI Toggle",
-			"description": "Add a Hide UI toggle next to the undo buttons.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Add a Hide UI toggle next to the undo buttons."
 		},
 		"HideTriggerUI-enabled": {
 			"type": "bool",
 			"default": false,
 			"name": "Slider Hides Trigger UI",
 			"description": "Dragging any slider in any trigger hides the trigger UI.",
-			"enable-if": "!loaded:hjfod.betteredit && !loaded:ninkaz.editor_utils",
-			"enable-if-description": "This feature is not compatible with BetterEdit and Ninkaz's Editor Utils."
+			"enable-if": "!loaded:ninkaz.editor_utils",
+			"enable-if-description": "This feature is not compatible with Ninkaz's Editor Utils."
 		},
 		"ImprovedControls-enabled": {
 			"type": "bool",
 			"default": true,
 			"name": "Improved Scale and Rotate Controls",
-			"description": "Add snapping and position locking to scale and rotate controls.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Add snapping and position locking to scale and rotate controls."
 		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",

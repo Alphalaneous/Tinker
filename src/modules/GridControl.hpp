@@ -6,6 +6,7 @@
 
 class $editorModule(GridControl) {
     TextInput* m_input;
+    Ref<CCNode> m_oldBEControl;
 
     void onEditor();
     void updateGrid(float newValue = 0, bool updateInput = true);

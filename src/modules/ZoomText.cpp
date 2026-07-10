@@ -26,8 +26,8 @@ void ZoomText::showZoomText() {
     m_zoomLabel->setOpacity(255);
     m_zoomLabel->stopAllActions();
     m_zoomLabel->runAction(CCSequence::create(
-        CCDelayTime::create(.5f),
-        CCFadeOut::create(.5f),
+        CCDelayTime::create(0.5f),
+        CCFadeOut::create(0.5f),
         nullptr
     ));
 }

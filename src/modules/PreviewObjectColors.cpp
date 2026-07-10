@@ -1,6 +1,7 @@
 #include "PreviewObjectColors.hpp"
 #include "ScrollableObjects.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
+#include "utils/Constants.hpp"
 
 void PreviewObjectColors::onEditor() {
     auto savedObj = alpha::level_storage::getSavedValue<std::string>(m_editorLayer, "color-object");
@@ -82,6 +83,8 @@ GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
 
     if (!tinker::utils::isColorable(ret)) return ret;
 
+    using namespace tinker::constants;
+
     auto fields = m_fields.self();
 
     auto defaultObject = fields->m_defaultObject;
@@ -89,8 +92,8 @@ GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
 
     int baseColorID = defaultObject->m_baseColor->m_colorID;
 
-    if (baseColorID == 1012 && !ret->m_detailColor) {
-        baseColorID = 1011;
+    if (baseColorID == color_channels::Lighter && !ret->m_detailColor) {
+        baseColorID = color_channels::White;
     }
 
     if (auto baseColor = ret->m_baseColor) {

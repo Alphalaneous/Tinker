@@ -165,28 +165,31 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
             name = NIDManager::getNameForID(NID::GROUP, k).unwrapOrDefault();
         }
 
-        auto bspr = ButtonSprite::create(fmt::format("{}", k).c_str(), 30, true, "goldFont.fnt", texture.c_str(), 20, 0.5);
+        auto bspr = ButtonSprite::create(fmt::format("{}", k).c_str(), 30, true, "goldFont.fnt", texture.c_str(), 20.f, 0.5f);
         bspr->setID("background-sprite"_spr);
 
-        float width = 46;
+        float width = 46.f;
 
         auto nameLabel = CCLabelBMFont::create(name.c_str(), "bigFont.fnt");
-        nameLabel->setScale(0.5);
+        nameLabel->setScale(0.5f);
 
         if (!name.empty()) {
             bspr->m_label->setAnchorPoint({0.f, 0.5f});
-            bspr->m_label->setPositionX(10);
+            bspr->m_label->setPositionX(10.f);
+
             auto idLabelSize = bspr->m_label->getScaledContentSize();
             auto idLabelPos = bspr->m_label->getPosition();
+
             nameLabel->setAnchorPoint({0.f, 0.5f});
-            nameLabel->limitLabelWidth(70.f, .5, .1);
-            width = nameLabel->getScaledContentWidth() + 25 + bspr->m_label->getScaledContentWidth();
+            nameLabel->limitLabelWidth(70.f, 0.5, 0.1);
+            width = nameLabel->getScaledContentWidth() + 25.f + bspr->m_label->getScaledContentWidth();
+
             nameLabel->setPosition({bspr->m_label->getPositionX() + bspr->m_label->getScaledContentWidth() + 5.f, bspr->m_label->getPositionY()});
             bspr->addChild(nameLabel);
 
             auto background = CCSprite::create("square02b_001.png");
-            background->setScaleX(idLabelSize.width / background->getScaledContentWidth() + .05f);
-            background->setScaleY(idLabelSize.height / background->getScaledContentHeight() - .02f);
+            background->setScaleX(idLabelSize.width / background->getScaledContentWidth() + 0.05f);
+            background->setScaleY(idLabelSize.height / background->getScaledContentHeight() - 0.02f);
             background->setColor({0, 0, 0});
             background->setOpacity(100);
             background->setPosition({idLabelPos.x + idLabelSize.width/2, idLabelPos.y - 1.5f });
@@ -196,7 +199,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 
         bspr->m_BGSprite->setContentSize({width, bspr->m_BGSprite->getContentHeight()});
         bspr->setContentSize(bspr->m_BGSprite->getScaledContentSize());
-        bspr->m_BGSprite->setPosition(bspr->getContentSize()/2);
+        bspr->m_BGSprite->setPosition(bspr->getContentSize() / 2.f);
 
         auto button = CCMenuItemSpriteExtra::create(bspr, this, menu_selector(IGVSetGroupIDLayer::onRemoveFromGroup2));
         button->setID(fmt::format("group-{}-button"_spr, k));
@@ -208,33 +211,33 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 
     if (groupsMenu->getChildrenCount() <= 10) {
         groupsMenu->setScale(1.f);
-        contentSize = CCSize{278, 67};
+        contentSize = CCSize{278.f, 67.f};
     }
     else {
         groupsMenu->setScale(0.85f);
-        contentSize = CCSize{395, 67};
+        contentSize = CCSize{395.f, 67.f};
     }
 
-    float padding = 7.5;
+    float padding = 7.5f;
 
     groupsMenu->setContentSize(contentSize);
-    groupsMenu->setPosition({360/2.f, padding});
-    groupsMenu->setAnchorPoint({0.5, 0});
+    groupsMenu->setPosition({360.f / 2.f, padding});
+    groupsMenu->setAnchorPoint({0.5f, 0.f});
     groupsMenu->updateLayout();
     groupsMenu->setID("groups-menu"_spr);
 
-    menuContainer->setContentSize({360, groupsMenu->getScaledContentSize().height + padding * 2});
-    menuContainer->setAnchorPoint({0.5, 0});
-    menuContainer->setPosition({360/2.f, 0});
+    menuContainer->setContentSize({360.f, groupsMenu->getScaledContentSize().height + padding * 2.f});
+    menuContainer->setAnchorPoint({0.5f, 0.f});
+    menuContainer->setPosition({360.f / 2.f, 0.f});
     menuContainer->addChild(groupsMenu);
     menuContainer->setID("menu-container"_spr);
 
     auto winSize = CCDirector::get()->getWinSize();
 
-    fields->m_scrollLayer = AdvancedScrollLayer::create({360, menuContainer->getScaledContentSize().height});
+    fields->m_scrollLayer = AdvancedScrollLayer::create({360.f, menuContainer->getScaledContentSize().height});
 
-    fields->m_scrollLayer->setContentSize({360, 68});
-    fields->m_scrollLayer->setPosition({winSize.width/2, winSize.height/2 - 16.8f});
+    fields->m_scrollLayer->setContentSize({360.f, 68.f});
+    fields->m_scrollLayer->setPosition({winSize.width / 2.f, winSize.height / 2.f - 16.8f});
     fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
     fields->m_scrollLayer->addChild(menuContainer);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
@@ -253,14 +256,14 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
     };
 
     fields->m_scrollBar->setStyle(style);
-    fields->m_scrollBar->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 10});
-    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2 - fields->m_scrollBar->getContentWidth() / 2 + 1, fields->m_scrollLayer->getPositionY()});
+    fields->m_scrollBar->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 10.f});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2.f - fields->m_scrollBar->getContentWidth() / 2.f + 1.f, fields->m_scrollLayer->getPositionY()});
     fields->m_scrollBar->setZOrder(100);
-    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10);
+    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10.f);
 
     m_mainLayer->addChild(fields->m_scrollBar);
 
-    if (groupsMenu->getScaledContentHeight() <= 67) {
+    if (groupsMenu->getScaledContentHeight() <= 67.f) {
         fields->m_scrollLayer->setVerticalScroll(false);
         fields->m_scrollLayer->setHorizontalScrollWheel(false);
         fields->m_scrollBar->setVisible(false);
@@ -274,11 +277,11 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
         if (auto groupsBG = m_mainLayer->getChildByID("groups-bg")) {
             auto labelPos = zLayerLabel->getPosition();
             auto groupsBGSize = groupsBG->getContentSize();
-            fields->m_groupCountLabel->setPosition({labelPos.x - groupsBGSize.width/2, labelPos.y + 6});
+            fields->m_groupCountLabel->setPosition({labelPos.x - groupsBGSize.width/2, labelPos.y + 6.f});
         }
     }
     fields->m_groupCountLabel->setID("group-count-label"_spr);
-    fields->m_groupCountLabel->setAnchorPoint({0, 0.5});
+    fields->m_groupCountLabel->setAnchorPoint({0.f, 0.5f});
     fields->m_groupCountLabel->setColor({0, 0, 0});
     fields->m_groupCountLabel->setOpacity(200);
     fields->m_groupCountLabel->setScale(0.5f);
@@ -286,12 +289,12 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 }
 
 ImprovedGroupView::GroupData IGVSetGroupIDLayer::parseObjGroups(GameObject* obj) {
-    auto lel = LevelEditorLayer::get();
+    auto editor = LevelEditorLayer::get();
 
     int uuid = obj->m_uniqueID;
     std::vector<int> parents;
 
-    for (const auto& [k, v] : CCDictionaryExt<int, CCArray*>(lel->m_parentGroupIDs)) {
+    for (const auto& [k, v] : CCDictionaryExt<int, CCArray*>(editor->m_parentGroupIDs)) {
         if (k != uuid) continue;
         for (auto val : CCArrayExt<CCInteger*>(v)) {
             parents.push_back(val->getValue());
@@ -366,7 +369,7 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     m_remapButtons->removeAllObjects();
     m_remapGroups.clear();
 
-    float currentScroll = 0;
+    float currentScroll = 0.f;
 
     if (fields->m_scrollLayer) {
         currentScroll = fields->m_scrollLayer->getScrollPoint().y;
@@ -447,7 +450,7 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     layout->setAutoScale(false);
     layout->setGrowCrossAxis(true);
     layout->setCrossAxisOverflow(true);
-    layout->setPadding({20, 10, 20, 10});
+    layout->setPadding({20.f, 10.f, 20.f, 10.f});
     
     if (ImprovedGroupView::getSetting<bool, "left-align">()) {
         layout->setAxisAlignment(AxisAlignment::Start);
@@ -455,27 +458,30 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
 
     groupsMenu->setLayout(layout);
 
-    groupsMenu->setContentSize({360, 90});
-    groupsMenu->setPosition({360/2.f, 0});
-    groupsMenu->setAnchorPoint({0.5, 0});
+    groupsMenu->setContentSize({360.f, 90.f});
+    groupsMenu->setPosition({360.f / 2.f, 0.f});
+    groupsMenu->setAnchorPoint({0.5f, 0.f});
     groupsMenu->updateLayout();
     groupsMenu->setID("groups-menu"_spr);
 
-    if (groupsMenu->getScaledContentHeight() > 90) {
-        layout->setPadding({20, 5, 20, 5});
+    if (groupsMenu->getScaledContentHeight() > 90.f) {
+        layout->setPadding({20.f, 5.f, 20.f, 5.f});
         groupsMenu->updateLayout();
     }
 
-    fields->m_scrollLayer = AdvancedScrollLayer::create({360, 90});
+    fields->m_scrollLayer = AdvancedScrollLayer::create({360.f, 90.f});
 
-    fields->m_scrollLayer->setContentSize({360, 90});
-    fields->m_scrollLayer->setPosition({winSize.width/2, winSize.height/2});
+    fields->m_scrollLayer->setContentSize({360.f, 90.f});
+    fields->m_scrollLayer->setPosition({winSize.width / 2.f, winSize.height / 2.f});
     fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
     fields->m_scrollLayer->setScrollDelta(1.5f);
-    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()->setCrossAxisScaling(AxisScaling::Grow)->setCrossAxisAlignment(CrossAxisAlignment::Start));
+    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
+        ->setCrossAxisScaling(AxisScaling::Grow)
+        ->setCrossAxisAlignment(CrossAxisAlignment::Start)
+    );
 
     m_mainLayer->addChild(fields->m_scrollLayer);
 
@@ -485,11 +491,11 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     fields->m_groupCountLabel = CCLabelBMFont::create(fmt::format("Remap Groups: {}", remapCounts.size()).c_str(), "chatFont.fnt");
 
     fields->m_groupCountLabel->setID("group-count-label"_spr);
-    fields->m_groupCountLabel->setAnchorPoint({0, 1.f});
+    fields->m_groupCountLabel->setAnchorPoint({0.f, 1.f});
     fields->m_groupCountLabel->setColor({0, 0, 0});
     fields->m_groupCountLabel->setOpacity(200);
     fields->m_groupCountLabel->setScale(0.5f);
-    fields->m_groupCountLabel->setPosition({fields->m_scrollLayer->getPositionX() - fields->m_scrollLayer->getContentWidth()/2, fields->m_scrollLayer->getPositionY() - fields->m_scrollLayer->getContentHeight()/2 - 2});
+    fields->m_groupCountLabel->setPosition({fields->m_scrollLayer->getPositionX() - fields->m_scrollLayer->getContentWidth() / 2.f, fields->m_scrollLayer->getPositionY() - fields->m_scrollLayer->getContentHeight() / 2.f - 2.f});
 
     m_mainLayer->addChild(fields->m_groupCountLabel);
 
@@ -503,14 +509,14 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     };
 
     fields->m_scrollBar->setStyle(style);
-    fields->m_scrollBar->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 10});
-    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2 - fields->m_scrollBar->getContentWidth() / 2 + 1, fields->m_scrollLayer->getPositionY()});
+    fields->m_scrollBar->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 10.f});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2.f - fields->m_scrollBar->getContentWidth() / 2.f + 1.f, fields->m_scrollLayer->getPositionY()});
     fields->m_scrollBar->setZOrder(100);
     fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10);
 
     m_mainLayer->addChild(fields->m_scrollBar);
 
-    if (groupsMenu->getScaledContentHeight() <= 90) {
+    if (groupsMenu->getScaledContentHeight() <= 90.f) {
         fields->m_scrollLayer->setVerticalScroll(false);
         fields->m_scrollLayer->setHorizontalScrollWheel(false);
         fields->m_scrollBar->setVisible(false);
@@ -535,7 +541,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
 
     m_groupButtons->removeAllObjects();
 
-    float currentScroll = 0;
+    float currentScroll = 0.f;
 
     if (fields->m_scrollLayer) {
         currentScroll = fields->m_scrollLayer->getScrollPoint().y;
@@ -615,7 +621,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
             if (button->m_label->getScale() >= (0.35f * 0.8f)) {
                 button->m_label->setScale(button->m_label->getScale() * 0.8f);
             }
-            button->m_label->setPositionX(9 + button->m_label->getScaledContentWidth() / 2);
+            button->m_label->setPositionX(9 + button->m_label->getScaledContentWidth() / 2.f);
         }
 
         auto menuItem = CCMenuItemSpriteExtra::create(
@@ -631,11 +637,11 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
     }
 
     auto layout = RowLayout::create();
-    layout->setGap(10);
+    layout->setGap(10.f);
     layout->setAutoScale(false);
     layout->setGrowCrossAxis(true);
     layout->setCrossAxisOverflow(true);
-    layout->setPadding({15, 10, 15, 10});
+    layout->setPadding({15.f, 10.f, 15.f, 10.f});
 
     if (ImprovedGroupView::getSetting<bool, "left-align">()) {
         layout->setAxisAlignment(AxisAlignment::Start);
@@ -643,29 +649,32 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
 
     groupsMenu->setLayout(layout);
 
-    groupsMenu->setContentSize({350, 90});
-    groupsMenu->setPosition({350/2.f, 0});
-    groupsMenu->setAnchorPoint({0.5, 0});
+    groupsMenu->setContentSize({350.f, 90.f});
+    groupsMenu->setPosition({350.f / 2.f, 0.f});
+    groupsMenu->setAnchorPoint({0.5f, 0.f});
     groupsMenu->updateLayout();
     groupsMenu->setID("groups-menu"_spr);
 
-    if (groupsMenu->getScaledContentHeight() > 90) {
-        layout->setPadding({15, 5, 15, 5});
+    if (groupsMenu->getScaledContentHeight() > 90.f) {
+        layout->setPadding({15.f, 5.f, 15.f, 5.f});
         groupsMenu->updateLayout();
     }
 
     auto winSize = CCDirector::get()->getWinSize();
 
-    fields->m_scrollLayer = AdvancedScrollLayer::create({350, 90});
+    fields->m_scrollLayer = AdvancedScrollLayer::create({350.f, 90.f});
 
-    fields->m_scrollLayer->setContentSize({350, 90});
-    fields->m_scrollLayer->setPosition({winSize.width/2, winSize.height/2 - 10});
+    fields->m_scrollLayer->setContentSize({350.f, 90.f});
+    fields->m_scrollLayer->setPosition({winSize.width / 2.f, winSize.height / 2.f - 10.f});
     fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
     fields->m_scrollLayer->setScrollDelta(1.5f);
-    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()->setCrossAxisScaling(AxisScaling::Grow)->setCrossAxisAlignment(CrossAxisAlignment::Start));
+    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
+        ->setCrossAxisScaling(AxisScaling::Grow)
+        ->setCrossAxisAlignment(CrossAxisAlignment::Start)
+    );
 
     m_mainLayer->addChild(fields->m_scrollLayer);
 
@@ -682,25 +691,25 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
     };
 
     fields->m_scrollBar->setStyle(style);
-    fields->m_scrollBar->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 10});
-    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2 - fields->m_scrollBar->getContentWidth() / 2 + 1, fields->m_scrollLayer->getPositionY()});
+    fields->m_scrollBar->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 10.f});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2.f - fields->m_scrollBar->getContentWidth() / 2.f + 1.f, fields->m_scrollLayer->getPositionY()});
     fields->m_scrollBar->setZOrder(100);
-    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10);
+    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10.f);
 
     m_mainLayer->addChild(fields->m_scrollBar);
 
     fields->m_groupCountLabel = CCLabelBMFont::create(fmt::format("Chance Groups: {}", chanceObjects.size()).c_str(), "chatFont.fnt");
 
     fields->m_groupCountLabel->setID("group-count-label"_spr);
-    fields->m_groupCountLabel->setAnchorPoint({0, 1.f});
+    fields->m_groupCountLabel->setAnchorPoint({0.f, 1.f});
     fields->m_groupCountLabel->setColor({0, 0, 0});
     fields->m_groupCountLabel->setOpacity(200);
     fields->m_groupCountLabel->setScale(0.5f);
-    fields->m_groupCountLabel->setPosition({fields->m_scrollLayer->getPositionX() - fields->m_scrollLayer->getContentWidth()/2, fields->m_scrollLayer->getPositionY() - fields->m_scrollLayer->getContentHeight()/2 - 2});
+    fields->m_groupCountLabel->setPosition({fields->m_scrollLayer->getPositionX() - fields->m_scrollLayer->getContentWidth() / 2.f, fields->m_scrollLayer->getPositionY() - fields->m_scrollLayer->getContentHeight() / 2.f - 2.f});
 
     m_mainLayer->addChild(fields->m_groupCountLabel);
 
-    if (groupsMenu->getScaledContentHeight() <= 90) {
+    if (groupsMenu->getScaledContentHeight() <= 90.f) {
         fields->m_scrollLayer->setVerticalScroll(false);
         fields->m_scrollLayer->setHorizontalScrollWheel(false);
         fields->m_scrollBar->setVisible(false);
@@ -809,11 +818,11 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
     }
 
     auto layout = RowLayout::create();
-    layout->setGap(8);
+    layout->setGap(8.f);
     layout->setAutoScale(false);
     layout->setGrowCrossAxis(true);
     layout->setCrossAxisOverflow(true);
-    layout->setPadding({padding, 10, padding, 10});
+    layout->setPadding({padding, 10.f, padding, 10.f});
 
     if (ImprovedGroupView::getSetting<bool, "left-align">()) {
         layout->setAxisAlignment(AxisAlignment::Start);
@@ -821,27 +830,30 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
 
     groupsMenu->setLayout(layout);
 
-    groupsMenu->setContentSize({370, 90});
-    groupsMenu->setPosition({350/2.f, 0});
-    groupsMenu->setAnchorPoint({0.5, 0});
+    groupsMenu->setContentSize({370.f, 90.f});
+    groupsMenu->setPosition({350.f / 2.f, 0.f});
+    groupsMenu->setAnchorPoint({0.5f, 0.f});
     groupsMenu->updateLayout();
     groupsMenu->setID("groups-menu"_spr);
 
-    if (groupsMenu->getScaledContentHeight() > 90) {
-        layout->setPadding({padding, 5, padding, 5});
+    if (groupsMenu->getScaledContentHeight() > 90.f) {
+        layout->setPadding({padding, 5.f, padding, 5.f});
         groupsMenu->updateLayout();
     }
 
-    fields->m_scrollLayer = AdvancedScrollLayer::create({370, 90});
+    fields->m_scrollLayer = AdvancedScrollLayer::create({370.f, 90.f});
 
-    fields->m_scrollLayer->setContentSize({370, 90});
-    fields->m_scrollLayer->setPosition({winSize.width/2, winSize.height/2 + 14});
+    fields->m_scrollLayer->setContentSize({370.f, 90.f});
+    fields->m_scrollLayer->setPosition({winSize.width / 2.f, winSize.height / 2.f + 14.f});
     fields->m_scrollLayer->ignoreAnchorPointForPosition(false);
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
     fields->m_scrollLayer->setScrollDelta(1.5f);
-    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()->setCrossAxisScaling(AxisScaling::Grow)->setCrossAxisAlignment(CrossAxisAlignment::Start));
+    fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
+        ->setCrossAxisScaling(AxisScaling::Grow)
+        ->setCrossAxisAlignment(CrossAxisAlignment::Start)
+    );
 
     m_mainLayer->addChild(fields->m_scrollLayer);
 
@@ -858,14 +870,14 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
     };
 
     fields->m_scrollBar->setStyle(style);
-    fields->m_scrollBar->setContentSize({10, fields->m_scrollLayer->getContentHeight() - 10});
-    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2 - fields->m_scrollBar->getContentWidth() / 2 + 1, fields->m_scrollLayer->getPositionY()});
+    fields->m_scrollBar->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 10.f});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->getPositionX() + fields->m_scrollLayer->getContentWidth() / 2.f - fields->m_scrollBar->getContentWidth() / 2.f + 1.f, fields->m_scrollLayer->getPositionY()});
     fields->m_scrollBar->setZOrder(100);
-    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10);
+    fields->m_scrollBar->setTouchPriority(fields->m_scrollLayer->getTouchPriority() - 10.f);
 
     m_mainLayer->addChild(fields->m_scrollBar);
 
-    if (groupsMenu->getScaledContentHeight() <= 90) {
+    if (groupsMenu->getScaledContentHeight() <= 90.f) {
         fields->m_scrollLayer->setVerticalScroll(false);
         fields->m_scrollLayer->setHorizontalScrollWheel(false);
         fields->m_scrollBar->setVisible(false);
