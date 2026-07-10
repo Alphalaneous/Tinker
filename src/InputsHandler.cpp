@@ -207,15 +207,63 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-copy-values"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
         onCopyState(nullptr);
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-state"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
         onPasteState(nullptr);
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-color"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
         onPasteColor(nullptr);
+    });
+    
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-scale"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        activateScaleControl(getEditButtonByTag(29));
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-scale-xy"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        activateScaleControl(getEditButtonByTag(30));
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-warp"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        activateTransformControl(getEditButtonByTag(31));
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-left"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::HalfLeft);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-right"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::HalfRight);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-up"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::HalfUp);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-down"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::HalfDown);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-left"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::BigLeft);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-right"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::BigRight);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-up"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::BigUp);
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-down"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        moveObjectCall(EditCommand::BigDown);
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
@@ -259,12 +307,19 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     return true;
 }
 
-void InputEditorUI::addTextInput(TextInput* input) {
-    m_fields->m_textInputs.insert(input);
+CCMenuItemSpriteExtra* InputEditorUI::getEditButtonByTag(int tag) {
+    return static_cast<CCMenuItemSpriteExtra*>(m_editButtonDict->objectForKey(numToString(tag)));
 }
 
-void InputEditorUI::removeTextInput(TextInput* input) {
-    m_fields->m_textInputs.erase(input);
+void InputEditorUI::addTextInput(TextInput* input) {
+    if (!input) return;
+
+    input->addOnEnterCallback([input] {
+        InputEditorUI::get()->m_fields->m_textInputs.insert(input);
+    });
+    input->addOnExitCallback([input] {
+        InputEditorUI::get()->m_fields->m_textInputs.erase(input);
+    });
 }
 
 #ifdef GEODE_IS_MACOS

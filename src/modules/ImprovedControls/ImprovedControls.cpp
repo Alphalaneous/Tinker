@@ -322,6 +322,10 @@ bool ICGJScaleControl::init() {
     fields->m_sliderY->updateSnap(4.f);
     fields->m_sliderXY->updateSnap(4.f);
 
+    fields->m_inputs.push_back(fields->m_inputX);
+    fields->m_inputs.push_back(fields->m_inputY);
+    fields->m_inputs.push_back(fields->m_inputXY);
+
     return true;
 }
 

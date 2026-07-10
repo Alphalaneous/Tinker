@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.34",
+	"version": "v1.0.35",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -59,18 +59,6 @@
 			"type": "info",
 			"description": "Customize different aspects of the editor's interface.",
 			"color": "#000000"
-		},
-		"GridControl-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Grid Controls",
-			"description": "Add buttons to change the grid size."
-		},
-		"HideUI-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Hide UI Toggle",
-			"description": "Add a Hide UI toggle next to the undo buttons."
 		},
 		"HideTriggerUI-enabled": {
 			"type": "bool",
@@ -566,6 +554,58 @@
 			"description": "Keybind to move selected objects to the center of the camera.",
 			"type": "keybind",
 			"default": ["M"],
+			"category": "editor"
+		},
+		"GridControl-title": {
+			"type": "title",
+			"name": "Grid Controls"
+		},
+		"GridControl-description": {
+			"type": "info",
+			"description": "Add buttons to change the grid size.",
+			"color": "#000000"
+		},
+		"GridControl-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"GridControl-increase-keybind": {
+			"name": "Increase Grid Size Keybind",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"GridControl-decrease-keybind": {
+			"name": "Decrease Grid Size Keybind",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"HideUI-title": {
+			"type": "title",
+			"name": "Hide UI"
+		},
+		"HideUI-description": {
+			"type": "info",
+			"description": "Add a button to hide the editor UI.",
+			"color": "#000000"
+		},
+		"HideUI-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"HideUI-hide-all": {
+			"type": "bool",
+			"default": true,
+			"name": "Hide All",
+			"description": "Hide the playtest and pause buttons as well."
+		},
+		"HideUI-toggle-ui-keybind": {
+			"name": "Toggle UI Keybind",
+			"type": "keybind",
+			"default": [],
 			"category": "editor"
 		},
 		"ImprovedGroupView-title": {
@@ -1095,49 +1135,42 @@
 		},
 		"Keybinds-edit-object": {
 			"name": "Edit Object",
-			"description": "Quickly access Edit Object",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-edit-group": {
 			"name": "Edit Group",
-			"description": "Quickly access Edit Group",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-edit-special": {
 			"name": "Edit Special",
-			"description": "Quickly access Edit Special",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-edit-extras": {
 			"name": "Edit Extras",
-			"description": "Quickly access Edit Extras",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-copy-values": {
 			"name": "Copy Values",
-			"description": "Quickly activate Copy Values",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-paste-state": {
 			"name": "Paste State",
-			"description": "Quickly activate Paste State",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
 		},
 		"Keybinds-paste-color": {
 			"name": "Paste Color",
-			"description": "Quickly activate Paste Color",
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
@@ -1155,10 +1188,75 @@
 			"default": ["Ctrl+R"],
 			"category": "editor"
 		},
+		"Keybinds-move-obj-half-left": {
+			"name": "Move Object Half Left",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-half-right": {
+			"name": "Move Object Half Right",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-half-up": {
+			"name": "Move Object Half Up",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-half-down": {
+			"name": "Move Object Half Down",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-big-left": {
+			"name": "Move Object Big Left",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-big-right": {
+			"name": "Move Object Big Right",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-big-up": {
+			"name": "Move Object Big Up",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-move-obj-big-down": {
+			"name": "Move Object Big Down",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-show-scale": {
+			"name": "Show Scale Controls",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-show-scale-xy": {
+			"name": "Show Scale XY Controls",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-show-warp": {
+			"name": "Show Warp Controls",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
 		"Keybinds-exit-pause-menu": {
 			"name": "Exit Pause Menu",
 			"type": "keybind",
-			"description": "Exit the editor pause menu.",
 			"default": ["Escape"],
 			"category": "editor",
 			"platforms": ["win", "android", "ios"]

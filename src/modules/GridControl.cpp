@@ -2,6 +2,26 @@
 #include "InputsHandler.hpp"
 #include "../../include/UIScaling.hpp"
 
+GridControl::GridControl() {
+    if (!GridControl::isEnabled()) return;
+
+    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
+    if (!betterEdit) return;
+
+    for (auto hook : betterEdit->getHooks()) {
+        if (hook->getDisplayName() == "EditorUI::updateGridNodeSize") (void) hook->disable();
+    }
+}
+
+GridControl::~GridControl() {
+    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
+    if (!betterEdit) return;
+
+    for (auto hook : betterEdit->getHooks()) {
+        if (hook->getDisplayName() == "EditorUI::updateGridNodeSize") (void) hook->enable();
+    }
+}
+
 void GridControl::onEditor() {
     auto container = CCMenu::create();
     container->setContentSize({80.f, 35.f});
@@ -36,12 +56,7 @@ void GridControl::onEditor() {
     m_input->setScale(0.55f);
     m_input->setID("grid-size-input"_spr);
     m_input->getBGSprite()->setScaleMultiplier(2.f);
-    m_input->addOnEnterCallback([this] {
-        InputEditorUI::get()->addTextInput(m_input);
-    });
-    m_input->addOnExitCallback([this] {
-        InputEditorUI::get()->removeTextInput(m_input);
-    });
+    InputEditorUI::addTextInput(m_input);
 
     container->addChild(m_input);
 
@@ -88,14 +103,37 @@ void GridControl::onEditor() {
             container->setPosition({settingsMenu->getPositionX() - offset * scale, settingsMenu->getPositionY()});
         }
     });
-    
+
+    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
+    if (betterEdit) {
+        addEventListener(KeybindSettingPressedEvent(betterEdit, "keybind-enlarge-grid-size"), [this, incBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+            if (!down) return;
+            incBtn->activate();
+        });
+        addEventListener(KeybindSettingPressedEvent(betterEdit, "keybind-ensmallen-grid-size"), [this, decBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+            if (!down) return;
+            decBtn->activate();
+        });
+    }
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "GridControl-increase-keybind"), [this, incBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        incBtn->activate();
+    });
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "GridControl-decrease-keybind"), [this, decBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down) return;
+        decBtn->activate();
+    });
+
     m_editorUI->m_uiItems->addObject(container);
     m_editorUI->addChild(container);
 
     m_editorUI->addOnEnterCallback([this] {
         m_oldBEControl = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls");
         if (m_oldBEControl) {
-            m_oldBEControl->removeFromParent();
+            // hacky hide so BE doesn't crash when changing grid with its keybinds
+            m_oldBEControl->setVisible(false);
+            m_oldBEControl->setPosition({FLT_MAX, FLT_MAX});
         }
     });
 
@@ -123,16 +161,4 @@ float GCObjectToolbox::gridNodeSizeForKey(int id) {
     }
 
     return size;
-}
-
-void GCEditorUI::updateGridNodeSize() {
-    auto size = Mod::get()->getSavedValue<float>("grid-size");
-    if (size < 1.f || std::roundf(size) == 30.f) {
-        return EditorUI::updateGridNodeSize();
-    }
-
-    auto orig = m_selectedMode;
-    m_selectedMode = 2;
-    EditorUI::updateGridNodeSize();
-    m_selectedMode = orig;
 }

@@ -1,3 +1,22 @@
+# 1.0.35
+- <c-dddddd>Fix scale sliders being draggable while disabled</c>
+- <c-dddddd>(Maybe) Fix Grid Controls crashing on 32-bit Android devices</c>
+- <c-dddddd>Add Hide All option for Hide UI toggle, to hide the playtest and pause buttons as well</c>
+- <c-dddddd>Increase hitbox of Hide UI toggle</c>
+- <c-dddddd>You can now click anywhere when the UI is hidden, touch is not blocked at the bottom of the screen</c>
+- <c-dddddd>Hiding UI and then selecting something no longer makes the tabs reappear</c>
+- <c-dddddd>Fixed an issue where clicking on a text input would click what is behind it</c>
+- <c-dddddd>Fixed some keybinds registering on release</c>
+- <c-dddddd>Added some keybinds</c>
+  - <c-dddddd>Toggle UI Visibility</c>
+  - <c-dddddd>Increase Grid Size</c>
+  - <c-dddddd>Decrease Grid Size</c>
+  - <c-dddddd>Show Scale Controls</c>
+  - <c-dddddd>Show Scale XY Controls</c>
+  - <c-dddddd>Show Warp Controls</c>
+  - <c-dddddd>Move Object Half</c>
+  - <c-dddddd>Move Object Big</c>
+
 # 1.0.34
 - <c-dddddd>Disable pinch to rotate by default due to the following feedback:</c>
   - <c-dddddd>"EW EWWWW THE TINKER UPDATE MADE THE CAMERA TURN WHEN YOU ZOOM OUT"</c>

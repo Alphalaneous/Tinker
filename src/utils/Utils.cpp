@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+#include "MainHooks.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 
@@ -98,6 +99,9 @@ namespace tinker::utils {
     }
 
     float getToolbarHeight() {
+        if (!MainEditorUI::get()->isUIVisible()) {
+            return 0;
+        }
         float height = tinker::constants::ToolbarHeight;
         if (UIScaling::isEnabled() && UIScaling::shouldScaleToolbar()) {
             height *= UIScaling::getUIScale();

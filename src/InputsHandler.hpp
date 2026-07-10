@@ -164,8 +164,9 @@ class $modify(InputEditorUI, EditorUI) {
     void unblockPause();
     CCPoint getRealMousePos();
 
-    void addTextInput(TextInput* input);
-    void removeTextInput(TextInput* input);
+    CCMenuItemSpriteExtra* getEditButtonByTag(int tag);
+
+    static void addTextInput(TextInput* input);
 
     void onPause(cocos2d::CCObject* sender);
 

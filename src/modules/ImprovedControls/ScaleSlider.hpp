@@ -17,6 +17,8 @@ public:
     void setValue(float value, bool skipCallback = false);
     void setPercent(float value, bool skipCallback = false);
 
+    virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
+
 protected:
     bool init(ScaleSliderCallback callback, GJScaleControl* control);
     void updateExtendedGroove();

@@ -31,6 +31,7 @@ class $modify(MainEditorUI, EditorUI) {
     struct Fields {
         int m_lastObjectCount;
         bool m_wasPlatformer;
+        bool m_uiVisible = true;
         KeyboardModifier m_lastModifier;
 
         ~Fields();
@@ -52,7 +53,8 @@ class $modify(MainEditorUI, EditorUI) {
     void updateButtons();
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);
-    
+
+    bool isUIVisible();
     static MainEditorUI* get();
 };
 

@@ -92,6 +92,12 @@ void ScaleSlider::updateExtendedGroove() {
     updateSnap(m_snap);
 }
 
+bool ScaleSlider::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+    if (!nodeIsVisible(this)) return false;
+
+    return SliderNode::ccTouchBegan(touch, event);
+}
+
 void ScaleSlider::setValue(float value, bool skipCallback) {
     m_skipCallback = skipCallback;
     SliderNode::setValue(value);

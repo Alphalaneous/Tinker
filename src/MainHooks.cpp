@@ -85,7 +85,13 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
 void MainEditorUI::showUI(bool show) {
     EditorUI::showUI(show);
+    m_fields->m_uiVisible = show;
+
     ShowUIEvent().send(show);
+}
+
+bool MainEditorUI::isUIVisible() {
+    return m_fields->m_uiVisible;
 }
 
 void MainEditorUI::mainUpdate(float dt) {
