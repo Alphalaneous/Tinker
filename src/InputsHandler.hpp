@@ -54,11 +54,19 @@ public:
 
     template<class CallbackGetter, class FinalCall>
     decltype(auto) dispatch(size_t i, CCTouch* touch, CallbackGetter&& getCallback, FinalCall&& finalCall) {
-        if (i == m_touchHooks.size()) {
+        std::vector<TouchHook*> enabledHooks;
+        
+        for (auto& hook : m_touchHooks) {
+            if (hook.enabled()) {
+                enabledHooks.push_back(&hook);
+            }
+        }
+        
+        if (i == enabledHooks.size()) {
             return finalCall(touch);
         }
 
-        return getCallback(m_touchHooks[i]) (touch,
+        return getCallback(*enabledHooks[i]) (touch,
             [this, i, &getCallback, &finalCall] (CCTouch* touch) -> decltype(auto) {
                 return dispatch(i + 1, touch, getCallback, finalCall);
             }

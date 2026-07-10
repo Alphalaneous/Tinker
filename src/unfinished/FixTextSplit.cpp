@@ -82,8 +82,8 @@ CCPoint getPoint(float x1, float x2, float x, float angleRadians) {
 
     float d = x - x1;
 
-    float cosA = cosf(angleRadians);
-    float sinA = sinf(angleRadians);
+    float cosA = std::cosf(angleRadians);
+    float sinA = std::sinf(angleRadians);
 
     return CCPoint(x1 + d * cosA, d * sinA);
 }

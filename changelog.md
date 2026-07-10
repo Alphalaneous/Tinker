@@ -1,3 +1,6 @@
+# 1.0.33
+- <c-dddddd>Fix a crash that happens when Editor Rotation was disabled</c>
+
 # 1.0.32
 - <c-dddddd>Fix the delete tab position being different levels of wonky for different people</c>
 - <c-dddddd>Rework some UI scaling stuff to hopefully prevent that issue in the future</c>
