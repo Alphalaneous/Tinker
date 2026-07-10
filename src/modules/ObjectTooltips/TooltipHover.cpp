@@ -196,7 +196,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 
         auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
 
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HEIGHT_OFFSET});
+        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HeightOffset});
         auto positionHere = convertToNodeSpace(positionWorld);
 
         m_tooltipBG->setPosition(positionHere);
