@@ -27,9 +27,11 @@ protected:
         auto slice = NineSlice::create("button-empty.png"_spr);
 
         int precision = 0;
+        float scale = 0.25f;
         if constexpr (std::is_floating_point_v<T>) {
             slice->setContentSize({35.f, 20.f});
             precision = 2;
+            scale = 0.3f;
         }
         else {
             slice->setContentSize({20.f, 20.f});
@@ -43,7 +45,7 @@ protected:
 
         m_label = CCLabelBMFont::create(numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
         m_label->setPosition(slice->getContentSize() / 2.f);
-        m_label->setScale(0.25f);
+        m_label->setScale(scale);
 
         slice->addChild(m_label);
 

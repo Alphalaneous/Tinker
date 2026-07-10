@@ -7,7 +7,8 @@
   - <c-dddddd>"Same here but i deleted it in 1 mins, Trash mod"</c>
   - <c-dddddd>"thats vile thats disgusting"</c>
   - <c-dddddd>"Why would they added that shit"</c>
-  
+- <c-dddddd>Fix not being able to type precise scales close to 1</c>
+
 # 1.0.33
 - <c-dddddd>Fix a crash that happens when Editor Rotation was disabled</c>
 

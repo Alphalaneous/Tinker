@@ -130,6 +130,7 @@ bool ICGJScaleControl::init() {
             }
             m_delegate->scaleXChanged(scale, m_scaleLocked);
             updateLabelX(scale);
+            fields->m_inputX->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -150,6 +151,7 @@ bool ICGJScaleControl::init() {
             }
             m_delegate->scaleYChanged(scale, m_scaleLocked);
             updateLabelY(scale);
+            fields->m_inputY->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -170,6 +172,7 @@ bool ICGJScaleControl::init() {
             }
             m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
             updateLabelXY(scale);
+            fields->m_inputXY->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -197,7 +200,8 @@ bool ICGJScaleControl::init() {
 
         auto scale = scaleRes.unwrap();
         m_delegate->scaleXChanged(scale, m_scaleLocked);
-        fields->m_sliderX->setPercent(trueValueFromScale(scale));
+        updateLabelX(scale);
+        fields->m_sliderX->setPercent(trueValueFromScale(scale), true);
     });
     addChild(fields->m_inputX);
 
@@ -212,7 +216,8 @@ bool ICGJScaleControl::init() {
 
         auto scale = scaleRes.unwrap();
         m_delegate->scaleYChanged(scale, m_scaleLocked);
-        fields->m_sliderY->setPercent(trueValueFromScale(scale));
+        updateLabelY(scale);
+        fields->m_sliderY->setPercent(trueValueFromScale(scale), true);
     });
     addChild(fields->m_inputY);
 
@@ -243,7 +248,8 @@ bool ICGJScaleControl::init() {
             m_delegate->scaleXYChanged(scaleX, scaleX * ratio, m_scaleLocked);
         }
 
-        fields->m_sliderXY->setPercent(trueValueFromScale(scale));
+        updateLabelXY(scale);
+        fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
     });
     addChild(fields->m_inputXY);
 
@@ -322,7 +328,6 @@ bool ICGJScaleControl::init() {
 void ICGJScaleControl::updateLabelX(float scale) {
     GJScaleControl::updateLabelX(scale);
     auto fields = m_fields.self();
-    fields->m_inputX->setString(numToString(scale, 3));
     fields->m_inputX->setVisible(m_scaleXLabel->isVisible());
     fields->m_sliderX->setVisible(m_scaleXLabel->isVisible());
     fields->m_sliderX->setEnabled(m_scaleXLabel->isVisible());
@@ -336,7 +341,6 @@ void ICGJScaleControl::updateLabelX(float scale) {
 void ICGJScaleControl::updateLabelY(float scale) {
     GJScaleControl::updateLabelY(scale);
     auto fields = m_fields.self();
-    fields->m_inputY->setString(numToString(scale, 3));
     fields->m_inputY->setVisible(m_scaleYLabel->isVisible());
     fields->m_sliderY->setVisible(m_scaleYLabel->isVisible());
     fields->m_sliderY->setEnabled(m_scaleYLabel->isVisible());
@@ -350,7 +354,6 @@ void ICGJScaleControl::updateLabelY(float scale) {
 void ICGJScaleControl::updateLabelXY(float scale) {
     GJScaleControl::updateLabelXY(scale);
     auto fields = m_fields.self();
-    fields->m_inputXY->setString(numToString(scale, 3));
     fields->m_inputXY->setVisible(m_scaleLabel->isVisible());
     fields->m_sliderXY->setVisible(m_scaleLabel->isVisible());
     fields->m_sliderXY->setEnabled(m_scaleLabel->isVisible());
@@ -375,6 +378,10 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     fields->m_sliderX->setPercent(trueValueFromScale(m_valueX), true);
     fields->m_sliderY->setPercent(trueValueFromScale(m_valueY), true);
     fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
+
+    fields->m_inputX->setString(numToString(m_valueX, 3));
+    fields->m_inputY->setString(numToString(m_valueY, 3));
+    fields->m_inputXY->setString(numToString(scale, 3));
 
     updateLabelX(m_valueX);
     updateLabelY(m_valueY);

@@ -20,12 +20,13 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
         NineSlice::create("geode.loader/slider-groove-2.png"),
         "sliderBar.png",
         [this, callback = std::move(callback)] (SliderNode* sender, float value) mutable {
+            updateExtendedGroove();
+            if (m_skipCallback) return;
+
             auto scale = m_scaleControl->scaleFromValue(value);
             if (scale > 0.97f && scale < 1.03f) {
                 value = static_cast<ICGJScaleControl*>(m_scaleControl)->trueValueFromScale(1);
             }
-            updateExtendedGroove();
-            if (m_skipCallback) return;
             if (callback) callback(static_cast<ScaleSlider*>(sender), value);
         },
         {2.f, 2.f}
