@@ -398,6 +398,9 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
         if (nodeIsVisible(input) && alpha::utils::isPointInsideNode(input, touch->getLocation())) {
             return true;
         }
+        else {
+            input->defocus();
+        }
     }
 
     return ret;
@@ -511,8 +514,11 @@ bool ICGJRotationControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent
     auto ret = GJRotationControl::ccTouchBegan(touch, event);
     auto fields = m_fields.self();
 
-    if (alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
+    if (nodeIsVisible(fields->m_input) && alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
         return true;
+    }
+    else {
+        fields->m_input->defocus();
     }
 
     return ret;

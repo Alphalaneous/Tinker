@@ -5,6 +5,7 @@
 - <c-dddddd>Remove Grid Controls from 32-bit android due to crashes</c>
 - <c-dddddd>Improve Scale Slider performance</c>
 - <c-dddddd>Hopefully fixes the disappearing tab issue once and for all. Please update EditorTab API alongside this</c>
+- <c-dddddd>Fix some text input issues</c>
 
 # 1.0.35
 - <c-dddddd>Fix scale sliders being draggable while disabled</c>

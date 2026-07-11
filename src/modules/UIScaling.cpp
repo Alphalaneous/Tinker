@@ -220,9 +220,11 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     if (auto slider = m_editorUI->getChildByID("position-slider")) {
         slider->ignoreAnchorPointForPosition(false);
         slider->setContentSize({0.f, 0.f});
+        #ifndef GEODE_IS_ANDROID32
         if (!GridControl::isEnabled()) {
             slider->setPosition({winSize.width / 2.f + 30.f * scale, winSize.height - 20.f * scale});
         }
+        #endif
         slider->setScale(scale);
     }
     
