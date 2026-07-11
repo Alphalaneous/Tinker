@@ -97,6 +97,7 @@ void TouchForward::cancelAllTouches() {
 
 }
 
+#ifdef GEODE_IS_MOBILE
 void InputAppDelegate::applicationDidEnterBackground() {
     auto editor = InputEditorUI::get();
     if (!editor) {
@@ -107,6 +108,7 @@ void InputAppDelegate::applicationDidEnterBackground() {
     tinker::ui::TouchForward::get()->cancelAllTouches();
     AppDelegate::applicationDidEnterBackground();
 }
+#endif
 
 InputEditorUI* InputEditorUI::get() {
     return static_cast<InputEditorUI*>(EditorUI::get());

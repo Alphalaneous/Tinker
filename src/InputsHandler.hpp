@@ -91,9 +91,11 @@ protected:
 };
 }
 
+#ifdef GEODE_IS_MOBILE
 class $modify(InputAppDelegate, AppDelegate) {
     void applicationDidEnterBackground();
 };
+#endif
 
 class $modify(InputEditorUI, EditorUI) {
 

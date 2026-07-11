@@ -18,7 +18,6 @@ class $editorModule(CanvasRotate) {
     void toggleBetterEditHook(bool enabled);
     bool isLassoActive();
     bool isRotating();
-    float getRealToolbarHeight();
 
     CCPoint getPreTransformPoint(CCTouch* touch);
 

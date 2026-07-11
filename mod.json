@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.35",
+	"version": "v1.0.36",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -558,29 +558,34 @@
 		},
 		"GridControl-title": {
 			"type": "title",
-			"name": "Grid Controls"
+			"name": "Grid Controls",
+			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"GridControl-description": {
 			"type": "info",
 			"description": "Add buttons to change the grid size.",
-			"color": "#000000"
+			"color": "#000000",
+			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"GridControl-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled"
+			"name": "Enabled",
+			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"GridControl-increase-keybind": {
 			"name": "Increase Grid Size Keybind",
 			"type": "keybind",
 			"default": [],
-			"category": "editor"
+			"category": "editor",
+			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"GridControl-decrease-keybind": {
 			"name": "Decrease Grid Size Keybind",
 			"type": "keybind",
 			"default": [],
-			"category": "editor"
+			"category": "editor",
+			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"HideUI-title": {
 			"type": "title",

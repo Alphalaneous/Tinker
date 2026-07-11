@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef GEODE_IS_ANDROID32
+
 #include "module/Module.hpp"
 #include <Geode/modify/ObjectToolbox.hpp>
 
@@ -19,3 +21,5 @@ class $modify(GCObjectToolbox, ObjectToolbox) {
 
     float gridNodeSizeForKey(int id);
 };
+
+#endif

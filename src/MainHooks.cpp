@@ -6,6 +6,7 @@
 #include "Events.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
+#include "utils/Utils.hpp"
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
@@ -159,7 +160,10 @@ void MainEditorUI::fixTabPositions() {
 }
 
 void MainEditorUI::updateButtons() {
+    auto toolbarHeight = m_toolbarHeight;
+    m_toolbarHeight = tinker::utils::getToolbarHeight();
     EditorUI::updateButtons();
+    m_toolbarHeight = toolbarHeight;
     UpdateButtonsEvent().send();
 }
 

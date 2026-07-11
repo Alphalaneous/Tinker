@@ -51,7 +51,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
 
     m_snapPointContainer = CCNode::create();
     m_snapPointContainer->setID("snap-point-container"_spr);
-    m_snapPointContainer->setAnchorPoint({0.5f, 0.5f});
+    m_snapPointContainer->setAnchorPoint({0.f, 0.5f});
     m_snapPointContainer->setContentSize(getGroove()->getContentSize());
     m_snapPointContainer->setPosition(getGroove()->getPosition());
 
@@ -73,20 +73,12 @@ void ScaleSlider::updateExtendedGroove() {
         m_extendedGroove->setContentWidth(getGroove()->getContentWidth() * (1 - percent));
         m_extendedGroove->setPositionX(getGroove()->getContentWidth());
         m_extendedGroove->setColor({255, 127, 127});
-
-        m_snapPointContainer->setAnchorPoint({1.f, 0.5f});
-        m_snapPointContainer->setContentSize(m_extendedGroove->getContentSize());
-        m_snapPointContainer->setPositionX(getGroove()->getContentWidth());
     }
     else {
         m_extendedGroove->setAnchorPoint({0.f, 0.5f});
         m_extendedGroove->setContentWidth(getGroove()->getContentWidth() * percent);
         m_extendedGroove->setPositionX(0.f);
         m_extendedGroove->setColor({127, 255, 127});
-
-        m_snapPointContainer->setAnchorPoint({0.f, 0.5f});
-        m_snapPointContainer->setContentSize(m_extendedGroove->getContentSize());
-        m_snapPointContainer->setPositionX(0.f);
     }
     m_extendedGroove->setVisible(percent < 0.f || percent > 1.f);
     updateSnap(m_snap);
@@ -112,140 +104,117 @@ void ScaleSlider::setPercent(float value, bool skipCallback) {
     updateExtendedGroove();
 }
 
-void ScaleSlider::updateSnap(float snap) {
-    m_snapPointContainer->removeAllChildren();
-    for (int i = m_extendedGroove->getChildrenCount() - 1; i >= 0; i--) {
-        m_extendedGroove->getChildrenExt()[i]->removeFromParent();
+CCSprite* ScaleSlider::getLargeTick() {
+    CCSprite* spr;
+    if (m_largeTicksRemaining == 0) {
+        spr = CCSprite::create("slider-tick.png"_spr);
+        m_largeTicks.push_back(spr);
     }
+    else {
+        spr = m_largeTicks[m_largeTicksRemaining - 1];
+        m_largeTicksRemaining--;
+    }
+    return spr;
+}
 
-    m_snap = snap;
+CCSprite* ScaleSlider::getSmallTick() {
+    if (m_smallTicksRemaining == 0) {
+        auto spr = CCSprite::create("slider-tick-small.png"_spr);
+        m_smallTicks.push_back(spr);
+        return spr;
+    }
+    auto spr = m_smallTicks[m_smallTicksRemaining - 1];
+    m_smallTicksRemaining--;
+    return spr;
+}
 
-    auto rightGrooveEdgeWorld = convertToWorldSpace({getGroove()->getContentWidth() - 1.f, 0.f});
-    auto rightGrooveEdgeInContainer = m_snapPointContainer->convertToNodeSpace(rightGrooveEdgeWorld);
-
-    auto rightEdgeWorld = convertToWorldSpace({std::max(getGroove()->getContentWidth(), getGroove()->getContentWidth() * getPercent()) - 1.f, 0.f});
-    auto rightEdgeInContainer = m_snapPointContainer->convertToNodeSpace(rightEdgeWorld);
-
-    int i = 1;
+void ScaleSlider::sweepTicks(int start, int step, int limit, float edgeX, float grooveEdgeX, bool isRightSide, const ccColor3B& extendedColor) {
+    int i = start;
     while (true) {
-        auto value = (i - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0.f});
-        auto posInContainer = m_snapPointContainer->convertToNodeSpace(posWorld);
+        float posX = valueToLocalX(i);
+        bool pastEdge = isRightSide ? (posX > edgeX) : (posX < edgeX);
 
         for (int j = 1; j < m_snap; j++) {
-            auto smallValue = (i + (j * (1 / m_snap)) - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0.f});
-            auto smallPosInContainer = m_snapPointContainer->convertToNodeSpace(smallPosWorld);
+            float smallValue = isRightSide ? i + (j * (1.f / m_snap)) : i - (j * (1.f / m_snap));
+            float smallX = valueToLocalX(smallValue);
 
-            if (smallPosInContainer.x > rightEdgeInContainer.x) {
-                break;
-            }
-
-            auto spr = CCSprite::create("slider-tick-small.png"_spr);
-            spr->setOpacity(105);
-            spr->setID(fmt::format("snap-tick-small-{}"_spr, numToString(smallValue, 3)));
-
-            if (smallPosInContainer.x > rightGrooveEdgeInContainer.x) {
-                spr->setColor({127, 255, 127});
-                spr->setOpacity(52);
-                auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(smallPosWorld);
-                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
-                m_extendedGroove->addChild(spr);
-            }
-            else {
-                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
-                m_snapPointContainer->addChild(spr);
-            }
+            bool smallPastEdge = isRightSide ? (smallX > edgeX) : (smallX < edgeX);
+            if (smallPastEdge) break;
+            
+            addTick(getSmallTick(), smallX, grooveEdgeX, isRightSide, {255, 255, 255}, 105, extendedColor, 52);
         }
 
-        if (posInContainer.x > rightEdgeInContainer.x) {
-            break;
-        }
-
-        auto spr = CCSprite::create("slider-tick.png"_spr);
-        spr->setOpacity(255);
-        spr->setID(fmt::format("snap-tick-{}"_spr, numToString(value, 3)));
-
-        if (posInContainer.x > rightGrooveEdgeInContainer.x) {
-            spr->setColor({127, 255, 127});
-            spr->setOpacity(127);
-            auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(posWorld);
-            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
-            m_extendedGroove->addChild(spr);
-        }
-        else {
-            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
-            m_snapPointContainer->addChild(spr);
-        }
-
-        i++;
-        if (i > 100) break;
-    }
-
-    auto leftGrooveEdgeWorld = convertToWorldSpace({1.f, 0.f});
-    auto leftGrooveEdgeInContainer = m_snapPointContainer->convertToNodeSpace(leftGrooveEdgeWorld);
-
-    auto leftEdgeWorld = convertToWorldSpace({std::min(0.f, getGroove()->getContentWidth() * getPercent()) + 1.f, 0.f});
-    auto leftEdgeInContainer = m_snapPointContainer->convertToNodeSpace(leftEdgeWorld);
-
-    i = 1;
-    while (true) {
-        auto value = (i - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-        auto posWorld = convertToWorldSpace({getContentWidth() * value, 0.f});
-        auto posInContainer = m_snapPointContainer->convertToNodeSpace(posWorld);
-
-        for (int j = 1; j < m_snap; j++) {
-            auto smallValue = (i - (j * (1.f / m_snap)) - m_scaleControl->m_lowerBound) / (m_scaleControl->m_upperBound - m_scaleControl->m_lowerBound);
-            auto smallPosWorld = convertToWorldSpace({getContentWidth() * smallValue, 0.f});
-            auto smallPosInContainer = m_snapPointContainer->convertToNodeSpace(smallPosWorld);
-
-            if (smallPosInContainer.x < leftEdgeInContainer.x) {
-                break;
-            }
-
-            auto spr = CCSprite::create("slider-tick-small.png"_spr);
-            spr->setOpacity(105);
-            spr->setID(fmt::format("snap-tick-small-{}"_spr, numToString(smallValue, 3)));
-
-            if (smallPosInContainer.x < leftGrooveEdgeInContainer.x) {
-                spr->setColor({255, 127, 127});
-                spr->setOpacity(52);
-                auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(smallPosWorld);
-                spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
-                m_extendedGroove->addChild(spr);
-            }
-            else {
-                spr->setPosition({smallPosInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
-                m_snapPointContainer->addChild(spr);
-            }
-        }
-
-        if (posInContainer.x < leftEdgeInContainer.x) {
-            break;
-        }
-        if (i == 1) {
+        if (pastEdge) break;
+        
+        if (!isRightSide && i == 1) {
             i--;
             continue;
         }
 
-        auto spr = CCSprite::create("slider-tick.png"_spr);
-        spr->setOpacity(255);
-        spr->setID(fmt::format("snap-tick-{}"_spr, numToString(value, 3)));
+        addTick(getLargeTick(), posX, grooveEdgeX, isRightSide, {255, 255, 255}, 255, extendedColor, 127);
 
-        if (posInContainer.x < leftGrooveEdgeInContainer.x) {
-            spr->setColor({255, 127, 127});
-            spr->setOpacity(127);
-
-            auto posInExtendedGroove = m_extendedGroove->convertToNodeSpace(posWorld);
-            spr->setPosition({posInExtendedGroove.x, m_extendedGroove->getContentHeight() / 2.f});
-            m_extendedGroove->addChild(spr);
-        } 
-        else {
-            spr->setPosition({posInContainer.x, m_snapPointContainer->getContentHeight() / 2.f});
-            m_snapPointContainer->addChild(spr);
+        i += step;
+        if ((isRightSide && i > limit) || (!isRightSide && i < limit)) {
+            break;
         }
+    }
+}
 
-        i--;
-        if (i < -100) break;
+void ScaleSlider::addTick(CCSprite* spr, float sliderLocalX, float grooveEdgeX, bool isRightSide, const ccColor3B& insideColor, GLubyte insideOpacity, const ccColor3B& outsideColor, GLubyte outsideOpacity) {
+    spr->setColor(insideColor);
+    spr->setOpacity(insideOpacity);
+
+    bool isOutsideGroove = isRightSide ? (sliderLocalX > grooveEdgeX) : (sliderLocalX < grooveEdgeX);
+
+    if (isOutsideGroove) {
+        spr->setColor(outsideColor);
+        spr->setOpacity(outsideOpacity);
+        spr->setPosition({sliderToExtendedGrooveX(sliderLocalX), m_extendedGroove->getContentSize().height / 2.f});
+        m_extendedGroove->addChild(spr);
+    } 
+    else {
+        spr->setPosition({sliderLocalX - m_snapPointContainer->getPositionX(), m_snapPointContainer->getContentSize().height / 2.f});
+        m_snapPointContainer->addChild(spr);
+    }
+}
+
+float ScaleSlider::sliderToExtendedGrooveX(float x) {
+    if (x > 0) return x - m_extendedGroove->getPositionX();
+    else return m_extendedGroove->getContentWidth() - getGroove()->getContentWidth() + x;
+}
+
+float ScaleSlider::valueToLocalX(float value) {
+    float lower = m_scaleControl->m_lowerBound;
+    float upper = m_scaleControl->m_upperBound;
+    float range = upper - lower;
+
+    if (range == 0.f) return 0.f;
+
+    float t = (value - lower) / range;
+    return getContentSize().width * t;
+}
+
+void ScaleSlider::updateSnap(float snap) {
+    m_snapPointContainer->removeAllChildren();
+    clearExtendedGroove();
+
+    m_smallTicksRemaining = m_smallTicks.size();
+    m_largeTicksRemaining = m_largeTicks.size();
+    m_snap = snap;
+
+    const float grooveWidth = getGroove()->getContentSize().width;
+    const float grooveRightX = grooveWidth - 1.f;
+    const float grooveLeftX = 1.f;
+
+    const float rightEdgeX = std::max(grooveWidth, grooveWidth * getPercent()) - 1.f;
+    const float leftEdgeX = std::min(0.f, grooveWidth * getPercent()) + 1.f;
+
+    sweepTicks(1, 1, 100, rightEdgeX, grooveRightX, true, {127, 255, 127});
+    sweepTicks(1, -1, -100, leftEdgeX, grooveLeftX, false, {255, 127, 127});
+}
+
+void ScaleSlider::clearExtendedGroove() {
+    for (int i = m_extendedGroove->getChildrenCount() - 1; i >= 0; i--) {
+        m_extendedGroove->getChildrenExt()[i]->removeFromParent();
     }
 }

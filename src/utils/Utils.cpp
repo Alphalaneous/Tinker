@@ -99,11 +99,11 @@ namespace tinker::utils {
     }
 
     float getToolbarHeight() {
-        if (!MainEditorUI::get()->isUIVisible()) {
+        if (MainEditorUI::get() && !MainEditorUI::get()->isUIVisible()) {
             return 0;
         }
         float height = tinker::constants::ToolbarHeight;
-        if (UIScaling::isEnabled() && UIScaling::shouldScaleToolbar()) {
+        if (UIScaling::shouldScaleToolbar()) {
             height *= UIScaling::getUIScale();
         }
 

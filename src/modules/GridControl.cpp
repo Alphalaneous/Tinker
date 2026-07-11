@@ -1,4 +1,7 @@
 #include "GridControl.hpp"
+
+#ifndef GEODE_IS_ANDROID32
+
 #include "InputsHandler.hpp"
 #include "../../include/UIScaling.hpp"
 
@@ -162,3 +165,5 @@ float GCObjectToolbox::gridNodeSizeForKey(int id) {
 
     return size;
 }
+
+#endif

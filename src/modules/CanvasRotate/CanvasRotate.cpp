@@ -58,11 +58,6 @@ CCPoint CanvasRotate::getPreTransformPoint(CCTouch* touch) {
     return iter->second;
 }
 
-
-float CanvasRotate::getRealToolbarHeight() {
-    return m_realToolbarHeight;
-}
-
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(m_editorUI);
     m_rotationNode->setID("rotation-node"_spr);
@@ -179,7 +174,7 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
 
     m_toolbarHeight = INT_MIN;
     EditorUI::clickOnPosition(pos);
-    m_toolbarHeight = CanvasRotate::get()->m_realToolbarHeight;
+    m_toolbarHeight = tinker::utils::getToolbarHeight();
 };
 
 void CREditorUI::triggerSwipeMode() {
@@ -202,14 +197,13 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
 
     m_rotationNode->translate(touch);
 
-    m_realToolbarHeight = m_editorUI->m_toolbarHeight;
     m_editorUI->m_toolbarHeight = INT_MIN;
     if (preTransform.y <= m_realToolbarHeight) {
-        m_editorUI->m_toolbarHeight = m_realToolbarHeight;
+        m_editorUI->m_toolbarHeight = tinker::utils::getToolbarHeight();
         return true;
     }
     auto ret = next(touch);
-    m_editorUI->m_toolbarHeight = m_realToolbarHeight;
+    m_editorUI->m_toolbarHeight = tinker::utils::getToolbarHeight();
     return ret;
 }
 

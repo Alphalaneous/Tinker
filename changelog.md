@@ -1,3 +1,11 @@
+# 1.0.36
+- <c-dddddd>Fix scale input not scaling Y</c>
+- <c-dddddd>Fix scale ratio not being preserved when using the scale slider</c>
+- <c-dddddd>Change default scale snap to 0.25</c>
+- <c-dddddd>Remove Grid Controls from 32-bit android due to crashes</c>
+- <c-dddddd>Improve Scale Slider performance</c>
+- <c-dddddd>Hopefully fixes the disappearing tab issue once and for all. Please update EditorTab API alongside this</c>
+
 # 1.0.35
 - <c-dddddd>Fix scale sliders being draggable while disabled</c>
 - <c-dddddd>(Maybe) Fix Grid Controls crashing on 32-bit Android devices</c>

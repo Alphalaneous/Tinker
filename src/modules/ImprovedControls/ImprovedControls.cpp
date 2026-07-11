@@ -167,10 +167,24 @@ bool ICGJScaleControl::init() {
     fields->m_sliderXY = ScaleSlider::create(
         [this, fields] (ScaleSlider* sender, float value) {
             auto scale = scaleFromValue(value);
+
+            auto scaleX = scaleFromValue(fields->m_sliderX->getPercent());
+            auto scaleY = scaleFromValue(fields->m_sliderY->getPercent());
+
+            float largest = std::max(scaleX, scaleY);
+            if (largest == 0) return;
+
+            float baseScale = scale / largest;
+
             if (fields->m_snapLock) {
-                scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
+                float adjustedSnap = fields->m_snapSize / largest;
+
+                baseScale = std::roundf(baseScale / adjustedSnap) * adjustedSnap;
+                scale = baseScale * largest;
             }
-            m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
+            
+            m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
+
             updateLabelXY(scale);
             fields->m_inputXY->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
@@ -229,25 +243,9 @@ bool ICGJScaleControl::init() {
     fields->m_inputXY->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
         if (!scaleRes) return;
+        auto scale = scaleRes.unwrap();
 
-        auto scaleX = scaleRes.unwrap();
-        auto scaleY = scaleFromValue(fields->m_sliderY->getPercent());
-
-        auto ratio = scaleY / scaleX;
-        if (fields->m_snapLock) {
-            scaleX = std::roundf(scaleX / fields->m_snapSize) * fields->m_snapSize;
-            scaleY = std::roundf(scaleY / fields->m_snapSize) * fields->m_snapSize;
-        }
-
-        float scale = scaleX;
-        if (scaleX < scaleY) {
-            scale = scaleY;
-            m_delegate->scaleXYChanged(scaleY / ratio, scaleY, m_scaleLocked);
-        }
-        else {
-            m_delegate->scaleXYChanged(scaleX, scaleX * ratio, m_scaleLocked);
-        }
-
+        m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
         updateLabelXY(scale);
         fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
     });
@@ -287,7 +285,7 @@ bool ICGJScaleControl::init() {
         fields->m_sliderX->updateSnap(1.f / value);
         fields->m_sliderY->updateSnap(1.f / value);
         fields->m_sliderXY->updateSnap(1.f / value);
-    }, {1.f, 0.5f, 1.f / 3.f, .25f, .2f, 1.f / 6.f, 0.1f}, 1);
+    }, {1.f, 0.5f, 1.f / 3.f, 0.25f, 0.2f, 1.f / 6.f, 0.1f}, 3);
 
     fields->m_valueToggler->setID("snap-values"_spr);
     menu->addChild(fields->m_valueToggler);
