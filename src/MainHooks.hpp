@@ -53,6 +53,7 @@ class $modify(MainEditorUI, EditorUI) {
     void updateButtons();
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);
+    void updateZoom(float zoom);
 
     bool isUIVisible();
     static MainEditorUI* get();

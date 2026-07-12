@@ -21,6 +21,8 @@ class $editorModule(CanvasRotate) {
 
     CCPoint getPreTransformPoint(CCTouch* touch);
 
+    bool isTouchInsideRotationGrabber(CCTouch* touch);
+
     bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
     void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
     void onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);

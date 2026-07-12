@@ -1,3 +1,16 @@
+# 1.0.37
+- <c-dddddd>Fix scale undo not working</c>
+- <c-dddddd>Fix scaling multiple objects still being bounded</c>
+- <c-dddddd>Add Higher Precision Scaling</c>
+- <c-dddddd>Rotation Controls now rotate alongside camera rotation</c>
+- <c-dddddd>Holding shift while trying to drag the rotation controls while the camera was rotated now works properly</c>
+- <c-dddddd>Scale Controls now rotate alongside camera rotation</c>
+- <c-dddddd>Added option for keeping the Scale control size constant no matter the editor zoom</c>
+- <c-dddddd>Fix start pos switcher when Auto Pause is enabled in the editor</c>
+- <c-dddddd>Fix ground scale with Zoom Ground Fix when switching start positions</c>
+- <c-dddddd>Fix Area Trigger corruption with start positions (vanilla bug)</c>
+- <c-dddddd>Prevent "Who Added This" mod from spamming notifications when pressing shift</c>
+
 # 1.0.36
 - <c-dddddd>Fix scale input not scaling Y</c>
 - <c-dddddd>Fix scale ratio not being preserved when using the scale slider</c>

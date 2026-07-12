@@ -1,4 +1,5 @@
 #include "CanvasRotate.hpp"
+#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "RotationNode.hpp"
 #include "utils/Utils.hpp"
 #include "modules/NavigationCircle/JoystickNavigation.hpp"
@@ -183,12 +184,21 @@ void CREditorUI::triggerSwipeMode() {
     EditorUI::triggerSwipeMode();
 }
 
+bool CanvasRotate::isTouchInsideRotationGrabber(CCTouch* touch) {
+    auto winSize = CCDirector::get()->getWinSize();
+    auto pos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, LevelEditorLayer::get()->m_gameState.m_cameraAngle);
+
+    auto rotationGrabber = m_editorUI->m_rotationControl->m_controlSprite;
+
+    return nodeIsVisible(rotationGrabber) && alpha::utils::isPointInsideNode(rotationGrabber, pos);
+}
+
 bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
         return next(touch);
     }
 
-    if (((m_editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_editorUI->m_selectedMode == 3) || isLassoActive()) {
+    if (!isTouchInsideRotationGrabber(touch) && (((m_editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()) && m_editorUI->m_selectedMode == 3) || isLassoActive())) {
         return next(touch);
     }
 

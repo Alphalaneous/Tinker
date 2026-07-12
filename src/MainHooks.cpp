@@ -219,6 +219,11 @@ void MainEditorUI::updateCreateMenu(bool selectTab) {
     }
 }
 
+void MainEditorUI::updateZoom(float zoom) {
+    EditorUI::updateZoom(zoom);
+    EditorZoomEvent().send(zoom);
+}
+
 MainEditorUI* MainEditorUI::get() {
     return static_cast<MainEditorUI*>(s_editorUI);
 }

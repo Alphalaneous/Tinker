@@ -14,6 +14,16 @@ void ImprovedControls::addLabelToToggle(CCMenuItemToggler* toggler, ZStringView 
     addLabelToNode(toggler->m_offButton->getNormalImage(), text);
 }
 
+float ImprovedControls::roundToThousandth(float value) {
+    if (value < 0.f) {
+        value = std::ceil(value * 1000.f - 0.5f);
+    }
+    else {
+        value = std::floor(value * 1000.f + 0.5f);
+    }
+    return value / 1000.f;
+}
+
 ImprovedControls::ImprovedControls() {
     if (!ImprovedControls::isEnabled()) return;
 
@@ -106,6 +116,62 @@ void ICEditorUI::moveObject(GameObject* obj, CCPoint amount) {
     EditorUI::moveObject(obj, amount);
 }
 
+void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove) {
+    for (auto obj : CCArrayExt<GameObject, false>(objects)) {
+        const auto& state = m_objectEditorStates[obj->m_uniqueID];
+
+        if (type != ObjectScaleType::Y) {
+            float newScaleX = ImprovedControls::roundToThousandth(scaleX * state.m_scaleX);
+
+            if (newScaleX == 0) return;
+            if (newScaleX * obj->m_pixelScaleX == obj->m_scaleX) return;
+            if (type == ObjectScaleType::X) continue;
+        }
+
+        float newScaleY = ImprovedControls::roundToThousandth(scaleY * state.m_scaleY);
+
+        if (newScaleY == 0) return;
+        if (newScaleY * obj->m_pixelScaleY == obj->m_scaleY) return;
+    }
+
+    if (pivotPoint.equals({0, 0})) {
+        pivotPoint = getGroupCenter(objects, false);
+    }
+
+    for (auto obj : CCArrayExt<GameObject, false>(objects)) {
+        const auto& state = m_objectEditorStates[obj->m_uniqueID];
+
+        float newScaleX = state.m_scaleX * obj->m_pixelScaleX * scaleX;
+        float newScaleY = state.m_scaleY * obj->m_pixelScaleY * scaleY;
+
+        auto relative = obj->getPosition() - pivotPoint;
+
+        if (type != ObjectScaleType::Y) {
+            relative.x *= newScaleX / obj->m_scaleX;
+        }
+
+        if (type != ObjectScaleType::X) {
+            relative.y *= newScaleY / obj->m_scaleY;
+        }
+
+        if (type != ObjectScaleType::Y) {
+            obj->updateCustomScaleX(newScaleX);
+        }
+
+        if (type != ObjectScaleType::X) {
+            obj->updateCustomScaleY(newScaleY);
+        }
+
+        if (!lockMove) {
+            moveObject(obj, (pivotPoint + relative) - obj->getPosition());
+        }
+    }
+}
+
+float ICGJScaleControl::trueScaleFromValue(float value) {
+    return ImprovedControls::roundToThousandth((m_upperBound - m_lowerBound) * value + m_lowerBound);
+}
+
 float ICGJScaleControl::trueValueFromScale(float scale) {
     return (scale - m_lowerBound) / (m_upperBound - m_lowerBound);
 }
@@ -124,7 +190,7 @@ bool ICGJScaleControl::init() {
 
     fields->m_sliderX = ScaleSlider::create(
         [this, fields] (ScaleSlider* sender, float value) {
-            auto scale = scaleFromValue(value);
+            auto scale = trueScaleFromValue(value);
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
@@ -145,7 +211,7 @@ bool ICGJScaleControl::init() {
 
     fields->m_sliderY = ScaleSlider::create(
         [this, fields] (ScaleSlider* sender, float value) {
-            auto scale = scaleFromValue(value);
+            auto scale = trueScaleFromValue(value);
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
@@ -166,10 +232,10 @@ bool ICGJScaleControl::init() {
 
     fields->m_sliderXY = ScaleSlider::create(
         [this, fields] (ScaleSlider* sender, float value) {
-            auto scale = scaleFromValue(value);
+            auto scale = trueScaleFromValue(value);
 
-            auto scaleX = scaleFromValue(fields->m_sliderX->getPercent());
-            auto scaleY = scaleFromValue(fields->m_sliderY->getPercent());
+            auto scaleX = trueScaleFromValue(fields->m_sliderX->getPercent());
+            auto scaleY = trueScaleFromValue(fields->m_sliderY->getPercent());
 
             float largest = std::max(scaleX, scaleY);
             if (largest == 0) return;
@@ -182,7 +248,6 @@ bool ICGJScaleControl::init() {
                 baseScale = std::roundf(baseScale / adjustedSnap) * adjustedSnap;
                 scale = baseScale * largest;
             }
-            
             m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
 
             updateLabelXY(scale);
@@ -253,6 +318,7 @@ bool ICGJScaleControl::init() {
 
     m_scaleLockButton->setScale(0.8f);
     m_scaleLockButton->m_baseScale = 0.8f;
+    m_scaleLockButton->setUserFlag("dulak.whoaddedthis/dont-notify");
 
     ImprovedControls::addLabelToNode(m_scaleLockButton->getNormalImage(), "Pos");
 
@@ -276,7 +342,10 @@ bool ICGJScaleControl::init() {
     });
     ImprovedControls::addLabelToToggle(fields->m_snapToggle, "Snap");
     fields->m_snapToggle->setID("snap-lock"_spr);
-
+    fields->m_snapToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_snapToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_snapToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    
     menu->addChild(fields->m_snapToggle);
 
     fields->m_valueToggler = ValueToggler<float>::create([this, fields] (float value) {
@@ -324,6 +393,26 @@ bool ICGJScaleControl::init() {
     fields->m_inputs.push_back(fields->m_inputY);
     fields->m_inputs.push_back(fields->m_inputXY);
 
+    addOnEnterCallback([this, fields] {
+        if (fields->m_wasAdjusted) return;
+
+        for (auto child : getChildrenExt()) {
+            child->setPositionY(child->getPositionY() + 40.f);
+        }
+
+        fields->m_wasAdjusted = true;
+    });
+
+    addEventListener(EditorRotationEvent(), [this, fields] (float rotation) {
+        setRotation(-rotation);
+    });
+
+    addEventListener(EditorZoomEvent(), [this, fields] (float zoom) {
+        if (ImprovedControls::getSetting<bool, "scale-with-zoom">()) {
+            setScale(1.f / zoom);
+        }
+    });
+
     return true;
 }
 
@@ -366,9 +455,27 @@ void ICGJScaleControl::updateLabelXY(float scale) {
     }
 }
 
+CCPoint ICGJScaleControl::getPivotLocation() {
+    auto fields = m_fields.self();
+
+    CCPoint position;
+    if (fields->m_objects->count() == 0) {
+        position = fields->m_object->getPosition();
+    }
+    else {
+        position = EditorUI::get()->getGroupCenter(fields->m_objects, false);
+    }
+    return position;
+}
+
 void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states) {
     GJScaleControl::loadValues(obj, objs, states);
     auto fields = m_fields.self();
+
+    fields->m_object = obj;
+    fields->m_objects = objs;
+
+    setPosition(getPivotLocation());
 
     auto ratio = m_valueX / m_valueY;
     float scale = m_valueX;
@@ -407,7 +514,7 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
 }
 
 void ICGJScaleControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    // do nothing
+    //do nothing
 }
 
 CCPoint ICGJRotationControl::pointOnCircle(float degrees, float radius) {
@@ -426,6 +533,9 @@ bool ICGJRotationControl::init() {
     if (!GJRotationControl::init()) return false;
     auto fields = m_fields.self();
 
+    fields->m_controlContainer = CCNode::create();
+    addChild(fields->m_controlContainer);
+
     auto menu = CCMenu::create();
     menu->setContentSize({50.f, 80.f});
     menu->setAnchorPoint({0.f, 0.5f});
@@ -440,6 +550,9 @@ bool ICGJRotationControl::init() {
     });
     ImprovedControls::addLabelToToggle(fields->m_posLockToggle, "Pos");
     fields->m_posLockToggle->setID("pos-lock"_spr);
+    fields->m_posLockToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_posLockToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_posLockToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
 
     menu->addChild(fields->m_posLockToggle);
 
@@ -450,6 +563,9 @@ bool ICGJRotationControl::init() {
     });
     ImprovedControls::addLabelToToggle(fields->m_snapToggle, "Snap");
     fields->m_snapToggle->setID("snap-lock"_spr);
+    fields->m_snapToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_snapToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_snapToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
 
     menu->addChild(fields->m_snapToggle);
 
@@ -488,8 +604,8 @@ bool ICGJRotationControl::init() {
         fields->m_posLockToggle->setEnabled(!(modifier & KeyboardModifier::Control));
     });
 
-    addChild(menu);
-
+    fields->m_controlContainer->addChild(menu);
+    
     fields->m_input = TextInput::create(50.f, "Num");
     fields->m_input->setScale(0.8f);
     fields->m_input->setID("angle-input"_spr);
@@ -505,13 +621,21 @@ bool ICGJRotationControl::init() {
         m_delegate->angleChangeEnded();
         setControlRotation(angle);
     });
-    addChild(fields->m_input);
+    fields->m_controlContainer->addChild(fields->m_input);
+
+    addEventListener(EditorRotationEvent(), [this, fields] (float rotation) {
+        auto editor = LevelEditorLayer::get();
+
+        fields->m_controlContainer->setRotation(-rotation);
+        m_controlSprite->setRotation(-rotation);
+    });
 
     return true;
 }
 
 bool ICGJRotationControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     auto ret = GJRotationControl::ccTouchBegan(touch, event);
+
     auto fields = m_fields.self();
 
     if (nodeIsVisible(fields->m_input) && alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
@@ -550,7 +674,6 @@ void ICGJRotationControl::draw() {
     auto snapSize = fields->m_snapLock ? fields->m_snapSize : 15.f;
 
     for (float angle = 0.f; angle < 360.f; angle += snapSize) {
-
         bool isBigTick = std::fmod(angle, 45.f);
         glLineWidth(isBigTick ? 1.f : 2.f);
 

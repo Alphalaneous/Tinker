@@ -362,8 +362,9 @@ unsigned int SPTLevelEditorLayer::indexForStartPos(StartPosObject* startPos) {
 }
 
 void SPTLevelEditorLayer::prevStartPos() {
-    sortStartPositions();
     auto fields = m_fields.self();
+    sortStartPositions();
+
     fields->m_startPosIndex--;
     if (fields->m_startPosIndex < -1) {
         fields->m_startPosIndex = fields->m_startPositions.size() - 1;
@@ -382,8 +383,9 @@ void SPTLevelEditorLayer::prevStartPos() {
 }
 
 void SPTLevelEditorLayer::nextStartPos() {
-    sortStartPositions();
     auto fields = m_fields.self();
+    sortStartPositions();
+
     fields->m_startPosIndex++;
     if (fields->m_startPosIndex >= fields->m_startPositions.size()) {
         fields->m_startPosIndex = -1;
@@ -403,6 +405,7 @@ void SPTLevelEditorLayer::nextStartPos() {
 
 void SPTLevelEditorLayer::restartFromStartPos() {
     auto fields = m_fields.self();
+
     if (fields->m_startPositions.empty()) return;
 
     if (!fields->m_fromStart) {
@@ -419,10 +422,17 @@ void SPTLevelEditorLayer::restartFromStartPos() {
     }
 
     auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
+
     auto dummy = CCNode::create();
     dummy->setUserFlag("start-pos-switcher"_spr);
     editorUI->onStopPlaytest(dummy);
+
+    auto gameManager = GameManager::get();
+    auto autoPause = gameManager->getGameVariable(GameVar::AutoPause);
+
+    gameManager->setGameVariable(GameVar::AutoPause, false);
     editorUI->onPlaytest(dummy);
+    gameManager->setGameVariable(GameVar::AutoPause, autoPause);
 }
 
 void SPTLevelEditorLayer::startSwitcher(bool start) {

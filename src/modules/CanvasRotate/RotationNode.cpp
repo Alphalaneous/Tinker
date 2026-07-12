@@ -164,4 +164,6 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
     DrawGridAPI::get().setLineSmoothing(static_cast<int>(std::round(m_rotation)) % 90 != 0);
 
     DrawGridAPI::get().markDirty();
+
+    EditorRotationEvent().send(m_rotation);
 }

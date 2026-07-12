@@ -68,12 +68,6 @@
 			"enable-if": "!loaded:ninkaz.editor_utils",
 			"enable-if-description": "This feature is not compatible with Ninkaz's Editor Utils."
 		},
-		"ImprovedControls-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Improved Scale and Rotate Controls",
-			"description": "Add snapping and position locking to scale and rotate controls."
-		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",
 			"default": true,
@@ -266,6 +260,12 @@
 			"default": true,
 			"name": "NaN/Infinity crash fix",
 			"description": "Fixes a vanilla crash when objects are positioned at NaN or Infinity."
+		},
+		"FixAreaCorruption-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Area Trigger Corruption fix",
+			"description": "Fixes a vanilla bug where area trigger state gets broken when using start positions."
 		},
 		"CenteredObjectButtons-enabled": {
 			"type": "bool",
@@ -612,6 +612,25 @@
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
+		},
+		"ImprovedControls-title": {
+			"type": "title",
+			"name": "Improved Scale and Rotate Controls"
+		},
+		"ImprovedControls-description": {
+			"type": "info",
+			"description": "Add snapping and position locking to scale and rotate controls.",
+			"color": "#000000"
+		},
+		"ImprovedControls-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"ImprovedControls-scale-with-zoom": {
+			"type": "bool",
+			"default": true,
+			"name": "Keep Scale Controls scale with Zoom"
 		},
 		"ImprovedGroupView-title": {
 			"type": "title",

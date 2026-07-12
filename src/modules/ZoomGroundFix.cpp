@@ -17,7 +17,7 @@ void ZoomGroundFix::fixPosition(float dt) {
     using namespace tinker::constants;
 
     auto editorLayer = LevelEditorLayer::get();
-    if (editorLayer && editorLayer->m_playbackMode == PlaybackMode::Not) {
+    if (editorLayer && editorLayer->m_playbackMode != PlaybackMode::Playing) {
         float zoom = editorLayer->m_objectLayer->getScale();
 
         ccColor3B color1;
@@ -107,6 +107,13 @@ void ZoomGroundFix::fixPosition(float dt) {
             mg->updateMG02Blend(color2DataMG.blending);
         }
     }
+}
+
+void ZGFEditorUI::onPlaytest(cocos2d::CCObject* sender) {
+    EditorUI::onPlaytest(sender);
+    if (m_editorLayer->m_groundLayer) m_editorLayer->m_groundLayer->scaleGround(m_editorLayer->m_objectLayer->getScale());
+    if (m_editorLayer->m_groundLayer2) m_editorLayer->m_groundLayer2->scaleGround(m_editorLayer->m_objectLayer->getScale());
+    if (m_editorLayer->m_middleground) m_editorLayer->m_middleground->scaleGround(m_editorLayer->m_objectLayer->getScale());
 }
 
 void ZGFEditorUI::updateZoom(float zoom) {

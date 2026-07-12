@@ -87,6 +87,10 @@ void ScaleSlider::updateExtendedGroove() {
 bool ScaleSlider::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (!nodeIsVisible(this)) return false;
 
+    if (m_scaleControl->m_delegate) {
+        m_scaleControl->m_delegate->scaleChangeBegin();
+    }
+
     return SliderNode::ccTouchBegan(touch, event);
 }
 

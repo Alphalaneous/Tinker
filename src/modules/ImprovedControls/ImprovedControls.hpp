@@ -14,6 +14,8 @@ class $editorModule(ImprovedControls) {
     static void addLabelToNode(CCNode* node, ZStringView text);
     static void addLabelToToggle(CCMenuItemToggler* toggler, ZStringView text);
 
+    static float roundToThousandth(float value);
+
     ImprovedControls();
     virtual ~ImprovedControls();
 };
@@ -28,6 +30,7 @@ class $modify(ICEditorUI, EditorUI) {
     void activateRotationControl(CCObject* sender);
     void angleChanged(float angle);
     void moveObject(GameObject* obj, CCPoint amount);
+    void scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove);
 };
 
 class $modify(ICGJScaleControl, GJScaleControl) {
@@ -46,6 +49,11 @@ class $modify(ICGJScaleControl, GJScaleControl) {
         ScaleSlider* m_sliderX;
         ScaleSlider* m_sliderY;
         ScaleSlider* m_sliderXY;
+
+        Ref<GameObject> m_object;
+        Ref<CCArray> m_objects;
+
+        bool m_wasAdjusted;
     };
 
     bool init();
@@ -54,12 +62,14 @@ class $modify(ICGJScaleControl, GJScaleControl) {
     void updateLabelY(float scale);
     void updateLabelXY(float scale);
 
+    float trueScaleFromValue(float value);
     float trueValueFromScale(float scale);
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
     
+    CCPoint getPivotLocation();
+
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
-
 };
 
 class $modify(ICGJRotationControl, GJRotationControl) {
@@ -73,6 +83,7 @@ class $modify(ICGJRotationControl, GJRotationControl) {
         CCMenuItemToggler* m_snapToggle;
         ValueToggler<int>* m_valueToggler;
         TextInput* m_input;
+        CCNode* m_controlContainer;
     };
 
     bool init();

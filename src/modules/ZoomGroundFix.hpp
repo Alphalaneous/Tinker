@@ -14,6 +14,7 @@ class $editorModule(ZoomGroundFix) {
 class $modify(ZGFEditorUI, EditorUI) {
     $registerEditorHooks(ZoomGroundFix)
 
+    void onPlaytest(cocos2d::CCObject* sender);
     void updateZoom(float zoom);
     void constrainGameLayerPosition(float x, float y);
 };

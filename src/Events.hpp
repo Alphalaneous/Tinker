@@ -51,3 +51,11 @@ struct ObjectChangeEvent final : Event<ObjectChangeEvent, bool(float lastObjectX
 struct SetupCreateMenuEvent final : Event<SetupCreateMenuEvent, bool()> {
     using Event::Event;
 };
+
+struct EditorRotationEvent final : Event<EditorRotationEvent, bool(float rotation)> {
+    using Event::Event;
+};
+
+struct EditorZoomEvent final : Event<EditorZoomEvent, bool(float zoom)> {
+    using Event::Event;
+};

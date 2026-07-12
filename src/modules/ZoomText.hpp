@@ -1,18 +1,11 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <Geode/modify/EditorUI.hpp>
 
 class $editorModule(ZoomText) {
     CCLabelBMFont* m_zoomLabel;
 
-    void onEditor();
+    bool onToggled(bool state) override;
+    void onEditor() override;
     void showZoomText();
 };
-
-class $modify(ZTEditorUI, EditorUI) {
-    $registerEditorHooks(ZoomText)
-
-    void updateZoom(float zoom);
-};
-
