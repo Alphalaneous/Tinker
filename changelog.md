@@ -1,3 +1,7 @@
+# 1.0.39
+- <c-dddddd>Fix a potential crash with scale and rotate</c>
+- <c-dddddd>Add node ID to hide UI button</c>
+
 # 1.0.38
 - <c-dddddd>Add option to disable screen safe area</c>
 - <c-dddddd>Make Grid Size control position more dynamic, to account for mods adding to the settings menu and different aspect ratios</c>

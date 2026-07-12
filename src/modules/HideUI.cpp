@@ -23,6 +23,7 @@ void HideUI::onEditor() {
     toggler->m_offButton->setContentSize({35.f, 40.f});
     toggler->m_onButton->setContentSize({35.f, 40.f});
     toggler->setContentSize({35.f, 40.f});
+    toggler->setID("hide-ui-toggle"_spr);
 
     toggler->m_offButton->setPosition(toggler->getContentSize() / 2.f);
     toggler->m_onButton->setPosition(toggler->getContentSize() / 2.f);

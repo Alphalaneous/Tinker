@@ -194,7 +194,7 @@ bool ICGJScaleControl::init() {
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
-            m_delegate->scaleXChanged(scale, m_scaleLocked);
+            if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
             updateLabelX(scale);
             fields->m_inputX->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
@@ -215,7 +215,7 @@ bool ICGJScaleControl::init() {
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
-            m_delegate->scaleYChanged(scale, m_scaleLocked);
+            if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
             updateLabelY(scale);
             fields->m_inputY->setString(numToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
@@ -248,7 +248,7 @@ bool ICGJScaleControl::init() {
                 baseScale = std::roundf(baseScale / adjustedSnap) * adjustedSnap;
                 scale = baseScale * largest;
             }
-            m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
+            if (m_delegate) m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
 
             updateLabelXY(scale);
             fields->m_inputXY->setString(numToString(scale, 3));
@@ -278,7 +278,7 @@ bool ICGJScaleControl::init() {
         if (!scaleRes) return;
 
         auto scale = scaleRes.unwrap();
-        m_delegate->scaleXChanged(scale, m_scaleLocked);
+        if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
         updateLabelX(scale);
         fields->m_sliderX->setPercent(trueValueFromScale(scale), true);
     });
@@ -294,7 +294,7 @@ bool ICGJScaleControl::init() {
         if (!scaleRes) return;
 
         auto scale = scaleRes.unwrap();
-        m_delegate->scaleYChanged(scale, m_scaleLocked);
+        if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
         updateLabelY(scale);
         fields->m_sliderY->setPercent(trueValueFromScale(scale), true);
     });
@@ -310,7 +310,7 @@ bool ICGJScaleControl::init() {
         if (!scaleRes) return;
         auto scale = scaleRes.unwrap();
 
-        m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
+        if (m_delegate) m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
         updateLabelXY(scale);
         fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
     });
@@ -616,9 +616,11 @@ bool ICGJRotationControl::init() {
         if (!angleRes) return;
 
         auto angle = angleRes.unwrap();
-        m_delegate->angleChangeBegin();
-        m_delegate->angleChanged(angle);
-        m_delegate->angleChangeEnded();
+        if (m_delegate) {
+            m_delegate->angleChangeBegin();
+            m_delegate->angleChanged(angle);
+            m_delegate->angleChangeEnded();
+        }
         setControlRotation(angle);
     });
     fields->m_controlContainer->addChild(fields->m_input);
@@ -663,7 +665,7 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         m_controlSprite->setPosition(pointOnCircle(-angle, 60.f));
     }
 
-    m_delegate->angleChanged(angle);
+    if (m_delegate) m_delegate->angleChanged(angle);
     fields->m_input->setString(numToString(angle, 3));
 }
 
