@@ -320,8 +320,8 @@ void IGVSetupSpawnPopup::onDeleteRemap(cocos2d::CCObject* sender) {
     m_fields->m_needsUpdate = true;
 }
 
-void IGVSetupSpawnPopup::queueUpdateButtons() {
-    SetupSpawnPopup::queueUpdateButtons();
+void IGVSetupSpawnPopup::onSelectRemap(cocos2d::CCObject* sender) {
+    SetupSpawnPopup::onSelectRemap(sender);
     m_fields->m_needsUpdate = true;
 }
 

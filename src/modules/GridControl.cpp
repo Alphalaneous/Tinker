@@ -27,7 +27,8 @@ GridControl::~GridControl() {
 
 void GridControl::onEditor() {
     auto container = CCMenu::create();
-    container->setContentSize({80.f, 35.f});
+    container->setContentSize({70.f, 35.f});
+    container->setScale(0.9f);
     container->ignoreAnchorPointForPosition(false);
     container->setAnchorPoint({0.5f, 0.5f});
     container->setLayout(SimpleRowLayout::create()
@@ -80,30 +81,21 @@ void GridControl::onEditor() {
     addEventListener(tinker::api::ui_scaling::UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool topAlign) {
         auto size = CCDirector::get()->getWinSize();
 
-        container->setScale(scale);
+        container->setScale(scale * 0.9f);
         auto settingsMenu = m_editorUI->getChildByID("settings-menu");
 
-        if (size.aspect() <= 1.6f) {
-            if (scale <= 0.8f) {
-                container->setPosition({settingsMenu->getPositionX() - 75.f * scale, settingsMenu->getPositionY()});
-            }
-            else {
-                auto x = size.width / 2.f;
-                if (auto slider = m_editorUI->getChildByID("position-slider")) {
-                    x = slider->getPositionX();
-                }
-                container->setPosition({x, settingsMenu->getPositionY() - settingsMenu->getScaledContentHeight() / 2.f - container->getScaledContentHeight() / 2.f + 10.f * scale});
-            }
+        auto leftInset = getSliderMaxX(m_editorUI);
+        auto rightInset = getSettingsMenuWidth(m_editorUI);
+
+        auto availableWidth = size.width - (rightInset + leftInset);
+
+        if (container->getScaledContentWidth() <= availableWidth) {
+            container->setAnchorPoint({1.f, 0.5f});
+            container->setPosition({size.width - rightInset - 5.f / scale, settingsMenu->getPositionY()});
         }
         else {
-            float offset = 50.f;
-            if (scale <= 0.95f) {
-                offset = 55.f;
-            }
-            if (auto slider = m_editorUI->getChildByID("position-slider")) {
-                slider->setPosition({size.width / 2.f + 22.f * scale, size.height - 20.f * scale});
-            }
-            container->setPosition({settingsMenu->getPositionX() - offset * scale, settingsMenu->getPositionY()});
+            container->setAnchorPoint({0.5f, 0.5f});
+            container->setPosition({m_editorUI->m_positionSlider->getPositionX(), getSliderMinY(m_editorUI) - 12.f});
         }
     });
 
@@ -141,6 +133,32 @@ void GridControl::onEditor() {
     });
 
     updateGrid();
+}
+
+float GridControl::getSettingsMenuWidth(EditorUI* editorUI) {
+    auto settingsMenu = editorUI->getChildByID("settings-menu");
+    auto layout = static_cast<AxisLayout*>(settingsMenu->getLayout());
+
+    float width = 0.f;
+    for (auto child : settingsMenu->getChildrenExt()) {
+        width += child->getContentWidth();
+    }
+
+    if (layout) {
+        width += (layout->getGap() * (settingsMenu->getChildrenCount() - 1));
+    }
+
+    return width * settingsMenu->getScale();
+}
+
+float GridControl::getSliderMaxX(EditorUI* editorUI) {
+    auto slider = editorUI->m_positionSlider;
+    return slider->getPositionX() + (slider->m_groove->getScaledContentWidth() / 2.f + slider->m_touchLogic->m_thumb->getScaledContentWidth() / 2.f - 12.f) * slider->getScale();
+}
+
+float GridControl::getSliderMinY(EditorUI* editorUI) {
+    auto slider = editorUI->m_positionSlider;
+    return slider->getPositionY() - (slider->m_touchLogic->m_thumb->getScaledContentHeight() / 2.f - 2.f) * slider->getScale();
 }
 
 void GridControl::updateGrid(float newValue, bool updateInput) {

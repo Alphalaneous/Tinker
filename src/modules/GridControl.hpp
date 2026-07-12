@@ -11,6 +11,9 @@ class $editorModule(GridControl) {
 
     void onEditor();
     void updateGrid(float newValue = 0, bool updateInput = true);
+    static float getSettingsMenuWidth(EditorUI* editorUI);
+    static float getSliderMaxX(EditorUI* editorUI);
+    static float getSliderMinY(EditorUI* editorUI);
 
     GridControl();
     virtual ~GridControl();

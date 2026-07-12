@@ -66,7 +66,7 @@ class $modify(IGVSetupSpawnPopup, SetupSpawnPopup) {
     void fixNamedEditorGroups(float dt);
     void addRemap(int oldID, int newID);
     void onDeleteRemap(cocos2d::CCObject* sender);
-    void queueUpdateButtons();
+    void onSelectRemap(cocos2d::CCObject* sender);
     void updateRemapButtons(float dt);
 
 };

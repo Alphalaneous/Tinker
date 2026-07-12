@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.37",
+	"version": "v1.0.38",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -1062,6 +1062,12 @@
 			"default": true,
 			"name": "Scale Toolbar",
 			"description": "Scale the toolbar (create, edit, and delete tabs) with the rest of the UI."
+		},
+		"UIScaling-use-safe-area": {
+			"type": "bool",
+			"default": true,
+			"name": "Use Safe Area",
+			"description": "Use the devices safe area when positioning to prevent camera cutouts and notches from overlapping UI elements."
 		},
 		"QuickExtras-title": {
 			"type": "title",

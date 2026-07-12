@@ -1,3 +1,8 @@
+# 1.0.38
+- <c-dddddd>Add option to disable screen safe area</c>
+- <c-dddddd>Make Grid Size control position more dynamic, to account for mods adding to the settings menu and different aspect ratios</c>
+- <c-dddddd>Fix crash on iOS when editing spawn remap</c>
+
 # 1.0.37
 - <c-dddddd>Fix scale undo not working</c>
 - <c-dddddd>Fix scaling multiple objects still being bounded</c>

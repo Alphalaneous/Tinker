@@ -132,7 +132,10 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
 }
 
 CCPoint UIScaling::getSafeOffset() {
-    return {utils::getSafeAreaRect().getMinX() / 2.f, 0.f};
+    if (getSetting<bool, "use-safe-area">()) {
+        return {utils::getSafeAreaRect().getMinX() / 2.f, 0.f};
+    }
+    return {0, 0};
 }
 
 void UIScaling::setPauseScaling(float scale) {
@@ -220,11 +223,7 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     if (auto slider = m_editorUI->getChildByID("position-slider")) {
         slider->ignoreAnchorPointForPosition(false);
         slider->setContentSize({0.f, 0.f});
-        #ifndef GEODE_IS_ANDROID32
-        if (!GridControl::isEnabled()) {
-            slider->setPosition({winSize.width / 2.f + 30.f * scale, winSize.height - 20.f * scale});
-        }
-        #endif
+        slider->setPosition({winSize.width / 2.f + 30.f * scale, winSize.height - 20.f * scale});
         slider->setScale(scale);
     }
     
@@ -233,29 +232,28 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         settingsMenu->setAnchorPoint({0.5f, 0.5f});
         settingsMenu->setPosition(winSize - settingsMenu->getScaledContentSize() / 2.f - CCSize{scale, 0.f} - getSafeOffset());
 
-        if (auto gridSizeControls = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls")) {
-            gridSizeControls->setScale(scale);
+        #ifndef GEODE_IS_ANDROID32
+        if (!GridControl::isEnabled()) {
+            if (auto gridSizeControls = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls")) {
+                gridSizeControls->setScale(scale * 0.9f);
+                gridSizeControls->setContentSize({70.f, 35.f});
 
-            if (winSize.aspect() <= 1.6f) {
-                if (scale <= 0.8f) {
-                    gridSizeControls->setPosition({settingsMenu->getPositionX() - 75.f * scale, settingsMenu->getPositionY()});
+                auto leftInset = GridControl::getSliderMaxX(m_editorUI);
+                auto rightInset = GridControl::getSettingsMenuWidth(m_editorUI);
+
+                auto availableWidth = winSize.width - (rightInset + leftInset);
+
+                if (gridSizeControls->getScaledContentWidth() <= availableWidth) {
+                    gridSizeControls->setAnchorPoint({1.f, 0.5f});
+                    gridSizeControls->setPosition({winSize.width - rightInset - 5.f / scale, settingsMenu->getPositionY()});
                 }
                 else {
-                    auto x = winSize.width / 2.f;
-                    if (auto slider = m_editorUI->getChildByID("position-slider")) {
-                        x = slider->getPositionX();
-                    }
-                    gridSizeControls->setPosition({x, settingsMenu->getPositionY() - settingsMenu->getScaledContentHeight() / 2.f - gridSizeControls->getScaledContentHeight() / 2.f + 10.f * scale});
+                    gridSizeControls->setAnchorPoint({0.5f, 0.5f});
+                    gridSizeControls->setPosition({m_editorUI->m_positionSlider->getPositionX(), GridControl::getSliderMinY(m_editorUI) - 12.f});
                 }
-            }
-            else {
-                float offset = 45.f;
-                if (scale <= 0.95f) {
-                    offset = 55.f;
-                }
-                gridSizeControls->setPosition({settingsMenu->getPositionX() - offset * scale, settingsMenu->getPositionY()});
             }
         }
+        #endif
     }
 
     if (auto undoMenu = m_editorUI->getChildByID("undo-menu")) {
