@@ -11,7 +11,7 @@ bool NECCTextInputNode::allowedInput() {
     if (!LevelEditorLayer::get()) return false;
 
     for (const char& c : std::string_view(m_allowedChars)) {
-        if (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '.') {
+        if (!(std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '.')) {
             return false;
         }
     }
