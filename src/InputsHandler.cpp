@@ -79,7 +79,9 @@ void TouchForward::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 }
 
 void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    m_touches.erase(touch);
+    if (!m_skipErase) {
+        m_touches.erase(touch);
+    }
 
     dispatch(0, touch,
         [] (auto& h) -> auto& { return h.cancelledCallback; },
@@ -92,8 +94,9 @@ void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
 void TouchForward::cancelAllTouches() {
     for (const auto& touch : m_touches) {
         if (!touch) continue;
-        log::info("touch: {}", touch);
+        m_skipErase = true;
         ccTouchCancelled(touch, nullptr);
+        m_skipErase = false;
     }
     m_touches.clear();
 }
