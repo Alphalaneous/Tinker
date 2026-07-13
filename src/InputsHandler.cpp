@@ -91,7 +91,8 @@ void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
 
 void TouchForward::cancelAllTouches() {
     for (const auto& touch : m_touches) {
-        if (!touch) return;
+        if (!touch) continue;
+        log::info("touch: {}", touch);
         ccTouchCancelled(touch, nullptr);
     }
     m_touches.clear();
