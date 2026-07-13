@@ -85,6 +85,7 @@ protected:
 
     bool init(EditorUI* editorUI);
 
+    bool m_skipErase;
     std::vector<TouchHook> m_touchHooks;
     std::unordered_set<Ref<CCTouch>> m_touches;
     EditorUI* m_editorUI;
