@@ -1,3 +1,6 @@
+# 1.0.40
+- <c-dddddd>Fix a crash that could happen when typing in the rotation or scale inputs after an object was deleted.</c>
+
 # 1.0.39
 - <c-dddddd>Fix a potential crash with scale and rotate</c>
 - <c-dddddd>Add node ID to hide UI button</c>

@@ -87,6 +87,11 @@ void ICEditorUI::activateRotationControl(CCObject* sender) {
     static_cast<ICGJRotationControl*>(m_rotationControl)->loadValues(arr);
 }
 
+void ICEditorUI::deactivateScaleControl() {
+    static_cast<ICGJScaleControl*>(m_scaleControl)->unfocus();
+    EditorUI::deactivateScaleControl();
+}
+
 void ICEditorUI::angleChanged(float angle) {
     auto fields = m_fields.self();
 
@@ -102,7 +107,10 @@ void ICEditorUI::angleChanged(float angle) {
     }
     
     if (objs) {
-        auto orig = static_cast<GameObject*>(objs->firstObject())->getRotation();
+        auto first = objs->asExt<GameObject>()[0];
+        if (!first) return;
+
+        auto orig = first->getRotation();
         
         fields->m_lockPosition = lockPos;
         rotateObjects(objs, -orig + angle, m_pivotPoint);
@@ -513,6 +521,13 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
     return ret;
 }
 
+void ICGJScaleControl::unfocus() {
+    auto fields = m_fields.self();
+    for (auto input : fields->m_inputs) {
+        input->defocus();
+    }
+}
+
 void ICGJScaleControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     //do nothing
 }
@@ -669,6 +684,12 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     fields->m_input->setString(numToString(angle, 3));
 }
 
+void ICGJRotationControl::finishTouch() {
+    auto fields = m_fields.self();
+    fields->m_input->defocus();
+    GJRotationControl::finishTouch();
+}
+
 void ICGJRotationControl::draw() {
     GJRotationControl::draw();
     auto fields = m_fields.self();
@@ -700,6 +721,7 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
     }
 
     if (!parent) parent = objects->asExt<GameObject>()[0];
+    if (!parent) return;
     
     auto rot = parent->getRotation();
     setControlRotation(rot);

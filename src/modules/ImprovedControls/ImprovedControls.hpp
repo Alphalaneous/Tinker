@@ -27,6 +27,7 @@ class $modify(ICEditorUI, EditorUI) {
         bool m_lockPosition;
     };
 
+    void deactivateScaleControl();
     void activateRotationControl(CCObject* sender);
     void angleChanged(float angle);
     void moveObject(GameObject* obj, CCPoint amount);
@@ -65,6 +66,7 @@ class $modify(ICGJScaleControl, GJScaleControl) {
     float trueScaleFromValue(float value);
     float trueValueFromScale(float scale);
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
+    void unfocus();
     
     CCPoint getPivotLocation();
 
@@ -91,6 +93,7 @@ class $modify(ICGJRotationControl, GJRotationControl) {
     void draw();
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void ccTouchMoved(CCTouch* touch, CCEvent* event);
+    void finishTouch();
 
     bool isPositionLocked();
     CCPoint pointOnCircle(float degrees, float radius);
