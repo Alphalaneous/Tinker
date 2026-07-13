@@ -1,3 +1,6 @@
+# 1.0.41
+- <c-dddddd>Fix a crash when suspending the game while in the editor on iOS and Android</c>
+
 # 1.0.40
 - <c-dddddd>Fix a crash that could happen when typing in the rotation or scale inputs after an object was deleted.</c>
 
