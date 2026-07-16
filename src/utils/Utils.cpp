@@ -371,6 +371,178 @@ namespace tinker::utils {
         }
     }
 
+    CCRect getRealBounds(CCNode* node, const std::vector<CCNode*>& ignore) {
+        auto winSize = CCDirector::get()->getWinSize();
+        if (!node->isVisible()) return {0, 0, 0, 0};
+
+        float minX = FLT_MAX;
+        float minY = FLT_MAX;
+        float maxX = -FLT_MAX;
+        float maxY = -FLT_MAX;
+
+        bool hasBounds = false;
+
+        auto isIgnored = [&] (CCNode* child) {
+            return std::find(ignore.begin(), ignore.end(), child) != ignore.end();
+        };
+
+        for (auto child : node->getChildrenExt()) {
+            if (isIgnored(child) || !child->isVisible()) continue;
+
+            auto childSize = child->getContentSize();
+            bool isFullscreen = childSize.width >= winSize.width && childSize.height >= winSize.height;
+
+            if (!isFullscreen) {
+                auto rect = child->boundingBox();
+
+                minX = std::min(minX, rect.getMinX());
+                minY = std::min(minY, rect.getMinY());
+                maxX = std::max(maxX, rect.getMaxX());
+                maxY = std::max(maxY, rect.getMaxY());
+
+                hasBounds = true;
+            }
+
+            if (child->getChildrenCount() > 0) {
+                auto nested = getRealBounds(child, ignore);
+
+                if (nested.size.width > 0 || nested.size.height > 0) {
+                    auto corners = std::array<CCPoint, 4> {
+                        nested.origin,
+                        {nested.getMaxX(), nested.origin.y},
+                        {nested.origin.x, nested.getMaxY()},
+                        {nested.getMaxX(), nested.getMaxY()}
+                    };
+
+                    for (const auto& corner : corners) {
+                        auto world = child->convertToWorldSpace(corner);
+                        auto point = node->convertToNodeSpace(world);
+
+                        minX = std::min(minX, point.x);
+                        minY = std::min(minY, point.y);
+                        maxX = std::max(maxX, point.x);
+                        maxY = std::max(maxY, point.y);
+                    }
+
+                    hasBounds = true;
+                }
+            }
+        }
+
+        if (!hasBounds) return {0, 0, 0, 0};
+        return {minX, minY, maxX - minX, maxY - minY};
+    }
+    
+    AxisBounds getAvailableSpace(CCNode* a, CCNode* b, Axis axis, AxisBounds offset, const std::vector<CCNode*>& ignore) {
+        auto parent = a->getParent();
+
+        auto aBounds = getRealBounds(a, ignore);
+        auto bBounds = getRealBounds(b, ignore);
+
+        auto aBottomLeft = a->convertToWorldSpace(aBounds.origin);
+        auto aTopRight = a->convertToWorldSpace({
+            aBounds.getMaxX(),
+            aBounds.getMaxY()
+        });
+
+        auto bBottomLeft = b->convertToWorldSpace(bBounds.origin);
+        auto bTopRight = b->convertToWorldSpace({
+            bBounds.getMaxX(),
+            bBounds.getMaxY()
+        });
+
+        auto aMinPoint = parent->convertToNodeSpace(aBottomLeft);
+        auto aMaxPoint = parent->convertToNodeSpace(aTopRight);
+
+        auto bMinPoint = parent->convertToNodeSpace(bBottomLeft);
+        auto bMaxPoint = parent->convertToNodeSpace(bTopRight);
+
+        float aMin = axis == Axis::Horizontal ? aMinPoint.x : aMinPoint.y;
+        float aMax = axis == Axis::Horizontal ? aMaxPoint.x : aMaxPoint.y;
+
+        float bMin = axis == Axis::Horizontal ? bMinPoint.x : bMinPoint.y;
+        float bMax = axis == Axis::Horizontal ? bMaxPoint.x : bMaxPoint.y;
+
+        if (aMax <= bMin) {
+            return {aMax + offset.min, bMin + offset.max};
+        }
+
+        if (bMax <= aMin) {
+            return {bMax + offset.min, aMin + offset.max};
+        }
+
+        return {0, 0};
+    }
+
+    bool nodeFits(CCNode* node, const AxisBounds& bounds, Axis axis) {
+        auto parent = node->getParent();
+
+        auto realBounds = getRealBounds(node);
+
+        auto bottomLeft = node->convertToWorldSpace(realBounds.origin);
+        auto topRight = node->convertToWorldSpace({
+            realBounds.getMaxX(),
+            realBounds.getMaxY()
+        });
+
+        auto minPoint = parent->convertToNodeSpace(bottomLeft);
+        auto maxPoint = parent->convertToNodeSpace(topRight);
+
+        float size = axis == Axis::Horizontal ? maxPoint.x - minPoint.x : maxPoint.y - minPoint.y;
+
+        float available = bounds.max - bounds.min;
+
+        return size <= available;
+    }
+
+    float getFurthestLeft(CCNode* node, float x) {
+        auto parent = node->getParent();
+        if (!parent) return x;
+
+        auto nodeBounds = getRealBounds(node);
+
+        auto nodeBottomLeft = node->convertToWorldSpace(nodeBounds.origin);
+        auto nodeTopRight = node->convertToWorldSpace({
+            nodeBounds.getMaxX(),
+            nodeBounds.getMaxY()
+        });
+
+        auto nodeMin = parent->convertToNodeSpace(nodeBottomLeft);
+        auto nodeMax = parent->convertToNodeSpace(nodeTopRight);
+
+        float furthest = -FLT_MAX;
+
+        for (auto child : parent->getChildrenExt()) {
+            if (child == node) continue;
+            if (!child->isVisible()) continue;
+
+            auto childBounds = getRealBounds(child);
+
+            auto childBottomLeft = child->convertToWorldSpace(childBounds.origin);
+            auto childTopRight = child->convertToWorldSpace({
+                childBounds.getMaxX(),
+                childBounds.getMaxY()
+            });
+
+            auto childMin = parent->convertToNodeSpace(childBottomLeft);
+            auto childMax = parent->convertToNodeSpace(childTopRight);
+
+            if (childMax.x > x) continue;
+            if (childMax.y <= nodeMin.y || childMin.y >= nodeMax.y) continue;
+
+            furthest = std::max(furthest, childMax.x);
+        }
+
+        return furthest == -FLT_MAX ? 0 : furthest;
+    }
+
+    std::string floatToString(float num, int precision) {
+        double scale = std::pow(10.0, precision);
+        auto rounded = std::round(num * scale) / scale;
+
+        return numToString(rounded);
+    }
+
     namespace color {
         float wrapDegrees(float h) {
             h = std::fmod(h, 360.f);

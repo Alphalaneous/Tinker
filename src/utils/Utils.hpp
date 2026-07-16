@@ -13,6 +13,16 @@ namespace tinker::utils {
 		GLubyte opacity;
 	};
 
+    struct AxisBounds {
+        float min;
+        float max;
+    };
+
+    enum class Axis {
+        Vertical,
+        Horizontal
+    };
+
     float getToolbarHeight();
     bool isColorable(GameObject* object);
     ColorData getActiveColor(LevelEditorLayer* editorLayer, int colorID);
@@ -23,6 +33,12 @@ namespace tinker::utils {
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees);
     std::string capitalize(std::string_view input);
     std::vector<std::string> split(const std::string& str, const std::string& delimiter, int limit = -1);
+    CCRect getRealBounds(CCNode* node, const std::vector<CCNode*>& ignore = {});
+    AxisBounds getAvailableSpace(CCNode* a, CCNode* b, Axis axis, AxisBounds offset = {0, 0}, const std::vector<CCNode*>& ignore = {});
+    bool nodeFits(CCNode* node, const AxisBounds& bounds, Axis axis);
+    float getFurthestLeft(CCNode* node, float x);
+
+    std::string floatToString(float num, int precision);
 
     template<geode::utils::string::ConstexprString ID>
     inline Mod* getMod() {

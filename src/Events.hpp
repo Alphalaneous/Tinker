@@ -59,3 +59,11 @@ struct EditorRotationEvent final : Event<EditorRotationEvent, bool(float rotatio
 struct EditorZoomEvent final : Event<EditorZoomEvent, bool(float zoom)> {
     using Event::Event;
 };
+
+struct UpdateObjectLabel final : Event<UpdateObjectLabel, bool(float scale)> {
+    using Event::Event;
+};
+
+struct ObjectMovedEvent final : Event<ObjectMovedEvent, bool()> {
+    using Event::Event;
+};

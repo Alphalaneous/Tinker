@@ -95,8 +95,8 @@ void LengthInEditor::updateScale(float scale) {
 
         m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
 
-        if (auto objectInfoLabel = m_editorUI->getChildByID("object-info-label")) {
-            objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
+        if (m_editorUI->m_objectInfoLabel) {
+            m_editorUI->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
         }
     }));
 }

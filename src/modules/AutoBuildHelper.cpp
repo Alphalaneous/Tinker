@@ -129,13 +129,13 @@ void AutoBuildHelper::showOnPause() {
 }
 
 void AutoBuildHelper::onEditor() {
-    if (getSetting<bool, "show-on-pause">()) return;
-    showOnEditorUI();
-
     addEventListener("on-pause", EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
         if (!getSetting<bool, "show-on-pause">()) return;
         showOnPause();
     });
+
+    if (getSetting<bool, "show-on-pause">()) return;
+    showOnEditorUI();
 }
 
 void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {

@@ -1,3 +1,9 @@
+# 1.0.42
+- <c-dddddd>Fix Grid Controls positioning</c>
+- <c-dddddd>Dynamically reposition object info label as needed</c>
+- <c-dddddd>Temporarily remove copy and paste object string support from iOS due to a Geode bug</c>
+- <c-dddddd>Fix Auto Build Helper not showing on the editor pause layer when show on pause is enabled</c>
+
 # 1.0.41
 - <c-dddddd>Fix a crash when suspending the game while in the editor on iOS and Android</c>
 

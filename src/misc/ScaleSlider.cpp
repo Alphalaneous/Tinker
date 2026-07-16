@@ -3,7 +3,7 @@
 
 using namespace tinker::ui;
 
-ScaleSlider* ScaleSlider::create(ScaleSliderCallback callback, GJScaleControl* control) {
+ScaleSlider* ScaleSlider::create(ScaleSliderCallback callback, CCNode* control) {
     auto ret = new ScaleSlider();
     if (ret->init(std::move(callback), control)) {
         ret->autorelease();
@@ -13,7 +13,7 @@ ScaleSlider* ScaleSlider::create(ScaleSliderCallback callback, GJScaleControl* c
     return nullptr;
 }
 
-bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
+bool ScaleSlider::init(ScaleSliderCallback callback, CCNode* control) {
     if (!SliderNode::initCustom(
         CCSprite::create("GJ_moveBtn.png"),
         CCSprite::create("GJ_moveSBtn.png"),
@@ -23,10 +23,13 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
             updateExtendedGroove();
             if (m_skipCallback) return;
 
-            auto scale = m_scaleControl->scaleFromValue(value);
-            if (scale > 0.97f && scale < 1.03f) {
-                value = static_cast<ICGJScaleControl*>(m_scaleControl)->trueValueFromScale(1);
+            if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
+                auto scale = scaleControl->scaleFromValue(value);
+                if (scale > 0.97f && scale < 1.03f) {
+                    value = static_cast<ICGJScaleControl*>(scaleControl)->trueValueFromScale(1);
+                }
             }
+
             if (callback) callback(static_cast<ScaleSlider*>(sender), value);
         },
         {2.f, 2.f}
@@ -38,7 +41,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, GJScaleControl* control) {
     setContentWidth(210.f);
     setSliderBypass(true);
 
-    m_scaleControl = control;
+    m_control = control;
 
     m_extendedGroove = NineSlice::create("geode.loader/slider-groove-2.png");
     m_extendedGroove->setID("extended-groove"_spr);
@@ -87,11 +90,18 @@ void ScaleSlider::updateExtendedGroove() {
 bool ScaleSlider::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
     if (!nodeIsVisible(this)) return false;
 
-    if (m_scaleControl->m_delegate) {
-        m_scaleControl->m_delegate->scaleChangeBegin();
+    if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
+        if (scaleControl->m_delegate) {
+            scaleControl->m_delegate->scaleChangeBegin();
+        }
     }
 
+
     return SliderNode::ccTouchBegan(touch, event);
+}
+
+void ScaleSlider::disableBypass() {
+    setSliderBypass(false);
 }
 
 void ScaleSlider::setValue(float value, bool skipCallback) {
@@ -188,8 +198,14 @@ float ScaleSlider::sliderToExtendedGrooveX(float x) {
 }
 
 float ScaleSlider::valueToLocalX(float value) {
-    float lower = m_scaleControl->m_lowerBound;
-    float upper = m_scaleControl->m_upperBound;
+    float lower = 0.f;
+    float upper = 1.f;
+
+    if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
+        lower = scaleControl->m_lowerBound;
+        upper = scaleControl->m_upperBound;
+    }
+
     float range = upper - lower;
 
     if (range == 0.f) return 0.f;

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Geode/utils/ZStringView.hpp"
+#ifndef GEODE_IS_IOS
+
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 
@@ -16,3 +17,5 @@ class $modify(COSEditorUI, EditorUI) {
     void doCopyObjects(bool withColor);
     void doPasteObjects(bool withColor);
 };
+
+#endif

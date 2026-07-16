@@ -79,6 +79,15 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     EditorEnterEvent().send(this);
     updateButtons();
 
+    addEventListener(UpdateObjectLabel(), [this] (float scale) {
+        float x = tinker::utils::getFurthestLeft(m_objectInfoLabel, 150.f * scale);
+        float offset = 10.f * scale;
+        if (UIScaling::isEnabled()) {
+            x += UIScaling::getSafeOffset().x;
+        }
+        m_objectInfoLabel->setPositionX(x + offset);
+    });
+
     schedule(schedule_selector(MainEditorUI::mainUpdate));
 
     return true;
@@ -89,6 +98,12 @@ void MainEditorUI::showUI(bool show) {
     m_fields->m_uiVisible = show;
 
     ShowUIEvent().send(show);
+    UpdateObjectLabel().send(UIScaling::getUIScale());
+}
+
+void MainEditorUI::updateObjectInfoLabel() {
+    EditorUI::updateObjectInfoLabel();
+    UpdateObjectLabel().send(UIScaling::getUIScale());
 }
 
 bool MainEditorUI::isUIVisible() {
@@ -165,6 +180,7 @@ void MainEditorUI::updateButtons() {
     EditorUI::updateButtons();
     m_toolbarHeight = toolbarHeight;
     UpdateButtonsEvent().send();
+    UpdateObjectLabel().send(UIScaling::getUIScale());
 }
 
 void MainEditorUI::deactivateScaleControl() {
@@ -222,6 +238,11 @@ void MainEditorUI::updateCreateMenu(bool selectTab) {
 void MainEditorUI::updateZoom(float zoom) {
     EditorUI::updateZoom(zoom);
     EditorZoomEvent().send(zoom);
+}
+
+void MainEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
+    EditorUI::moveObject(object, offset);
+    ObjectMovedEvent().send();
 }
 
 MainEditorUI* MainEditorUI::get() {

@@ -178,6 +178,8 @@ void ETEditorUI::moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos) {
             m_editorLayer->m_drawGridLayer->m_updateSpeedObjects = true;
         }
     }
+
+    ObjectMovedEvent().send();
 }
 
 void ETEditorUI::onCenterObjects(CCObject* sender) {

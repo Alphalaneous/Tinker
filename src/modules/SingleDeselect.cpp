@@ -1,5 +1,7 @@
 #include "SingleDeselect.hpp"
 
+// TODO fix deselecting while controls are open
+
 bool SingleDeselect::onToggled(bool state) {
     if (state) onEditor();
     else removeEventListener("deselect-listener"_spr);

@@ -204,7 +204,7 @@ bool ICGJScaleControl::init() {
             }
             if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
             updateLabelX(scale);
-            fields->m_inputX->setString(numToString(scale, 3));
+            fields->m_inputX->setString(tinker::utils::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -225,7 +225,7 @@ bool ICGJScaleControl::init() {
             }
             if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
             updateLabelY(scale);
-            fields->m_inputY->setString(numToString(scale, 3));
+            fields->m_inputY->setString(tinker::utils::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -259,7 +259,7 @@ bool ICGJScaleControl::init() {
             if (m_delegate) m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
 
             updateLabelXY(scale);
-            fields->m_inputXY->setString(numToString(scale, 3));
+            fields->m_inputXY->setString(tinker::utils::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -496,9 +496,9 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     fields->m_sliderY->setPercent(trueValueFromScale(m_valueY), true);
     fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
 
-    fields->m_inputX->setString(numToString(m_valueX, 3));
-    fields->m_inputY->setString(numToString(m_valueY, 3));
-    fields->m_inputXY->setString(numToString(scale, 3));
+    fields->m_inputX->setString(tinker::utils::floatToString(m_valueX, 3));
+    fields->m_inputY->setString(tinker::utils::floatToString(m_valueY, 3));
+    fields->m_inputXY->setString(tinker::utils::floatToString(scale, 3));
 
     updateLabelX(m_valueX);
     updateLabelY(m_valueY);
@@ -681,7 +681,7 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     }
 
     if (m_delegate) m_delegate->angleChanged(angle);
-    fields->m_input->setString(numToString(angle, 3));
+    fields->m_input->setString(tinker::utils::floatToString(angle, 3));
 }
 
 void ICGJRotationControl::finishTouch() {
@@ -725,7 +725,7 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
     
     auto rot = parent->getRotation();
     setControlRotation(rot);
-    fields->m_input->setString(numToString(rot, 3));
+    fields->m_input->setString(tinker::utils::floatToString(rot, 3));
 }
 
 float ICGJRotationControl::getThumbValue() const {

@@ -1,7 +1,9 @@
 #include "StartPosTools.hpp"
 #include <Geode/ui/Button.hpp>
 #include <Geode/ui/NineSlice.hpp>
+#include "Events.hpp"
 #include "StartPosOverlay.hpp"
+#include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
@@ -197,10 +199,7 @@ void SPTEditorUI::updatePlaytestMenu() {
             if (playbackMenu) {
                 playtestMenu->setPositionX(playbackMenu->boundingBox().getMinX());
             }
-            auto objectInfoLabel = getChildByID("object-info-label");
-            if (objectInfoLabel) {
-                objectInfoLabel->setPositionX(playtestMenu->boundingBox().getMaxX() + 5.f);
-            }
+            UpdateObjectLabel().send(UIScaling::getUIScale());
         }
         updateSwitcherLabel();
 

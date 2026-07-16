@@ -1,4 +1,5 @@
 #include "GridControl.hpp"
+#include "utils/Utils.hpp"
 
 #ifndef GEODE_IS_ANDROID32
 
@@ -79,19 +80,14 @@ void GridControl::onEditor() {
     container->setID("grid-size-controls"_spr);
 
     addEventListener(tinker::api::ui_scaling::UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool topAlign) {
-        auto size = CCDirector::get()->getWinSize();
-
         container->setScale(scale * 0.9f);
         auto settingsMenu = m_editorUI->getChildByID("settings-menu");
 
-        auto leftInset = getSliderMaxX(m_editorUI);
-        auto rightInset = getSettingsMenuWidth(m_editorUI);
-
-        auto availableWidth = size.width - (rightInset + leftInset);
-
-        if (container->getScaledContentWidth() <= availableWidth) {
+        auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal);
+        
+        if (tinker::utils::nodeFits(container, available, tinker::utils::Axis::Horizontal)) {
             container->setAnchorPoint({1.f, 0.5f});
-            container->setPosition({size.width - rightInset - 5.f / scale, settingsMenu->getPositionY()});
+            container->setPosition({available.max - 5.f / scale, settingsMenu->getPositionY()});
         }
         else {
             container->setAnchorPoint({0.5f, 0.5f});
@@ -133,27 +129,6 @@ void GridControl::onEditor() {
     });
 
     updateGrid();
-}
-
-float GridControl::getSettingsMenuWidth(EditorUI* editorUI) {
-    auto settingsMenu = editorUI->getChildByID("settings-menu");
-    auto layout = static_cast<AxisLayout*>(settingsMenu->getLayout());
-
-    float width = 0.f;
-    for (auto child : settingsMenu->getChildrenExt()) {
-        width += child->getContentWidth();
-    }
-
-    if (layout) {
-        width += (layout->getGap() * (settingsMenu->getChildrenCount() - 1));
-    }
-
-    return width * settingsMenu->getScale();
-}
-
-float GridControl::getSliderMaxX(EditorUI* editorUI) {
-    auto slider = editorUI->m_positionSlider;
-    return slider->getPositionX() + (slider->m_groove->getScaledContentWidth() / 2.f + slider->m_touchLogic->m_thumb->getScaledContentWidth() / 2.f - 12.f) * slider->getScale();
 }
 
 float GridControl::getSliderMinY(EditorUI* editorUI) {

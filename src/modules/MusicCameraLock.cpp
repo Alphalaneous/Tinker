@@ -1,4 +1,5 @@
 #include "MusicCameraLock.hpp"
+#include "modules/UIScaling.hpp"
 
 bool MusicCameraLock::onToggled(bool state) {
     if (!state) {
@@ -46,6 +47,8 @@ void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
         if (toggler) toggler->removeFromParent();
         if (playbackMenu) playbackMenu->updateLayout();
     }
+
+    UpdateObjectLabel().send(UIScaling::getUIScale());
 }
 
 void MCLEditorUI::onPlaytest(CCObject* sender) {

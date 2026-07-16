@@ -238,14 +238,11 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
                 gridSizeControls->setScale(scale * 0.9f);
                 gridSizeControls->setContentSize({70.f, 35.f});
 
-                auto leftInset = GridControl::getSliderMaxX(m_editorUI);
-                auto rightInset = GridControl::getSettingsMenuWidth(m_editorUI);
-
-                auto availableWidth = winSize.width - (rightInset + leftInset);
-
-                if (gridSizeControls->getScaledContentWidth() <= availableWidth) {
+                auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal);
+                
+                if (tinker::utils::nodeFits(gridSizeControls, available, tinker::utils::Axis::Horizontal)) {
                     gridSizeControls->setAnchorPoint({1.f, 0.5f});
-                    gridSizeControls->setPosition({winSize.width - rightInset - 5.f / scale, settingsMenu->getPositionY()});
+                    gridSizeControls->setPosition({available.max - 5.f / scale, settingsMenu->getPositionY()});
                 }
                 else {
                     gridSizeControls->setAnchorPoint({0.5f, 0.5f});
@@ -525,9 +522,9 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
         rowMenu->setPositionY(m_editorUI->m_toolbarHeight + 20.f * scale);
     }
 
-    if (auto objectInfoLabel = m_editorUI->getChildByID("object-info-label")) {
-        objectInfoLabel->setScale(0.6f * scale);
-        objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + getSafeOffset());
+    if (m_editorUI->m_objectInfoLabel) {
+        m_editorUI->m_objectInfoLabel->setScale(0.6f * scale);
+        m_editorUI->m_objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + getSafeOffset());
     }
 
     if (fullReload) {
@@ -556,6 +553,9 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     }
 
     tinker::api::ui_scaling::UIScaleUpdated().send(scale, toolbar, topAlign);
+    m_editorUI->runAction(CallFuncExt::create([scale] {
+        UpdateObjectLabel().send(scale);
+    }));
 }
 
 float UIScaling::getUIScale(bool ignoreEnabled) {

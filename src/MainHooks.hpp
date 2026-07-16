@@ -54,6 +54,8 @@ class $modify(MainEditorUI, EditorUI) {
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);
     void updateZoom(float zoom);
+    void updateObjectInfoLabel();
+    void moveObject(GameObject* object, cocos2d::CCPoint offset);
 
     bool isUIVisible();
     static MainEditorUI* get();

@@ -11,7 +11,7 @@ class ScaleSlider : public SliderNode {
 public:
     using ScaleSliderCallback = geode::Function<void(ScaleSlider* sender, float value)>;
 
-    static ScaleSlider* create(ScaleSliderCallback callback, GJScaleControl* control);
+    static ScaleSlider* create(ScaleSliderCallback callback, CCNode* control);
 
     void updateSnap(float snap);
     void setValue(float value, bool skipCallback = false);
@@ -21,6 +21,7 @@ public:
     CCSprite* getSmallTick();
 
     void clearExtendedGroove();
+    void disableBypass();
 
     float valueToLocalX(float value);
     float sliderToExtendedGrooveX(float x);
@@ -31,10 +32,10 @@ public:
     virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
 
 protected:
-    bool init(ScaleSliderCallback callback, GJScaleControl* control);
+    bool init(ScaleSliderCallback callback, CCNode* control);
     void updateExtendedGroove();
 
-    GJScaleControl* m_scaleControl;
+    CCNode* m_control;
     std::vector<Ref<CCSprite>> m_smallTicks;
     std::vector<Ref<CCSprite>> m_largeTicks;
     int m_smallTicksRemaining;

@@ -1,5 +1,7 @@
 #include "CopyObjectString.hpp"
 
+#ifndef GEODE_IS_IOS
+
 bool CopyObjectString::onToggled(bool state) {
     return true;
 }
@@ -28,3 +30,5 @@ void COSEditorUI::doPasteObjects(bool withColor) {
         Notification::create("Pasted Objects from Clipboard", NotificationIcon::Info)->show();
     }
 }
+
+#endif

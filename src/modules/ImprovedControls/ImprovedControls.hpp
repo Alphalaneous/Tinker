@@ -5,8 +5,8 @@
 #include <Geode/modify/GJRotationControl.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/ui/SliderNode.hpp>
-#include "ScaleSlider.hpp"
-#include "ValueToggler.hpp"
+#include "misc/ScaleSlider.hpp"
+#include "misc/ValueToggler.hpp"
 
 using namespace tinker::ui;
 
