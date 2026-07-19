@@ -1,5 +1,4 @@
 #include "ImprovedLinkControls.hpp"
-#include "UIScaling.hpp"
 
 void ImprovedLinkControls::onEditor() {
     #ifndef GEODE_IS_MOBILE
@@ -9,13 +8,7 @@ void ImprovedLinkControls::onEditor() {
     linkMenu->setPosition({linkMenu->getPositionX() - 5.f, zoomMenu->getPositionY()});
     static_cast<AxisLayout*>(linkMenu->getLayout())->setGap(3.f);
     linkMenu->updateLayout();
-    
-    // for BetterEdit
-    if (!UIScaling::isEnabled()) {
-        linkMenu->runAction(CallFuncExt::create([linkMenu] {
-            linkMenu->setScale(0.8f * linkMenu->getScale());
-        }));
-    }
+    linkMenu->setScale(0.8f);
     #endif
 }
 

@@ -1,5 +1,4 @@
 #include "ZoomText.hpp"
-#include "../../include/UIScaling.hpp"
 
 bool ZoomText::onToggled(bool state) {
     if (state) {
@@ -26,7 +25,7 @@ void ZoomText::onEditor() {
     m_zoomLabel->setZOrder(99999);
     m_editorUI->addChild(m_zoomLabel);
 
-    addEventListener("ui-scale", tinker::api::ui_scaling::UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool topAlign) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         auto winSize = CCDirector::get()->getWinSize();
         m_zoomLabel->setPosition(winSize.width / 2.f, winSize.height - 60.f * scale);
         m_zoomLabel->setScale(0.5f * scale);

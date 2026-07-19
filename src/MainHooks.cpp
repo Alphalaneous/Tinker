@@ -70,21 +70,22 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     }
 
     if (UIScaling::isEnabled()) {
-        UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), UIScaling::getSetting<bool, "top-align">(), true);
+        UIScaling::get()->setScaling(true);
     }
     else {
-        tinker::api::ui_scaling::UIScaleUpdated().send(1, true, false);
+        UIScaleUpdated().send(1, true, true);
     }
 
     EditorEnterEvent().send(this);
     updateButtons();
 
-    addEventListener(UpdateObjectLabel(), [this] (float scale) {
-        float x = tinker::utils::getFurthestLeft(m_objectInfoLabel, 150.f * scale);
-        float offset = 10.f * scale;
+    addEventListener(UpdateObjectLabel(), [this] () {
+        float scale = 1.f;
         if (UIScaling::isEnabled()) {
-            x += UIScaling::getSafeOffset().x;
+            scale = UIScaling::get()->m_scale;
         }
+        float x = std::max(tinker::utils::getFurthestLeft(m_objectInfoLabel, 150.f * scale), UIScaling::getSafeOffset().x);
+        float offset = 10.f * scale;
         m_objectInfoLabel->setPositionX(x + offset);
     });
 
@@ -98,12 +99,12 @@ void MainEditorUI::showUI(bool show) {
     m_fields->m_uiVisible = show;
 
     ShowUIEvent().send(show);
-    UpdateObjectLabel().send(UIScaling::getUIScale());
+    UpdateObjectLabel().send();
 }
 
 void MainEditorUI::updateObjectInfoLabel() {
     EditorUI::updateObjectInfoLabel();
-    UpdateObjectLabel().send(UIScaling::getUIScale());
+    UpdateObjectLabel().send();
 }
 
 bool MainEditorUI::isUIVisible() {
@@ -180,7 +181,7 @@ void MainEditorUI::updateButtons() {
     EditorUI::updateButtons();
     m_toolbarHeight = toolbarHeight;
     UpdateButtonsEvent().send();
-    UpdateObjectLabel().send(UIScaling::getUIScale());
+    UpdateObjectLabel().send();
 }
 
 void MainEditorUI::deactivateScaleControl() {
@@ -312,4 +313,10 @@ $on_game(ModsLoaded) {
     for (const auto& module : ModuleRegistry<GlobalModuleBase>::get()->m_modules) {
         modules.push_back(module());
     }
+}
+
+$on_mod(Loaded) {
+    UIScaleUpdated().listen([] (float scale, bool scaleToolbars, bool fullReload) {
+        tinker::api::ui_scaling::UIScaleUpdated().send(scale, scaleToolbars, false);
+    }).leak();
 }

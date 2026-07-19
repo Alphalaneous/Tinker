@@ -4,7 +4,6 @@
 #ifndef GEODE_IS_ANDROID32
 
 #include "InputsHandler.hpp"
-#include "../../include/UIScaling.hpp"
 
 GridControl::GridControl() {
     if (!GridControl::isEnabled()) return;
@@ -79,15 +78,15 @@ void GridControl::onEditor() {
     container->updateLayout();
     container->setID("grid-size-controls"_spr);
 
-    addEventListener(tinker::api::ui_scaling::UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool topAlign) {
-        container->setScale(scale * 0.9f);
+    addEventListener(UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool fullReload) {
+        container->setScale(std::min(0.85f, scale));
         auto settingsMenu = m_editorUI->getChildByID("settings-menu");
 
-        auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal);
+        auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f});
         
         if (tinker::utils::nodeFits(container, available, tinker::utils::Axis::Horizontal)) {
             container->setAnchorPoint({1.f, 0.5f});
-            container->setPosition({available.max - 5.f / scale, settingsMenu->getPositionY()});
+            container->setPosition({available.max - 6.f * scale, settingsMenu->getPositionY()});
         }
         else {
             container->setAnchorPoint({0.5f, 0.5f});

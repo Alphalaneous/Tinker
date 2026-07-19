@@ -1,11 +1,7 @@
 #include "UIScaling.hpp"
 #include "modules/GridControl.hpp"
 #include "modules/ImprovedLinkControls.hpp"
-#include "modules/LengthInEditor.hpp"
-#include "modules/LiveColors/LiveColors.hpp"
-#include "modules/ObjectSearch/ObjectSearch.hpp"
 #include "modules/ScrollableObjects.hpp"
-#include "modules/StartPosTools/StartPosTools.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../../include/UIScaling.hpp"
 #include "MainHooks.hpp"
@@ -14,111 +10,73 @@
 
 bool UIScaling::onToggled(bool state) {
     if (!state) {
+        resetSettings();
         removeEventListener("on-pause");
         removeEventListener("scale-factor");
         removeEventListener("scale-build-tabs");
         removeEventListener("scale-pause");
     }
     else {
+        setupSettings();
         setupEvents();
     }
-    setScaling(state ? UIScaling::getUIScale(true) : 1.f, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-    setPauseScaling(state ? (UIScaling::shouldScalePause() ? UIScaling::getUIScale(true) : 1.f) : 1.f);
+    setScaling(true);
+    setPauseScaling();
     return true;
 }
 
 bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& value) {
-    auto be = tinker::utils::getMod<"hjfod.betteredit">();
-
     if (key == "scale") {
-        if (be) {
-            auto beScale = be->getSettingValue<float>("scale-factor");
-            if (beScale != 1.f) {
-                setScaling(beScale, UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-                return true;
-            }
-        }
-        setScaling(value.asDouble().unwrapOr(1), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-        setPauseScaling(UIScaling::shouldScalePause() ? value.asDouble().unwrapOr(1.f) : 1.f);
-        return true;
+        m_scale = value.asDouble().unwrapOr(1);
     }
-
     if (key == "scale-pause") {
-        bool scalePause = value.asBool().unwrapOr(false);
-        if (be) {
-            auto beScale = be->getSettingValue<float>("scale-factor");
-            if (beScale != 1.f) {
-                scalePause = be->getSettingValue<bool>("scale-pause");
-            }
-        }
-        setPauseScaling(scalePause ? UIScaling::getUIScale() : 1.f);
-        return true;
+        m_scalePause = value.asBool().unwrapOr(false);
     }
-
     if (key == "scale-toolbar") {
-        bool scaleToolbar = value.asBool().unwrapOr(false);
-        if (be) {
-            auto beScale = be->getSettingValue<float>("scale-factor");
-            if (beScale != 1.f) {
-                scaleToolbar = be->getSettingValue<bool>("scale-build-tabs");
-            }
-        }
-        setScaling(UIScaling::getUIScale(), scaleToolbar, getSetting<bool, "top-align">(), true);
-        return true;
+        m_scaleToolbar = value.asBool().unwrapOr(false);
+    }
+    if (key == "use-safe-area") {
+        m_usesSafeArea = value.asBool().unwrapOr(false);
+    }
+    if (key == "use-custom-safe-area") {
+        m_usesCustomSafeArea = value.asBool().unwrapOr(false);
+    }
+    if (key == "custom-safe-area") {
+        m_customSafeArea = value.asDouble().unwrapOr(0);
     }
 
-    if (key == "top-align") {
-        setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), value.asBool().unwrapOr(false), true);
-        return true;
-    }
+    setPauseScaling();
+    setScaling(true);
+
     return true;
 }
 
 void UIScaling::setupEvents() {
-    if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
-        using FloatSetting = typename SettingTypeForValueType<float>::SettingType;
-        using BoolSetting = typename SettingTypeForValueType<bool>::SettingType;
-
-        addEventListener("scale-factor", SettingChangedEvent(be, "scale-factor"), [this] (std::shared_ptr<SettingV3> setting) {
-            if (auto ty = geode::cast::typeinfo_pointer_cast<FloatSetting>(setting)) {
-                if (ty->getValue() == 1.f) {
-                    setScaling(getSetting<float, "scale">(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-                    return;
-                }
-                setScaling(ty->getValue(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-            }
-        });
-
-        addEventListener("scale-build-tabs", SettingChangedEvent(be, "scale-build-tabs"), [be, this] (std::shared_ptr<SettingV3> setting) {
-            if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
-                auto beScale = be->getSettingValue<float>("scale-factor");
-                if (beScale != 1.f) {
-                    setScaling(beScale, ty->getValue(), getSetting<bool, "top-align">(), true);
-                    return;
-                }
-                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-            }
-        });
-
-        addEventListener("scale-pause", SettingChangedEvent(be, "scale-pause"), [be, this] (std::shared_ptr<SettingV3> setting) {
-            if (auto ty = geode::cast::typeinfo_pointer_cast<BoolSetting>(setting)) {
-                auto beScale = be->getSettingValue<float>("scale-factor");
-                if (beScale != 1.f) {
-                    setPauseScaling(ty->getValue() ? UIScaling::getUIScale() : 1.f);
-                    return;
-                }
-                setPauseScaling(UIScaling::shouldScalePause() ? UIScaling::getUIScale() : 1.f);
-                setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), getSetting<bool, "top-align">(), true);
-            }
-        });
-    }
-
     addEventListener("on-pause", EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
-        setPauseScaling(getSetting<float, "scale">());
+        setPauseScaling();
     });
 }
 
+void UIScaling::resetSettings() {
+    m_scale = 1.f;
+    m_scaleToolbar = true;
+    m_scalePause = true;
+    m_usesSafeArea = true;
+    m_usesCustomSafeArea = false;
+    m_customSafeArea = 0.f;
+}
+
+void UIScaling::setupSettings() {
+    m_scale = getSetting<float, "scale">();
+    m_scaleToolbar = getSetting<bool, "scale-toolbar">();
+    m_scalePause = getSetting<bool, "scale-pause">();
+    m_usesSafeArea = getSetting<bool, "use-safe-area">();
+    m_usesCustomSafeArea = getSetting<bool, "use-custom-safe-area">();
+    m_customSafeArea = getSetting<float, "custom-safe-area">();
+}
+
 void UIScaling::onEditor() {
+    setupSettings();
     setupEvents();
 }
 
@@ -126,19 +84,26 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
     if (!UIScaling::isEnabled()) return EditorUI::init(editorLayer);
     if (!EditorUI::init(editorLayer)) return false;
 
-    UIScaling::get()->setScaling(UIScaling::getUIScale(), UIScaling::shouldScaleToolbar(), UIScaling::getSetting<bool, "top-align">(), false);
+    UIScaling::get()->setScaling(false);
 
     return true;
 }
 
 CCPoint UIScaling::getSafeOffset() {
-    if (getSetting<bool, "use-safe-area">()) {
-        return {utils::getSafeAreaRect().getMinX() / 2.f, 0.f};
+    if (UIScaling::isEnabled()) {
+        if (UIScaling::get()->m_usesSafeArea) {
+            if (UIScaling::get()->m_usesCustomSafeArea) {
+                return {UIScaling::get()->m_customSafeArea, 0.f};
+            }
+            else {
+                return {utils::getSafeAreaRect().getMinX() / 2.f, 0.f};
+            }
+        }
     }
     return {0, 0};
 }
 
-void UIScaling::setPauseScaling(float scale) {
+void UIScaling::setPauseScaling() {
     auto winSize = CCDirector::get()->getWinSize();
 
     auto pauseLayer = MainEditorPauseLayer::get();
@@ -147,102 +112,102 @@ void UIScaling::setPauseScaling(float scale) {
 
     if (pauseLayer) {
         if (auto resumeMenu = pauseLayer->getChildByID("resume-menu")) {
-            resumeMenu->setScale(scale);
+            resumeMenu->setScale(m_scale);
             resumeMenu->setPosition(winSize / 2.f);
         }
 
         if (auto infoMenu = pauseLayer->getChildByID("info-menu")) {
-            infoMenu->setScale(scale * 0.927f);
+            infoMenu->setScale(m_scale * 0.927f);
             infoMenu->setAnchorPoint({0.f, 1.f});
-            infoMenu->setPosition(10.f * scale, winSize.height - 6.f * scale);
+            infoMenu->setPosition(CCPoint{10.f * m_scale, winSize.height - 6.f * m_scale} + getSafeOffset());
         }
 
         if (auto actionsMenu = pauseLayer->getChildByID("actions-menu")) {
-            actionsMenu->setScale(scale);
+            actionsMenu->setScale(m_scale);
             actionsMenu->setAnchorPoint({0.5f, 0.f});
-            actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - getSafeOffset());
+            actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * m_scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * m_scale} - getSafeOffset());
             
             if (auto smallActionsMenu = pauseLayer->getChildByID("small-actions-menu")) {
-                smallActionsMenu->setScale(scale);
+                smallActionsMenu->setScale(m_scale);
                 smallActionsMenu->setAnchorPoint({0.5f, 0.f});
-                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6.f * scale - smallActionsMenu->getScaledContentWidth() / 2, 10.f * scale});
+                smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6.f * m_scale - smallActionsMenu->getScaledContentWidth() / 2, 10.f * m_scale});
             }
         }
 
         if (auto optionsMenu = pauseLayer->getChildByID("options-menu")) {
             if (tinker::utils::getMod<"razoom.improved_playtest">() && !isNewNodeIDs) {
-                optionsMenu->setScale(scale * 0.925f);
+                optionsMenu->setScale(m_scale * 0.925f);
             }
             else {
-                optionsMenu->setScale(scale);
+                optionsMenu->setScale(m_scale);
             }
             optionsMenu->setAnchorPoint({0.f, 0.f});
-            optionsMenu->setPosition(15.5f * scale, 14.5f * scale);
+            optionsMenu->setPosition(CCPoint{15.5f * m_scale, 14.5f * m_scale} + getSafeOffset());
             if (isNewNodeIDs) {
-                optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / scale});
+                optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / m_scale});
                 optionsMenu->updateLayout();
             }
         }
 
         if (auto settingsMenu = pauseLayer->getChildByID("settings-menu")) {
-            settingsMenu->setScale(scale);
+            settingsMenu->setScale(m_scale);
 
             if (isNewNodeIDs) {
                 if (auto actionsMenu = pauseLayer->getChildByID("actions-menu")) {
                     settingsMenu->setAnchorPoint({0.5f, 1.f});
-                    settingsMenu->setPosition({actionsMenu->getPositionX(), winSize.height - 5.f * scale});
+                    settingsMenu->setPosition({actionsMenu->getPositionX(), winSize.height - 5.f * m_scale});
                 }
                 else {
                     settingsMenu->setAnchorPoint({0.5f, 0.5f});
-                    settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
+                    settingsMenu->setPosition(CCPoint{winSize.width - 2.f * m_scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * m_scale - settingsMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
                 }
             }
             else {
                 settingsMenu->setAnchorPoint({0.5f, 0.5f});
-                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
+                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * m_scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * m_scale - settingsMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
             }
         }
 
         if (auto guidelinesMenu = pauseLayer->getChildByID("guidelines-menu")) {
-            guidelinesMenu->setScale(scale);
-            guidelinesMenu->setPosition({winSize.width / 2.f, 28.f * scale});
+            guidelinesMenu->setScale(m_scale);
+            guidelinesMenu->setPosition({winSize.width / 2.f, 28.f * m_scale});
         }
 
         if (auto topMenu = pauseLayer->getChildByID("top-menu")) {
-            topMenu->setScale(scale);
-            topMenu->setPosition({winSize.width / 2.f, winSize.height - 30.f * scale});
+            topMenu->setScale(m_scale);
+            topMenu->setPosition({winSize.width / 2.f, winSize.height - 30.f * m_scale});
         }
     }
 
-    tinker::api::ui_scaling::PauseUIScaleUpdated().send(scale);
+    tinker::api::ui_scaling::PauseUIScaleUpdated().send(m_scale);
 }
 
-void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullReload) {
+void UIScaling::setScaling(bool fullReload) {
     auto winSize = CCDirector::get()->getWinSize();
 
     if (auto slider = m_editorUI->getChildByID("position-slider")) {
         slider->ignoreAnchorPointForPosition(false);
         slider->setContentSize({0.f, 0.f});
-        slider->setPosition({winSize.width / 2.f + 30.f * scale, winSize.height - 20.f * scale});
-        slider->setScale(scale);
+        slider->setPosition({winSize.width / 2.f + 30.f * m_scale, winSize.height - 20.f * m_scale});
+        slider->setScale(m_scale);
     }
     
     if (auto settingsMenu = m_editorUI->getChildByID("settings-menu")) {
-        settingsMenu->setScale(scale);
+        settingsMenu->setScale(m_scale);
         settingsMenu->setAnchorPoint({0.5f, 0.5f});
-        settingsMenu->setPosition(winSize - settingsMenu->getScaledContentSize() / 2.f - CCSize{scale, 0.f} - getSafeOffset());
+        settingsMenu->setPosition(winSize - settingsMenu->getScaledContentSize() / 2.f - CCSize{m_scale, 0.f} - getSafeOffset());
 
         #ifndef GEODE_IS_ANDROID32
         if (!GridControl::isEnabled()) {
             if (auto gridSizeControls = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls")) {
-                gridSizeControls->setScale(scale * 0.9f);
+                gridSizeControls->setScale(m_scale * 0.9f);
                 gridSizeControls->setContentSize({70.f, 35.f});
 
                 auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal);
                 
                 if (tinker::utils::nodeFits(gridSizeControls, available, tinker::utils::Axis::Horizontal)) {
                     gridSizeControls->setAnchorPoint({1.f, 0.5f});
-                    gridSizeControls->setPosition({available.max - 5.f / scale, settingsMenu->getPositionY()});
+                    gridSizeControls->setPosition({available.max - 5.f / m_scale, settingsMenu->getPositionY()});
                 }
                 else {
                     gridSizeControls->setAnchorPoint({0.5f, 0.5f});
@@ -254,175 +219,94 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
     }
 
     if (auto undoMenu = m_editorUI->getChildByID("undo-menu")) {
-        undoMenu->setScale(scale);
+        undoMenu->setScale(m_scale);
         undoMenu->setAnchorPoint({0.5f, 0.5f});
-        undoMenu->setPosition(CCPoint{6.f * scale + undoMenu->getScaledContentWidth() / 2.f, winSize.height - undoMenu->getScaledContentHeight() / 2.f} + getSafeOffset());
+        undoMenu->setPosition(CCPoint{6.f * m_scale + undoMenu->getScaledContentWidth() / 2.f, winSize.height - undoMenu->getScaledContentHeight() / 2.f} + getSafeOffset());
     }
 
-    float rightSideScale = scale;
+    float rightSideScale = m_scale;
     if (tinker::utils::getMod<"razoom.named_editor_layers">()) {
-        rightSideScale = scale * .88f;
+        rightSideScale = m_scale * .88f;
     }
 
-    if (topAlign) {
-        if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
-            buttonsMenu->setScale(rightSideScale);
-            buttonsMenu->setAnchorPoint({0.5f, 0.5f});
-            buttonsMenu->setPosition(CCPoint{winSize.width - buttonsMenu->getScaledContentWidth() / 2.f, winSize.height - 37.5f * scale - buttonsMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
+    auto toolbar = tinker::utils::getToolbarHeight();
+    float center = winSize.height / 2.f + toolbar / 2.f;
 
-            if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
-                layerMenu->setScale(rightSideScale);
-                layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition(CCPoint{winSize.width - layerMenu->getScaledContentWidth() / 2.f - 6.f * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2.f + 0.5f * scale} - getSafeOffset());
-                
-                if (m_editorUI->m_layerLockSprite) {
-                    m_editorUI->m_layerLockSprite->setScale(rightSideScale * 0.5f);
-                    if (m_editorUI->m_currentLayerLabel) {
-                        auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f - CCPoint{0.f, 2.f});
-                        auto nodePos = m_editorUI->convertToNodeSpace(worldPos);
-                        m_editorUI->m_layerLockSprite->setPosition(nodePos + m_editorUI->m_layerLockSprite->getScaledContentSize() / 2.f);
-                    }
-                }
+    if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
+        buttonsMenu->setScale(rightSideScale);
+        buttonsMenu->setAnchorPoint({0.5f, 0.5f});
+        buttonsMenu->setPosition(CCPoint{winSize.width - buttonsMenu->getScaledContentWidth() / 2.f, center - 2.f * m_scale} - getSafeOffset());
 
-                for (auto node : m_editorUI->m_uiItems->asExt<CCNode>()) {
-                    if (node->getID() == "lock-layer-button") {
-                        node->setScale(rightSideScale);
-                        static_cast<CCMenuItemSpriteExtra*>(node)->m_baseScale = rightSideScale;
-
-                        auto parent = node->getParent();
-                        if (m_editorUI->m_currentLayerLabel && parent) {
-                            auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f);
-                            auto nodePos = parent->convertToNodeSpace(worldPos);
-                            node->setPosition(nodePos);
-                        }
-                        break;
-                    }
-                }
-
-                if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
-                    namedLayerMenu->setScale(rightSideScale);
-                    namedLayerMenu->setAnchorPoint({1.f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{winSize.width - 6.f * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2.f - namedLayerMenu->getScaledContentHeight() / 2.f - 2.f * scale} - getSafeOffset());
+        if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
+            layerMenu->setScale(rightSideScale);
+            layerMenu->setAnchorPoint({0.5f, 0.5f});
+            layerMenu->setPosition(CCPoint{winSize.width - layerMenu->getScaledContentWidth() / 2.f - 6.f * m_scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2.f + 0.5f * m_scale} - getSafeOffset());
+            
+            if (m_editorUI->m_layerLockSprite) {
+                m_editorUI->m_layerLockSprite->setScale(rightSideScale * 0.5f);
+                if (m_editorUI->m_currentLayerLabel) {
+                    auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f - CCPoint{0.f, 2.f});
+                    auto nodePos = m_editorUI->convertToNodeSpace(worldPos);
+                    m_editorUI->m_layerLockSprite->setPosition(nodePos + m_editorUI->m_layerLockSprite->getScaledContentSize() / 2.f);
                 }
             }
-        }
 
+            for (auto node : m_editorUI->m_uiItems->asExt<CCNode>()) {
+                if (node->getID() == "lock-layer-button") {
+                    node->setScale(rightSideScale);
+                    static_cast<CCMenuItemSpriteExtra*>(node)->m_baseScale = rightSideScale;
+
+                    auto parent = node->getParent();
+                    if (m_editorUI->m_currentLayerLabel && parent) {
+                        auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f);
+                        auto nodePos = parent->convertToNodeSpace(worldPos);
+                        node->setPosition(nodePos);
+                    }
+                    break;
+                }
+            }
+
+            if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
+                namedLayerMenu->setScale(rightSideScale);
+                namedLayerMenu->setAnchorPoint({1.f, 0.5f});
+                namedLayerMenu->setPosition(CCPoint{winSize.width - 6.f * m_scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2.f - namedLayerMenu->getScaledContentHeight() / 2.f - 2.f * m_scale} - getSafeOffset());
+            }
+        }
+    }
+
+    if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
+        playtestMenu->setScale(m_scale);
+        playtestMenu->setAnchorPoint({0.5f, 0.5f});
+        playtestMenu->setPosition(CCPoint{6.f * m_scale + playtestMenu->getScaledContentWidth() / 2.f, center + 2.f * m_scale} + getSafeOffset());
+    
         if (auto playbackMenu = m_editorUI->getChildByID("playback-menu")) {
-            playbackMenu->setScale(scale);
+            playbackMenu->setScale(m_scale);
             playbackMenu->setAnchorPoint({0.5f, 0.5f});
-            playbackMenu->setPosition(CCPoint{6.f * scale + playbackMenu->getScaledContentWidth() / 2.f, winSize.height - playbackMenu->getScaledContentHeight() / 2.f - 45.f * scale} + getSafeOffset());
+            playbackMenu->setPosition(CCPoint{6.f * m_scale + playbackMenu->getScaledContentWidth() / 2.f, playtestMenu->getPositionY() + 45.f * m_scale} + getSafeOffset());
         }
 
         if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-            zoomMenu->setScale(scale);
+            zoomMenu->setScale(m_scale);
             zoomMenu->setAnchorPoint({0.5f, 0.5f});
-            zoomMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() / 2.f, winSize.height - zoomMenu->getScaledContentHeight() / 2.f - (45.f * 3.f + 5.f) * scale} + getSafeOffset());
+            zoomMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() / 2.f, playtestMenu->getPositionY() - playtestMenu->getScaledContentHeight() / 2.f - 10.f * m_scale - zoomMenu->getScaledContentHeight() / 2.f} + getSafeOffset());
         }
 
-        if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
-            playtestMenu->setScale(scale);
-            playtestMenu->setAnchorPoint({0.5f, 0.5f});
-            playtestMenu->setPosition(CCPoint{6.f * scale + playtestMenu->getScaledContentWidth() / 2.f, winSize.height - playtestMenu->getScaledContentHeight() / 2.f - (45.f * 2.f) * scale} + getSafeOffset());
-        
-            if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
-                linkMenu->setAnchorPoint({0.5f, 0.5f});
-                if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                    if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
-                        linkMenu->setScale(scale GEODE_DESKTOP(* 0.8f));
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * scale, playtestMenu->getPositionY() + 3.f * scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * scale} + getSafeOffset());
-                    }
-                    else {
-                        linkMenu->setScale(scale);
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 10.f * scale, playtestMenu->getPositionY() + 3.f * scale - (linkMenu->getScaledContentHeight() / 2.f)} + getSafeOffset());
-                    }
-                }
-            }
-        }
-    }
-    else {
-        if (auto buttonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
-            buttonsMenu->setScale(rightSideScale);
-            buttonsMenu->setAnchorPoint({0.5f, 0.5f});
-            CCPoint offset = {0.f, 0.f};
-            if (tinker::utils::getMod<"razoom.named_editor_layers">()) {
-                float height = buttonsMenu->getContentHeight() * scale;
-                float result = height - buttonsMenu->getContentHeight() * rightSideScale;
-                offset.y = result / 2.f;
-            }
-
-            buttonsMenu->setPosition(CCPoint{winSize.width - buttonsMenu->getScaledContentWidth() / 2.f, winSize.height / 2.f + 42.5f * scale} + offset - getSafeOffset());
-
-            if (auto layerMenu = m_editorUI->getChildByID("layer-menu")) {
-                layerMenu->setScale(rightSideScale);
-                layerMenu->setAnchorPoint({0.5f, 0.5f});
-                layerMenu->setPosition(CCPoint{winSize.width - layerMenu->getScaledContentWidth() / 2.f - 6.f * scale, buttonsMenu->getPositionY() - buttonsMenu->getScaledContentHeight() / 2.f + 0.5f * scale} - getSafeOffset());
-                
-                if (m_editorUI->m_layerLockSprite) {
-                    m_editorUI->m_layerLockSprite->setScale(rightSideScale * 0.5f);
-                    if (m_editorUI->m_currentLayerLabel) {
-                        auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f - CCPoint{0.f, 2.f});
-                        auto nodePos = m_editorUI->convertToNodeSpace(worldPos);
-                        m_editorUI->m_layerLockSprite->setPosition(nodePos + m_editorUI->m_layerLockSprite->getScaledContentSize() / 2.f);
-                    }
-                }
-
-                for (auto node : m_editorUI->m_uiItems->asExt<CCNode>()) {
-                    if (node->getID() == "lock-layer-button") {
-                        node->setScale(rightSideScale);
-                        static_cast<CCMenuItemSpriteExtra*>(node)->m_baseScale = rightSideScale;
-
-                        auto parent = node->getParent();
-                        if (m_editorUI->m_currentLayerLabel && parent) {
-                            auto worldPos = m_editorUI->m_currentLayerLabel->convertToWorldSpace(m_editorUI->m_currentLayerLabel->getContentSize() / 2.f);
-                            auto nodePos = parent->convertToNodeSpace(worldPos);
-                            node->setPosition(nodePos);
-                        }
-                        break;
-                    }
-                }
-
-                if (auto namedLayerMenu = m_editorUI->getChildByID("razoom.named_editor_layers/menu")) {
-                    namedLayerMenu->setScale(rightSideScale);
-                    namedLayerMenu->setAnchorPoint({1.f, 0.5f});
-                    namedLayerMenu->setPosition(CCPoint{winSize.width - 6.f * scale, layerMenu->getPositionY() - layerMenu->getScaledContentHeight() / 2.f - namedLayerMenu->getScaledContentHeight() / 2.f - 2.f * scale} - getSafeOffset());
-                }
-            }
-        }
-
-        if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
-            playtestMenu->setScale(scale);
-            playtestMenu->setAnchorPoint({0.5f, 0.5f});
-            playtestMenu->setPosition(CCPoint{6.f * scale + playtestMenu->getScaledContentWidth() / 2.f, winSize.height / 2.f + 50.f * scale} + getSafeOffset());
-        
-            if (auto playbackMenu = m_editorUI->getChildByID("playback-menu")) {
-                playbackMenu->setScale(scale);
-                playbackMenu->setAnchorPoint({0.5f, 0.5f});
-                playbackMenu->setPosition(CCPoint{6.f * scale + playbackMenu->getScaledContentWidth() / 2.f, playtestMenu->getPositionY() + 45.f * scale} + getSafeOffset());
-            }
-
+        if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
+            linkMenu->setAnchorPoint({0.5f, 0.5f});
             if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                zoomMenu->setScale(scale);
-                zoomMenu->setAnchorPoint({0.5f, 0.5f});
-                zoomMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() / 2.f, playtestMenu->getPositionY() - playtestMenu->getScaledContentHeight() / 2.f - 10.f * scale - zoomMenu->getScaledContentHeight() / 2.f} + getSafeOffset());
-            }
-
-            if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
-                linkMenu->setAnchorPoint({0.5f, 0.5f});
-                if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                    if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
-                        linkMenu->setScale(scale GEODE_DESKTOP(* 0.8f));
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * scale, playtestMenu->getPositionY() + 3.f * scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * scale} + getSafeOffset());
-                    }
-                    else {
-                        linkMenu->setScale(scale);
-                        linkMenu->setPosition(CCPoint{9.8f * scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 10.f * scale, playtestMenu->getPositionY() + 3.f * scale - (linkMenu->getScaledContentHeight() / 2.f)} + getSafeOffset());
-                    }
+                if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
+                    linkMenu->setScale(m_scale GEODE_DESKTOP(* 0.8f));
+                    linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * m_scale} + getSafeOffset());
+                }
+                else {
+                    linkMenu->setScale(m_scale);
+                    linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 10.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - (linkMenu->getScaledContentHeight() / 2.f)} + getSafeOffset());
                 }
             }
         }
     }
-
-    float toolbarScale = toolbar ? scale : 1;
+    
+    float toolbarScale = m_scaleToolbar ? m_scale : 1;
     m_editorUI->m_toolbarHeight = tinker::constants::ToolbarHeight * toolbarScale;
 
     if (auto objBG = m_editorUI->getChildByID("background-sprite")) {
@@ -511,83 +395,16 @@ void UIScaling::setScaling(float scale, bool toolbar, bool topAlign, bool fullRe
 
     alpha::editor_tabs::updateTabMenu();
 
-    if (fullReload) {
-        if (LiveColors::isEnabled()) {
-            LiveColors::get()->updateScale(toolbarScale);
-        }
-    }
-
     if (auto rowMenu = m_editorUI->getChildByID("razoom.object_groups/row_menu")) {
-        rowMenu->setScale(0.561f * scale);
-        rowMenu->setPositionY(m_editorUI->m_toolbarHeight + 20.f * scale);
+        rowMenu->setScale(0.561f * m_scale);
+        rowMenu->setPositionY(m_editorUI->m_toolbarHeight + 20.f * m_scale);
     }
 
     if (m_editorUI->m_objectInfoLabel) {
-        m_editorUI->m_objectInfoLabel->setScale(0.6f * scale);
-        m_editorUI->m_objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + getSafeOffset());
+        m_editorUI->m_objectInfoLabel->setScale(0.6f * m_scale);
+        m_editorUI->m_objectInfoLabel->setPosition(CCPoint{52.f * m_scale, winSize.height - 50.f * m_scale} + getSafeOffset());
     }
 
-    if (fullReload) {
-        if (ObjectSearch::isEnabled()) {
-            auto editorUI = static_cast<OSEditorUI*>(m_editorUI);
-            auto searchField = editorUI->m_fields->m_searchField;
-
-            if (searchField) {
-                float buildTabHeight = 0.f;
-                if (auto node = editorUI->getChildByID("build-tabs-menu")) {
-                    buildTabHeight = node->getScaledContentHeight();
-                }
-                searchField->setPosition({winSize.width / 2.f, editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
-                searchField->setScale(0.6f * scale);
-            }
-        }
-        
-        if (StartPosTools::isEnabled()) {
-            auto editorUI = static_cast<SPTEditorUI*>(m_editorUI);
-            editorUI->updatePlaytestMenu();
-        }
-
-        if (LengthInEditor::isEnabled()) {
-            LengthInEditor::get()->updateScale(scale);
-        }
-    }
-
-    tinker::api::ui_scaling::UIScaleUpdated().send(scale, toolbar, topAlign);
-    m_editorUI->runAction(CallFuncExt::create([scale] {
-        UpdateObjectLabel().send(scale);
-    }));
-}
-
-float UIScaling::getUIScale(bool ignoreEnabled) {
-    if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
-        auto beScale = be->getSettingValue<float>("scale-factor");
-        if (beScale != 1.f) {
-            return beScale;
-        }
-    }
-    else {
-        if (!UIScaling::isEnabled() && !ignoreEnabled) return 1;
-    }
-
-    return UIScaling::getSetting<float, "scale">();
-}
-
-bool UIScaling::shouldScaleToolbar() {
-    if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
-        auto beScale = be->getSettingValue<float>("scale-factor");
-        if (beScale != 1.f) {
-            return be->getSettingValue<bool>("scale-build-tabs");
-        }
-    }
-    return UIScaling::getSetting<bool, "scale-toolbar">();
-}
-
-bool UIScaling::shouldScalePause() {
-    if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
-        auto beScale = be->getSettingValue<float>("scale-factor");
-        if (beScale != 1.f) {
-            return be->getSettingValue<bool>("scale-pause");
-        }
-    }
-    return UIScaling::getSetting<bool, "scale-pause">();
+    UIScaleUpdated().send(m_scale, m_scaleToolbar, fullReload);
+    UpdateObjectLabel().send();
 }

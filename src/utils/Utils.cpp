@@ -103,8 +103,8 @@ namespace tinker::utils {
             return 0;
         }
         float height = tinker::constants::ToolbarHeight;
-        if (UIScaling::shouldScaleToolbar()) {
-            height *= UIScaling::getUIScale();
+        if (UIScaling::isEnabled()) {
+            height *= UIScaling::get()->m_scaleToolbar ? UIScaling::get()->m_scale : 1.f;
         }
 
         return height;
@@ -240,8 +240,13 @@ namespace tinker::utils {
 
                         auto color = baseColorDataObj.color;
 
-                        if (color1ID == 0 && baseColor->m_colorID != color_channels::Black) {
-                            color = ccColor3B{255, 255, 255};
+                        if (color1ID == 0) {
+                            if (baseColor->m_colorID == color_channels::Black) {
+                                color = ccColor3B{0, 0, 0};
+                            }
+                            else {
+                                color = ccColor3B{255, 255, 255};
+                            }
                         }
 
                         gameObject->updateHSVState();
@@ -306,8 +311,13 @@ namespace tinker::utils {
 
                         auto color = detailColorDataObj.color;
 
-                        if (color2ID == 0 && detailColor->m_colorID != color_channels::Black) {
-                            color = ccColor3B{200, 200, 255};
+                        if (color2ID == 0) {
+                            if (detailColor->m_colorID == color_channels::Black) {
+                                color = ccColor3B{0, 0, 0};
+                            }
+                            else {
+                                color = ccColor3B{200, 200, 255};
+                            }
                         }
 
                         gameObject->updateHSVState();

@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.42",
+	"version": "v1.0.43",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -1048,11 +1048,6 @@
 				"slider-step": 0.025
             }
 		},
-		"UIScaling-top-align": {
-			"type": "bool",
-			"default": false,
-			"name": "Top Align Side Buttons"
-		},
 		"UIScaling-scale-pause": {
 			"type": "bool",
 			"default": true,
@@ -1069,6 +1064,20 @@
 			"default": true,
 			"name": "Use Safe Area",
 			"description": "Use the devices safe area when positioning to prevent camera cutouts and notches from overlapping UI elements."
+		},
+		"UIScaling-use-custom-safe-area": {
+			"type": "bool",
+			"default": false,
+			"name": "Enable Custom Safe Area",
+			"description": "Enable a custom safe area, aka the distance that is padded on the left and right."
+		},
+		"UIScaling-custom-safe-area": {
+			"type": "float",
+			"default": 24,
+			"min": 0,
+			"max": 50,
+			"name": "Custom Safe Area",
+			"description": "Set a custom safe area, aka the distance that is padded on the left and right."
 		},
 		"QuickExtras-title": {
 			"type": "title",

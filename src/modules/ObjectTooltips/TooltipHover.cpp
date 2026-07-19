@@ -277,7 +277,13 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
 
     m_tooltipBG->setPosition(positionHere);
     m_tooltipBG->setContentSize(m_tooltipLabel->getScaledContentSize() + CCSize{5.f, 5.f + heightOffset});
-    m_tooltipBG->setScale(ObjectTooltips::getSetting<float, "scale">() * UIScaling::getUIScale());
+
+    float scale = ObjectTooltips::getSetting<float, "scale">();
+    if (UIScaling::isEnabled()) {
+        scale *= UIScaling::get()->m_scale;
+    }
+
+    m_tooltipBG->setScale(scale);
 
     m_tooltipLabel->setPosition({2.5f, m_tooltipBG->getContentHeight() - 2.5f});
 

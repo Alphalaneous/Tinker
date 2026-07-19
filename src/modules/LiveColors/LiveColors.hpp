@@ -15,8 +15,6 @@ class $editorModule(LiveColors) {
 
     void onEditor() override;
     void showMenu(bool show);
-
-    void updateScale(float scale);
 };
 
 class $modify(LCEditorUI, EditorUI) {

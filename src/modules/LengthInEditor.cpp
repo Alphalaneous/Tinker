@@ -38,8 +38,6 @@ void LengthInEditor::onEditor() {
     m_lengthContainer->setAnchorPoint({0.f, 1.f});
     m_lengthContainer->setID("length-container"_spr);
 
-    updateScale(scale);
-
     auto lengthLabel = CCLabelBMFont::create("Length", "bigFont.fnt");
     lengthLabel->setAnchorPoint({0.5f, 1.f});
     lengthLabel->setPosition({m_lengthContainer->getContentWidth() / 2, m_lengthContainer->getContentHeight() - 2.f});
@@ -76,29 +74,23 @@ void LengthInEditor::onEditor() {
     addEventListener(ObjectChangeEvent(), [this] (float lastObjectX) {
         m_timeLabel->setString(getTime(lastObjectX).c_str());
     });
-}
 
-void LengthInEditor::updateScale(float scale) {
-    m_editorUI->runAction(CallFuncExt::create([this, scale] {
-        auto undoMenu = m_editorUI->getChildByID("undo-menu");
-        auto playbackMenu = m_editorUI->getChildByID("playback-menu");
+    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+        m_editorUI->runAction(CallFuncExt::create([this, scale] {
+            auto undoMenu = m_editorUI->getChildByID("undo-menu");
+            auto playbackMenu = m_editorUI->getChildByID("playback-menu");
 
-        if (!undoMenu || !playbackMenu) return;
-        m_lengthContainer->setScale(0.5f * scale);
+            if (!undoMenu || !playbackMenu) return;
+            m_lengthContainer->setScale(0.5f * scale);
+            m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
 
-        if (UIScaling::isEnabled()) {
-            if (!UIScaling::getSetting<bool, "top-align">() && UIScaling::getSetting<float, "scale">() <= 0.85f) {
-                m_lengthContainer->setPosition(CCPoint{6.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
-                return;
+            if (m_editorUI->m_objectInfoLabel) {
+                m_editorUI->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
             }
-        }
 
-        m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
-
-        if (m_editorUI->m_objectInfoLabel) {
-            m_editorUI->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
-        }
-    }));
+            UpdateObjectLabel().send();
+        }));
+    });
 }
 
 std::string LengthInEditor::getTime(float x) {

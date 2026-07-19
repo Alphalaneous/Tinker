@@ -24,43 +24,38 @@ void LiveColors::onEditor() {
     m_editorUI->addChild(m_colorsMenu);
 
     m_editorUI->schedule(schedule_selector(LCEditorUI::checkColors), 1.f / 60.f);
-    
-    m_editorUI->runAction(CallFuncExt::create([this] {
-        float scale = m_editorUI->m_positionSlider->getScale();
-        updateScale(scale);
-    }));
-}
 
-void LiveColors::updateScale(float scale) {
-    auto winSize = CCDirector::get()->getWinSize();
+    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+        auto winSize = CCDirector::get()->getWinSize();
 
-    bool isLowScale = scale <= 0.925f;
+        bool isLowScale = scale <= 0.925f;
 
-    m_colorsMenu->setScale(std::max(0.35f * scale, 0.15f));
+        m_colorsMenu->setScale(std::max(0.35f * scale, 0.15f));
 
-    float maxWidth = 0.f;
-    if (isLowScale) {
-        maxWidth = (winSize.width - 20.f * scale) / m_colorsMenu->getScale();
-    }
-    else {
-        maxWidth = (winSize.width - 210.f * scale) / m_colorsMenu->getScale();
-    }
-    float btnWidth = CCSprite::createWithSpriteFrameName("GJ_colorBtn_001.png")->getContentWidth();
-    m_availableBtnCount = std::floor((maxWidth + 5.f)/ (btnWidth + 5.f));
+        float maxWidth = 0.f;
+        if (isLowScale) {
+            maxWidth = (winSize.width - 20.f * scale) / m_colorsMenu->getScale();
+        }
+        else {
+            maxWidth = (winSize.width - 210.f * scale) / m_colorsMenu->getScale();
+        }
+        float btnWidth = CCSprite::createWithSpriteFrameName("GJ_colorBtn_001.png")->getContentWidth();
+        m_availableBtnCount = std::floor((maxWidth + 5.f)/ (btnWidth + 5.f));
 
-    m_colorsMenu->setContentSize({maxWidth, 30.f});
+        m_colorsMenu->setContentSize({maxWidth, 30.f});
 
-    m_buttons.clear();
-    m_colorsMenu->removeAllChildren();
+        m_buttons.clear();
+        m_colorsMenu->removeAllChildren();
 
-    for (int i = 0; i < m_availableBtnCount; i++) {
-        auto btn = ColorVisualButton::create(m_editorUI);
-        m_buttons.push_back(btn);
-        m_colorsMenu->addChild(btn);
-    }
+        for (int i = 0; i < m_availableBtnCount; i++) {
+            auto btn = ColorVisualButton::create(m_editorUI);
+            m_buttons.push_back(btn);
+            m_colorsMenu->addChild(btn);
+        }
 
-    m_lastBtnCount = 0;
-    m_colorsMenu->updateLayout();
+        m_lastBtnCount = 0;
+        m_colorsMenu->updateLayout();
+    });
 }
 
 void LiveColors::showMenu(bool show) {

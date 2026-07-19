@@ -3,7 +3,6 @@
 #include <Geode/ui/NineSlice.hpp>
 #include "Events.hpp"
 #include "StartPosOverlay.hpp"
-#include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
@@ -99,7 +98,7 @@ void StartPosTools::onEditor() {
         }
 
         addEventListener(
-            "prev-start-pos"_spr,
+            "prev-start-pos",
             KeybindSettingPressedEvent(Mod::get(), "StartPosTools-prev-start-pos"),
             [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
                 if (down && !repeat && m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -110,7 +109,7 @@ void StartPosTools::onEditor() {
         );
 
         addEventListener(
-            "next-start-pos"_spr,
+            "next-start-pos",
             KeybindSettingPressedEvent(Mod::get(), "StartPosTools-next-start-pos"),
             [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
                 if (down && !repeat && m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -119,6 +118,11 @@ void StartPosTools::onEditor() {
                 }
             }
         );
+
+        addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+            if (!fullReload) return;
+            static_cast<SPTEditorUI*>(m_editorUI)->updatePlaytestMenu();
+        });
 
         m_editorUI->runAction(CallFuncExt::create([this] {
             auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
@@ -199,7 +203,7 @@ void SPTEditorUI::updatePlaytestMenu() {
             if (playbackMenu) {
                 playtestMenu->setPositionX(playbackMenu->boundingBox().getMinX());
             }
-            UpdateObjectLabel().send(UIScaling::getUIScale());
+            UpdateObjectLabel().send();
         }
         updateSwitcherLabel();
 

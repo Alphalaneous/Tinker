@@ -89,6 +89,23 @@ void ObjectSearch::onEditor() {
         alpha::editor_tabs::switchTab("all-objects"_spr);
     });
 
+    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+        if (!fullReload) return;
+        auto winSize = CCDirector::get()->getWinSize();
+
+        auto editorUI = static_cast<OSEditorUI*>(m_editorUI);
+        auto searchField = editorUI->m_fields->m_searchField;
+
+        if (searchField) {
+            float buildTabHeight = 0.f;
+            if (auto node = editorUI->getChildByID("build-tabs-menu")) {
+                buildTabHeight = node->getScaledContentHeight();
+            }
+            searchField->setPosition({winSize.width / 2.f, editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
+            searchField->setScale(0.6f * scale);
+        }
+    });
+
     /*addEventListener(SetupCreateMenuEvent(), [this] () {
         static_cast<OSEditorUI*>(m_editorUI)->onSetupCreateMenu();
     });*/

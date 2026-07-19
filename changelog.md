@@ -1,3 +1,8 @@
+# 1.0.43
+- <c-dddddd>Fix inputs registering behind toolbar</c>
+- <c-dddddd>Fix objects with the default color being black showing as white until an object is placed with preview object colors on</c>
+- <c-dddddd>UI Scaling cleanup</c>
+
 # 1.0.42
 - <c-dddddd>Fix Grid Controls positioning</c>
 - <c-dddddd>Dynamically reposition object info label as needed</c>

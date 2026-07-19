@@ -60,10 +60,14 @@ struct EditorZoomEvent final : Event<EditorZoomEvent, bool(float zoom)> {
     using Event::Event;
 };
 
-struct UpdateObjectLabel final : Event<UpdateObjectLabel, bool(float scale)> {
+struct UpdateObjectLabel final : Event<UpdateObjectLabel, bool()> {
     using Event::Event;
 };
 
 struct ObjectMovedEvent final : Event<ObjectMovedEvent, bool()> {
+    using Event::Event;
+};
+
+struct UIScaleUpdated final : Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };

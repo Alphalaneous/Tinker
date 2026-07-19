@@ -208,7 +208,7 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
     m_rotationNode->translate(touch);
 
     m_editorUI->m_toolbarHeight = INT_MIN;
-    if (preTransform.y <= m_realToolbarHeight) {
+    if (preTransform.y <= tinker::utils::getToolbarHeight()) {
         m_editorUI->m_toolbarHeight = tinker::utils::getToolbarHeight();
         return true;
     }

@@ -9,7 +9,5 @@ class $editorModule(LengthInEditor) {
     void onEditor() override;
 	std::string getTime(float x);
 
-    void updateScale(float scale);
-
     bool onToggled(bool state) override;
 };
