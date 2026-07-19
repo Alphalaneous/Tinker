@@ -619,9 +619,9 @@ void SOEditButtonBar::addToExtrasMenu(CCMenuItemSpriteExtra* button) {
     fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
 }
 
-void SOEditButtonBar::goToPage(int page) {
+//void SOEditButtonBar::goToPage(int page) {
     // does nothing now
-}
+//}
 
 void SOEditorOptionsLayer::setupOptions() {
     EditorOptionsLayer::setupOptions();
@@ -657,7 +657,7 @@ void SOEditorOptionsLayer::setupOptions() {
     }
 }
 
-/*void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
+void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
     int rows = m_buttonRows;
     if (sender->getTag() == 0) {
         rows--;
@@ -667,7 +667,7 @@ void SOEditorOptionsLayer::setupOptions() {
     }
     m_buttonRows = std::clamp(rows, 1, 16);
     m_buttonRowsLabel->setString(numToString(m_buttonRows).c_str());
-}*/
+}
 
 class $nodeModify(SOGroup, Group) {
 

@@ -18,8 +18,6 @@ class $editorModule(ScrollableObjects) {
 };
 
 class $modify(SOEditorUI, EditorUI) {
-    $registerEditorHooks(ScrollableObjects, true)
-
     struct Fields {
         Ref<CCNode> m_groupsGotoMenu;
         Ref<CCNode> m_groupsTogglesMenu;
@@ -28,10 +26,6 @@ class $modify(SOEditorUI, EditorUI) {
     };
 
     void updateCreateMenu(bool selectTab);
-
-    static void _onModify(auto& self) {
-        (void) self.setHookPriorityAfterPost("EditorUI::init", "alphalaneous.editortab_api");
-    }
 };
 
 class $modify(SOEditButtonBar, EditButtonBar) {
@@ -66,7 +60,7 @@ class $modify(SOEditButtonBar, EditButtonBar) {
     static EditButtonBar* create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows);
 
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
-    void goToPage(int page);
+    //void goToPage(int page);
     void cull(SOEditButtonBar::Fields* fields, float x);
 
     void createExtrasMenu();
@@ -82,6 +76,6 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 class $modify(SOEditorOptionsLayer, EditorOptionsLayer) {
     $registerEditorHooks(ScrollableObjects)
 
-    //void onButtonRows(cocos2d::CCObject* sender);
+    void onButtonRows(cocos2d::CCObject* sender);
     void setupOptions();
 };
