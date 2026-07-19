@@ -226,6 +226,16 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     float currentX = 0;
 
+    if (fields->m_scrollLayer) {
+        currentX = fields->m_scrollLayer->getScrollPoint().x;
+        fields->m_scrollLayer->removeFromParent();
+    }
+    if (fields->m_scrollBar) {
+        fields->m_scrollBar->removeFromParent();
+    }
+    if (fields->m_objectsMenu) {
+        fields->m_objectsMenu->removeFromParent();
+    }
     if (fields->m_extrasMenu) {
         fields->m_extrasMenu->removeFromParent();
     }
@@ -234,16 +244,6 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
     }
     if (fields->m_separator) {
         fields->m_separator->removeFromParent();
-    }
-    if (fields->m_objectsMenu) {
-        fields->m_objectsMenu->removeFromParent();
-    }
-    if (fields->m_scrollBar) {
-        fields->m_scrollBar->removeFromParent();
-    }
-    if (fields->m_scrollLayer) {
-        currentX = fields->m_scrollLayer->getScrollPoint().x;
-        fields->m_scrollLayer->removeFromParent();
     }
 
     fields->m_widthOffset = 0.f;
@@ -657,7 +657,7 @@ void SOEditorOptionsLayer::setupOptions() {
     }
 }
 
-void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
+/*void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
     int rows = m_buttonRows;
     if (sender->getTag() == 0) {
         rows--;
@@ -667,7 +667,7 @@ void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
     }
     m_buttonRows = std::clamp(rows, 1, 16);
     m_buttonRowsLabel->setString(numToString(m_buttonRows).c_str());
-}
+}*/
 
 class $nodeModify(SOGroup, Group) {
 

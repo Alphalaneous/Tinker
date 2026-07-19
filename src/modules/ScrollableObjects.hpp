@@ -82,6 +82,6 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 class $modify(SOEditorOptionsLayer, EditorOptionsLayer) {
     $registerEditorHooks(ScrollableObjects)
 
-    void onButtonRows(cocos2d::CCObject* sender);
+    //void onButtonRows(cocos2d::CCObject* sender);
     void setupOptions();
 };
