@@ -203,12 +203,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         m_pagesArray = CCArray::create();
         m_pagesArray->retain();
     }
-    if (fields->m_dummyScrollLayer) {
-        CCTouchDispatcher::get()->unregisterForcePrio(fields->m_dummyScrollLayer);
-        fields->m_dummyScrollLayer = nullptr;
-        m_scrollLayer = nullptr;
-    }
-    if (!fields->m_dummyScrollLayer) {
+    if (!m_scrollLayer) {
         m_scrollLayer = BoomScrollLayer::create(m_pagesArray, 0, false);
         m_scrollLayer->m_pages->addObject(CCNode::create());
         fields->m_dummyScrollLayer = m_scrollLayer;
