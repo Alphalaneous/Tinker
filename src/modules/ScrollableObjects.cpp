@@ -203,7 +203,12 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         m_pagesArray = CCArray::create();
         m_pagesArray->retain();
     }
-    if (!m_scrollLayer) {
+    if (fields->m_dummyScrollLayer) {
+        CCTouchDispatcher::get()->unregisterForcePrio(fields->m_dummyScrollLayer);
+        fields->m_dummyScrollLayer = nullptr;
+        m_scrollLayer = nullptr;
+    }
+    if (!fields->m_dummyScrollLayer) {
         m_scrollLayer = BoomScrollLayer::create(m_pagesArray, 0, false);
         m_scrollLayer->m_pages->addObject(CCNode::create());
         fields->m_dummyScrollLayer = m_scrollLayer;
@@ -619,9 +624,9 @@ void SOEditButtonBar::addToExtrasMenu(CCMenuItemSpriteExtra* button) {
     fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
 }
 
-//void SOEditButtonBar::goToPage(int page) {
+void SOEditButtonBar::goToPage(int page) {
     // does nothing now
-//}
+}
 
 void SOEditorOptionsLayer::setupOptions() {
     EditorOptionsLayer::setupOptions();

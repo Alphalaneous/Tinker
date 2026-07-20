@@ -60,7 +60,7 @@ class $modify(SOEditButtonBar, EditButtonBar) {
     static EditButtonBar* create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows);
 
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
-    //void goToPage(int page);
+    void goToPage(int page);
     void cull(SOEditButtonBar::Fields* fields, float x);
 
     void createExtrasMenu();
