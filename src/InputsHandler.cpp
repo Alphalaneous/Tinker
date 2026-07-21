@@ -1,5 +1,5 @@
 #include "InputsHandler.hpp"
-#include "modules/ZoomGroundFix.hpp"
+#include "modules/Fixes/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
@@ -313,6 +313,16 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     editorLayer->addChild(fields->m_forward);
 
     return true;
+}
+
+void InputEditorUI::blockPinch(bool block) {
+    auto fields = m_fields.self();
+    if (block) {
+        fields->m_touch1 = nullptr;
+        fields->m_touch2 = nullptr;
+        fields->m_isPinching = false;
+    }
+    fields->m_blockPinching = block;
 }
 
 CCMenuItemSpriteExtra* InputEditorUI::getEditButtonByTag(int tag) {
@@ -633,7 +643,7 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
         }
     }
     
-    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         auto mainPos = getTouchLocation(touch);
         if (mainPos.y <= tinker::utils::getToolbarHeight()) {
             if (m_editorLayer->m_playbackMode != PlaybackMode::Playing || m_playbackBtn->isVisible()) return false;
@@ -678,7 +688,7 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
 void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
 
-    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
             fields->m_touch1 = nullptr;
             fields->m_touch2 = nullptr;
@@ -694,43 +704,45 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
 
             auto center = (firstPos + secondPos) / 2.f;
             auto distNow = std::max(firstPos.getDistance(secondPos), 0.01f);
+
+            if (std::abs(distNow) >= 20.f) {
+                auto mult = fields->m_initialDistance / distNow;
+
+                auto zoom = std::clamp(fields->m_initialScale / mult, tinker::utils::getSetting<float, "zoom-minimum">(), tinker::utils::getSetting<float, "zoom-maximum">());
+
+                auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+                auto prevPos = layer->convertToNodeSpace(midPos);
             
-            auto mult = fields->m_initialDistance / distNow;
+                updateZoom(zoom);
 
-            auto zoom = std::clamp(fields->m_initialScale / mult, tinker::utils::getSetting<float, "zoom-minimum">(), tinker::utils::getSetting<float, "zoom-maximum">());
+                auto newPos = layer->convertToWorldSpace(prevPos);
+                layer->setPosition(layer->getPosition() + midPos - newPos);
 
-            auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
-            auto prevPos = layer->convertToNodeSpace(midPos);
-        
-            updateZoom(zoom);
-
-            auto newPos = layer->convertToWorldSpace(prevPos);
-            layer->setPosition(layer->getPosition() + midPos - newPos);
-
-            if (ZoomGroundFix::isEnabled()) {
-                ZoomGroundFix::get()->fixPosition(0);
-            }
-
-            fields->m_touchMidPoint = center;
-            m_isDraggingCamera = true;
-            
-            if (CanvasRotate::isEnabled() && CanvasRotate::getSetting<bool, "pinch-to-rotate">()) {
-                auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
-                auto angle = std::atan2(diff.y, diff.x);
-                auto delta = angle - fields->m_lastAngle;
-
-                while (delta > M_PI) {
-                    delta -= 2.f * M_PI;
+                if (ZoomGroundFix::isEnabled()) {
+                    ZoomGroundFix::get()->fixPosition(0);
                 }
 
-                while (delta < -M_PI) {
-                    delta += 2.f * M_PI;
-                }
+                fields->m_touchMidPoint = center;
+                m_isDraggingCamera = true;
+                
+                if (CanvasRotate::isEnabled() && CanvasRotate::getSetting<bool, "pinch-to-rotate">()) {
+                    auto diff = getTouchLocation(fields->m_touch2) - getTouchLocation(fields->m_touch1);
+                    auto angle = std::atan2(diff.y, diff.x);
+                    auto delta = angle - fields->m_lastAngle;
 
-                fields->m_lastAngle = angle;
-                CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
+                    while (delta > M_PI) {
+                        delta -= 2.f * M_PI;
+                    }
+
+                    while (delta < -M_PI) {
+                        delta += 2.f * M_PI;
+                    }
+
+                    fields->m_lastAngle = angle;
+                    CanvasRotate::get()->m_rotationNode->updateCanvasRotation(CC_RADIANS_TO_DEGREES(delta));
+                }
+                return;
             }
-            return;
         }
     }
     if (!fields->m_isPinching) {

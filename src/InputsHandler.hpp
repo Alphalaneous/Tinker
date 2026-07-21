@@ -132,6 +132,7 @@ class $modify(InputEditorUI, EditorUI) {
         float m_initialScale = 1.f;
         CCPoint m_touchMidPoint;
 
+        bool m_blockPinching = false;
         bool m_isPinching = false;
         float m_lastAngle;
 
@@ -166,6 +167,8 @@ class $modify(InputEditorUI, EditorUI) {
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
+
+    void blockPinch(bool block);
 
     CCMenuItemSpriteExtra* getEditButtonByTag(int tag);
 

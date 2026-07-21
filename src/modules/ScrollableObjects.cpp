@@ -190,6 +190,19 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
     }
 }
 
+void SOEditorUI::reloadTabsSafe() {
+    runAction(CallFuncExt::create([this] {
+        for (auto c : CCArrayExt<CCNode*>(getChildren())) {
+            if (auto bar = typeinfo_cast<EditButtonBar*>(c)) {
+                auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
+                auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
+
+                bar->reloadItems(cols, rows);
+            }
+        }
+    }));
+}
+
 EditButtonBar* SOEditButtonBar::create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows) {
     auto ret = EditButtonBar::create(objects, position, tab, hasCreateItems, columns, rows);
     ret->setUserFlag("alphalaneous.editortab_api/disable-rewrite");
@@ -667,6 +680,16 @@ void SOEditorOptionsLayer::onButtonRows(cocos2d::CCObject* sender) {
     }
     m_buttonRows = std::clamp(rows, 1, 16);
     m_buttonRowsLabel->setString(numToString(m_buttonRows).c_str());
+}
+
+void SOEditorOptionsLayer::onClose(cocos2d::CCObject* sender) {
+    EditorOptionsLayer::onClose(sender);
+
+    auto editorUI = static_cast<SOEditorUI*>(EditorUI::get());
+    if (editorUI->m_reloadItems) {
+        editorUI->reloadTabsSafe();
+    }
+    editorUI->m_reloadItems = false;
 }
 
 class $nodeModify(SOGroup, Group) {

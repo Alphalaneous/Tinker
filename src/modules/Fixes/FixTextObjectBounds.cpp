@@ -1,5 +1,5 @@
 #include "FixTextObjectBounds.hpp"
-#include "ReferenceImage.hpp"
+#include "modules/ReferenceImage.hpp"
 
 bool FixTextObjectBounds::onToggled(bool state) {
     return true;

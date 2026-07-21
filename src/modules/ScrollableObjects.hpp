@@ -26,6 +26,7 @@ class $modify(SOEditorUI, EditorUI) {
     };
 
     void updateCreateMenu(bool selectTab);
+    void reloadTabsSafe();
 };
 
 class $modify(SOEditButtonBar, EditButtonBar) {
@@ -77,5 +78,6 @@ class $modify(SOEditorOptionsLayer, EditorOptionsLayer) {
     $registerEditorHooks(ScrollableObjects)
 
     void onButtonRows(cocos2d::CCObject* sender);
+    void onClose(cocos2d::CCObject* sender);
     void setupOptions();
 };

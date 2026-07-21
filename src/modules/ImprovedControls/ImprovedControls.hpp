@@ -7,6 +7,7 @@
 #include <Geode/ui/SliderNode.hpp>
 #include "misc/ScaleSlider.hpp"
 #include "misc/ValueToggler.hpp"
+#include "utils/Utils.hpp"
 
 using namespace tinker::ui;
 
@@ -16,8 +17,25 @@ class $editorModule(ImprovedControls) {
 
     static float roundToThousandth(float value);
 
-    ImprovedControls();
-    virtual ~ImprovedControls();
+    bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
+
+    tinker::utils::ScopedHookToggle<"hjfod.betteredit"> m_toggledHooks = {
+        "GJScaleControl::init",
+        "GJScaleControl::loadValues",
+        "GJScaleControl::updateLabelX",
+        "GJScaleControl::updateLabelY",
+        "GJScaleControl::updateLabelXY",
+        "GJScaleControl::onToggleLockScale",
+        "GJScaleControl::ccTouchMoved",
+
+        "GJRotationControl::init",
+        "GJRotationControl::draw",
+        "GJRotationControl::ccTouchMoved",
+
+        "EditorUI::activateRotationControl",
+        "EditorUI::angleChanged",
+        "EditorUI::moveObject"
+    };
 };
 
 class $modify(ICEditorUI, EditorUI) {
@@ -27,11 +45,17 @@ class $modify(ICEditorUI, EditorUI) {
         bool m_lockPosition;
     };
 
+    void activateTransformControl(cocos2d::CCObject* sender);
+    void activateScaleControl(cocos2d::CCObject* sender);
     void deactivateScaleControl();
     void activateRotationControl(CCObject* sender);
     void angleChanged(float angle);
     void moveObject(GameObject* obj, CCPoint amount);
     void scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove);
+
+    void scaleXChanged(float scaleX, bool lock);
+    void scaleYChanged(float scaleY, bool lock);
+    void scaleXYChanged(float scaleX, float scaleY, bool lock);
 };
 
 class $modify(ICGJScaleControl, GJScaleControl) {
@@ -67,6 +91,7 @@ class $modify(ICGJScaleControl, GJScaleControl) {
     float trueValueFromScale(float scale);
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
     void unfocus();
+    void setBypass(bool bypass);
     
     CCPoint getPivotLocation();
 

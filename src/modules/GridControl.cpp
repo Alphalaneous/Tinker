@@ -5,26 +5,6 @@
 
 #include "InputsHandler.hpp"
 
-GridControl::GridControl() {
-    if (!GridControl::isEnabled()) return;
-
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (!betterEdit) return;
-
-    for (auto hook : betterEdit->getHooks()) {
-        if (hook->getDisplayName() == "EditorUI::updateGridNodeSize") (void) hook->disable();
-    }
-}
-
-GridControl::~GridControl() {
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (!betterEdit) return;
-
-    for (auto hook : betterEdit->getHooks()) {
-        if (hook->getDisplayName() == "EditorUI::updateGridNodeSize") (void) hook->enable();
-    }
-}
-
 void GridControl::onEditor() {
     auto container = CCMenu::create();
     container->setContentSize({70.f, 35.f});

@@ -2,6 +2,11 @@
 - <c-dddddd>Fix inputs registering behind toolbar</c>
 - <c-dddddd>Fix objects with the default color being black showing as white until an object is placed with preview object colors on</c>
 - <c-dddddd>UI Scaling cleanup</c>
+- <c-dddddd>Add Scale Slider Bypass toggle</c>
+- <c-dddddd>Improve teleport portal's linked orange portal interactions</c>
+- <c-dddddd>Fix crash when changing row count with Scrollable Toolbar enabled on iOS</c>
+- <c-dddddd>Add API for other mods to block pinch to zoom if needed</c>
+- <c-dddddd>Add slight distance check for pinch to zoom to not trigger if another mod uses multi gesture actions and needs to disable it beforehand</c>
 
 # 1.0.42
 - <c-dddddd>Fix Grid Controls positioning</c>

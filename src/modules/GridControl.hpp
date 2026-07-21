@@ -13,8 +13,9 @@ class $editorModule(GridControl) {
     void updateGrid(float newValue = 0, bool updateInput = true);
     static float getSliderMinY(EditorUI* editorUI);
 
-    GridControl();
-    virtual ~GridControl();
+    tinker::utils::ScopedHookToggle<"hjfod.betteredit"> m_toggledHooks = {
+        "EditorUI::updateGridNodeSize"
+    };
 };
 
 class $modify(GCObjectToolbox, ObjectToolbox) {

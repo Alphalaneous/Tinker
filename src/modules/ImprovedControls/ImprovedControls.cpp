@@ -1,5 +1,7 @@
 #include "ImprovedControls.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include "utils/Constants.hpp"
+#include "utils/Utils.hpp"
 
 void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
     auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
@@ -14,6 +16,14 @@ void ImprovedControls::addLabelToToggle(CCMenuItemToggler* toggler, ZStringView 
     addLabelToNode(toggler->m_offButton->getNormalImage(), text);
 }
 
+bool ImprovedControls::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    if (key == "slider-bypass") {
+        static_cast<ICGJScaleControl*>(m_editorUI->m_scaleControl)->setBypass(value.asBool().unwrapOrDefault());
+        return true;
+    }
+    return false;
+}
+
 float ImprovedControls::roundToThousandth(float value) {
     if (value < 0.f) {
         value = std::ceil(value * 1000.f - 0.5f);
@@ -22,55 +32,6 @@ float ImprovedControls::roundToThousandth(float value) {
         value = std::floor(value * 1000.f + 0.5f);
     }
     return value / 1000.f;
-}
-
-ImprovedControls::ImprovedControls() {
-    if (!ImprovedControls::isEnabled()) return;
-
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (!betterEdit) return;
-
-    for (auto hook : betterEdit->getHooks()) {
-        if (hook->getDisplayName() == "GJScaleControl::init") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::loadValues") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelX") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelY") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelXY") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::onToggleLockScale") (void) hook->disable();
-        if (hook->getDisplayName() == "GJScaleControl::ccTouchMoved") (void) hook->disable();
-
-        if (hook->getDisplayName() == "GJRotationControl::init") (void) hook->disable();
-        if (hook->getDisplayName() == "GJRotationControl::draw") (void) hook->disable();
-        if (hook->getDisplayName() == "GJRotationControl::ccTouchMoved") (void) hook->disable();
-
-        if (hook->getDisplayName() == "EditorUI::activateRotationControl") (void) hook->disable();
-        if (hook->getDisplayName() == "EditorUI::angleChanged") (void) hook->disable();
-        if (hook->getDisplayName() == "EditorUI::moveObject") (void) hook->disable();
-
-    }
-}
-
-ImprovedControls::~ImprovedControls() {    
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (!betterEdit) return;
-
-    for (auto hook : betterEdit->getHooks()) {
-        if (hook->getDisplayName() == "GJScaleControl::init") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::loadValues") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelX") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelY") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::updateLabelXY") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::onToggleLockScale") (void) hook->enable();
-        if (hook->getDisplayName() == "GJScaleControl::ccTouchMoved") (void) hook->enable();
-
-        if (hook->getDisplayName() == "GJRotationControl::init") (void) hook->enable();
-        if (hook->getDisplayName() == "GJRotationControl::draw") (void) hook->enable();
-        if (hook->getDisplayName() == "GJRotationControl::ccTouchMoved") (void) hook->enable();
-
-        if (hook->getDisplayName() == "EditorUI::activateRotationControl") (void) hook->enable();
-        if (hook->getDisplayName() == "EditorUI::angleChanged") (void) hook->enable();
-        if (hook->getDisplayName() == "EditorUI::moveObject") (void) hook->enable();
-    }
 }
 
 void ICEditorUI::activateRotationControl(CCObject* sender) {
@@ -87,23 +48,63 @@ void ICEditorUI::activateRotationControl(CCObject* sender) {
     static_cast<ICGJRotationControl*>(m_rotationControl)->loadValues(arr);
 }
 
+void ICEditorUI::activateScaleControl(cocos2d::CCObject* sender) {
+    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+        return;
+    }
+    EditorUI::activateScaleControl(sender);
+}
+
 void ICEditorUI::deactivateScaleControl() {
     static_cast<ICGJScaleControl*>(m_scaleControl)->unfocus();
     EditorUI::deactivateScaleControl();
 }
 
+void ICEditorUI::activateTransformControl(cocos2d::CCObject* sender) {
+    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+        return;
+    }
+    if (m_selectedObjects && m_selectedObjects->count() != 0) {
+        for (auto obj : m_selectedObjects->asExt<GameObject>()) {
+            if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+                return;
+            }
+        }
+    }
+    EditorUI::activateTransformControl(sender);
+}
+
 void ICEditorUI::angleChanged(float angle) {
     auto fields = m_fields.self();
+    CCPoint pivotPoint;
 
     CCArray* objs = nullptr;
     bool lockPos = static_cast<ICGJRotationControl*>(m_rotationControl)->isPositionLocked();
 
     if (m_selectedObject && m_selectedObjects->count() == 0) {
-        objs = CCArray::createWithObject(m_selectedObject);
-        m_pivotPoint = m_selectedObject->getPosition();
+        bool usesTeleportOwner = false;
+        if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+            auto owner = static_cast<GameObject*>(m_selectedObject->getUserObject("teleport-owner"_spr));
+            if (owner) {
+                objs = CCArray::createWithObject(owner);
+                pivotPoint = owner->getPosition();
+                usesTeleportOwner = true;
+            }
+        }
+        if (!usesTeleportOwner) {
+            objs = CCArray::createWithObject(m_selectedObject);
+            pivotPoint = m_selectedObject->getPosition();
+        }
     }
     else {
-        objs = m_selectedObjects;
+        objs = m_selectedObjects->shallowCopy();
+        for (int i = objs->count() - 1; i >= 0; i--) {
+            auto obj = static_cast<GameObject*>(objs->objectAtIndex(i));
+            if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+                objs->removeObjectAtIndex(i);
+            }
+        }
+        pivotPoint = getGroupCenter(objs, false);
     }
     
     if (objs) {
@@ -113,7 +114,7 @@ void ICEditorUI::angleChanged(float angle) {
         auto orig = first->getRotation();
         
         fields->m_lockPosition = lockPos;
-        rotateObjects(objs, -orig + angle, m_pivotPoint);
+        rotateObjects(objs, -orig + angle, pivotPoint);
         fields->m_lockPosition = false;
     }
 }
@@ -126,6 +127,8 @@ void ICEditorUI::moveObject(GameObject* obj, CCPoint amount) {
 
 void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove) {
     for (auto obj : CCArrayExt<GameObject, false>(objects)) {
+        if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
+
         const auto& state = m_objectEditorStates[obj->m_uniqueID];
 
         if (type != ObjectScaleType::Y) {
@@ -154,26 +157,49 @@ void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float sca
 
         auto relative = obj->getPosition() - pivotPoint;
 
-        if (type != ObjectScaleType::Y) {
-            relative.x *= newScaleX / obj->m_scaleX;
-        }
+        if (obj->m_objectID != tinker::constants::objects::LinkedOrangeTeleportPortal) {
+            if (type != ObjectScaleType::Y) {
+                relative.x *= newScaleX / obj->m_scaleX;
+            }
 
-        if (type != ObjectScaleType::X) {
-            relative.y *= newScaleY / obj->m_scaleY;
-        }
+            if (type != ObjectScaleType::X) {
+                relative.y *= newScaleY / obj->m_scaleY;
+            }
 
-        if (type != ObjectScaleType::Y) {
-            obj->updateCustomScaleX(newScaleX);
-        }
+            if (type != ObjectScaleType::Y) {
+                obj->updateCustomScaleX(newScaleX);
+            }
 
-        if (type != ObjectScaleType::X) {
-            obj->updateCustomScaleY(newScaleY);
+            if (type != ObjectScaleType::X) {
+                obj->updateCustomScaleY(newScaleY);
+            }
         }
 
         if (!lockMove) {
             moveObject(obj, (pivotPoint + relative) - obj->getPosition());
         }
     }
+}
+
+void ICEditorUI::scaleXChanged(float scaleX, bool lock) {
+    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+        return;
+    }
+    EditorUI::scaleXChanged(scaleX, lock);
+}
+
+void ICEditorUI::scaleYChanged(float scaleY, bool lock) {
+    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+        return;
+    }
+    EditorUI::scaleYChanged(scaleY, lock);
+}
+
+void ICEditorUI::scaleXYChanged(float scaleX, float scaleY, bool lock) {
+    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+        return;
+    }
+    EditorUI::scaleXYChanged(scaleX, scaleY, lock);
 }
 
 float ICGJScaleControl::trueScaleFromValue(float value) {
@@ -209,12 +235,7 @@ bool ICGJScaleControl::init() {
         }, this
     );
     fields->m_sliderX->setID("scale-x-slider"_spr);
-    fields->m_sliderX->setMin(0.f);
-    fields->m_sliderX->setMax(1.f);
     fields->m_sliderX->setPosition(m_sliderX->getPosition());
-    fields->m_sliderX->getBar()->setVisible(false);
-    fields->m_sliderX->setContentWidth(210.f);
-    fields->m_sliderX->setSliderBypass(true);
     addChild(fields->m_sliderX);
 
     fields->m_sliderY = ScaleSlider::create(
@@ -230,12 +251,7 @@ bool ICGJScaleControl::init() {
         }, this
     );
     fields->m_sliderY->setID("scale-y-slider"_spr);
-    fields->m_sliderY->setMin(0.f);
-    fields->m_sliderY->setMax(1.f);
     fields->m_sliderY->setPosition(m_sliderY->getPosition());
-    fields->m_sliderY->getBar()->setVisible(false);
-    fields->m_sliderY->setContentWidth(210.f);
-    fields->m_sliderY->setSliderBypass(true);
     addChild(fields->m_sliderY);
 
     fields->m_sliderXY = ScaleSlider::create(
@@ -264,17 +280,14 @@ bool ICGJScaleControl::init() {
         }, this
     );
     fields->m_sliderXY->setID("scale-slider"_spr);
-    fields->m_sliderXY->setMin(0.f);
-    fields->m_sliderXY->setMax(1.f);
     fields->m_sliderXY->setPosition(m_sliderXY->getPosition());
-    fields->m_sliderXY->getBar()->setVisible(false);
-    fields->m_sliderXY->setContentWidth(210.f);
-    fields->m_sliderXY->setSliderBypass(true);
     addChild(fields->m_sliderXY);
 
     m_scaleXLabel->setPositionX(-20.f);
     m_scaleYLabel->setPositionX(-20.f);
     m_scaleLabel->setPositionX(-22.f);
+
+    setBypass(ImprovedControls::getSetting<bool, "slider-bypass">());
 
     fields->m_inputX = TextInput::create(50.f, "Num");
     fields->m_inputX->setScale(0.8f);
@@ -422,6 +435,13 @@ bool ICGJScaleControl::init() {
     });
 
     return true;
+}
+
+void ICGJScaleControl::setBypass(bool bypass) {
+    auto fields = m_fields.self();
+    fields->m_sliderX->setSliderBypass(bypass);
+    fields->m_sliderY->setSliderBypass(bypass);
+    fields->m_sliderXY->setSliderBypass(bypass);
 }
 
 void ICGJScaleControl::updateLabelX(float scale) {

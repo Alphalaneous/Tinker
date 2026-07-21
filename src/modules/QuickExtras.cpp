@@ -85,6 +85,7 @@ bool QEEditorUI::_isAllowedObjectID(int id) {
     using namespace tinker::constants::objects;
 
     return id == PlayerTouchToggle
+        || id == LinkedOrangeTeleportPortal
         || id == ToggleOrb
         || id == GradientTrigger
         || id == Counter
@@ -100,7 +101,6 @@ bool QEEditorUI::isDisallowedObjectID(int id) {
     using namespace tinker::constants::objects;
 
     return id == OrangeTeleportPortal
-        || id == LinkedOrangeTeleportPortal
         || id == LargeBeast
         || id == SmallMonster
         || id == MediumMonster

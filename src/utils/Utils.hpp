@@ -119,4 +119,38 @@ namespace tinker::utils {
         RGB hsvToRgb(HSV in);
         cocos2d::ccColor4B hueShift(cocos2d::ccColor4B color, float shiftDegrees);
     }
+
+    template<geode::utils::string::ConstexprString ID>
+    class ScopedHookToggle {
+    public:
+        ScopedHookToggle(const ScopedHookToggle&) = delete;
+        ScopedHookToggle& operator=(const ScopedHookToggle&) = delete;
+        ScopedHookToggle(ScopedHookToggle&&) = default;
+        ScopedHookToggle& operator=(ScopedHookToggle&&) = default;
+
+        template<typename... Hooks>
+        requires (std::convertible_to<Hooks, ZStringView> && ...)
+        ScopedHookToggle(Hooks&&... hooks) {
+            auto mod = tinker::utils::getMod<ID>();
+            if (!mod) return;
+
+            const std::array<ZStringView, sizeof...(Hooks)> hookNames{std::forward<Hooks>(hooks)...};
+
+            for (Hook* hook : mod->getHooks()) {
+                if (!hook->isEnabled()) continue;
+                if (std::ranges::find(hookNames, hook->getDisplayName()) != hookNames.end()) {
+                    m_hooks.push_back(hook);
+                    (void) hook->disable();
+                }
+            }
+        }
+        
+        ~ScopedHookToggle() {
+            for (auto hook : m_hooks) {
+                (void) hook->enable();
+            }
+        }
+    private:
+        std::vector<Hook*> m_hooks;
+    };
 }
