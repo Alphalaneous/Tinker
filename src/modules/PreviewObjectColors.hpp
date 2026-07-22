@@ -2,12 +2,15 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/ui/Button.hpp>
 
 class Group : public CCNode {};
 
 class $editorModule(PreviewObjectColors) {
     void onEditor() override;
-    void onUpdateButtons();
+    void editColor();
+    void setButtonVisible(geode::Button* button);
+    void setButtonScale(geode::Button* button, float scale);
 };
 
 class $modify(POCEditorUI, EditorUI) {
@@ -17,7 +20,6 @@ class $modify(POCEditorUI, EditorUI) {
         Ref<GameObject> m_defaultObject;
     };
 
-    void editObject(cocos2d::CCObject* sender);
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
 	void updateObjectColors(float dt);
 

@@ -1,3 +1,7 @@
+# 1.0.44
+- <c-dddddd>Fix selecting and editing object/editing extras not working if the selection contained a teleport portal</c>
+- <c-dddddd>Move Preview Object Colors button to toolbar when scrollable toolbar is disabled, as it was confusing being Edit Object with no objects selected</c>
+
 # 1.0.43
 - <c-dddddd>Fix inputs registering behind toolbar</c>
 - <c-dddddd>Fix objects with the default color being black showing as white until an object is placed with preview object colors on</c>

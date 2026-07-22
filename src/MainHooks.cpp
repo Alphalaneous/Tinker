@@ -6,6 +6,7 @@
 #include "Events.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
+#include "settings/SettingsPopup.hpp"
 #include "utils/Utils.hpp"
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
@@ -298,6 +299,17 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
     tinkerBtn->setID("tinker-settings"_spr);
 
     guidelinesMenu->addChild(tinkerBtn);
+
+    /*auto spr2 = CCSprite::create("hammer-button.png"_spr);
+    auto tinkerBtn2 = CCMenuItemExt::createSpriteExtra(spr2, [] (auto sender) {
+        SettingsPopup::create()->show();
+    });
+    tinkerBtn2->setZOrder(1000);
+    tinkerBtn2->setColor({255, 0, 255});
+    tinkerBtn2->setID("tinker-settings-2"_spr);
+
+    guidelinesMenu->addChild(tinkerBtn2);*/
+
     guidelinesMenu->updateLayout();
 
     return true;

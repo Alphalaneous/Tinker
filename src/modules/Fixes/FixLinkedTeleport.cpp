@@ -31,17 +31,20 @@ void FLTSetGroupIDLayer::onClose(cocos2d::CCObject* sender) {
     }
 }
 
-void FLTTeleportPortalObject::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
-    TeleportPortalObject::customObjectSetup(values, exists);
 
-    runAction(CallFuncExt::create([this] {
-        if (!m_isTrigger && m_orangePortal) {
-            m_orangePortal->m_editorLayer = m_editorLayer;
-            m_orangePortal->m_editorLayer2 = m_editorLayer2;
+TeleportPortalObject* FLTTeleportPortalObject::create(char const* frame, bool trigger) {
+    auto ret = TeleportPortalObject::create(frame, trigger);
 
-            m_orangePortal->setUserObject("teleport-owner"_spr, this);
+    ret->runAction(CallFuncExt::create([ret] {
+        if (!ret->m_isTrigger && ret->m_orangePortal) {
+            ret->m_orangePortal->m_editorLayer = ret->m_editorLayer;
+            ret->m_orangePortal->m_editorLayer2 = ret->m_editorLayer2;
+
+            ret->m_orangePortal->setUserObject("teleport-owner"_spr, ret);
         }
     }));
+
+    return ret;
 }
 
 void FLTEditorUI::editGroup(cocos2d::CCObject* sender) {
@@ -67,10 +70,12 @@ void FLTEditorUI::editGroup(cocos2d::CCObject* sender) {
             }
         }
 
-        for (auto orangePortal : orangePortals) {
-            auto owner = static_cast<GameObject*>(orangePortal->getUserObject("teleport-owner"_spr));
-            if (!bluePortals.contains(owner)) {
-                return;
+        if (m_selectedObjects->count() == (bluePortals.size() + orangePortals.size())) {
+            for (auto orangePortal : orangePortals) {
+                auto owner = static_cast<GameObject*>(orangePortal->getUserObject("teleport-owner"_spr));
+                if (!bluePortals.contains(owner)) {
+                    return;
+                }
             }
         }
     }
@@ -101,9 +106,29 @@ void FLTEditorUI::editObjectSpecial(int type) {
             }
         }
 
-        for (auto orangePortal : orangePortals) {
-            auto owner = static_cast<GameObject*>(orangePortal->getUserObject("teleport-owner"_spr));
-            if (!bluePortals.contains(owner)) {
+        if (m_selectedObjects->count() == (bluePortals.size() + orangePortals.size())) {
+            bool canEditSpecialPair = true;
+
+            for (auto orangePortal : orangePortals) {
+                auto owner = static_cast<GameObject*>(orangePortal->getUserObject("teleport-owner"_spr));
+                if (!bluePortals.contains(owner)) {
+                    canEditSpecialPair = false;
+                    return;
+                }
+            }
+
+            if (canEditSpecialPair) {
+                auto selected = m_selectedObjects;
+                m_selectedObjects = m_selectedObjects->shallowCopy();
+
+                for (int i = m_selectedObjects->count() - 1; i >= 0; i--) {
+                    if (orangePortals.contains(static_cast<GameObject*>(m_selectedObjects->objectAtIndex(i)))) {
+                        m_selectedObjects->removeObjectAtIndex(i);
+                    }
+                }
+
+                EditorUI::editObjectSpecial(type);
+                m_selectedObjects = selected;
                 return;
             }
         }

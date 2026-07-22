@@ -1,0 +1,1375 @@
+{
+    "categories": {
+        "interface": {
+            "name": "Interface",
+            "description": "Customize different aspects of the editor's interface.",
+            "settings": [
+                "CanvasRotate",
+                "ScrollableObjects",
+                "StartPosTools",
+                "UIScaling",
+                "ObjectSearch",
+                "ObjectTooltips",
+                "CustomToolbarBackground",
+                "ImprovedControls",
+                "ImprovedGroupView",
+                "ImprovedLinkControls",
+                "ThatPasteButton",
+                "DurationDrag",
+                "GridControl",
+                "QuickExtras",
+                "LiveColors",
+                "PreviewObjectColors",
+                "HideTriggerUI",
+                "HideUI",
+                "NegateInput",
+                "AutoBuildHelper",
+                "EditTools",
+                "JoystickNavigation",
+                "RelocateBuildTools",
+                "RepeatingEditorButtons",
+                "LDMObjectCount",
+                "LengthInEditor",
+                "MixedEditExtras",
+                "ObjectSummary",
+                "ReferenceImage",
+                "SlopeDirectionIndicators",
+                "ZoomText"
+            ],
+            "tags": [
+                "ui"
+            ]
+        },
+        "EditorGridCustomization": {
+            "name": "Grid Customization",
+            "description": "Customize the colors of the editor grid",
+            "settings": [
+                "GridControl",
+                "EditorGridCustomization-grid-color",
+                "EditorGridCustomization-grid-invert",
+                "EditorGridCustomization-grid-invert-opacity",
+                "EditorGridCustomization-effect-line-color",
+                "EditorGridCustomization-color-effect-lines-by-trigger",
+                "EditorGridCustomization-music-line-active-color",
+                "EditorGridCustomization-music-line-inactive-color",
+                "EditorGridCustomization-rainbow-music-line",
+                "EditorGridCustomization-center-line-color",
+                "EditorGridCustomization-preview-lock-line-color"
+            ]
+        },
+        "scrolling": {
+            "name": "Scrolling",
+            "description": "How scrolling and zooming with your mouse feels in the editor.",
+            "settings": [
+                "smooth-scroll-enabled",
+                "zoom-to-cursor",
+                "zoom-minimum",
+                "zoom-maximum",
+                "pinch-to-zoom",
+                "scroll-delegate-to-vanilla",
+                "ignore-natural-scrolling",
+                "invert-vertical-scroll",
+                "invert-horizontal-scroll",
+                "invert-zoom-scroll",
+                "scroll-multiplier",
+                "zoom-multiplier",
+                "ScrollableObjects"
+            ],
+            "tags": [
+                "ui", "interface", "mouse"
+            ]
+        },
+        "objects": {
+            "name": "Objects",
+            "description": "All things related to objects.",
+            "settings": [
+                "AwesomeModifierIcons",
+                "SingleDeselect",
+                "ObjectSearch",
+                "ObjectTooltips",
+                "DurationDrag",
+                "MultiTextEdit",
+                "ObjectSummary",
+                "OldColorTriggers",
+                "AutoBuildHelper",
+                "LDMObjectCount",
+                "PreviewObjectColors",
+                "SlopeDirectionIndicators",
+                "HideTriggerUI"
+            ]
+        },
+        "fixes": {
+            "name": "Fixes",
+            "description": "Different fixes that you'll likely want to keep on to improve the editing experience.",
+            "settings": [
+                "AddToSectionCrashFix",
+                "FixAreaCorruption",
+                "CenteredObjectButtons",
+                "EditorSliderFix",
+                "EditorTouchFix",
+                "FixToggleTriggerVisibility",
+                "FixLinkedTeleport",
+                "FixSlopeHitboxRender",
+                "NoTouchPasteStateFix",
+                "StartPosBlendingFix",
+                "TransformFix",
+                "FixIgnoreDamage",
+                "FixTextObjectBounds",
+                "ZoomGroundFix"
+            ]
+        },
+        "Keybinds": {
+            "name": "Keybinds",
+            "description": "",
+            "settings": [
+                "Keybinds-edit-object",
+                "Keybinds-edit-group",
+                "Keybinds-edit-special",
+                "Keybinds-edit-extras",
+                "Keybinds-copy-values",
+                "Keybinds-paste-state",
+                "Keybinds-paste-color",
+                "Keybinds-restart",
+                "Keybinds-restart-from-beginning",
+                "Keybinds-move-obj-half-left",
+                "Keybinds-move-obj-half-right",
+                "Keybinds-move-obj-half-up",
+                "Keybinds-move-obj-half-down",
+                "Keybinds-move-obj-big-left",
+                "Keybinds-move-obj-big-right",
+                "Keybinds-move-obj-big-up",
+                "Keybinds-move-obj-big-down",
+                "Keybinds-show-scale",
+                "Keybinds-show-scale-xy",
+                "Keybinds-show-warp",
+                "Keybinds-exit-pause-menu",
+                "StartPosTools-prev-start-pos",
+                "StartPosTools-next-start-pos",
+                "SingleDeselect-key",
+                "ScrollableObjects-speed-modifier-key",
+                "ObjectSearch-keybind",
+                "HideUI-toggle-ui-keybind",
+                "GridControl-increase-keybind",
+                "GridControl-decrease-keybind",
+                "EditTools-camera-to-object-keybind",
+                "EditTools-object-to-camera-keybind",
+                "CanvasRotate-align-modifier",
+                "CanvasRotate-reset-rotation-keybind"
+            ]
+        },
+        "miscellaneous": {
+            "name": "Miscellaneous",
+            "description": "Stuff that just doesn't fit in any other category.",
+            "settings": [
+                "ButtonRowsBypass",
+                "CopyObjectString",
+                "hIDe",
+                "MusicCameraLock",
+                "PlaytestConfirmation",
+                "stop-swipe-on-shift-release"
+            ]
+        },
+        "other-mods": {
+            "name": "Other Mods",
+            "description": "Changes Tinker can make to better integrate other mods with Tinker itself.",
+            "settings": [
+                "AlternateLassoLocation"
+            ]
+        },
+        "Debug": {
+            "name": "Debug",
+            "description": "Debug settings for developers.",
+            "settings": [
+                "Debug-module-logs"
+            ]
+        }
+    },
+    "metadata": {
+        "features": {
+            "HideTriggerUI": {
+                "name": "Slider Hides Trigger UI",
+                "description": "Dragging any slider in any trigger hides the trigger UI.",
+                "default": false,
+                "default-category": "interface",
+                "incompatible-mods": [
+                    "ninkaz.editor_utils"
+                ],
+                "tags": [
+                    "objects"
+                ]
+            },
+            "ImprovedLinkControls": {
+                "name": "Improve Link Controls",
+                "description": "Fix the link control buttons being clickable when toggled off, also fixes the size.",
+                "default": true,
+                "default-category": "interface",
+                "tags": [
+                    "area", "triggers"
+                ]
+            },
+            "LDMObjectCount": {
+                "name": "LDM Object Count",
+                "description": "Show the total objects marked as high detail next to the total object count.",
+                "default": true,
+                "default-category": "interface",
+                "incompatible-mods": [
+                    "hjfod.betteredit"
+                ],
+                "tags": [
+                    "objects", "label", "low detail mode", "pause"
+                ]
+            },
+            "LengthInEditor": {
+                "name": "Show Length In Editor",
+                "description": "Show the levels' length in time in the top left corner.",
+                "default-category": "interface",
+                "default": false,
+                "tags": [
+                    "label"
+                ]
+            },
+            "LiveColors": {
+                "name": "Show Active Colors",
+                "description": "Show the levels' currently active colors on the bottom of the screen.",
+                "default": false,
+                "tags": [
+                    "channels"
+                ]
+            },
+            "MixedEditExtras": {
+                "name": "Mixed Exit Extra Toggles",
+                "description": "Color the Edit Extra toggles to signify that they are not the same across the selected objects.",
+                "default-category": "interface",
+                "default": true,
+                "tags": [
+                    "edit", "selected"
+                ]
+            },
+            "PreviewObjectColors": {
+                "name": "Preview Object Colors",
+                "description": "Preview a color channel on the object buttons in the build tab.",
+                "default": true
+            },
+            "ReferenceImage": {
+                "name": "Show Reference Image Button",
+                "description": "A button to import reference images into a level.",
+                "default-category": "interface",
+                "default": true,
+                "tags": [
+                    "picture", "import", "trace", "sketch", "draw"
+                ]
+            },
+            "SlopeDirectionIndicators": {
+                "name": "Slope Direction Indicators",
+                "description": "Show the front and back of slopes when selected to assist with not inverting slopes.",
+                "default": true,
+                "default-category": "interface",
+                "tags": [
+                    "hitboxes"
+                ]
+            },
+            "ZoomText": {
+                "name": "Show Zoom Text",
+                "description": "Show a label with your current zoom as you zoom.",
+                "default": true,
+                "default-category": "interface",
+                "incompatible-mods": [
+                    "hjfod.betteredit"
+                ],
+                "tags": [
+                    "label"
+                ]
+            },
+            "DurationDrag": {
+                "name": "Draggable Duration Lines",
+                "description": "Drag on a duration line to change the duration without going into a trigger's edit menu.",
+                "default": true,
+                "default-category": "objects",
+                "incompatible-mods": [
+                    "undefined0.bendy_duration_lines"
+                ],
+                "tags": [
+                    "triggers"
+                ]
+            },
+            "MultiTextEdit": {
+                "name": "Edit Multiple Text Objects",
+                "description": "Edit multiple text objects at once.",
+                "default": true,
+                "default-category": "objects",
+                "tags": [
+                    "text"
+                ]
+            },
+            "ObjectSummary": {
+                "name": "Show Object Summary Button",
+                "description": "Add a button in the level settings to view how many of each object there are.",
+                "default": true,
+                "default-category": "objects",
+                "tags": [
+                    "text"
+                ]
+            },
+            "OldColorTriggers": {
+                "name": "Old Color Trigger Textures",
+                "description": "See the old color trigger textures when looking at old levels.",
+                "default": true,
+                "default-category": "objects",
+                "tags": [
+                    "2.1", "2.0", "1.9"
+                ]
+            },
+            "AddToSectionCrashFix": {
+                "name": "Fix NaN/Infinity Object position crash",
+                "description": "Fixes a vanilla crash when objects are positioned at NaN or Infinity.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixAreaCorruption": {
+                "name": "Fix Area Trigger Corruption",
+                "description": "Fixes a vanilla bug where area trigger state gets broken when using start positions.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "CenteredObjectButtons": {
+                "name": "Center Object Buttons",
+                "description": "Make the object sprites on the buttons in the build tab actually centered.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "EditorSliderFix": {
+                "name": "Fix Editor Slider Max Distance",
+                "description": "Fix the position slider not being based on level length.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "EditorTouchFix": {
+                "name": "Fix Editor Touch",
+                "description": "Fix editor touch not working if you are dragging while pressing playtest.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixToggleTriggerVisibility": {
+                "name": "Fix Toggle Trigger Visibility",
+                "description": "Fix toggle trigger opacity being broken, not allowing them to be hidden properly.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixLinkedTeleport": {
+                "name": "Fix Orange Linked Teleport Portal Behavior",
+                "description": "Fix orange linked teleport portals not behaving sane in the editor when rotated, scaled, edited, etc.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixSlopeHitboxRender": {
+                "name": "Fix Slope Hitbox Rendering",
+                "description": "Fix slope hitboxes not rendering properly after rotating them.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "NoTouchPasteStateFix": {
+                "name": "Fix No Touch after Paste State",
+                "description": "Fix No Touch not working after pasting state until reopening the editor.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "StartPosBlendingFix": {
+                "name": "Fix Start Pos Blending",
+                "description": "Fix blending set before a start position via color triggers not working.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "TransformFix": {
+                "name": "Fix Transform Control Touch",
+                "description": "Fix touch issues with Transform and Scale controls.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixIgnoreDamage": {
+                "name": "Fix Wave in Ignore Damage",
+                "description": "Fix wave sliding on slopes instead of clipping through them when ignore damage is enabled.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "FixTextObjectBounds": {
+                "name": "Fix Text Object Transform",
+                "description": "Fix the transform bounds for text objects such that they are not always {0, 0}. Updates them properly when the text and/or kerning is changed.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "ZoomGroundFix": {
+                "name": "Fix Ground Position when Zooming",
+                "description": "Fix the ground position not properly updating when you zoom.",
+                "default": true,
+                "default-category": "fixes"
+            },
+            "ButtonRowsBypass": {
+                "name": "Button Rows Bypass",
+                "description": "Bypass the 3x12 Button Grid settings.",
+                "default": false,
+                "default-category": "misc",
+                "incompatible-mods": [
+                    "hjfod.betteredit"
+                ]
+            },
+            "CopyObjectString": {
+                "name": "Copy Object String",
+                "description": "Copy object string to clipboard when copying in the editor.",
+                "default": true,
+                "default-category": "misc",
+                "incompatible-mods": [
+                    "hjfod.betteredit"
+                ],
+                "platforms": ["win", "mac", "android"]
+            },
+            "hIDe": {
+                "name": "Hide IDs in the Edit Level screen",
+                "description": "Hide IDs in Edit Level screen, hold shift to show them.",
+                "default": false,
+                "default-category": "misc"
+            },
+            "MusicCameraLock": {
+                "name": "Show Music Camera Lock Button",
+                "description": "Lock the camera to the music line when playback is active with a toggle.",
+                "default": true,
+                "default-category": "misc"
+            },
+            "PlaytestConfirmation": {
+                "name": "Show Playtest Confirmation Popup",
+                "description": "Show an alert asking if you want to playtest when you click the playtest button.",
+                "default": false,
+                "default-category": "misc"
+            },
+            "AlternateLassoLocation": {
+                "name": "Alternate Lasso Select Location",
+                "description": "Move the Lasso Select button to the bottom right.",
+                "default": true,
+                "default-category": "other-mods",
+                "required-mods": [
+                    "undefined0.lasso-select"
+                ]
+            },
+            "AutoBuildHelper": {
+                "name": "Auto \"Build Helper\"",
+                "description": "Add a toggle to automate the Build Helper tool. Copy and paste objects and/or place custom objects to automatically run Build Helper on them when the toggle is on.",
+                "default": false,
+                "child-settings": {
+                    "show-on-pause": {
+                        "name": "Show on Editor Pause",
+                        "description": "Show the auto build helper toggle on editor pause rather than in the editor.",
+                        "type": "bool",
+                        "default": false
+                    }
+                }
+            },
+            "AwesomeModifierIcons": {
+                "name": "Reworked Modifier Block Icons",
+                "description": "Rework the Modifier blocks (D/H/J/S/F) by adding icons for each of their actions instead of the letter.",
+                "default": true,
+                "child-settings": {
+                    "solid-border": {
+                        "name": "Solid Border",
+                        "description": "Make the border of the blocks solid instead of dotted.",
+                        "type": "bool",
+                        "default": false
+                    },
+                    "show-letter": {
+                        "name": "Show Letters",
+                        "description": "Show the letters instead of hiding them.",
+                        "type": "bool",
+                        "default": false
+                    },
+                    "move-f-block": {
+                        "name": "Move F block",
+                        "description": "Move the F block to be next to the other modifier blocks rather than separated by the force blocks.",
+                        "type": "bool",
+                        "default": true
+                    }
+                }
+            },
+            "CanvasRotate": {
+                "name": "Editor Rotation",
+                "description": "Allows the editor to rotate freely. Either with right clicking and dragging, pinching, or with the Joystick. Also fixes panning while the editor is rotated during playtest.",
+                "default": true,
+                "child-settings": {
+                    "rotate-slider-thumb": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Rotate Slider Thumb",
+                        "description": "Rotate the slider thumb according to the editor rotation, such that left and right always points left and right."
+                    },
+                    "use-modifier": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Enable Right Click Dragging"
+                    },
+                    "pinch-to-rotate": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Pinch to Rotate",
+                        "description": "Allow pinching and rotating 2 fingers to rotate the editor.",
+                        "platforms": [
+                            "android", "ios"
+                        ],
+                        "required-settings": [
+                            "pinch-to-zoom"
+                        ]
+                    },
+                    "align-modifier": {
+                        "name": "Align Object Rotation Modifier",
+                        "description": "Align placed objects to your exact camera rotation when held.",
+                        "type": "keybind",
+                        "default": [
+                            "]"
+                        ],
+                        "category": "editor"
+                    },
+                    "reset-rotation-keybind": {
+                        "name": "Reset Camera Rotation Keybind",
+                        "description": "Reset editor rotation back to 0 degrees.",
+                        "type": "keybind",
+                        "default": [
+                            "Alt+'"
+                        ],
+                        "category": "editor"
+                    }
+                }
+            },
+            "CustomToolbarBackground": {
+                "name": "Toolbar Background Customization",
+                "description": "Customize the toolbar's background colors.",
+                "default": false,
+                "child-settings": {
+                    "blur-behind": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Blur Behind",
+                        "required-mods": [
+                            "thesillydoggo.blur-api"
+                        ]
+                    },
+                    "gradient-start-color": {
+                        "type": "rgba",
+                        "default": [16, 12, 13, 200],
+                        "name": "Gradient Start Color"
+                    },
+                    "gradient-end-color": {
+                        "type": "rgba",
+                        "default": [31, 31, 31, 200],
+                        "name": "Gradient End Color"
+                    },
+                    "line-color": {
+                        "type": "rgba",
+                        "default": [91, 92, 92, 200],
+                        "name": "Line Color"
+                    }
+                }
+            },
+            "EditTools": {
+                "name": "Extra Edit Tab Tools",
+                "description": "Misc edit tools for the edit tab to make editing easier.",
+                "default": true,
+                "child-settings": {
+                    "camera-to-object-keybind": {
+                        "name": "Camera to Object Keybind",
+                        "description": "Keybind to move the camera to the selected objects.",
+                        "type": "keybind",
+                        "default": [
+                            "N"
+                        ],
+                        "category": "editor"
+                    },
+                    "object-to-camera-keybind": {
+                        "name": "Object to Camera Keybind",
+                        "description": "Keybind to move selected objects to the center of the camera.",
+                        "type": "keybind",
+                        "default": [
+                            "M"
+                        ],
+                        "category": "editor"
+                    }
+                }
+            },
+            "GridControl": {
+                "name": "Grid Controls",
+                "description": "Add buttons to change the grid size.",
+                "default": true,
+			    "platforms": ["win", "mac", "ios", "android64"],
+                "child-settings": {
+                    "increase-keybind": {
+                        "name": "Increase Grid Size Keybind",
+                        "type": "keybind",
+                        "default": [],
+                        "category": "editor"
+                    },
+                    "decrease-keybind": {
+                        "name": "Decrease Grid Size Keybind",
+                        "type": "keybind",
+                        "default": [],
+                        "category": "editor"
+                    }
+                }
+            },
+            "HideUI": {
+                "name": "Hide UI Button",
+                "description": "Add a button to hide the editor UI.",
+                "default": true,
+                "child-settings": {
+                    "hide-all": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Hide All",
+                        "description": "Hide the playtest and pause buttons as well."
+                    },
+                    "toggle-ui-keybind": {
+                        "name": "Toggle UI Keybind",
+                        "type": "keybind",
+                        "default": [],
+                        "category": "editor"
+                    }
+                }
+            },
+            "ImprovedControls": {
+                "name": "Improved Scale and Rotate Controls",
+                "description": "Add snapping and position locking to scale and rotate controls.",
+                "default": true,
+                "child-settings": {
+                    "scale-with-zoom": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Keep Scale Controls scale with Zoom"
+                    },
+                    "slider-bypass": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Scale Slider Bypass"
+                    }
+                }
+            },
+            "ImprovedGroupView": {
+                "name": "Improved Group Views",
+                "description": "Show more than 20 groups at once in any group view, shows as a scrollable list of the groups.",
+                "default": true,
+                "child-settings": {
+                    "left-align": {
+                        "name": "Left Align Groups",
+                        "description": "Align groups to the left like vanilla GD.",
+                        "type": "bool",
+                        "default": false
+                    }
+                }
+            },
+            "JoystickNavigation": {
+                "name": "Joystick Navigation Control",
+                "description": "Navigate the editor with a Joystick. Most useful for mobile one handed use.",
+                "default": false,
+                "child-settings": {
+                    "speed": {
+                        "type": "float",
+                        "min": 0.1,
+                        "max": 5,
+                        "default": 1,
+                        "name": "Joystick Speed Multiplier",
+                        "description": "The speed the editor will move at when the joystick is moved."
+                    },
+                    "opacity": {
+                        "type": "float",
+                        "control": {
+                            "slider": true
+                        },
+                        "min": 0,
+                        "max": 1,
+                        "default": 0.6,
+                        "name": "Controller Opacity",
+                        "description": "Opacity of Joystick Controller."
+                    },
+                    "scale": {
+                        "type": "float",
+                        "control": {
+                            "slider": true
+                        },
+                        "min": 0.1,
+                        "max": 2,
+                        "default": 1,
+                        "name": "Controller Scale",
+                        "description": "Scale of Joystick Controller."
+                    },
+                    "lock-position": {
+                        "type": "bool",
+                        "name": "Lock Position",
+                        "description": "Lock the Controller's position where you left it last.",
+                        "default": false
+                    },
+                    "reset-position": {
+                        "type": "button",
+                        "buttons": {
+                            "reset-position": "Reset Position"
+                        },
+                        "description": "Reset the Controller's position to default."
+                    }
+                }
+            },
+            "NegateInput": {
+                "name": "Negate Text Inputs",
+                "description": "Press N and/or a button to negate any number input when focused.",
+                "default": true,
+                "child-settings": {
+                    "show-negate-button": {
+                        "type": "bool",
+                        "name": "Show Negate Button",
+                        "default": {
+                            "win": false,
+                            "mac": false,
+                            "android": true,
+                            "ios": true
+                        }
+                    },
+                    "always-show-negate-button": {
+                        "type": "bool",
+                        "name": "Always Show Negate Button",
+                        "default": false,
+                        "description": "Don't hide the negate button when a text input is not focused."
+                    },
+                    "enable-negate-keybind": {
+                        "type": "bool",
+                        "name": "Enable Negate Keybind",
+                        "default": {
+                            "win": true,
+                            "mac": true,
+                            "android": false,
+                            "ios": false
+                        }
+                    }
+                }
+            },
+            "ObjectSearch": {
+                "name": "Object Search",
+                "description": "Look up objects by name. Adds an all objects tab with search.",
+                "default": true,
+                "child-settings": {
+                    "keybind": {
+                        "name": "Jump to Search Keybind",
+                        "description": "Keybind to go to the search tab.",
+                        "type": "keybind",
+                        "default": [
+                            "Ctrl+Space"
+                        ],
+                        "category": "editor"
+                    }
+                }
+            },
+            "ObjectTooltips": {
+                "name": "Object Tooltips",
+                "description": "Show tooltips with object names when hovering over an object in the build tab.",
+                "default": true,
+                "child-settings": {
+                    "scale": {
+                        "type": "float",
+                        "default": 1,
+                        "name": "Tooltip Scale",
+                        "description": "How large the tooltip is",
+                        "min": 0.5,
+                        "max": 2
+                    },
+                    "show-object-id": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Show Object IDs",
+                        "description": "Show object IDs on the tooltips under the name."
+                    }
+                }
+            },
+            "RelocateBuildTools": {
+                "name": "Relocate Build Tools",
+                "description": "Relocate the build tools from the editor pause menu to the edit menu.",
+                "default": false,
+                "child-settings": {
+                    "icons": {
+                        "name": "Icons",
+                        "description": "Icons for the Build Tools Buttons.",
+                        "type": "string",
+                        "default": "Icons & Text",
+                        "one-of": [
+                            "Icons & Text",
+                            "Icons Only",
+                            "None"
+                        ]
+                    }
+                }
+            },
+            "RepeatingEditorButtons": {
+                "name": "Repeating Buttons",
+                "description": "Hold certain buttons in the editor to repeatedly press them.",
+                "default": true,
+                "child-settings": {
+                    "repeat-delay": {
+                        "name": "Repeat Delay (ms)",
+                        "description": "Time before repeat starts (ms).",
+                        "type": "int",
+                        "default": 500,
+                        "min": 50,
+                        "max": 10000
+                    },
+                    "repeat-rate": {
+                        "name": "Repeat Rate (ms)",
+                        "description": "Rate of repetitions (ms).",
+                        "type": "int",
+                        "default": 100,
+                        "min": 5,
+                        "max": 2000
+                    }
+                }
+            },
+            "ScrollableObjects": {
+                "name": "Scrollable Toolbar",
+                "description": "Scroll through editor tabs instead of navigating per page.",
+                "default": true,
+                "child-settings": {
+                    "speed-modifier-key": {
+                        "name": "Toolbar Scroll Speed Modifier",
+                        "description": "Key to hold to speed up scrolling the editor tab.",
+                        "type": "keybind",
+                        "default": [
+                            "Ctrl+LeftControl"
+                        ],
+                        "category": "editor"
+                    },
+                    "speed-modifier": {
+                        "name": "Speed Multiplier",
+                        "description": "Scroll speed multiplier when modifier key is held.",
+                        "type": "float",
+                        "default": 5,
+                        "min": 1,
+                        "max": 50
+                    },
+                    "invert-scroll": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Invert Scroll",
+                        "description": "Invert the direction scrolling on the tab goes."
+                    },
+                    "scrollbar-height": {
+                        "type": "float",
+                        "default": 10,
+                        "name": "Scrollbar Height",
+                        "description": "The height the scrollbar at the bottom of the tab is.",
+                        "min": 10,
+                        "max": 20
+                    },
+                    "y-offset": {
+                        "type": "float",
+                        "default": 2,
+                        "name": "Tab Y Offset",
+                        "description": "The Y offset of the whole tab.",
+                        "min": 2,
+                        "max": 16
+                    }
+                }
+            },
+            "SingleDeselect": {
+                "name": "Single Deselect",
+                "description": "Hold a modifier to deselect objects within an existing selection.",
+                "default": true,
+                "child-settings": {
+                    "key": {
+                        "name": "Object Deselect Modifier",
+                        "description": "Key to hold click to deselect.",
+                        "type": "keybind",
+                        "default": [
+                            "P"
+                        ],
+                        "category": "editor"
+                    }
+                }
+            },
+            "StartPosTools": {
+                "name": "Start Position Switcher",
+                "description": "Start from and switch between any start position in the editor.",
+                "default": true,
+                "child-settings": {
+                    "start-pos-switcher": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Start Pos Switcher",
+                        "description": "Navigate through every start pos in the editor."
+                    },
+                    "skip-disabled": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Skip Disabled Start Positions in Switcher",
+                        "description": "Only be able to switch to start positions that are enabled."
+                    },
+                    "auto-hide-switcher": {
+                        "type": "bool",
+                        "default": {
+                            "win": true,
+                            "mac": true,
+                            "android": false,
+                            "ios": false
+                        },
+                        "name": "Auto Hide Switcher",
+                        "description": "Hide the switcher when not being used."
+                    },
+                    "prev-start-pos": {
+                        "name": "Previous Start Pos",
+                        "type": "keybind",
+                        "default": [
+                            "Q"
+                        ],
+                        "category": "editor"
+                    },
+                    "next-start-pos": {
+                        "name": "Next Start Pos",
+                        "type": "keybind",
+                        "default": [
+                            "E"
+                        ],
+                        "category": "editor"
+                    },
+                    "hide-no-start-pos-button": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Hide Playtest without Start Pos button"
+                    }
+                }
+            },
+            "ThatPasteButton": {
+                "name": "Paste Warnings",
+                "description": "Show warnings for paste state and paste color.",
+                "default": true,
+                "child-settings": {
+                    "toggle-paste-state": {
+                        "name": "Show Paste State Warning",
+                        "default": true,
+                        "type": "bool"
+                    },
+                    "toggle-paste-state-group": {
+                        "name": "Show Paste State Warning on Edit Group popup",
+                        "default": true,
+                        "type": "bool"
+                    },
+                    "toggle-paste-color": {
+                        "name": "Show Paste Color Warning",
+                        "default": true,
+                        "type": "bool"
+                    },
+                    "dont-show-if-default": {
+                        "name": "Don't show warning if objects are default",
+                        "description": "Don't show the warning when selected objects have no groups and use default colors.",
+                        "default": false,
+                        "type": "bool"
+                    },
+                    "object-requirement": {
+                        "name": "Number of Objects to Show Warning",
+                        "description": "The amount of selected objects needed for the warning to pop up.",
+                        "type": "int",
+                        "default": 2,
+                        "min": 1
+                    }
+                }
+            },
+            "UIScaling": {
+                "name": "UI Scaling",
+                "description": "How large elements in the UI are. BetterEdit's scale factor will override this if being used.",
+                "default": true,
+                "child-settings": {
+                    "scale": {
+                        "type": "float",
+                        "default": 0.9,
+                        "name": "Scale Factor",
+                        "min": 0.4,
+                        "max": 1,
+                        "control": {
+                            "slider": true,
+                            "slider-step": 0.025
+                        }
+                    },
+                    "scale-pause": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Scale Pause Menu"
+                    },
+                    "scale-toolbar": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Scale Toolbar",
+                        "description": "Scale the toolbar (create, edit, and delete tabs) with the rest of the UI."
+                    },
+                    "use-safe-area": {
+                        "type": "bool",
+                        "default": true,
+                        "name": "Use Safe Area",
+                        "description": "Use the devices safe area when positioning to prevent camera cutouts and notches from overlapping UI elements."
+                    },
+                    "use-custom-safe-area": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Enable Custom Safe Area",
+                        "description": "Enable a custom safe area, aka the distance that is padded on the left and right."
+                    },
+                    "custom-safe-area": {
+                        "type": "float",
+                        "default": 24,
+                        "min": 0,
+                        "max": 50,
+                        "name": "Custom Safe Area",
+                        "description": "Set a custom safe area, aka the distance that is padded on the left and right."
+                    }
+                }
+            },
+            "QuickExtras": {
+                "name": "Quick Edit Extras Button",
+                "description": "A shortcut button to edit extra properties of objects, replaces Edit Special when it isn't needed.",
+                "default": true,
+                "child-settings": {
+                    "always-show": {
+                        "type": "bool",
+                        "default": false,
+                        "name": "Always show Edit Extras button",
+                        "description": "Make the Edit Extras button always visible instead of replacing Edit Special."
+                    }
+                }
+            }
+        },
+        "simple": {
+            "smooth-scroll-enabled": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": true,
+                "name": "Enable Smooth Scroll",
+                "description": "Make scrolling and zooming in the editor smoother."
+            },
+            "zoom-to-cursor": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": true,
+                "name": "Enable Zoom to Cursor",
+                "description": "Make scroll wheel zooming based on the cursor position."
+            },
+            "zoom-minimum": {
+                "type": "float",
+                "default-category": "scrolling",
+                "default": 0.1,
+                "name": "Minimum Scroll Zoom",
+                "description": "How far you can zoom out when scrolling.",
+                "min": 0.1,
+                "max": 2
+            },
+            "zoom-maximum": {
+                "type": "float",
+                "default-category": "scrolling",
+                "default": 10000000,
+                "name": "Maximum Scroll Zoom",
+                "description": "How far you can zoom in when scrolling.",
+                "min": 2,
+                "max": 10000000
+            },
+            "pinch-to-zoom": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": true,
+                "name": "Pinch to Zoom",
+                "description": "Allow pinching 2 fingers to zoom.",
+                "platforms": [
+                    "android", "ios"
+                ]
+            },
+            "scroll-delegate-to-vanilla": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": false,
+                "name": "Delegate Custom Scroll to Vanilla",
+                "description": "Pass the scroll parameters to the vanilla EditorUI::scrollWheel method. This can help with compatibility with DevTools, but will yield issues with other mods that change scroll.",
+                "tags": [
+                    "developer"
+                ]
+            },
+            "ignore-natural-scrolling": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": true,
+                "name": "Ignore Natural Scroll Setting",
+                "description": "Ignore MacOS natural scrolling setting.",
+                "platforms": [
+                    "mac"
+                ]
+            },
+            "invert-vertical-scroll": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": false,
+                "name": "Invert Vertical Scroll",
+                "description": "Scroll wheel goes the opposite direction vertically."
+            },
+            "invert-horizontal-scroll": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": false,
+                "name": "Invert Horizontal Scroll",
+                "description": "Scroll wheel goes the opposite direction horizontally."
+            },
+            "invert-zoom-scroll": {
+                "type": "bool",
+                "default-category": "scrolling",
+                "default": false,
+                "name": "Invert Zoom Scroll",
+                "description": "Scroll wheel zooming goes the opposite direction."
+            },
+            "scroll-multiplier": {
+                "type": "float",
+                "default-category": "scrolling",
+                "default": 12,
+                "name": "Scroll Multiplier",
+                "description": "How fast the scrolling is.",
+                "min": 1,
+                "max": 50
+            },
+            "zoom-multiplier": {
+                "type": "float",
+                "default-category": "scrolling",
+                "default": 12,
+                "name": "Zoom Multiplier",
+                "description": "How fast zooming is.",
+                "min": 1,
+                "max": 50
+            },
+            "stop-swipe-on-shift-release": {
+                "type": "bool",
+                "default-category": "misc",
+                "default": true,
+                "name": "Stop Swipe on Shift Release",
+                "description": "Stops swiping when shift is released before clicking is released."
+            },
+            "EditorGridCustomization-grid-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [0, 0, 0, 150],
+                "name": "Grid Color"
+            },
+            "EditorGridCustomization-grid-invert": {
+                "type": "bool",
+                "default-category": "EditorGridCustomization",
+                "name": "Grid Inverts Behind",
+                "description": "Make the grid invert the color behind it rather than a static color. (Overrides Grid Color setting)",
+                "default": false
+            },
+            "EditorGridCustomization-grid-invert-opacity": {
+                "type": "float",
+                "default-category": "EditorGridCustomization",
+                "name": "Grid Invert Opacity",
+                "description": "The opacity of the grid when using invert",
+                "default": 0.5,
+                "min": 0,
+                "max": 1,
+                "required-settings": [
+                    "EditorGridCustomization-grid-invert"
+                ]
+            },
+            "EditorGridCustomization-effect-line-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [0, 255, 255, 255],
+                "name": "Effect Line Color"
+            },
+            "EditorGridCustomization-color-effect-lines-by-trigger": {
+                "type": "bool",
+                "default-category": "EditorGridCustomization",
+                "name": "Color Effect Lines by Trigger Color",
+                "default": false
+            },
+            "EditorGridCustomization-music-line-active-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [50, 255, 50, 255],
+                "name": "Music Line Active Color"
+            },
+            "EditorGridCustomization-music-line-inactive-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [2, 255, 2, 100],
+                "name": "Music Line Inactive Color"
+            },
+            "EditorGridCustomization-rainbow-music-line": {
+                "type": "bool",
+                "default-category": "EditorGridCustomization",
+                "name": "Rainbow Music Line",
+                "description": "Just for fun :3",
+                "default": false
+            },
+            "EditorGridCustomization-center-line-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [0, 0, 0, 50],
+                "name": "Center Line Color"
+            },
+            "EditorGridCustomization-preview-lock-line-color": {
+                "type": "rgba",
+                "default-category": "EditorGridCustomization",
+                "default": [255, 150, 0, 255 ],
+                "name": "Preview Lock Line Color"
+            },
+            "Keybinds-edit-object": {
+                "name": "Edit Object",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-edit-group": {
+                "name": "Edit Group",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-edit-special": {
+                "name": "Edit Special",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-edit-extras": {
+                "name": "Edit Extras",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-copy-values": {
+                "name": "Copy Values",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-paste-state": {
+                "name": "Paste State",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-paste-color": {
+                "name": "Paste Color",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-restart": {
+                "name": "Playtest Restart",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [
+                    "R"
+                ],
+                "category": "editor"
+            },
+            "Keybinds-restart-from-beginning": {
+                "name": "Playtest Restart without Start Positions",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "description": "Restart level from beginning, ignoring start positions. Only works with Start Pos Tools enabled.",
+                "default": [
+                    "Ctrl+R"
+                ],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-half-left": {
+                "name": "Move Object Half Left",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-half-right": {
+                "name": "Move Object Half Right",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-half-up": {
+                "name": "Move Object Half Up",
+                "type": "keybind",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-half-down": {
+                "name": "Move Object Half Down",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-big-left": {
+                "name": "Move Object Big Left",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-big-right": {
+                "name": "Move Object Big Right",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-big-up": {
+                "name": "Move Object Big Up",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-move-obj-big-down": {
+                "name": "Move Object Big Down",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-show-scale": {
+                "name": "Show Scale Controls",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-show-scale-xy": {
+                "name": "Show Scale XY Controls",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-show-warp": {
+                "name": "Show Warp Controls",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [],
+                "category": "editor"
+            },
+            "Keybinds-exit-pause-menu": {
+                "name": "Exit Pause Menu",
+                "type": "keybind",
+                "default-category": "Keybinds",
+                "default": [
+                    "Escape"
+                ],
+                "category": "editor",
+                "platforms": [
+                    "win", "android", "ios"
+                ]
+            },
+            "Debug-module-logs": {
+                "type": "bool",
+                "name": "Module Logs",
+                "default": false,
+                "description": "Show Module Created, Destroyed, and Toggled logs"
+            }
+        }
+    }
+}

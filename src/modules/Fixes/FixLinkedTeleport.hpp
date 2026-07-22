@@ -23,7 +23,7 @@ class $modify(FLTSetGroupIDLayer, SetGroupIDLayer) {
 class $modify(FLTTeleportPortalObject, TeleportPortalObject) {
     $registerEditorHooks(FixLinkedTeleport)
 
-    void customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists);
+    static TeleportPortalObject* create(char const* frame, bool trigger);
 };
 
 class $modify(FLTEditorUI, EditorUI) {
