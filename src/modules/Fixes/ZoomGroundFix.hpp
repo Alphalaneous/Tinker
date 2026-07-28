@@ -1,20 +1,12 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/GJBaseGameLayer.hpp>
 
-class $editorModule(ZoomGroundFix) {
-    bool onToggled(bool state) override;
+class $editorModule(ZoomGroundFix) {};
 
-    void onEditor() override;
+class $modify(ZGFGJBaseGameLayer, GJBaseGameLayer) {
+	$registerEditorHooks(ZoomGroundFix)
 
-    void fixPosition(float dt);
-};
-
-class $modify(ZGFEditorUI, EditorUI) {
-    $registerEditorHooks(ZoomGroundFix)
-
-    void onPlaytest(cocos2d::CCObject* sender);
-    void updateZoom(float zoom);
-    void constrainGameLayerPosition(float x, float y);
+	void updateCameraBGArt(CCPoint position, float zoom);
 };
