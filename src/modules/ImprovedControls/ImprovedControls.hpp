@@ -51,6 +51,7 @@ class $modify(ICEditorUI, EditorUI) {
     void activateRotationControl(CCObject* sender);
     void angleChanged(float angle);
     void moveObject(GameObject* obj, CCPoint amount);
+    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint);
     void scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove);
 
     void scaleXChanged(float scaleX, bool lock);
@@ -64,7 +65,11 @@ class $modify(ICGJScaleControl, GJScaleControl) {
     struct Fields {
         float m_snapSize = 1.f;
         bool m_snapLock;
+        bool m_scaleLock;
+        bool m_scaleLockInternal;
+
         CCMenuItemToggler* m_snapToggle;
+        CCMenuItemToggler* m_scaleToggle;
         TextInput* m_inputX;
         TextInput* m_inputY;
         TextInput* m_inputXY;
@@ -79,6 +84,9 @@ class $modify(ICGJScaleControl, GJScaleControl) {
         Ref<CCArray> m_objects;
 
         bool m_wasAdjusted;
+
+        float m_lastScaleX;
+        float m_lastScaleY;
     };
 
     bool init();
@@ -106,11 +114,18 @@ class $modify(ICGJRotationControl, GJRotationControl) {
         float m_snapSize = 1.f;
         bool m_posLock = false;
         bool m_snapLock = false;
+        bool m_rotationLock;
+        bool m_rotationLockInternal;
+
         CCMenuItemToggler* m_posLockToggle;
         CCMenuItemToggler* m_snapToggle;
+        CCMenuItemToggler* m_rotationToggle;
         ValueToggler<int>* m_valueToggler;
         TextInput* m_input;
         CCNode* m_controlContainer;
+        Ref<CCArray> m_objects;
+
+        float m_lastRotation;
     };
 
     bool init();

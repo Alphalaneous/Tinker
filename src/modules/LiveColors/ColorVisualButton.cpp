@@ -65,23 +65,10 @@ void ColorVisualButton::openColorPicker(CCObject* obj) {
 std::string ColorVisualButton::idToString(int ID) {
     using namespace tinker::constants::color_channels;
 
-    switch (ID) {
-        case Background: return "BG";
-        case Ground1: return "G1";
-        case Line: return "L";
-        case Line3D: return "3DL";
-        case Obj: return "Obj";
-        case PlayerColor1: return "P1";
-        case PlayerColor2: return "P2";
-        case LightBackground: return "LBG";
-        case Ground2: return "G2";
-        case Black: return "B";
-        case White: return "W";
-        case Lighter: return "LTR";
-        case Middleground1: return "MG";
-        case Middleground2: return "MG2";
-        default: return utils::numToString(ID);
-    }
+    auto iter = ColorNamesShort.find(ID);
+    if (iter == ColorNamesShort.end()) return utils::numToString(ID);
+
+    return iter->second;
 }
 
 ColorVisualButton::~ColorVisualButton() {

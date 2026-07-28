@@ -7,10 +7,13 @@
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
 #include "settings/SettingsPopup.hpp"
+#include "utils/NextFree/NextFreeProvider.hpp"
 #include "utils/Utils.hpp"
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
+
+    NextFreeProvider::get()->setEditorLayer(this);
 
     for (const auto& createModule : ModuleRegistry<EditorModuleBase>::get()->m_modules) {
         fields->m_modules.push_back(createModule());

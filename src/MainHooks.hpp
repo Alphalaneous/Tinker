@@ -18,6 +18,7 @@ class $modify(MainLevelEditorLayer, LevelEditorLayer) {
     };
 
     bool init(GJGameLevel* level, bool noUI);
+    
     std::vector<std::shared_ptr<EditorModuleBase>>* getModules();
     void forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback);
 

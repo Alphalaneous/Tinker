@@ -3,6 +3,7 @@
 #include "module/Module.hpp"
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
+#include <Geode/modify/CustomizeObjectLayer.hpp>
 
 class $editorModule(RepeatingEditorButtons) {
     void onEditor() override;
@@ -26,6 +27,12 @@ class $modify(REBCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     void activate();
     void selected();
     void unselected();
+};
+
+class $modify(REBCustomizeObjectLayer, CustomizeObjectLayer) {
+	$registerEditorHooks(RepeatingEditorButtons)
+
+    bool init(GameObject* object, cocos2d::CCArray* objects);
 };
 
 class $modify(REBEditButtonBar, EditButtonBar) {

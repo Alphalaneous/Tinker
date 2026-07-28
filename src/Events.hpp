@@ -68,6 +68,10 @@ struct ObjectMovedEvent final : Event<ObjectMovedEvent, bool()> {
     using Event::Event;
 };
 
+struct AlertsActiveEvent final : Event<AlertsActiveEvent, bool()> {
+    using Event::Event;
+};
+
 struct UIScaleUpdated final : Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };

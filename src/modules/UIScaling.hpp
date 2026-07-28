@@ -2,6 +2,8 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/ColorSelectLiveOverlay.hpp>
+#include <Geode/modify/HSVLiveOverlay.hpp>
 
 class $editorModule(UIScaling) {
     bool onToggled(bool state) override;
@@ -22,6 +24,24 @@ class $editorModule(UIScaling) {
     bool m_scalePause = true;
     bool m_usesSafeArea = true;
     bool m_usesCustomSafeArea = false;
+};
+
+class $modify(UISColorSelectLiveOverlay, ColorSelectLiveOverlay) {
+    $registerEditorHooks(UIScaling)
+
+    bool init(ColorAction* baseAction, ColorAction* detailAction, EffectGameObject* object);
+
+    static void scaleOverlay(ColorSelectLiveOverlay* overlay);
+    static void scaleActive();
+};
+
+class $modify(UISHSVLiveOverlay, HSVLiveOverlay) {
+    $registerEditorHooks(UIScaling)
+
+    bool init(GameObject* object, cocos2d::CCArray* objects);
+
+    static void scaleOverlay(HSVLiveOverlay* overlay);
+    static void scaleActive();
 };
 
 // evil global hook for BE compat

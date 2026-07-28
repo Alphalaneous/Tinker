@@ -22,7 +22,6 @@ namespace tinker::ui {
 		void resetText();
 		void hideText(float dt);
 		void showText(float dt);
-		CCRect getTouchBounds();
 		void positionPulseSlider();
 		void update(float dt) override;
 		void checkFreeMoving();
@@ -42,23 +41,23 @@ namespace tinker::ui {
 
 		float m_labelY = 0.f;
 		float m_labelPosMultiplier = 1.f;
-		CCNodeRGBA* m_thumbContainer = nullptr;
-		CCSprite* m_thumbSpr = nullptr;
-		CCSprite* m_thumbSelectedSpr = nullptr;
-		CCNode* m_centerNode = nullptr;
-		CCNode* m_parent = nullptr;
-		DurationControl* m_control = nullptr;
-		EffectGameObject* m_object = nullptr;
-		CCLabelBMFont* m_durationLabel = nullptr;
-		Ref<CCAction> m_fadeInAction = nullptr;
-		Ref<CCAction> m_fadeOutAction = nullptr;
+		CCNodeRGBA* m_thumbContainer;
+		CCSprite* m_thumbSpr;
+		CCSprite* m_thumbSelectedSpr;
+		CCNode* m_parent;
+		DurationControl* m_control;
+		EffectGameObject* m_object;
+		CCLabelBMFont* m_durationLabel;
+		Ref<CCAction> m_fadeInAction;
+		Ref<CCAction> m_fadeOutAction;
 
-		CCPoint m_startingEndPos = {0, 0};
-		CCPoint m_start = {0, 0};
+		CCPoint m_startingEndPos;
+		CCPoint m_start;
+		CCPoint m_offset;
 
-		bool m_disabled = false;
-		bool m_dragging = false;
-		bool m_overlapping = false;
+		bool m_disabled;
+		bool m_dragging;
+		bool m_overlapping;
 
 		float m_startingDuration = 0.f;
 		float m_startingHoldDuration = 0.f;

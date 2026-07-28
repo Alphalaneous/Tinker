@@ -1,3 +1,22 @@
+# 1.0.45
+- <c-dddddd>Add absolute scaling and rotation toggles</c>
+- <c-dddddd>Fix some rotated camera touch issues</c>
+- <c-dddddd>Fix Duration Drag touch issues</c>
+- <c-dddddd>Change some Duration Drag sprites</c>
+- <c-dddddd>Improve Duration Drag sliders by making them no longer jump to the center of where you tapped</c>
+- <c-dddddd>Add my own Improved Color Picker (based on BetterEdit)</c>
+  - <c-dddddd>Scrollable</c>
+  - <c-dddddd>Shows more colors</c>
+  - <c-dddddd>Persistent recent colors per level</c>
+  - <c-dddddd>Auto scrolling when typing color IDs or using arrow buttons</c>
+  - <c-dddddd>Next Free respects color channels that are set but not used by objects</c>
+  - <c-dddddd>Can no longer set Lighter color on objects that would freeze the game</c>
+  - <c-dddddd>Somewhat cleaned up UI</c>
+- <c-dddddd>Fix being able to rotate the editor while in a popup or paused</c>
+- <c-dddddd>Add Repeating Editor Button support to color picker arrows</c>
+- <c-dddddd>Make Zoom Ground Fix instant, thanks</c> <c-7e2bb1>@starrydawn72</c>
+- <c-dddddd>Made shake triggers work in the editor</c>
+
 # 1.0.44
 - <c-dddddd>Fix selecting and editing object/editing extras not working if the selection contained a teleport portal</c>
 - <c-dddddd>Move Preview Object Colors button to toolbar when scrollable toolbar is disabled, as it was confusing being Edit Object with no objects selected</c>

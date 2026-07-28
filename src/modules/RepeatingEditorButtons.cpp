@@ -141,9 +141,20 @@ void REBEditButtonBar::loadFromItems(CCArray* objects, int rows, int columns, bo
     }));
 }
 
+bool REBCustomizeObjectLayer::init(GameObject* object, cocos2d::CCArray* objects) {
+    if (!CustomizeObjectLayer::init(object, objects)) return false;
+
+    static_cast<REBCCMenuItemSpriteExtra*>(m_arrowUp)->setRepeatable(true);
+    static_cast<REBCCMenuItemSpriteExtra*>(m_arrowDown)->setRepeatable(true);
+
+    return true;
+}
+
 class $nodeModify(REBMoveGroup, MoveGroup) {
 
     void modify() {
+        if (!RepeatingEditorButtons::isEnabled()) return;
+
         for (auto node : getChildrenExt()) {
             if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 static_cast<REBCCMenuItemSpriteExtra*>(btn)->setRepeatable(true);

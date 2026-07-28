@@ -12,6 +12,8 @@ namespace tinker::ui {
 class $editorModule(CanvasRotate) {
     tinker::ui::RotationNode* m_rotationNode;
     std::unordered_map<Ref<CCTouch>, CCPoint> m_preTransformTouch;
+    bool m_dontRotate = false;
+    CCPoint m_world;
 
     void onEditor() override;
     void toggleBetterEditHook(bool enabled);
@@ -20,7 +22,7 @@ class $editorModule(CanvasRotate) {
 
     CCPoint getPreTransformPoint(CCTouch* touch);
 
-    bool isTouchInsideRotationGrabber(CCTouch* touch);
+    bool isEditorUITouch(CCTouch* touch);
 
     bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
     void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
@@ -57,6 +59,7 @@ class $modify(CREditorUI, EditorUI) {
 class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     $registerEditorHooks(CanvasRotate);
 
+    cocos2d::CCArray* objectsAtPosition(cocos2d::CCPoint position);
     CCArray* objectsInRect(CCRect rect, bool ignoreLayerCheck);
 	OBB2D* rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees);
 };

@@ -1,5 +1,5 @@
 {
-	"geode": "5.8.2",
+	"geode": "5.7.1",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -314,6 +314,12 @@
 			"default": true,
 			"name": "No Touch Paste State Fix",
 			"description": "Fix No Touch not working when pasting state until reopening the editor."
+		},
+		"ShakeTriggerFix-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Shake Trigger Fix",
+			"description": "Fix shake triggers not working in the editor."
 		},
 		"StartPosBlendingFix-enabled": {
 			"type": "bool",
@@ -631,6 +637,31 @@
 			"type": "keybind",
 			"default": [],
 			"category": "editor"
+		},
+		"ImprovedColorPicker-title": {
+			"type": "title",
+			"name": "Improved Color Picker"
+		},
+		"ImprovedColorPicker-description": {
+			"type": "info",
+			"description": "Improve the Color Selection UI by showing more colors, special colors, and recent colors.",
+			"color": "#000000"
+		},
+		"ImprovedColorPicker-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"ImprovedColorPicker-compact-ui": {
+			"type": "bool",
+			"name": "Compact UI",
+			"description": "Make the Color Buttons smaller.",
+			"default": {
+				"win": true,
+				"mac": true,
+				"android": false,
+				"ios": false
+			}
 		},
 		"ImprovedControls-title": {
 			"type": "title",

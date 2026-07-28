@@ -1,6 +1,9 @@
 #include "RotationNode.hpp"
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include "Events.hpp"
+#include "Geode/loader/Log.hpp"
+#include "InputsHandler.hpp"
 #include "utils/Utils.hpp"
 #include "CanvasRotate.hpp"
 
@@ -37,6 +40,18 @@ bool RotationNode::init(EditorUI* editor) {
         DrawGridAPI::get().markDirty();
     });
 
+    addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
+        if (m_activeTouch) {
+            clickEnded(m_activeTouch);
+        }
+    });
+
+    addEventListener(AlertsActiveEvent(), [this] () {
+        if (m_activeTouch) {
+            clickEnded(m_activeTouch);
+        }
+    });
+
     return true;
 }
 
@@ -44,11 +59,14 @@ bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getLocation().y < tinker::utils::getToolbarHeight()) return false;
     if (!CanvasRotate::getSetting<bool, "use-modifier">()) return false;
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return false;
+    if (InputEditorUI::get()->hasActiveAlerts()) return false;
+    if (m_editorUI->m_isPaused) return false;
     
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = true;
         m_lastPos = touch->getLocation();
         m_editorUI->ccTouchCancelled(touch, nullptr);
+        m_activeTouch = touch;
     }
 
     return true;
@@ -80,6 +98,8 @@ void RotationNode::clickEnded(alpha::dispatcher::TouchEvent* touch) {
     if (touch->getButton() == alpha::dispatcher::MouseButton::RIGHT) {
         m_rotateDragging = false;
         realign();
+
+        m_activeTouch = nullptr;
     }
 }
 
@@ -117,7 +137,7 @@ void RotationNode::onExit() {
 void RotationNode::translate(CCTouch* touch) {
     auto winSize = CCDirector::get()->getWinSize();
     auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
-    touch->setTouchInfo(touch->getID(), newPoint.x, winSize.height - newPoint.y);
+    touch->m_point = CCPoint{newPoint.x, winSize.height - newPoint.y};
 }
 
 void RotationNode::updateCanvasRotation(float deltaAngle) {

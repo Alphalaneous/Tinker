@@ -242,7 +242,11 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
     fields->m_scrollLayer->addChild(menuContainer);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
+    #ifdef GEODE_IS_MOBILE
     fields->m_scrollLayer->setScrollDelta(1.5f);
+    #else
+    fields->m_scrollLayer->setScrollDelta(1.f);
+    #endif
 
     m_mainLayer->addChild(fields->m_scrollLayer);
 
@@ -477,7 +481,11 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
+    #ifdef GEODE_IS_MOBILE
     fields->m_scrollLayer->setScrollDelta(1.5f);
+    #else
+    fields->m_scrollLayer->setScrollDelta(1.f);
+    #endif
     fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
         ->setCrossAxisScaling(AxisScaling::Grow)
         ->setCrossAxisAlignment(CrossAxisAlignment::Start)
@@ -670,7 +678,11 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
+    #ifdef GEODE_IS_MOBILE
     fields->m_scrollLayer->setScrollDelta(1.5f);
+    #else
+    fields->m_scrollLayer->setScrollDelta(1.f);
+    #endif
     fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
         ->setCrossAxisScaling(AxisScaling::Grow)
         ->setCrossAxisAlignment(CrossAxisAlignment::Start)
@@ -849,7 +861,11 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
     fields->m_scrollLayer->addChild(groupsMenu);
     fields->m_scrollLayer->setID("groups-list-scroll-layer"_spr);
     fields->m_scrollLayer->setTouchPriority(-504);
+    #ifdef GEODE_IS_MOBILE
     fields->m_scrollLayer->setScrollDelta(1.5f);
+    #else
+    fields->m_scrollLayer->setScrollDelta(1.f);
+    #endif
     fields->m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
         ->setCrossAxisScaling(AxisScaling::Grow)
         ->setCrossAxisAlignment(CrossAxisAlignment::Start)

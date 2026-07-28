@@ -1,12 +1,15 @@
 #pragma once
 
 #include <ccTypes.h>
+#include <string>
+#include <unordered_map>
 
 namespace tinker::constants {
 
     constexpr float ToolbarHeight = 92.f;
 
     namespace color_channels {
+        constexpr int Default = 0;
         constexpr int Background = 1000;
         constexpr int Ground1 = 1001;
         constexpr int Line = 1002;
@@ -21,6 +24,39 @@ namespace tinker::constants {
         constexpr int Lighter = 1012;
         constexpr int Middleground1 = 1013;
         constexpr int Middleground2 = 1014;
+
+        constexpr std::array OrderSmall = {
+            Default, PlayerColor1, PlayerColor2,
+            Background, Ground1, Middleground1,
+            LightBackground, Ground2, Middleground2,
+            Obj, Line, Line3D,
+            Lighter, Black, White
+        };
+
+        constexpr std::array OrderLarge = {
+            Default, PlayerColor1, PlayerColor2, Lighter,
+            Background, Ground1, Middleground1, Black,
+            LightBackground, Ground2, Middleground2, White,
+            Obj, Line, Line3D
+        };
+
+        static const std::unordered_map<int, std::string> ColorNamesShort = {
+            {Default, "D"},
+            {Background, "BG"},
+            {Ground1, "G1"},
+            {Line, "L"},
+            {Line3D, "3DL"},
+            {Obj, "Obj"},
+            {PlayerColor1, "P1"},
+            {PlayerColor2, "P2"},
+            {LightBackground, "LBG"},
+            {Ground2, "G2"},
+            {Black, "B"},
+            {White, "W"},
+            {Lighter, "Ltr"},
+            {Middleground1, "MG"},
+            {Middleground2, "MG2"}
+        };
     }
 
     namespace colors {
@@ -57,6 +93,7 @@ namespace tinker::constants {
         constexpr int Ground2ColorTrigger = 900;
         constexpr int LineColorTrigger = 915;
         constexpr int ToggleTrigger = 1049;
+        constexpr int ShakeTrigger = 1520;
 
         constexpr int NoEnterEffect = 22;
 

@@ -1,8 +1,8 @@
 #include "DurationThumb.hpp"
 #include "DurationControl.hpp"
 #include "Utils.hpp"
+#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
 
 using namespace tinker::ui;
 
@@ -28,39 +28,25 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     m_thumbContainer->setCascadeOpacityEnabled(true);
     m_thumbContainer->setAnchorPoint({0.5f, 0.5f});
 
-    m_centerNode = CCNode::create();
     addChild(m_thumbContainer);
-    m_thumbContainer->addChild(m_centerNode);
 
     if (thumbType == ThumbType::Default) {
-        m_thumbSpr = CCSprite::create("sliderthumb.png");
+        m_thumbSpr = CCSprite::create("GJ_colorThumbBtn.png");
         m_thumbSpr->setScale(0.75f);
         m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize());
-        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2.f);
     }
     else if (thumbType == ThumbType::Multi) {
-        m_thumbSpr = CCSprite::create("sliderthumb.png");
-        m_thumbContainer->setColor({50, 215, 245});
+        m_thumbSpr = CCSprite::create("GJ_colorThumbBtn.png");
+        m_thumbContainer->setColor({180, 255, 155});
         m_thumbSpr->setScale(0.6f);
         m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize());
-        m_centerNode->setPosition(m_thumbContainer->getContentSize() / 2.f);
     }
     else {
         m_thumbSpr = CCSprite::create("drag-bar.png"_spr);
-        m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize() + CCSize{0.1, 18.f});
-
-        switch (thumbType) {
-            case ThumbType::FadeIn:
-                m_centerNode->setPosition({m_thumbSpr->getScaledContentWidth() / 2.f, 8.f});
-                break;
-            case ThumbType::FadeOut:
-                m_thumbSpr->setFlipY(true);
-                m_centerNode->setPosition({m_thumbSpr->getScaledContentWidth() / 2.f, m_thumbSpr->getScaledContentHeight() - 8.f});
-                break;
-            default:
-                break;
-        }
+        m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize() + CCSize{0.1f, 18.f});
     }
+
+    //todo make overlapping work
 
     setContentSize(m_thumbSpr->getScaledContentSize());
     setAnchorPoint({0.5f, 0.5f});
@@ -72,13 +58,16 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     m_thumbContainer->addChild(m_thumbSpr);
 
     if (thumbType == ThumbType::Default || thumbType == ThumbType::Multi) {
-        m_thumbSelectedSpr = CCSprite::create("sliderthumbsel.png");
-        m_thumbSelectedSpr->setScale(m_thumbSpr->getScale());
-        m_thumbSelectedSpr->setOpacity(175);
-        m_thumbSelectedSpr->setVisible(false);
-        m_thumbSelectedSpr->setPosition(getContentSize() / 2.f);
-        m_thumbContainer->addChild(m_thumbSelectedSpr);
+        m_thumbSelectedSpr = CCSprite::create("GJ_colorThumbSBtn.png");
     }
+    else {
+        m_thumbSelectedSpr = CCSprite::create("drag-bar-sel.png"_spr);
+    }
+
+    m_thumbSelectedSpr->setScale(m_thumbSpr->getScale());
+    m_thumbSelectedSpr->setVisible(false);
+    m_thumbSelectedSpr->setPosition(getContentSize() / 2.f);
+    m_thumbContainer->addChild(m_thumbSelectedSpr);
 
     m_durationLabel = CCLabelBMFont::create("", "bigFont.fnt");
     m_durationLabel->setAnchorPoint({0.5f, 1.f});
@@ -92,13 +81,19 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         case ThumbType::FadeIn:
             m_thumbSpr->setAnchorPoint({0.5f, 0.f});
             m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2.f, 0.f});
+            m_thumbSelectedSpr->setPosition(m_thumbSpr->getPosition());
+            m_thumbSelectedSpr->setAnchorPoint(m_thumbSpr->getAnchorPoint());
             m_labelPosMultiplier = -1.f;
             m_labelY = -10.f;
             m_durationLabel->setAnchorPoint({0.5f, 0.f});
             break;
         case ThumbType::FadeOut:
+            m_thumbSpr->setFlipY(true);
             m_thumbSpr->setAnchorPoint({0.5f, 1.f});
             m_thumbSpr->setPosition({m_thumbContainer->getContentWidth() / 2.f, m_thumbContainer->getContentHeight()});
+            m_thumbSelectedSpr->setPosition(m_thumbSpr->getPosition());
+            m_thumbSelectedSpr->setAnchorPoint(m_thumbSpr->getAnchorPoint());
+            m_thumbSelectedSpr->setFlipY(true);
             break;
     }
 
@@ -132,7 +127,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         }
     }
 
-    m_overlapping = getTouchBounds().intersectsRect(m_object->boundingBox());
+    m_overlapping = utils::duration_drag::nodesIntersect(m_thumbSpr, m_object);
     setOpacity(m_overlapping ? 127 : 255);
 
     if (m_object->m_objectID == constants::objects::PulseTrigger && thumbType != ThumbType::Default) {
@@ -162,13 +157,6 @@ void DurationThumb::showText(float dt) {
     m_durationLabel->runAction(CCEaseIn::create(CCScaleTo::create(0.1f, 0.4f), 0.5f));
     m_durationLabel->runAction(CCEaseIn::create(CCMoveTo::create(0.1f, {getContentWidth() / 2.f, m_labelY + 15.f * m_labelPosMultiplier}), 0.5f));
     m_durationLabel->runAction(CCEaseIn::create(CCFadeTo::create(0.1f, 255), 0.5f));
-}
-
-CCRect DurationThumb::getTouchBounds() {
-    auto size = CCSize{22.f, 22.f};
-    return {
-        m_parent->convertToNodeSpace(m_centerNode->convertToWorldSpace({0.f, 0.f})) - size / 2.f, size
-    };
 }
 
 void DurationThumb::positionPulseSlider() {
@@ -281,7 +269,7 @@ void DurationThumb::update(float dt) {
         m_dragging = false;
     }
 
-    bool overlap = getTouchBounds().intersectsRect(m_object->boundingBox());
+    bool overlap = utils::duration_drag::nodesIntersect(m_thumbSpr, m_object);
     if (overlap != m_overlapping) {
         stopAction(m_fadeInAction);
         stopAction(m_fadeOutAction);
@@ -433,11 +421,9 @@ void DurationThumb::select(bool select) {
 }
 
 bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    auto winSize = CCDirector::get()->getWinSize();
-    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
+    bool inSpr = alpha::utils::isPointInsideNode(m_thumbSpr, touch->getLocation());
 
-    auto touchPos = getParent()->convertToNodeSpace(convertedPos);
-    if (!isVisible() || m_disabled || !getTouchBounds().containsPoint(touchPos)) {
+    if (!isVisible() || m_disabled || !inSpr) {
         return false;
     }
 
@@ -534,6 +520,9 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
     ensureNonZero(m_startingDuration);
 
+    auto thumbPosWorld = m_thumbSpr->getParent()->convertToWorldSpace(m_thumbSpr->getPosition());
+    m_offset = convertToNodeSpace(touch->getLocation()) - convertToNodeSpace(thumbPosWorld);
+
     showText(0.f);
     select(true);
     return true;
@@ -541,9 +530,6 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
 void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (!m_dragging) return;
-
-    auto winSize = CCDirector::get()->getWinSize();
-    auto convertedPos = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, EditorUI::get()->m_editorLayer->m_gameState.m_cameraAngle);
 
     CCPoint start;
 
@@ -561,7 +547,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     float lineLen = std::sqrt(line.x * line.x + line.y * line.y);
     if (lineLen == 0.f) return;
 
-    auto touchPos = getParent()->convertToNodeSpace(convertedPos);
+    auto touchPos = getParent()->convertToNodeSpace(touch->getLocation()) - m_offset;
 
     auto ap = touchPos - start;
     float percent;

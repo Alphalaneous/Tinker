@@ -5,7 +5,45 @@ using namespace geode::prelude;
 
 namespace tinker::utils::duration_drag {
 
-    static inline CCPoint getEndPos(EffectGameObject* object) {
+    inline bool nodesIntersect(cocos2d::CCNode* a, cocos2d::CCNode* b) {
+        if (!a || !b) return false;
+
+        auto getWorldRect = [](cocos2d::CCNode* node) {
+            auto size = node->getContentSize();
+
+            CCPoint corners[4] = {
+                {0, 0},
+                {size.width, 0},
+                {size.width, size.height},
+                {0, size.height}
+            };
+
+            float minX = FLT_MAX;
+            float minY = FLT_MAX;
+            float maxX = -FLT_MAX;
+            float maxY = -FLT_MAX;
+
+            for (const auto& corner : corners) {
+                auto world = node->convertToWorldSpace(corner);
+
+                minX = std::min(minX, world.x);
+                minY = std::min(minY, world.y);
+                maxX = std::max(maxX, world.x);
+                maxY = std::max(maxY, world.y);
+            }
+
+            return cocos2d::CCRect(
+                minX,
+                minY,
+                maxX - minX,
+                maxY - minY
+            );
+        };
+
+        return getWorldRect(a).intersectsRect(getWorldRect(b));
+    }
+
+    inline CCPoint getEndPos(EffectGameObject* object) {
         using namespace tinker::constants::objects;
 
         auto dgl = LevelEditorLayer::get()->m_drawGridLayer;
@@ -76,7 +114,7 @@ namespace tinker::utils::duration_drag {
     }
 
 
-    static inline EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const CCPoint& unitRefDir) {
+    inline EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const CCPoint& unitRefDir) {
 
         float maxProj = -FLT_MAX;
         EffectGameObject* furthest = objects[0];
@@ -127,7 +165,7 @@ namespace tinker::utils::duration_drag {
         return furthest;
     }
 
-    static inline geode::Result<std::pair<CCPoint, CCPoint>> getCenter(EditorUI* editorUI) {
+    inline geode::Result<std::pair<CCPoint, CCPoint>> getCenter(EditorUI* editorUI) {
         using namespace tinker::constants::objects;
 
         std::vector<EffectGameObject*> objects;

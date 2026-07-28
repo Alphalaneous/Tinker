@@ -45,13 +45,22 @@ void ICEditorUI::activateRotationControl(CCObject* sender) {
         arr = m_selectedObjects;
     }
 
-    static_cast<ICGJRotationControl*>(m_rotationControl)->loadValues(arr);
+    auto control = static_cast<ICGJRotationControl*>(m_rotationControl);
+    control->loadValues(arr);
+    auto fields = control->m_fields.self();
+    fields->m_lastRotation = 0.f;
 }
 
 void ICEditorUI::activateScaleControl(cocos2d::CCObject* sender) {
     if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
         return;
     }
+
+    auto control = static_cast<ICGJScaleControl*>(m_scaleControl);
+    auto fields = control->m_fields.self();
+    fields->m_lastScaleX = 0.f;
+    fields->m_lastScaleY = 0.f;
+
     EditorUI::activateScaleControl(sender);
 }
 
@@ -111,11 +120,42 @@ void ICEditorUI::angleChanged(float angle) {
         auto first = objs->asExt<GameObject>()[0];
         if (!first) return;
 
+        auto control = static_cast<ICGJRotationControl*>(m_rotationControl);
+        auto controlFields = control->m_fields.self();
+
+        if (controlFields->m_lastRotation == 0.f) {
+            controlFields->m_lastRotation = angle;
+        }
+
         auto orig = first->getRotation();
         
         fields->m_lockPosition = lockPos;
-        rotateObjects(objs, -orig + angle, pivotPoint);
+        if (controlFields->m_rotationLock) {
+            if (angle == 0.f) angle = 0.0001f;
+            rotateObjects(objs, -controlFields->m_lastRotation + angle, pivotPoint);
+        }
+        else {
+            rotateObjects(objs, -orig + angle, pivotPoint);
+        }
         fields->m_lockPosition = false;
+
+        controlFields->m_lastRotation = angle;
+    }
+}
+
+void ICEditorUI::rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint) {
+    auto control = static_cast<ICGJRotationControl*>(m_rotationControl);
+
+    if (control->m_fields->m_rotationLock) {
+        EditorUI::rotateObjects(objects, rotation, pivotPoint);
+
+        auto fields = m_fields.self();
+        fields->m_lockPosition = true;
+        EditorUI::rotateObjects(objects, -rotation, pivotPoint);
+        fields->m_lockPosition = false;
+    }
+    else {
+        EditorUI::rotateObjects(objects, rotation, pivotPoint);
     }
 }
 
@@ -126,78 +166,126 @@ void ICEditorUI::moveObject(GameObject* obj, CCPoint amount) {
 }
 
 void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove) {
-    for (auto obj : CCArrayExt<GameObject, false>(objects)) {
-        if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
+    bool lockScale = false;
 
-        const auto& state = m_objectEditorStates[obj->m_uniqueID];
+    auto control = static_cast<ICGJScaleControl*>(m_scaleControl);
+    auto fields = control->m_fields.self();
+    lockScale = control->m_fields->m_scaleLock;
 
-        if (type != ObjectScaleType::Y) {
-            float newScaleX = ImprovedControls::roundToThousandth(scaleX * state.m_scaleX);
+    float startScaleX = control->m_valueX;
+    float startScaleY = control->m_valueY;
 
-            if (newScaleX == 0) return;
-            if (newScaleX * obj->m_pixelScaleX == obj->m_scaleX) return;
-            if (type == ObjectScaleType::X) continue;
+    float lastScaleX = fields->m_lastScaleX;
+    float lastScaleY = fields->m_lastScaleY;
+
+    if (lastScaleX == 0) lastScaleX = scaleX;
+    if (lastScaleY == 0) lastScaleY = scaleY;
+    
+    if (!lockScale) {
+        for (auto obj : CCArrayExt<GameObject, false>(objects)) {
+            if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
+
+            const auto& state = m_objectEditorStates[obj->m_uniqueID];
+
+            if (type != ObjectScaleType::Y) {
+                float newScaleX = ImprovedControls::roundToThousandth(scaleX * state.m_scaleX);
+
+                if (newScaleX == 0) return;
+                if (newScaleX * obj->m_pixelScaleX == obj->m_scaleX) return;
+                if (type == ObjectScaleType::X) continue;
+            }
+
+            float newScaleY = ImprovedControls::roundToThousandth(scaleY * state.m_scaleY);
+
+            if (newScaleY == 0) return;
+            if (newScaleY * obj->m_pixelScaleY == obj->m_scaleY) return;
         }
-
-        float newScaleY = ImprovedControls::roundToThousandth(scaleY * state.m_scaleY);
-
-        if (newScaleY == 0) return;
-        if (newScaleY * obj->m_pixelScaleY == obj->m_scaleY) return;
     }
 
     if (pivotPoint.equals({0, 0})) {
         pivotPoint = getGroupCenter(objects, false);
     }
 
+    if (lockScale) {
+        if (type != ObjectScaleType::Y) {
+            if (scaleX == 0.f) scaleX = 0.0001f;
+        }
+        if (type != ObjectScaleType::X) {
+            if (scaleY == 0.f) scaleY = 0.0001f;
+        }
+    }
+
     for (auto obj : CCArrayExt<GameObject, false>(objects)) {
         const auto& state = m_objectEditorStates[obj->m_uniqueID];
-
-        float newScaleX = state.m_scaleX * obj->m_pixelScaleX * scaleX;
-        float newScaleY = state.m_scaleY * obj->m_pixelScaleY * scaleY;
 
         auto relative = obj->getPosition() - pivotPoint;
 
         if (obj->m_objectID != tinker::constants::objects::LinkedOrangeTeleportPortal) {
-            if (type != ObjectScaleType::Y) {
-                relative.x *= newScaleX / obj->m_scaleX;
-            }
+            if (lockScale) {
+                if (type != ObjectScaleType::Y) {
+                    if (scaleX != 0.f) {
+                        relative.x *= startScaleX / lastScaleX;
+                        relative.x *= scaleX / startScaleX;
+                    }
+                }
 
-            if (type != ObjectScaleType::X) {
-                relative.y *= newScaleY / obj->m_scaleY;
+                if (type != ObjectScaleType::X) {
+                    if (scaleY != 0.f) {
+                        relative.y *= startScaleY / lastScaleY;
+                        relative.y *= scaleY / startScaleY;
+                    }
+                }
             }
+            else {
+                float newScaleX = state.m_scaleX * obj->m_pixelScaleX * scaleX;
+                float newScaleY = state.m_scaleY * obj->m_pixelScaleY * scaleY;
+                
+                if (type != ObjectScaleType::Y) {
+                    relative.x *= newScaleX / obj->m_scaleX;
+                    obj->updateCustomScaleX(newScaleX);
 
-            if (type != ObjectScaleType::Y) {
-                obj->updateCustomScaleX(newScaleX);
-            }
+                }
 
-            if (type != ObjectScaleType::X) {
-                obj->updateCustomScaleY(newScaleY);
+                if (type != ObjectScaleType::X) {
+                    relative.y *= newScaleY / obj->m_scaleY;
+                    obj->updateCustomScaleY(newScaleY);
+                }
             }
         }
 
         if (!lockMove) {
             moveObject(obj, (pivotPoint + relative) - obj->getPosition());
         }
+
+        if (type != ObjectScaleType::Y) {
+            fields->m_lastScaleX = scaleX;
+        }
+        if (type != ObjectScaleType::X) {
+            fields->m_lastScaleY = scaleY;
+        }
     }
 }
 
 void ICEditorUI::scaleXChanged(float scaleX, bool lock) {
-    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
-        return;
+    if (m_selectedObject) {
+        if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) return;
+        if (static_cast<ICGJScaleControl*>(m_scaleControl)->m_fields->m_scaleLock) return;
     }
     EditorUI::scaleXChanged(scaleX, lock);
 }
 
 void ICEditorUI::scaleYChanged(float scaleY, bool lock) {
     if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
-        return;
+        if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) return;
+        if (static_cast<ICGJScaleControl*>(m_scaleControl)->m_fields->m_scaleLock) return;
     }
     EditorUI::scaleYChanged(scaleY, lock);
 }
 
 void ICEditorUI::scaleXYChanged(float scaleX, float scaleY, bool lock) {
     if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
-        return;
+        if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) return;
+        if (static_cast<ICGJScaleControl*>(m_scaleControl)->m_fields->m_scaleLock) return;
     }
     EditorUI::scaleXYChanged(scaleX, scaleY, lock);
 }
@@ -350,6 +438,22 @@ bool ICGJScaleControl::init() {
         ->setMainAxisScaling(AxisScaling::Grow)
     );
 
+    fields->m_scaleToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
+        fields->m_scaleLock = !sender->isToggled();
+        fields->m_scaleLockInternal = fields->m_scaleLock;
+        fields->m_lastScaleX = 0.f;
+        fields->m_lastScaleY = 0.f;
+        auto editor = EditorUI::get();
+        editor->updateScaleControl();
+    });
+    ImprovedControls::addLabelToToggle(fields->m_scaleToggle, "Scale");
+    fields->m_scaleToggle->setID("scale-lock"_spr);
+    fields->m_scaleToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_scaleToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_scaleToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    
+    menu->addChild(fields->m_scaleToggle);
+
     fields->m_snapToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
         fields->m_snapLock = !sender->isToggled();
         fields->m_valueToggler->setEnabled(fields->m_snapLock);
@@ -366,7 +470,7 @@ bool ICGJScaleControl::init() {
     fields->m_snapToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
     fields->m_snapToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
     fields->m_snapToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
-    
+
     menu->addChild(fields->m_snapToggle);
 
     fields->m_valueToggler = ValueToggler<float>::create([this, fields] (float value) {
@@ -401,6 +505,15 @@ bool ICGJScaleControl::init() {
             m_scaleLockButton->setEnabled(true);
             onToggleLockScale(nullptr);
             m_scaleLockButton->setScale(0.8f);
+        }
+
+        if (changed(KeyboardModifier::Alt)) {
+            if (fields->m_scaleToggle->isVisible()) {
+                fields->m_scaleToggle->setEnabled(true);
+                fields->m_scaleToggle->toggleWithCallback(!fields->m_scaleToggle->isToggled());
+                fields->m_scaleToggle->m_onButton->setScale(1.f);
+                fields->m_scaleToggle->m_offButton->setScale(1.f);
+            }
         }
 
         m_scaleLockButton->setEnabled(!(modifier & KeyboardModifier::Control));
@@ -503,6 +616,15 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     fields->m_object = obj;
     fields->m_objects = objs;
 
+    if (obj) {
+        fields->m_scaleLock = false;
+    }
+    else {
+        fields->m_scaleLock = fields->m_scaleLockInternal;
+    }
+    fields->m_scaleToggle->setVisible(!obj);
+    m_scaleLockButton->getParent()->updateLayout();
+
     setPosition(getPivotLocation());
 
     auto ratio = m_valueX / m_valueY;
@@ -591,6 +713,21 @@ bool ICGJRotationControl::init() {
 
     menu->addChild(fields->m_posLockToggle);
 
+    fields->m_rotationToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
+        fields->m_rotationLock = !sender->isToggled();
+        fields->m_rotationLockInternal = fields->m_rotationLock;
+        fields->m_lastRotation = 0.f;
+        loadValues(fields->m_objects);
+
+    });
+    ImprovedControls::addLabelToToggle(fields->m_rotationToggle, "Rot");
+    fields->m_rotationToggle->setID("scale-lock"_spr);
+    fields->m_rotationToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_rotationToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    fields->m_rotationToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+
+    menu->addChild(fields->m_rotationToggle);
+
     fields->m_snapToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
         fields->m_snapLock = !sender->isToggled();
         fields->m_valueToggler->setEnabled(fields->m_snapLock);
@@ -634,6 +771,15 @@ bool ICGJRotationControl::init() {
             fields->m_posLockToggle->toggleWithCallback(!fields->m_posLockToggle->isToggled());
             fields->m_posLockToggle->m_onButton->setScale(1.f);
             fields->m_posLockToggle->m_offButton->setScale(1.f);
+        }
+
+        if (changed(KeyboardModifier::Alt)) {
+            if (fields->m_rotationToggle->isVisible()) {
+                fields->m_rotationToggle->setEnabled(true);
+                fields->m_rotationToggle->toggleWithCallback(!fields->m_rotationToggle->isToggled());
+                fields->m_rotationToggle->m_onButton->setScale(1.f);
+                fields->m_rotationToggle->m_offButton->setScale(1.f);
+            }
         }
 
         fields->m_posLockToggle->setEnabled(!(modifier & KeyboardModifier::Control));
@@ -726,8 +872,9 @@ void ICGJRotationControl::draw() {
 }
 
 void ICGJRotationControl::loadValues(CCArray* objects) {
-    if (objects->count() == 0) return;
+    if (!objects || objects->count() == 0) return;
     auto fields = m_fields.self();
+    fields->m_objects = objects;
 
     GameObject* parent = nullptr;
     for (auto obj : objects->asExt<GameObject>()) {
@@ -739,6 +886,17 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
             parent = obj;
         }
     }
+
+    bool oneObject = objects->count() == 1;
+
+    if (oneObject) {
+        fields->m_rotationLock = false;
+    }
+    else {
+        fields->m_rotationLock = fields->m_rotationLockInternal;
+    }
+    fields->m_rotationToggle->setVisible(!oneObject);
+    fields->m_posLockToggle->getParent()->updateLayout();
 
     if (!parent) parent = objects->asExt<GameObject>()[0];
     if (!parent) return;

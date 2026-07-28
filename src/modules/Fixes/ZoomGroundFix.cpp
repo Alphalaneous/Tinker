@@ -1,66 +1,102 @@
 #include "ZoomGroundFix.hpp"
+#include "utils/Constants.hpp"
+
+bool ZoomGroundFix::onToggled(bool state) {
+	return true;
+}
 
 void ZGFGJBaseGameLayer::updateCameraBGArt(CCPoint position, float zoom) {
 	GJBaseGameLayer::updateCameraBGArt(position, zoom);
+    using namespace tinker::constants;
 
-	auto editor = LevelEditorLayer::get();
-	auto fix = ZoomGroundFix::get();
-
-	if (!fix || !editor || this->m_playbackMode == PlaybackMode::Playing) {
-		return;
-	} 
+	if (m_playbackMode == PlaybackMode::Playing) return;
 	
-	auto ground = this->m_groundLayer;
-	auto middleground = this->m_middleground;
+	float camX = m_objectLayer->getPositionX();
+	float camAngle = m_gameState.m_cameraAngle;
 
-	float camX = this->m_objectLayer->getPositionX();
-	float camAngle = this->m_gameState.m_cameraAngle;
+	auto editorLayer = static_cast<LevelEditorLayer*>(static_cast<GJBaseGameLayer*>(this));
 
-	if (ground && (ground->m_ground1Sprite || ground->m_ground2Sprite)) {
+	ccColor3B color1;
+	ccColor3B color2;
 
-		float originX = camX / ground->getScaleX();
-		int tilesToMove = std::ceil(originX / ground->m_textureWidth);
+	tinker::utils::ColorData color1DataMG;
+	tinker::utils::ColorData color2DataMG;
 
-		if (camAngle != 0.0f) {
+	if (!editorLayer->m_previewMode) {
+		color1 = colors::DefaultGround;
+		color2 = colors::DefaultGround;
 
-			int tiles = std::ceil(ground->m_groundWidth / ground->m_textureWidth) + 2;
-			int extra = std::ceil(1.0f / zoom);
-			int total = tiles + extra;
+		color1DataMG = {colors::DefaultMiddleground1, false, 255};
+		color2DataMG = {colors::DefaultMiddleground2, false, 255};
+	}
+	else {
+		color1 = tinker::utils::getActiveColor(editorLayer, color_channels::Ground1).color;
+		color2 = tinker::utils::getActiveColor(editorLayer, color_channels::Ground2).color;
 
-			ground->loadGroundSprites(total, true);
-			if (ground->m_ground2Sprite)
-				ground->loadGroundSprites(total, false);
-
-			tilesToMove += extra / 2;
-		}
-
-		float finalX = originX - (tilesToMove * ground->m_textureWidth);
-
-		if (ground->m_ground1Sprite) ground->m_ground1Sprite->setPositionX(finalX);
-		if (ground->m_ground2Sprite) ground->m_ground2Sprite->setPositionX(finalX);
+		color1DataMG = tinker::utils::getActiveColor(editorLayer, color_channels::Middleground1);
+		color2DataMG = tinker::utils::getActiveColor(editorLayer, color_channels::Middleground2);
 	}
 
-	if (middleground && (middleground->m_ground1Sprite || middleground->m_ground2Sprite)) {
+	if (m_groundLayer && (m_groundLayer->m_ground1Sprite || m_groundLayer->m_ground2Sprite)) {
 
-		float originX = camX / middleground->getScaleX();
-		int tilesToMove = std::ceil(originX / middleground->m_textureWidth);
+		float originX = camX / m_groundLayer->getScaleX();
+		int tilesToMove = std::ceil(originX / m_groundLayer->m_textureWidth);
 
-		if (camAngle != 0.0f) {
+		if (camAngle != 0.f) {
 
-			int tiles = std::ceil(middleground->m_groundWidth / middleground->m_textureWidth) + 2;
+			int tiles = std::ceil(m_groundLayer->m_groundWidth / m_groundLayer->m_textureWidth) + 2;
 			int extra = std::ceil(1.0f / zoom);
 			int total = tiles + extra;
 
-			middleground->loadGroundSprites(total, true);
-			if (middleground->m_ground2Sprite)
-				middleground->loadGroundSprites(total, false);
+			m_groundLayer->loadGroundSprites(total, true);
+			if (m_groundLayer->m_ground2Sprite) {
+				m_groundLayer->loadGroundSprites(total, false);
+			}
 
 			tilesToMove += extra / 2;
 		}
 
-		float finalX = originX - (tilesToMove * middleground->m_textureWidth);
+		float finalX = originX - (tilesToMove * m_groundLayer->m_textureWidth);
 
-		if (middleground->m_ground1Sprite) middleground->m_ground1Sprite->setPositionX(finalX);
-		if (middleground->m_ground2Sprite) middleground->m_ground2Sprite->setPositionX(finalX);
+		if (m_groundLayer->m_ground1Sprite) m_groundLayer->m_ground1Sprite->setPositionX(finalX);
+		if (m_groundLayer->m_ground2Sprite) m_groundLayer->m_ground2Sprite->setPositionX(finalX);
+
+		m_groundLayer->updateGround01Color(color1);
+		m_groundLayer->updateGround02Color(color2);
+	}
+
+	if (m_middleground && (m_middleground->m_ground1Sprite || m_middleground->m_ground2Sprite)) {
+
+		float originX = camX / m_middleground->getScaleX();
+		int tilesToMove = std::ceil(originX / m_middleground->m_textureWidth);
+
+		if (camAngle != 0.f) {
+
+			int tiles = std::ceil(m_middleground->m_groundWidth / m_middleground->m_textureWidth) + 2;
+			int extra = std::ceil(1.f / zoom);
+			int total = tiles + extra;
+
+			m_middleground->loadGroundSprites(total, true);
+
+			if (m_middleground->m_ground2Sprite) {
+				m_middleground->loadGroundSprites(total, false);
+			}
+
+			tilesToMove += extra / 2;
+		}
+
+		float finalX = originX - (tilesToMove * m_middleground->m_textureWidth);
+
+		if (m_middleground->m_ground1Sprite) m_middleground->m_ground1Sprite->setPositionX(finalX);
+		if (m_middleground->m_ground2Sprite) m_middleground->m_ground2Sprite->setPositionX(finalX);
+
+		m_middleground->updateGroundColor(color1DataMG.color, true);
+		m_middleground->updateGroundColor(color2DataMG.color, false);
+
+		m_middleground->updateGroundOpacity(color1DataMG.opacity, true);
+		m_middleground->updateGroundOpacity(color2DataMG.opacity, false);
+
+		m_middleground->updateMG01Blend(color1DataMG.blending);
+		m_middleground->updateMG02Blend(color2DataMG.blending);
 	}
 }

@@ -35,6 +35,7 @@ namespace tinker::ui {
         float m_smoothedCameraAngle = 0.f;
         bool m_alignKeyDown = false;
         EditorUI* m_editorUI = nullptr;
+        Ref<alpha::dispatcher::TouchEvent> m_activeTouch = nullptr;
 
         friend class NavigationControl;
     };

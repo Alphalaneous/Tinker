@@ -1,4 +1,5 @@
 #include "InputsHandler.hpp"
+#include "Events.hpp"
 #include "modules/Fixes/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
@@ -608,6 +609,10 @@ void InputEditorUI::checkScrolling(float dt) {
 
 void InputEditorUI::addActiveAlert(CCNode* alert) {
     auto fields = m_fields.self();
+
+    if (fields->m_activeAlerts.empty()) {
+        AlertsActiveEvent().send();
+    }
 
     fields->m_activeAlerts.insert(alert);
 }

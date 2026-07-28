@@ -405,6 +405,57 @@ void UIScaling::setScaling(bool fullReload) {
         m_editorUI->m_objectInfoLabel->setPosition(CCPoint{52.f * m_scale, winSize.height - 50.f * m_scale} + getSafeOffset());
     }
 
+    UISColorSelectLiveOverlay::scaleActive();
+    UISHSVLiveOverlay::scaleActive();
+
     UIScaleUpdated().send(m_scale, m_scaleToolbar, fullReload);
     UpdateObjectLabel().send();
+}
+
+bool UISHSVLiveOverlay::init(GameObject* object, cocos2d::CCArray* objects) {
+    if (!HSVLiveOverlay::init(object, objects)) return false;
+
+    scaleOverlay(this);
+    return true;
+}
+
+void UISHSVLiveOverlay::scaleOverlay(HSVLiveOverlay* overlay) {
+    if (!overlay) return;
+
+    auto winSize = CCDirector::get()->getWinSize();
+    overlay->m_mainLayer->ignoreAnchorPointForPosition(false);
+    overlay->m_mainLayer->setAnchorPoint({0.f, 0.5f});
+    overlay->m_mainLayer->setPosition({10.f * UIScaling::get()->m_scale, winSize.height / 2.f});
+    overlay->m_mainLayer->setScale(UIScaling::get()->m_scale);
+}
+
+void UISHSVLiveOverlay::scaleActive() {
+    auto editor = EditorUI::get();
+    if (!editor) return;
+
+    scaleOverlay(editor->m_hsvOverlay);
+}
+
+bool UISColorSelectLiveOverlay::init(ColorAction* baseAction, ColorAction* detailAction, EffectGameObject* object) {
+    if (!ColorSelectLiveOverlay::init(baseAction, detailAction, object)) return false;
+
+    scaleOverlay(this);
+    return true;
+}
+
+void UISColorSelectLiveOverlay::scaleActive() {
+    auto editor = EditorUI::get();
+    if (!editor) return;
+
+    scaleOverlay(editor->m_colorOverlay);
+}
+
+void UISColorSelectLiveOverlay::scaleOverlay(ColorSelectLiveOverlay* overlay) {
+    if (!overlay) return;
+
+    auto winSize = CCDirector::get()->getWinSize();
+    overlay->m_mainLayer->ignoreAnchorPointForPosition(false);
+    overlay->m_mainLayer->setAnchorPoint({0.f, 0.5f});
+    overlay->m_mainLayer->setPosition({10.f * UIScaling::get()->m_scale, winSize.height / 2.f});
+    overlay->m_mainLayer->setScale(UIScaling::get()->m_scale);
 }
