@@ -61,42 +61,6 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
 
         int m_finalChannel1 = -1;
         int m_finalChannel2 = -1;
-
-        ~Fields() {
-            auto addRecentChannel = [&](bool modified, int finalChannel) {
-                if (!modified || finalChannel == -1) {
-                    return;
-                }
-
-                auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(
-                    LevelEditorLayer::get(),
-                    "improved-color-picker/recents"
-                );
-
-                std::vector<int> recents;
-                recents.reserve(10);
-
-                recents.push_back(finalChannel);
-
-                for (int channel : saved) {
-                    if (channel != finalChannel) {
-                        recents.push_back(channel);
-                        if (recents.size() == 10) {
-                            break;
-                        }
-                    }
-                }
-
-                alpha::level_storage::setSavedValue(
-                    LevelEditorLayer::get(),
-                    "improved-color-picker/recents",
-                    recents
-                );
-            };
-
-            addRecentChannel(m_modifiedChannel1, m_finalChannel1);
-            addRecentChannel(m_modifiedChannel2, m_finalChannel2);
-        }
     };
 
     void updateSprite(ColorChannelSprite* sprite);
@@ -119,4 +83,5 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
     void onNextColorChannel(cocos2d::CCObject* sender);
     void textChanged(CCTextInputNode* input);
     bool init(GameObject* obj, CCArray* objs);
+    void onClose(cocos2d::CCObject* sender);
 };

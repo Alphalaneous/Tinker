@@ -633,6 +633,48 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     return true;
 }
 
+void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
+    auto fields = m_fields.self();
+
+    auto addRecentChannel = [&](bool modified, int finalChannel) {
+        if (!modified || finalChannel == -1) {
+            return;
+        }
+
+        auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(
+            LevelEditorLayer::get(),
+            "improved-color-picker/recents"
+        );
+
+        std::vector<int> recents;
+        recents.reserve(10);
+
+        recents.push_back(finalChannel);
+
+        for (int channel : saved) {
+            if (channel != finalChannel) {
+                recents.push_back(channel);
+                if (recents.size() == 10) {
+                    break;
+                }
+            }
+        }
+
+        alpha::level_storage::setSavedValue(
+            LevelEditorLayer::get(),
+            "improved-color-picker/recents",
+            recents
+        );
+    };
+
+    addRecentChannel(fields->m_modifiedChannel1, fields->m_finalChannel1);
+    addRecentChannel(fields->m_modifiedChannel2, fields->m_finalChannel2);
+
+    fields->m_colorList->removeFromParent();
+
+    CustomizeObjectLayer::onClose(sender);
+}
+
 void ICPCustomizeObjectLayer::scrollToChannel(int channel, bool instant) {
     if (channel < 1 || channel > 999) {
         channel = 1;
