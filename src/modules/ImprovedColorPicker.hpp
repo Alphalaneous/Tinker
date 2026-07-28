@@ -69,6 +69,7 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
 
     std::vector<CCMenuItemSpriteExtra*> getRecents();
 
+    void updateLiveSelectButton();
     void updateLighterButtons();
     void checkAllowLighter();
     void setChannelModified();

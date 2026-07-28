@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.45",
+	"version": "v1.0.46",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -306,8 +306,8 @@
 		"FixSlopeHitboxRender-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Slope Hitbox Render Fix",
-			"description": "Fix slope hitboxes not rendering properly when rotating them."
+			"name": "Slope Orientation Fix",
+			"description": "Fix slope hitboxes not rendering properly when rotating them and template slopes not placing at the right orientation."
 		},
 		"NoTouchPasteStateFix-enabled": {
 			"type": "bool",
@@ -662,6 +662,12 @@
 				"android": false,
 				"ios": false
 			}
+		},
+		"ImprovedColorPicker-out-of-range-ids": {
+			"type": "bool",
+			"name": "Out of Range IDs",
+			"description": "Allow inputting color IDs below 1 and above 999.",
+			"default": false
 		},
 		"ImprovedControls-title": {
 			"type": "title",

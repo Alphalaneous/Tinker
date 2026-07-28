@@ -1,10 +1,10 @@
 #include "ImprovedColorPicker.hpp"
 #include <Geode/ui/NineSlice.hpp>
+#include "Geode/utils/general.hpp"
 #include "utils/Constants.hpp"
 #include "utils/NextFree/NextFreeProvider.hpp"
 #include "utils/NextFree/sources/ColorSource.hpp"
 #include "utils/NextFree/NextFreeOffsetInput.hpp"
-#include "utils/Utils.hpp"
 
 bool ImprovedColorPicker::onToggled(bool state) {
     return true;
@@ -54,7 +54,7 @@ void ICPCustomizeObjectLayer::checkAllowLighter() {
     else if (m_targetObjects) {
         fields->m_allowLighterChannel = true;
         for (auto obj : m_targetObjects->asExt<GameObject>()) {
-            if (!(m_targetObject->m_baseColor && m_targetObject->m_detailColor)) {
+            if (!(obj->m_baseColor && obj->m_detailColor)) {
                 fields->m_allowLighterChannel = false;
                 break;
             }
@@ -106,6 +106,34 @@ void ICPCustomizeObjectLayer::updateColorSprite() {
     updateSelection(fields->m_recentColorSprites, true);
 }
 
+void ICPCustomizeObjectLayer::updateLiveSelectButton() {
+    using namespace tinker::constants::color_channels;
+
+    auto fields = m_fields.self();
+
+    if (fields->m_inited) {
+        switch (m_customColorChannel) {
+            case PlayerColor1:
+            case PlayerColor2:
+            case LightBackground:
+            case Lighter:
+            case Black:
+            case White:
+            case -1:
+                m_liveSelectButton->setVisible(false);
+                if (m_customColorChannel == -1 && ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
+                    m_liveSelectButton->setVisible(true);
+                }
+                m_colorSprite->setVisible(false);
+                break;
+            default:
+                m_liveSelectButton->setVisible(true);
+                m_colorSprite->setVisible(true);
+                break;
+        }
+    }
+}
+
 void ICPCustomizeObjectLayer::updateCustomColorLabels() {
     using namespace tinker::constants::color_channels;
     auto fields = m_fields.self();
@@ -124,22 +152,7 @@ void ICPCustomizeObjectLayer::updateCustomColorLabels() {
     m_customColorInput->setDelegate(delegate);
     m_customColorInput->m_textField->detachWithIME();
 
-    if (fields->m_inited) {
-        switch (m_customColorChannel) {
-            case PlayerColor1:
-            case PlayerColor2:
-            case LightBackground:
-            case Lighter:
-            case Black:
-            case White:
-            case -1:
-                m_liveSelectButton->setVisible(false);
-                break;
-            default:
-                m_liveSelectButton->setVisible(true);
-                break;
-        }
-    }
+    updateLiveSelectButton();
 }
 
 void ICPCustomizeObjectLayer::onUpdateCustomColor(CCObject* sender) {
@@ -189,11 +202,20 @@ void ICPCustomizeObjectLayer::onUpdateCustomColor(CCObject* sender) {
     m_customColorSelected = false;
     updateColorSprite();
     scrollToChannel(m_customColorChannel, false);
+    updateLiveSelectButton();
 }
 
 void ICPCustomizeObjectLayer::textChanged(CCTextInputNode* input) {
+    if (!ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
+        auto numRes = geode::utils::numFromString<int>(input->getString());
+        if (numRes) {
+            auto num = numRes.unwrap();
+            if (num > 999 || num < 1) return;
+        }
+    }
     CustomizeObjectLayer::textChanged(input);
-    scrollToChannel(m_customColorChannel, false);
+    m_customColorChannel = getActiveMode(true);
+    updateLiveSelectButton();
 }
 
 void ICPCustomizeObjectLayer::onNextColorChannel(cocos2d::CCObject* sender) {

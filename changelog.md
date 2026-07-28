@@ -1,3 +1,10 @@
+# 1.0.46
+- <c-dddddd>Fix slope orientations for Smart Templates</c>
+- <c-dddddd>Fix NA color being able to be set</c>
+- <c-dddddd>Fix out of bounds color ID inputs</c>
+- <c-dddddd>Add setting to re-enable out of bounds color ID inputs, also allowing setting NA color</c>
+- <c-dddddd>Fix a potential crash when opening the color picker with a selection</c>
+
 # 1.0.45
 - <c-dddddd>Add absolute scaling and rotation toggles</c>
 - <c-dddddd>Fix some rotated camera touch issues</c>
