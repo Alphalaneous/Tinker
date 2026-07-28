@@ -379,24 +379,6 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
         menu->setPositionY(winSize.height / 2.f + 50.f);
     }
 
-    auto okMenu = m_mainLayer->getChildByID("ok-menu");
-    if (okMenu) {
-        auto okBtn = static_cast<CCMenuItemSpriteExtra*>(okMenu->getChildByID("ok-button"));
-        tinker::utils::hijackButton(okBtn, [this] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
-            m_customColorInput->m_delegate = nullptr;
-            m_customColorInput->onClickTrackNode(false);
-            
-            if (m_textInput) {
-                m_textInput->onClickTrackNode(false);
-                m_textInput->m_delegate = nullptr;
-            }
-            GameManager::get()->m_currentColorChannel = m_customColorChannel;
-            EditorUI::get()->updateObjectInfoLabel();
-            setKeypadEnabled(false);
-            removeFromParent();
-        });
-    }
-
     auto channelsMenu = m_mainLayer->getChildByID("channels-menu");
     auto specialsMenu = m_mainLayer->getChildByID("special-channels-menu");
 
