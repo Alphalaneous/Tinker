@@ -718,10 +718,6 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
                 auto newPos = layer->convertToWorldSpace(prevPos);
                 layer->setPosition(layer->getPosition() + midPos - newPos);
 
-                if (ZoomGroundFix::isEnabled()) {
-                    ZoomGroundFix::get()->fixPosition(0);
-                }
-
                 fields->m_touchMidPoint = center;
                 m_isDraggingCamera = true;
                 
@@ -747,9 +743,6 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
     }
     if (!fields->m_isPinching) {
         next(touch);
-    }
-    if (ZoomGroundFix::isEnabled()) {
-        ZoomGroundFix::get()->fixPosition(0);
     }
 }
 
