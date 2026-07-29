@@ -1,6 +1,6 @@
 #pragma once
 
-#include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
+#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 #include "utils/NextFree/NextFreeProvider.hpp"
 
 class ColorSource : public NextFreeSource {

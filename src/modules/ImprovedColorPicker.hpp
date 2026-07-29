@@ -24,6 +24,26 @@ class $editorModule(ImprovedColorPicker) {
     };
 };
 
+namespace tinker::ui {
+
+class LazyColorRow : public CCMenu {
+public:
+    static LazyColorRow* create(geode::Function<void(LazyColorRow* self)> callback, int min, int max);
+    bool init(geode::Function<void(LazyColorRow* self)> callback, int min, int max);
+
+    int getMin();
+    int getMax();
+
+    void load();
+protected:
+    geode::Function<void(LazyColorRow* self)> m_callback;
+    bool m_loaded;
+    int m_min;
+    int m_max;
+};
+
+}
+
 class CheatColorChannelSprite : public CCSprite {
 public:
     bool init();
@@ -45,7 +65,7 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
     struct Fields {
         std::vector<Ref<ColorChannelSprite>> m_colorChannelSprites;
         alpha::ui::AdvancedScrollLayer* m_colorList;
-        std::vector<Ref<CCMenu>> m_rows;
+        std::vector<Ref<tinker::ui::LazyColorRow>> m_rows;
 
         std::vector<Ref<ColorChannelSprite>> m_recentColorSprites;
         CCMenu* m_recentColorsMenu;
@@ -69,6 +89,7 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
 
     std::vector<CCMenuItemSpriteExtra*> getRecents();
 
+    void cull(cocos2d::CCNode* content, const cocos2d::CCPoint& scroll, float singleHeight);
     void updateLiveSelectButton();
     void updateLighterButtons();
     void checkAllowLighter();

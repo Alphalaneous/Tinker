@@ -1,6 +1,5 @@
 #include "ImprovedColorPicker.hpp"
 #include <Geode/ui/NineSlice.hpp>
-#include "Geode/utils/general.hpp"
 #include "utils/Constants.hpp"
 #include "utils/NextFree/NextFreeProvider.hpp"
 #include "utils/NextFree/sources/ColorSource.hpp"
@@ -12,6 +11,43 @@ bool ImprovedColorPicker::onToggled(bool state) {
 
 bool ImprovedColorPicker::onSettingChanged(std::string_view key, const matjson::Value& value) {
     return true;
+}
+
+namespace tinker::ui {
+
+LazyColorRow* LazyColorRow::create(geode::Function<void(LazyColorRow* self)> callback, int min, int max) {
+    auto ret = new LazyColorRow();
+    if (ret->init(std::move(callback), min, max)) {
+        ret->autorelease();
+        return ret;
+    }
+    delete ret;
+    return nullptr;
+}
+
+bool LazyColorRow::init(geode::Function<void(LazyColorRow* self)> callback, int min, int max) {
+    if (!CCMenu::init()) return false;
+    m_callback = std::move(callback);
+    m_min = min;
+    m_max = max;
+
+    return true;
+}
+
+int LazyColorRow::getMin() {
+    return m_min;
+}
+
+int LazyColorRow::getMax() {
+    return m_max;
+}
+
+void LazyColorRow::load() {
+    if (m_loaded) return;
+    if (m_callback) m_callback(this);
+    m_loaded = true;
+}
+
 }
 
 void ICPCustomizeObjectLayer::onSelectMode(CCObject* sender) {
@@ -82,6 +118,13 @@ void ICPCustomizeObjectLayer::onSelectColor(CCObject* sender) {
 
 void ICPCustomizeObjectLayer::updateSelection(const std::vector<Ref<ColorChannelSprite>>& items, bool updateColor) {
     auto selected = getActiveMode(true);
+    auto fields = m_fields.self();
+
+    for (const auto& row : fields->m_rows) {
+        if (selected >= row->getMin() && selected <= row->getMax()) {
+            row->load();
+        }
+    }
 
     for (const auto& sprite : items) {
         if (auto i = sprite->getChildByID("selected-indicator"_spr)) {
@@ -215,6 +258,7 @@ void ICPCustomizeObjectLayer::textChanged(CCTextInputNode* input) {
     }
     CustomizeObjectLayer::textChanged(input);
     m_customColorChannel = getActiveMode(true);
+    scrollToChannel(m_customColorChannel, false);
     updateLiveSelectButton();
 }
 
@@ -538,23 +582,8 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     float singleWidth = compactUI ? 21.2f : 28.5f;
     float singleHeight = compactUI ? 22.f : 29.3f;
 
-    fields->m_colorList->setCullingMethod([fields, singleHeight] (cocos2d::CCNode* content, const cocos2d::CCPoint& scroll) {
-        auto scrollYEnd = scroll.y + fields->m_colorList->getContentHeight() + singleHeight;
-
-        for (const auto& row : fields->m_rows) {
-            auto y = fields->m_colorList->getContentLayer()->getContentHeight() - row->getPositionY();
-
-            if (scroll.y - singleHeight < y && scrollYEnd >= (y + singleHeight)) {
-                if (!row->getParent()) {
-                    fields->m_colorList->getContentLayer()->addChild(row);
-                }
-            }
-            else {
-                if (row->getParent()) {
-                    row->removeFromParentAndCleanup(false);
-                }
-            }
-        }
+    fields->m_colorList->setCullingMethod([this, singleHeight] (cocos2d::CCNode* content, const cocos2d::CCPoint& scroll) {
+        cull(content, scroll, singleHeight);
     });
 
     float gap = 3.5f;
@@ -563,7 +592,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
 
     fields->m_colorList->getContentLayer()->setContentSize({fields->m_colorList->getContentWidth(), (singleHeight + gap) * (1000.f / columnCount) + padding * 2.f});
 
-    CCMenu* currentRow = nullptr;
+    tinker::ui::LazyColorRow* currentRow = nullptr;
     int yIdx = 0;
     for (int i = 0; i < 999; i++) {
         auto idx = i % columnCount;
@@ -572,7 +601,20 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
                 currentRow->setContentWidth(currentRow->getContentWidth() - gap);
             }
 
-            currentRow = CCMenu::create();
+            currentRow = tinker::ui::LazyColorRow::create([this, start = i, columnCount, singleWidth, gap, singleHeight] (tinker::ui::LazyColorRow* self) {
+                for (int i = start; i < start + columnCount; i++) {
+                    if (i >= 999) break;
+
+                    auto idx = i % columnCount;
+
+                    auto button = createChannelButton(i + 1);
+                    auto x = singleWidth / 2.f + (singleWidth + gap) * idx;
+                    button->setPosition({x, singleHeight / 2.f});
+
+                    self->addChild(button);
+                    self->setContentWidth(self->getContentWidth() + singleWidth + gap);
+                }
+            }, i + 1, i + columnCount);
             currentRow->ignoreAnchorPointForPosition(false);
             currentRow->setContentSize({0.f, singleHeight});
             currentRow->setAnchorPoint({0.5f, 1.f});
@@ -583,12 +625,12 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
             fields->m_rows.push_back(currentRow);
             yIdx++;
         }
-        auto button = createChannelButton(i + 1);
+        /*auto button = createChannelButton(i + 1);
         auto x = singleWidth / 2.f + (singleWidth + gap) * idx;
         button->setPosition({x, singleHeight / 2.f});
 
         currentRow->addChild(button);
-        currentRow->setContentWidth(currentRow->getContentWidth() + singleWidth + gap);
+        currentRow->setContentWidth(currentRow->getContentWidth() + singleWidth + gap);*/
     }
     if (currentRow) {
         currentRow->setContentWidth(currentRow->getContentWidth() - gap);
@@ -625,16 +667,37 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
 
     checkAllowLighter();
 
-    runAction(CallFuncExt::create([this, fields] {
-        m_customColorChannel = getActiveMode(true);
-        highlightSelected(nullptr);
-        updateCustomColorLabels();
-        scrollToChannel(m_customColorChannel, true);
-    }));
+    m_customColorChannel = getActiveMode(true);
+    highlightSelected(nullptr);
+    updateCustomColorLabels();
+    scrollToChannel(m_customColorChannel, true);
+
+    cull(fields->m_colorList->getContentLayer(), fields->m_colorList->getScrollPoint(), singleHeight);
 
     fields->m_inited = true;
     
     return true;
+}
+
+void ICPCustomizeObjectLayer::cull(cocos2d::CCNode* content, const cocos2d::CCPoint& scroll, float singleHeight) {
+    auto fields = m_fields.self();
+    auto scrollYEnd = scroll.y + fields->m_colorList->getContentHeight() + singleHeight;
+
+    for (const auto& row : fields->m_rows) {
+        auto y = fields->m_colorList->getContentLayer()->getContentHeight() - row->getPositionY();
+
+        if (scroll.y - singleHeight < y && scrollYEnd >= (y + singleHeight)) {
+            row->load();
+            if (!row->getParent()) {
+                fields->m_colorList->getContentLayer()->addChild(row);
+            }
+        }
+        else {
+            if (row->getParent()) {
+                row->removeFromParentAndCleanup(false);
+            }
+        }
+    }
 }
 
 void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
@@ -685,22 +748,10 @@ void ICPCustomizeObjectLayer::scrollToChannel(int channel, bool instant) {
     }
 
     auto fields = m_fields.self();
-    for (const auto& sprite : fields->m_colorChannelSprites) {
-        if (auto i = sprite->getChildByID("selected-indicator"_spr)) {
-            auto channelObj = typeinfo_cast<CCInteger*>(sprite->getUserObject("channel"_spr));
-            if (!channelObj) continue;
-
-            if (channelObj->getValue() == channel) {
-                auto btn = sprite->getParent();
-                if (!btn) return;
-
-                auto row = btn->getParent();
-                if (!row) return;
-
-                fields->m_colorList->setScrollY(fields->m_colorList->getContentLayer()->getContentHeight() - (row->getPositionY() - row->getContentHeight() / 2.f + fields->m_colorList->getContentHeight() / 2.f), !instant);
-
-                break;
-            }
+    for (const auto& row : fields->m_rows) {
+        if (channel >= row->getMin() && channel <= row->getMax()) {
+            row->load();
+            fields->m_colorList->setScrollY(fields->m_colorList->getContentLayer()->getContentHeight() - (row->getPositionY() - row->getContentHeight() / 2.f + fields->m_colorList->getContentHeight() / 2.f), !instant);
         }
     }
 }

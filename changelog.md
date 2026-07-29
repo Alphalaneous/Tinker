@@ -1,3 +1,6 @@
+# 1.0.47
+- <c-dddddd>Color selection performance improvements</c>
+
 # 1.0.46
 - <c-dddddd>Fix slope orientations for Smart Templates</c>
 - <c-dddddd>Fix NA color being able to be set</c>
