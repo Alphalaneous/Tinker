@@ -197,13 +197,13 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
             }
             else {
                 settingsMenu->setAnchorPoint({0.5f, 0.5f});
-                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - UIScaling::getSafeOffset());
+                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f});
             }
         }
         else {
             settingsMenu->setAnchorPoint({0.5f, 0.5f});
             if (actionsMenu) {
-                settingsMenu->setPosition(CCPoint{actionsMenu->getPositionX(), winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - UIScaling::getSafeOffset());
+                settingsMenu->setPosition(CCPoint{actionsMenu->getPositionX(), winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f});
             }
             else {
                 settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - UIScaling::getSafeOffset());
