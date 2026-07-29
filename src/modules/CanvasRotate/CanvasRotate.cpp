@@ -226,6 +226,13 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
         return next(touch);
     }
 
+    auto quickMoveMenu = m_editorUI->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
+    if (quickMoveMenu && quickMoveMenu->isVisible()) {
+        if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
+            return next(touch);
+        }
+    }
+
     auto preTransform = touch->getLocation();
     m_preTransformTouch[touch] = preTransform;
 

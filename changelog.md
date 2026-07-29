@@ -1,3 +1,13 @@
+# 1.0.48
+- <c-dddddd>Fix BetterEdit hooks getting disabled when a feature that disables them isn't enabled</c>
+- <c-dddddd>Fixed toggling features not properly re-enabling BetterEdit versions of said feature</c>
+- <c-dddddd>Fix rotate text input not being centered under the buttons when one object is selected</c>
+- <c-dddddd>Add cleaner pause menu, with included volume sliders</c>
+- <c-dddddd>Fix Link Controls scale with BetterEdit when UI Scale in Tinker is disabled</c>
+- <c-dddddd>Improve UI scale compatibility with Start Pos Switcher, Better Editor Positions, and EditorMusic</c>
+- <c-dddddd>Improve compatibility with Quick Move Buttons mod</c>
+- <c-dddddd>Add disable save confirmation option</c>
+
 # 1.0.47
 - <c-dddddd>Color selection performance improvements</c>
 

@@ -49,6 +49,6 @@ class $modify(UISEditorUI, EditorUI) {
     bool init(LevelEditorLayer* editorLayer);
 
     static void onModify(auto& self) {
-        (void) self.setHookPriorityAfterPost("EditorUI::init", "hjfod.betteredit");
+        (void) self.setHookPriorityPost("EditorUI::init", Priority::VeryLate);
     }
 };

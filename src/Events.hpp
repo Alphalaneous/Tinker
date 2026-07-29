@@ -75,3 +75,7 @@ struct AlertsActiveEvent final : Event<AlertsActiveEvent, bool()> {
 struct UIScaleUpdated final : Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };
+
+struct PauseUIScaleUpdated final : Event<PauseUIScaleUpdated, bool(EditorPauseLayer* pauseLayer, float scale)> {
+    using Event::Event;
+};

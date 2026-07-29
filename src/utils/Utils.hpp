@@ -120,7 +120,7 @@ namespace tinker::utils {
         cocos2d::ccColor4B hueShift(cocos2d::ccColor4B color, float shiftDegrees);
     }
 
-    template<geode::utils::string::ConstexprString ID>
+    template<geode::utils::string::ConstexprString ID, class Module = void>
     class ScopedHookToggle {
     public:
         ScopedHookToggle(const ScopedHookToggle&) = delete;
@@ -134,14 +134,34 @@ namespace tinker::utils {
             auto mod = tinker::utils::getMod<ID>();
             if (!mod) return;
 
+            bool shouldToggle = true;
+            if constexpr (!std::is_void_v<Module>) {
+                if (!Module::isEnabled()) {
+                    shouldToggle = false;
+                }
+            }
+
             const std::array<ZStringView, sizeof...(Hooks)> hookNames{std::forward<Hooks>(hooks)...};
 
             for (Hook* hook : mod->getHooks()) {
                 if (!hook->isEnabled()) continue;
                 if (std::ranges::find(hookNames, hook->getDisplayName()) != hookNames.end()) {
                     m_hooks.push_back(hook);
-                    (void) hook->disable();
+                    if (shouldToggle) {
+                        (void) hook->disable();
+                    }
                 }
+            }
+        }
+
+        void toggle(bool state) {
+            auto mod = tinker::utils::getMod<ID>();
+            if (!mod) return;
+
+            bool enabled = false;
+
+            for (auto hook : m_hooks) {
+                (void) hook->toggle(!state);
             }
         }
         

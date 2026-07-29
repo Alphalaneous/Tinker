@@ -1,9 +1,7 @@
 #include "UIScaling.hpp"
 #include "modules/GridControl.hpp"
-#include "modules/ImprovedLinkControls.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include "../../../include/UIScaling.hpp"
 #include "MainHooks.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
@@ -84,7 +82,9 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
     if (!UIScaling::isEnabled()) return EditorUI::init(editorLayer);
     if (!EditorUI::init(editorLayer)) return false;
 
-    UIScaling::get()->setScaling(false);
+    addOnEnterCallback([] {
+        UIScaling::get()->setScaling(false);
+    });
 
     return true;
 }
@@ -177,9 +177,15 @@ void UIScaling::setPauseScaling() {
             topMenu->setScale(m_scale);
             topMenu->setPosition({winSize.width / 2.f, winSize.height - 30.f * m_scale});
         }
+
+        if (auto currentSongLayer = pauseLayer->getChildByID("undefined0.editormusic/current-song-layer")) {
+            if (auto currentSongNode = currentSongLayer->getChildByID("undefined0.editormusic/CurrentSongNode")) {
+                currentSongNode->setScale(m_scale);
+            }
+        }
     }
 
-    tinker::api::ui_scaling::PauseUIScaleUpdated().send(m_scale);
+    PauseUIScaleUpdated().send(pauseLayer, m_scale);
 }
 
 void UIScaling::setScaling(bool fullReload) {
@@ -274,12 +280,15 @@ void UIScaling::setScaling(bool fullReload) {
         }
     }
 
-    if (auto playtestMenu = m_editorUI->getChildByID("playtest-menu")) {
+    auto playtestMenu = m_editorUI->getChildByID("playtest-menu");
+    auto playbackMenu = m_editorUI->getChildByID("playback-menu");
+
+    if (playtestMenu) {
         playtestMenu->setScale(m_scale);
         playtestMenu->setAnchorPoint({0.5f, 0.5f});
         playtestMenu->setPosition(CCPoint{6.f * m_scale + playtestMenu->getScaledContentWidth() / 2.f, center + 2.f * m_scale} + getSafeOffset());
     
-        if (auto playbackMenu = m_editorUI->getChildByID("playback-menu")) {
+        if (playbackMenu) {
             playbackMenu->setScale(m_scale);
             playbackMenu->setAnchorPoint({0.5f, 0.5f});
             playbackMenu->setPosition(CCPoint{6.f * m_scale + playbackMenu->getScaledContentWidth() / 2.f, playtestMenu->getPositionY() + 45.f * m_scale} + getSafeOffset());
@@ -294,14 +303,12 @@ void UIScaling::setScaling(bool fullReload) {
         if (auto linkMenu = m_editorUI->getChildByID("link-menu")) {
             linkMenu->setAnchorPoint({0.5f, 0.5f});
             if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
-                if (GEODE_MOBILE(true ||) ImprovedLinkControls::isEnabled()) {
-                    linkMenu->setScale(m_scale GEODE_DESKTOP(* 0.8f));
-                    linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * m_scale} + getSafeOffset());
-                }
-                else {
-                    linkMenu->setScale(m_scale);
-                    linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 10.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - (linkMenu->getScaledContentHeight() / 2.f)} + getSafeOffset());
-                }
+                linkMenu->setScale(m_scale);
+                #ifdef GEODE_IS_MOBILE
+                linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * m_scale} + getSafeOffset());
+                #else
+                linkMenu->setPosition(CCPoint{zoomMenu->getPositionX() + zoomMenu->getScaledContentWidth() / 2.f + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 4.f * m_scale - (linkMenu->getScaledContentHeight() / 2.f)});
+                #endif
             }
         }
     }
@@ -368,6 +375,13 @@ void UIScaling::setScaling(bool fullReload) {
         customEditMenu->setContentHeight(80.f);
         customEditMenu->setPositionY(5.f * toolbarScale);
         customEditMenu->updateLayout();
+    }
+
+    if (auto startPosViewer = m_editorUI->getChildByID("d050.startpositionviewer/start-pos-viewer-menu")) {
+        startPosViewer->setScale(m_scale);
+        if (playtestMenu && playbackMenu) {
+            startPosViewer->setPosition({playtestMenu->boundingBox().getMinX() + 41.f * m_scale, (playtestMenu->getPositionY() + playbackMenu->getPositionY()) / 2.f});
+        }
     }
 
     m_editorUI->runAction(CallFuncExt::create([this, toolbarScale, fullReload] {

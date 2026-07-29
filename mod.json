@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.47",
+	"version": "v1.0.48",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -59,6 +59,12 @@
 			"type": "info",
 			"description": "Customize different aspects of the editor's interface.",
 			"color": "#000000"
+		},
+		"DisableSaveConfirmation-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Disable Save Confirmation Popup",
+			"description": "Disable save confirmation popup when saving in the pause menu. Instead it will just save."
 		},
 		"HideTriggerUI-enabled": {
 			"type": "bool",
@@ -516,6 +522,27 @@
 			"type": "keybind",
 			"default": ["Alt+'"],
 			"category": "editor"
+		},
+		"CleanPause-title": {
+			"type": "title",
+			"name": "Clean Pause"
+		},
+		"CleanPause-description": {
+			"type": "info",
+			"description": "Change the editor pause menu to match the in level one more. Add volume sliders",
+			"color": "#000000"
+		},
+		"CleanPause-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"CleanPause-blur-behind": {
+			"type": "bool",
+			"default": false,
+			"name": "Blur Behind",
+			"enable-if": "loaded:thesillydoggo.blur-api",
+			"enable-if-description": "This feature requires the Blur API mod."
 		},
 		"CustomToolbarBackground-title": {
 			"type": "title",

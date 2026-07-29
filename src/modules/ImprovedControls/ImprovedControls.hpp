@@ -19,7 +19,7 @@ class $editorModule(ImprovedControls) {
 
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
 
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit"> m_toggledHooks = {
+    tinker::utils::ScopedHookToggle<"hjfod.betteredit", ImprovedControls> m_toggledHooks = {
         "GJScaleControl::init",
         "GJScaleControl::loadValues",
         "GJScaleControl::updateLabelX",

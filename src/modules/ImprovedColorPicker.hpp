@@ -12,7 +12,7 @@ class $editorModule(ImprovedColorPicker) {
 
     Ref<CCSpriteFrame> m_colorChannelSpriteFrame;
 
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit"> m_toggledHooks = {
+    tinker::utils::ScopedHookToggle<"hjfod.betteredit", ImprovedColorPicker> m_toggledHooks = {
         "CustomizeObjectLayer::onSelectColor",
         "CustomizeObjectLayer::highlightSelected",
         "CustomizeObjectLayer::updateColorSprite",

@@ -71,6 +71,10 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
     static EditorPauseLayer* s_editorPauseLayer;
 
+    static void onModify(auto& self) {
+        (void) self.setHookPriorityPost("EditorPauseLayer::init", Priority::Late);
+    }
+
     struct Fields {
         bool m_wasIgnored = false;
         ~Fields();

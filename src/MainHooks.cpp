@@ -334,4 +334,8 @@ $on_mod(Loaded) {
     UIScaleUpdated().listen([] (float scale, bool scaleToolbars, bool fullReload) {
         tinker::api::ui_scaling::UIScaleUpdated().send(scale, scaleToolbars, false);
     }).leak();
+
+    PauseUIScaleUpdated().listen([] (EditorPauseLayer* pauseLayer, float scale) {
+        tinker::api::ui_scaling::PauseUIScaleUpdated().send(scale);
+    }).leak();
 }

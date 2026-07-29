@@ -896,7 +896,11 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
         fields->m_rotationLock = fields->m_rotationLockInternal;
     }
     fields->m_rotationToggle->setVisible(!oneObject);
-    fields->m_posLockToggle->getParent()->updateLayout();
+
+    auto menu = fields->m_posLockToggle->getParent();
+    menu->updateLayout();
+
+    fields->m_input->setPosition(menu->getPositionX() + menu->getScaledContentWidth() / 2.f, 0.f);
 
     if (!parent) parent = objects->asExt<GameObject>()[0];
     if (!parent) return;
