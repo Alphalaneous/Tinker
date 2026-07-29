@@ -150,6 +150,11 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
         resumeMenu->setScale(0.9f * scale);
     }
 
+    auto infoMenu = pauseLayer->getChildByID("info-menu");
+    if (infoMenu) {
+        infoMenu->setScale(scale);
+    }
+
     bool isNewNodeIDs = Loader::get()->getInstalledMod("geode.node-ids")->getVersion() > VersionInfo{1, 23, 3};
     auto actionsMenu = pauseLayer->getChildByID("actions-menu");
 
