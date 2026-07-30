@@ -24,7 +24,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, CCNode* control) {
             if (m_skipCallback) return;
 
             if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
-                auto scale = scaleControl->scaleFromValue(value);
+                auto scale = static_cast<ICGJScaleControl*>(scaleControl)->trueValueFromScale(value);
                 if (scale > 0.97f && scale < 1.03f) {
                     value = static_cast<ICGJScaleControl*>(scaleControl)->trueValueFromScale(1);
                 }
@@ -53,6 +53,7 @@ bool ScaleSlider::init(ScaleSliderCallback callback, CCNode* control) {
     addChild(m_extendedGroove);
 
     m_snapPointContainer = CCNode::create();
+    m_snapPointContainer->setZOrder(-10);
     m_snapPointContainer->setID("snap-point-container"_spr);
     m_snapPointContainer->setAnchorPoint({0.f, 0.5f});
     m_snapPointContainer->setContentSize(getGroove()->getContentSize());
@@ -142,8 +143,9 @@ CCSprite* ScaleSlider::getSmallTick() {
     return spr;
 }
 
-void ScaleSlider::sweepTicks(int start, int step, int limit, float edgeX, float grooveEdgeX, bool isRightSide, const ccColor3B& extendedColor) {
-    int i = start;
+void ScaleSlider::sweepTicks(int step, int limit, float edgeX, float grooveEdgeX, const ccColor3B& extendedColor) {
+    int i = 1;
+    bool isRightSide = step == 1;
     while (true) {
         float posX = valueToLocalX(i);
         bool pastEdge = isRightSide ? (posX > edgeX) : (posX < edgeX);
@@ -155,7 +157,9 @@ void ScaleSlider::sweepTicks(int start, int step, int limit, float edgeX, float 
             bool smallPastEdge = isRightSide ? (smallX > edgeX) : (smallX < edgeX);
             if (smallPastEdge) break;
             
-            addTick(getSmallTick(), smallX, grooveEdgeX, isRightSide, {255, 255, 255}, 105, extendedColor, 52);
+            if (smallX > 2.f || smallX < -2.f) {
+                addTick(getSmallTick(), smallX, grooveEdgeX, isRightSide, {255, 255, 255}, 105, extendedColor, 52);
+            }
         }
 
         if (pastEdge) break;
@@ -165,7 +169,9 @@ void ScaleSlider::sweepTicks(int start, int step, int limit, float edgeX, float 
             continue;
         }
 
-        addTick(getLargeTick(), posX, grooveEdgeX, isRightSide, {255, 255, 255}, 255, extendedColor, 127);
+        if (posX > 2.f || posX < -2.f) {
+            addTick(getLargeTick(), posX, grooveEdgeX, isRightSide, {255, 255, 255}, 255, extendedColor, 127);
+        }
 
         i += step;
         if ((isRightSide && i > limit) || (!isRightSide && i < limit)) {
@@ -204,6 +210,15 @@ float ScaleSlider::valueToLocalX(float value) {
     if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
         lower = scaleControl->m_lowerBound;
         upper = scaleControl->m_upperBound;
+
+        if (ImprovedControls::getSetting<bool, "custom-scale-min-max">()) {
+            lower = ImprovedControls::getSetting<float, "scale-min">();
+            upper = ImprovedControls::getSetting<float, "scale-max">();
+
+            if (lower > upper) {
+                std::swap(lower, upper);
+            }
+        }
     }
 
     float range = upper - lower;
@@ -223,14 +238,14 @@ void ScaleSlider::updateSnap(float snap) {
     m_snap = snap;
 
     const float grooveWidth = getGroove()->getContentSize().width;
-    const float grooveRightX = grooveWidth - 1.f;
-    const float grooveLeftX = 1.f;
+    const float grooveRightX = grooveWidth - 2.f;
+    const float grooveLeftX = 2.f;
 
-    const float rightEdgeX = std::max(grooveWidth, grooveWidth * getPercent()) - 1.f;
-    const float leftEdgeX = std::min(0.f, grooveWidth * getPercent()) + 1.f;
+    const float rightEdgeX = std::max(grooveWidth, grooveWidth * getPercent()) - 2.f;
+    const float leftEdgeX = std::min(0.f, grooveWidth * getPercent()) + 2.f;
 
-    sweepTicks(1, 1, 100, rightEdgeX, grooveRightX, true, {127, 255, 127});
-    sweepTicks(1, -1, -100, leftEdgeX, grooveLeftX, false, {255, 127, 127});
+    sweepTicks(1, 100, rightEdgeX, grooveRightX, {127, 255, 127});
+    sweepTicks(-1, -100, leftEdgeX, grooveLeftX, {255, 127, 127});
 }
 
 void ScaleSlider::clearExtendedGroove() {

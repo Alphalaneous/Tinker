@@ -7,6 +7,9 @@ void FLTEffectGameObject::setOpacity(unsigned char opacity) {
     }
     if (m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
         auto teleport = reinterpret_cast<TeleportPortalObject*>(this);
+        if (teleport->m_orangePortal->m_isSelected) {
+            opacity = 255;
+        }
         teleport->m_orangePortal->EffectGameObject::setOpacity(opacity);
     }
     EffectGameObject::setOpacity(opacity);

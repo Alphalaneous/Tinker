@@ -1,3 +1,13 @@
+# 1.0.49
+- <c-dddddd>Improve compatibility with Quick Move Buttons mod</c>
+- <c-dddddd>Add "Level Saved!" Notification when no save confirmation is enabled</c>
+- <c-dddddd>Fix orange teleport portals not becoming visible when selected while hidden</c>
+- <c-dddddd>Slightly increase the size of the background in the editor pause menu</c>
+- <c-dddddd>Fix a crash with Improved Scale Controls</c>
+- <c-dddddd>Tweaked pause menu button width</c>
+- <c-dddddd>Tweaked pause audio slider positions</c>
+- <c-dddddd>Add custom scale minimum and maximum settings for Improved Controls</c>
+
 # 1.0.48
 - <c-dddddd>Fix BetterEdit hooks getting disabled when a feature that disables them isn't enabled</c>
 - <c-dddddd>Fixed toggling features not properly re-enabling BetterEdit versions of said feature</c>
@@ -5,7 +15,6 @@
 - <c-dddddd>Add cleaner pause menu, with included volume sliders</c>
 - <c-dddddd>Fix Link Controls scale with BetterEdit when UI Scale in Tinker is disabled</c>
 - <c-dddddd>Improve UI scale compatibility with Start Pos Switcher, Better Editor Positions, and EditorMusic</c>
-- <c-dddddd>Improve compatibility with Quick Move Buttons mod</c>
 - <c-dddddd>Add disable save confirmation option</c>
 
 # 1.0.47

@@ -21,6 +21,10 @@ bool ImprovedControls::onSettingChanged(std::string_view key, const matjson::Val
         static_cast<ICGJScaleControl*>(m_editorUI->m_scaleControl)->setBypass(value.asBool().unwrapOrDefault());
         return true;
     }
+    if (key == "custom-scale-min-max" || key == "scale-min" || key == "scale-max") {
+        static_cast<ICGJScaleControl*>(m_editorUI->m_scaleControl)->updateSnapValues();
+        return true;
+    }
     return false;
 }
 
@@ -291,11 +295,35 @@ void ICEditorUI::scaleXYChanged(float scaleX, float scaleY, bool lock) {
 }
 
 float ICGJScaleControl::trueScaleFromValue(float value) {
-    return ImprovedControls::roundToThousandth((m_upperBound - m_lowerBound) * value + m_lowerBound);
+    float lowerBound = m_lowerBound;
+    float upperBound = m_upperBound;
+
+    if (ImprovedControls::getSetting<bool, "custom-scale-min-max">()) {
+        lowerBound = ImprovedControls::getSetting<float, "scale-min">();
+        upperBound = ImprovedControls::getSetting<float, "scale-max">();
+
+        if (lowerBound > upperBound) {
+            std::swap(lowerBound, upperBound);
+        }
+    }
+
+    return ImprovedControls::roundToThousandth((upperBound - lowerBound) * value + lowerBound);
 }
 
 float ICGJScaleControl::trueValueFromScale(float scale) {
-    return (scale - m_lowerBound) / (m_upperBound - m_lowerBound);
+    float lowerBound = m_lowerBound;
+    float upperBound = m_upperBound;
+
+    if (ImprovedControls::getSetting<bool, "custom-scale-min-max">()) {
+        lowerBound = ImprovedControls::getSetting<float, "scale-min">();
+        upperBound = ImprovedControls::getSetting<float, "scale-max">();
+
+        if (lowerBound > upperBound) {
+            std::swap(lowerBound, upperBound);
+        }
+    }
+
+    return (scale - lowerBound) / (upperBound - lowerBound);
 }
 
 bool ICGJScaleControl::init() {
@@ -596,15 +624,37 @@ void ICGJScaleControl::updateLabelXY(float scale) {
     }
 }
 
+void ICGJScaleControl::updateSnapValues() {
+    auto fields = m_fields.self();
+
+    float scaleX = trueScaleFromValue(fields->m_sliderX->getValue());
+    float scaleY = trueScaleFromValue(fields->m_sliderY->getValue());
+    float scaleXY = trueScaleFromValue(fields->m_sliderXY->getValue());
+    runAction(CallFuncExt::create([this, fields, scaleX, scaleY, scaleXY] {
+        auto snap = fields->m_snapLock ? 1.f / fields->m_snapSize : 4.f;
+
+        fields->m_sliderX->updateSnap(snap);
+        fields->m_sliderY->updateSnap(snap);
+        fields->m_sliderXY->updateSnap(snap);
+
+        fields->m_sliderX->setValue(trueValueFromScale(scaleX), true);
+        fields->m_sliderY->setValue(trueValueFromScale(scaleY), true);
+        fields->m_sliderXY->setValue(trueValueFromScale(scaleXY), true);
+    }));
+}
+
 CCPoint ICGJScaleControl::getPivotLocation() {
     auto fields = m_fields.self();
 
     CCPoint position;
-    if (fields->m_objects->count() == 0) {
+
+    if (!fields->m_objects || fields->m_objects->count() == 0) {
         position = fields->m_object->getPosition();
     }
     else {
-        position = EditorUI::get()->getGroupCenter(fields->m_objects, false);
+        if (fields->m_objects) {
+            position = EditorUI::get()->getGroupCenter(fields->m_objects, false);
+        }
     }
     return position;
 }
@@ -622,8 +672,13 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     else {
         fields->m_scaleLock = fields->m_scaleLockInternal;
     }
-    fields->m_scaleToggle->setVisible(!obj);
-    m_scaleLockButton->getParent()->updateLayout();
+    if (fields->m_scaleToggle) {
+        fields->m_scaleToggle->setVisible(!obj);
+    }
+    auto parent = m_scaleLockButton->getParent();
+    if (parent) {
+        parent->updateLayout();
+    }
 
     setPosition(getPivotLocation());
 

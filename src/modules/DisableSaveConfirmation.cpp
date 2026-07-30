@@ -34,6 +34,7 @@ void DisableSaveConfirmation::setHijack(EditorPauseLayer* pauseLayer) {
         tinker::utils::hijackButton(saveBtn, [pauseLayer] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
             if (DisableSaveConfirmation::isEnabled()) {
                 pauseLayer->saveLevel();
+                Notification::create("Level Saved!", NotificationIcon::Success)->show();
             }
             else {
                 orig(sender);

@@ -100,6 +100,7 @@ class $modify(ICGJScaleControl, GJScaleControl) {
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
     void unfocus();
     void setBypass(bool bypass);
+    void updateSnapValues();
     
     CCPoint getPivotLocation();
 

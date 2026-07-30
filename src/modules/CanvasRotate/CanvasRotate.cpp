@@ -229,7 +229,15 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
     auto quickMoveMenu = m_editorUI->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
     if (quickMoveMenu && quickMoveMenu->isVisible()) {
         if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
-            return next(touch);
+            m_editorUI->stopActionByTag(123);
+            m_inQuickMove = true;
+            auto selected = m_editorUI->m_selectedMode;
+            if (m_inQuickMove) {
+                m_editorUI->m_selectedMode = -1;
+            }
+            auto ret = next(touch);
+            m_editorUI->m_selectedMode = selected;
+            return ret;
         }
     }
 
@@ -254,6 +262,21 @@ void CanvasRotate::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* to
     if (isLassoActive()) {
         next(touch);
         return;
+    }
+
+    auto quickMoveMenu = m_editorUI->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
+    if (quickMoveMenu && quickMoveMenu->isVisible()) {
+        if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
+            m_editorUI->m_swipeActive = false;
+            m_editorUI->stopActionByTag(123);
+            auto selected = m_editorUI->m_selectedMode;
+            if (m_inQuickMove) {
+                m_editorUI->m_selectedMode = -1;
+            }
+            next(touch);
+            m_editorUI->m_selectedMode = selected;
+            return;
+        }
     }
 
     if (isEditorUITouch(touch)) {
@@ -301,6 +324,11 @@ void CanvasRotate::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* to
 }
 
 void CanvasRotate::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
+    auto selected = m_editorUI->m_selectedMode;
+    if (m_inQuickMove) {
+        m_editorUI->m_selectedMode = -1;
+    }
+
     auto preTransform = touch->getLocation();
     m_preTransformTouch[touch] = preTransform;
 
@@ -314,6 +342,8 @@ void CanvasRotate::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* to
     next(touch);
     m_dontRotate = false;
     m_preTransformTouch.erase(touch);
+    m_editorUI->m_selectedMode = selected;
+    m_inQuickMove = false;
 }
 
 void CanvasRotate::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {

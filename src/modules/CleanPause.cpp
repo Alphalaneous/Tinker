@@ -43,16 +43,21 @@ void CleanPause::onEditor() {
 
         auto resumeMenu = pauseLayer->getChildByID("resume-menu");
         if (resumeMenu) {
+            resumeMenu->setContentWidth(220.f);
+            for (auto child : resumeMenu->getChildrenExt()) {
+                resizeButton(child, resumeMenu->getContentWidth());
+            }
+
             auto exitButton = resumeMenu->getChildByID("exit-button");
             exitButton->setZOrder(100);
-            resizeButton(exitButton);
+            resizeButton(exitButton, resumeMenu->getContentWidth() / 2.f - 5.f);
 
             auto saveButton = resumeMenu->getChildByID("save-button");
             saveButton->setZOrder(101);
-            resizeButton(saveButton);
+            resizeButton(saveButton, resumeMenu->getContentWidth() / 2.f - 5.f);
 
             resumeMenu->setLayout(RowLayout::create()
-                ->setGap(9.5f)
+                ->setGap(10.f)
                 ->setAxisReverse(true)
                 ->setAutoScale(true)
                 ->setGrowCrossAxis(true)
@@ -147,7 +152,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     auto resumeMenu = pauseLayer->getChildByID("resume-menu");
     if (resumeMenu) {
         resumeMenu->setPosition(winSize / 2 + CCPoint{0.f, 20.f * scale});
-        resumeMenu->setScale(0.9f * scale);
+        resumeMenu->setScale(0.95f * scale);
     }
 
     auto infoMenu = pauseLayer->getChildByID("info-menu");
@@ -220,13 +225,13 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     auto bg = pauseLayer->getChildByID("background"_spr);
     if (bg) {
         auto bgSprite = bg->getChildByID("background-sprite"_spr);
-        bgSprite->setContentSize(winSize + CCSize{20.f, 0.f} - UIScaling::getSafeOffset() * 2.f);
+        bgSprite->setContentSize(winSize + CCSize{24.f, 4.f} - UIScaling::getSafeOffset() * 2.f);
     }
 
     auto musicSlider = pauseLayer->getChildByID("music-slider"_spr);
     if (musicSlider) {
         musicSlider->setScale(0.65f * scale);
-        musicSlider->setPosition({winSize.width / 2.f - musicSlider->getScaledContentWidth() / 2.f - 8.f * scale, 70.f * scale});
+        musicSlider->setPosition({winSize.width / 2.f - musicSlider->getScaledContentWidth() / 2.f - 10.f * scale, 70.f * scale});
         
         auto musicLabelContainer = pauseLayer->getChildByID("music-label-container"_spr);
         if (musicLabelContainer) {
@@ -246,7 +251,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     auto sfxSlider = pauseLayer->getChildByID("sfx-slider"_spr);
     if (sfxSlider) {
         sfxSlider->setScale(0.65f * scale);
-        sfxSlider->setPosition({winSize.width / 2.f + sfxSlider->getScaledContentWidth() / 2.f + 8.f * scale, 70.f * scale});
+        sfxSlider->setPosition({winSize.width / 2.f + sfxSlider->getScaledContentWidth() / 2.f + 10.f * scale, 70.f * scale});
 
         auto sfxLabelContainer = pauseLayer->getChildByID("sfx-label-container"_spr);
         if (sfxLabelContainer) {
@@ -256,8 +261,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     }
 }
 
-void CleanPause::resizeButton(CCNode* button) {
-    constexpr float width = 94.f;
+void CleanPause::resizeButton(CCNode* button, float width) {
     button->setContentWidth(width);
 
     auto btnSprite = button->getChildByType<ButtonSprite>(0);

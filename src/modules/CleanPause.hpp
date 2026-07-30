@@ -5,6 +5,6 @@
 class $editorModule(CleanPause) {
     void onEditor();
 
-    void resizeButton(CCNode* button);
+    void resizeButton(CCNode* button, float width);
     void scaleAndPosition(EditorPauseLayer* pauseLayer, float scale);
 };

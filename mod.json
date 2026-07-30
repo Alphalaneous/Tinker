@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.48",
+	"version": "v1.0.49",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -719,6 +719,28 @@
 			"type": "bool",
 			"default": true,
 			"name": "Scale Slider Bypass"
+		},
+		"ImprovedControls-custom-scale-min-max": {
+			"type": "bool",
+			"default": false,
+			"name": "Custom Scale Min and Max",
+			"description": "Allow custom minimum and maximum scroll bounds."
+		},
+		"ImprovedControls-scale-min": {
+			"type": "float",
+			"default": 0.25,
+			"name": "Scale Minimum",
+			"control": {
+				"arrows": false
+			}
+		},
+		"ImprovedControls-scale-max": {
+			"type": "float",
+			"default": 4,
+			"name": "Scale Maximum",
+			"control": {
+				"arrows": false
+			}
 		},
 		"ImprovedGroupView-title": {
 			"type": "title",

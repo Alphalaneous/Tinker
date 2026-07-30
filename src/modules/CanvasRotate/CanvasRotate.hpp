@@ -14,6 +14,7 @@ class $editorModule(CanvasRotate) {
     std::unordered_map<Ref<CCTouch>, CCPoint> m_preTransformTouch;
     bool m_dontRotate = false;
     CCPoint m_world;
+    bool m_inQuickMove = false;
 
     void onEditor() override;
     void toggleBetterEditHook(bool enabled);

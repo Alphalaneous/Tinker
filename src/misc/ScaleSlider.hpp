@@ -27,7 +27,7 @@ public:
     float sliderToExtendedGrooveX(float x);
 
     void addTick(CCSprite* spr, float sliderLocalX, float grooveEdgeX, bool isRightSide, const ccColor3B& insideColor, GLubyte insideOpacity, const ccColor3B& outsideColor, GLubyte outsideOpacity);
-    void sweepTicks(int start, int step, int limit, float edgeX, float grooveEdgeX, bool isRightSide, const ccColor3B& extendedColor);
+    void sweepTicks(int step, int limit, float edgeX, float grooveEdgeX, const ccColor3B& extendedColor);
 
     virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
 
