@@ -306,7 +306,13 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     }
 
     m_tooltipBG->setPosition(positionHere);
-    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), m_tooltipIDLabel->isVisible() ? m_tooltipIDLabel->getScaledContentWidth() : 0.f) + 5.f, m_tooltipLabel->getScaledContentHeight() + 5.f + heightOffset});
+
+    float tooltipIDWidth = 0.f;
+    if (m_tooltipIDLabel && m_tooltipIDLabel->isVisible()) {
+        tooltipIDWidth = m_tooltipIDLabel->getScaledContentWidth();
+    }
+    
+    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), tooltipIDWidth) + 5.f, m_tooltipLabel->getScaledContentHeight() + 5.f + heightOffset});
 
     float scale = ObjectTooltips::getSetting<float, "scale">();
     if (UIScaling::isEnabled()) {
