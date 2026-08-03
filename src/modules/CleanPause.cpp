@@ -1,8 +1,31 @@
 #include "CleanPause.hpp"
 #include <Geode/ui/SliderNode.hpp>
-#include <Geode/ui/NineSlice.hpp>
 #include "modules/UIScaling.hpp"
 #include "third-party/BlurAPI.hpp"
+#include "utils/Utils.hpp"
+
+constexpr float k = 9.0f;
+
+float CleanPause::volumeToSlider(float n) {
+    if (tinker::utils::getMod<"reidlab.logarithmic_volume">()) {
+        return std::log1p(n * k) / std::log1p(k); 
+    }
+    return n;
+}
+
+float CleanPause::sliderToVolume(float n) {
+    if (tinker::utils::getMod<"reidlab.logarithmic_volume">()) {
+        return std::expm1(n * std::log1p(k)) / k;
+    }
+    if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+        if (n <= 0.0f) return 0.0f;
+        if (n >= 1.0f) return 1.0f;
+
+        float exponent = mod->getSettingValue<double>("exponent");
+        return std::pow(n, exponent);
+    }
+    return n;
+}
 
 void CleanPause::onEditor() {
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* pauseLayer) {
@@ -21,7 +44,6 @@ void CleanPause::onEditor() {
         auto bg = geode::NineSlice::create("square04_001.png");
         bg->setColor({0, 0, 0});
         bg->setOpacity(175);
-        bg->setScaleMultiplier(0.8f);
         bg->setID("background-sprite"_spr);
 
         auto layerBG = CCLayerColor::create({0, 0, 0, 75});
@@ -90,14 +112,20 @@ void CleanPause::onEditor() {
         musicLabelContainer->updateLayout();
 
         auto musicSlider = SliderNode::create([fmod] (SliderNode* sender, float value) {
-            fmod->m_musicVolume = value / 100.f;
             if (fmod->m_backgroundMusicChannel) {
-                fmod->m_backgroundMusicChannel->setVolume(value / 100.f);
+                fmod->m_backgroundMusicChannel->setVolume(sliderToVolume(value / 100.f));
+            }
+            if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+                GameManager::get()->m_bgVolume = value / 100.f;
+                fmod->m_musicVolume = value / 100.f;
+            }
+            else {
+                fmod->m_musicVolume = sliderToVolume(value / 100.f);
             }
         });
         musicSlider->setID("music-slider"_spr);
         musicSlider->linkTextInput(musicInput, 0);
-        musicSlider->setValue(fmod->m_musicVolume * 100.f);
+        musicSlider->setValue(volumeToSlider(fmod->m_musicVolume) * 100.f);
         pauseLayer->addChild(musicSlider);
 
         auto sfxLabelContainer = CCNode::create();
@@ -125,14 +153,20 @@ void CleanPause::onEditor() {
         sfxLabelContainer->updateLayout();
 
         auto sfxSlider = SliderNode::create([fmod] (SliderNode* sender, float value) {
-            fmod->m_sfxVolume = value / 100.f;
             if (fmod->m_globalChannel) {
-                fmod->m_globalChannel->setVolume(value / 100.f);
+                fmod->m_globalChannel->setVolume(sliderToVolume(value / 100.f));
+            }
+            if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+                GameManager::get()->m_sfxVolume = value / 100.f;
+                fmod->m_sfxVolume = value / 100.f;
+            }
+            else {
+                fmod->m_sfxVolume = sliderToVolume(value / 100.f);
             }
         });
         sfxSlider->setID("sfx-slider"_spr);
         sfxSlider->linkTextInput(sfxInput, 0);
-        sfxSlider->setValue(fmod->m_sfxVolume * 100.f);
+        sfxSlider->setValue(volumeToSlider(fmod->m_sfxVolume) * 100.f);
         pauseLayer->addChild(sfxSlider);
 
         scaleAndPosition(pauseLayer, scale);

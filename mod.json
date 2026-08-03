@@ -1,5 +1,5 @@
 {
-	"geode": "5.7.1",
+	"geode": "5.8.1",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.49",
+	"version": "v1.0.50",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -25,6 +25,10 @@
 		},
 		"razoom.object_groups": {
 			"version": "v2.1.9",
+			"required": false
+		},
+		"smjs.object-collab": {
+			"version": "v0.2.0-beta.1",
 			"required": false
 		},
 		"geode.devtools": {
@@ -44,8 +48,7 @@
 	},
 	"links": {
 		"homepage": "https://linktr.ee/Alphalaneous",
-		"source": "https://github.com/Alphalaneous/Tinker",
-		"community": "https://discord.gg/Txn2CA5dHF"
+		"source": "https://github.com/Alphalaneous/Tinker"
 	},
 	"tags": [
 		"editor", "utility", "offline", "enhancement", "interface", "bugfix", "customization"
@@ -239,6 +242,12 @@
 			"description": "Drag on a duration line to change the duration without going into a trigger's edit menu.",
 			"enable-if": "!loaded:undefined0.bendy_duration_lines",
 			"enable-if-description": "This feature is not compatible with Bendy Duration Lines."
+		},
+		"MoreAttributes-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable More Attributes",
+			"description": "Edit Keyframe IDs, Link IDs, Ignore GParent and Ignore linked for Advanced Follow, and Remap Bugfix for Instant Collision."
 		},
 		"MultiTextEdit-enabled": {
 			"type": "bool",

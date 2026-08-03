@@ -1,6 +1,4 @@
 #include "StartPosTools.hpp"
-#include <Geode/ui/Button.hpp>
-#include <Geode/ui/NineSlice.hpp>
 #include "Events.hpp"
 #include "StartPosOverlay.hpp"
 #include "utils/Constants.hpp"

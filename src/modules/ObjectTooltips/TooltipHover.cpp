@@ -5,6 +5,7 @@
 #include "InputsHandler.hpp"
 #include "ObjectTooltips.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <smjs.object-collab/include/Optionals.hpp>
 
 using namespace tinker::ui;
 
@@ -249,16 +250,30 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
 void TooltipHover::showTooltip(CreateMenuItem* item) {
     if (item->m_objectID < 0) return;
 
-    auto nameRes = ObjectNames::get()->getName(item->m_objectID);
+    std::string customObjectID;
+    auto registryRes = object_collab::getOptionalRegister();
+    if (registryRes) {
+        auto registry = registryRes.unwrap();
+        auto& info = registry[item->m_objectID];
+        customObjectID = info.id;
+    }
+
     std::string name;
-    if (!nameRes) {
-        if (auto obj = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
-            name = tinker::utils::capitalize(obj->getCString());
-        }
+    if (item->m_objectID >= 100000000) {
+        name = ObjectNames::get()->deduceFromID(customObjectID);
     }
     else {
-        name = nameRes.unwrap();
+        auto nameRes = ObjectNames::get()->getName(item->m_objectID);
+        if (!nameRes) {
+            if (auto obj = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
+                name = tinker::utils::capitalize(obj->getCString());
+            }
+        }
+        else {
+            name = nameRes.unwrap();
+        }
     }
+
     if (name.empty()) {
         name = fmt::format("Unnamed {}", item->m_objectID);
     }
@@ -267,16 +282,31 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
 
     auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), y + HeightOffset});
     auto positionHere = convertToNodeSpace(positionWorld);
-    m_tooltipLabel->setString(std::string(name).c_str());
+    m_tooltipLabel->setString(name.c_str());
 
     float heightOffset = 0.f;
-    if (ObjectTooltips::getSetting<bool, "show-object-id">() && item->m_objectID != 0) {
-        m_tooltipIDLabel->setString(numToString(item->m_objectID).c_str());
-        heightOffset = m_tooltipIDLabel->getScaledContentHeight();
+    if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
+        std::string str;
+        if (item->m_objectID >= 100000000) {
+            str = customObjectID;
+        }
+        else if (item->m_objectID != 0) {
+            str = numToString(item->m_objectID);
+        }
+
+        if (!str.empty()) {
+            m_tooltipIDLabel->setVisible(true);
+            m_tooltipIDLabel->setString(str.c_str());
+            heightOffset = m_tooltipIDLabel->getScaledContentHeight();
+        }
+        else {
+            m_tooltipIDLabel->setString("");
+            m_tooltipIDLabel->setVisible(false);
+        }
     }
 
     m_tooltipBG->setPosition(positionHere);
-    m_tooltipBG->setContentSize(m_tooltipLabel->getScaledContentSize() + CCSize{5.f, 5.f + heightOffset});
+    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), m_tooltipIDLabel->isVisible() ? m_tooltipIDLabel->getScaledContentWidth() : 0.f) + 5.f, m_tooltipLabel->getScaledContentHeight() + 5.f + heightOffset});
 
     float scale = ObjectTooltips::getSetting<float, "scale">();
     if (UIScaling::isEnabled()) {
@@ -290,8 +320,6 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
         m_tooltipIDLabel->setPosition({2.5f, 2.5f});
     }
-
-    if (m_tooltipIDLabel) m_tooltipIDLabel->setVisible(item->m_objectID != 0);
 
     #ifdef GEODE_IS_DESKTOP
     if (!m_clicking) {

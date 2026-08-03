@@ -1,5 +1,4 @@
 #include "ObjectItem.hpp"
-#include <Geode/ui/NineSlice.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 #include "utils/Constants.hpp"
 

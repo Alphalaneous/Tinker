@@ -314,27 +314,22 @@ ImprovedGroupView::GroupData IGVSetGroupIDLayer::parseObjGroups(GameObject* obj)
     return ImprovedGroupView::GroupData{groups, parents, obj};
 }
 
-void IGVSetupSpawnPopup::addRemap(int oldID, int newID) {
-    SetupSpawnPopup::addRemap(oldID, newID);
-    m_fields->m_needsUpdate = true;
-}
-
-void IGVSetupSpawnPopup::onDeleteRemap(cocos2d::CCObject* sender) {
-    SetupSpawnPopup::onDeleteRemap(sender);
-    m_fields->m_needsUpdate = true;
-}
-
-void IGVSetupSpawnPopup::onSelectRemap(cocos2d::CCObject* sender) {
-    SetupSpawnPopup::onSelectRemap(sender);
-    m_fields->m_needsUpdate = true;
-}
-
 bool IGVSetupSpawnPopup::init(EffectGameObject* object, cocos2d::CCArray* objects) {
     if (!SetupSpawnPopup::init(object, objects)) return false;
 
     if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
         schedule(schedule_selector(IGVSetupSpawnPopup::fixNamedEditorGroups));
     }
+
+    auto fields = m_fields.self();
+    for (auto node : m_buttonMenu->getChildrenExt()) {
+        if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+            tinker::utils::hijackButton(btn, [fields] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
+                orig(sender);
+                fields->m_needsUpdate = true;
+            });
+        }
+    } 
 
     return true;
 }
@@ -351,6 +346,11 @@ void IGVSetupSpawnPopup::fixNamedEditorGroups(float dt) {
             }));
         } 
     }
+}
+
+void IGVSetupSpawnPopup::onSelectRemap2(cocos2d::CCObject* sender) {
+    SetupSpawnPopup::onSelectRemap(sender);
+    m_fields->m_needsUpdate = true;
 }
 
 void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
@@ -434,7 +434,7 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
         auto button = CCMenuItemSpriteExtra::create(
             buttonSprite,
             this,
-            menu_selector(SetupSpawnPopup::onSelectRemap)
+            menu_selector(IGVSetupSpawnPopup::onSelectRemap2)
         );
 
         button->setTag(index);

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/ui/NineSlice.hpp>
-#include <Geode/ui/Button.hpp>
 
 using namespace geode::prelude;
 

@@ -1,3 +1,16 @@
+# 1.0.50
+After some extended thought after recent events, I am not gonna let some of you bring me down anymore. I am human after all, please respect that. Keeping this alive as my main sole project, as I have a passion for it and don't want to abandon it.
+- <c-dddddd>Fix Allium compatibility issues</c>
+- <c-dddddd>Fix editor pause audio sliders compatibility with the Logarithmic Volume mod and the Exponential Volume mod</c>
+- <c-dddddd>Remove dead discord link</c>
+- <c-dddddd>Purely for the sake of consistency, even if a little weird, make the corner radii of the clean pause menu match the main pause menu</c>
+- <c-dddddd>Fix copy color text overlap</c>
+- <c-dddddd>Copy color now shows the color it is copying instead of grey</c>
+- <c-dddddd>Object Collab support</c>
+- <c-dddddd>Clean up ugly recent color saving code (what was I on?)</c>
+- <c-dddddd>Clean up Improved Group View spawn remap work arounds for Named Editor Groups</c>
+- <c-dddddd>Add Extra Attributes for Advanced Follow, Instant Collision, and Keyframes. Also add ability to manually set Link IDs</c>
+
 # 1.0.49
 - <c-dddddd>Improve compatibility with Quick Move Buttons mod</c>
 - <c-dddddd>Add "Level Saved!" Notification when no save confirmation is enabled</c>

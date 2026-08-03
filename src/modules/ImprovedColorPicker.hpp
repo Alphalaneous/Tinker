@@ -9,6 +9,7 @@
 class $editorModule(ImprovedColorPicker) {
     bool onToggled(bool state) override;
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
+    ccColor3B getRealizedColor(int channelID);
 
     Ref<CCSpriteFrame> m_colorChannelSpriteFrame;
 
@@ -83,7 +84,7 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
         int m_finalChannel2 = -1;
     };
 
-    void updateSprite(ColorChannelSprite* sprite);
+    void updateSprite(ColorChannelSprite* sprite, int colorID = -1);
     ColorChannelSprite* createSprite(int channel, bool recent);
     CCMenuItemSpriteExtra* createChannelButton(int channel, bool recent = false);
 

@@ -1,5 +1,6 @@
 #include "QuickExtras.hpp"
 #include "utils/Constants.hpp"
+#include <smjs.object-collab/include/Optionals.hpp>
 
 void QuickExtras::onEditor() {
     if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {
@@ -33,7 +34,35 @@ void QuickExtras::onEditor() {
         bool selected = m_editorUI->m_selectedObject || m_editorUI->m_selectedObjects->count() != 0;
 
         if (!getSetting<bool, "always-show">()) {
+            auto registryRes = object_collab::getOptionalRegister();
+
+
             bool isSpecial = static_cast<QEEditorUI*>(m_editorUI)->_editButton2Usable();
+            if (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() > 0) {
+                for (auto obj : m_editorUI->m_selectedObjects->asExt<GameObject>()) {
+                    if (obj->m_objectID >= 100000000) {
+                        if (registryRes) {
+                            auto registry = registryRes.unwrap();
+                            auto& info = registry[obj->m_objectID];
+                            if (info.hasEditSpecial) {
+                                isSpecial = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            else if (m_editorUI->m_selectedObject) {
+                if (m_editorUI->m_selectedObject->m_objectID >= 100000000) {
+                    if (registryRes) {
+                        auto registry = registryRes.unwrap();
+                        auto& info = registry[m_editorUI->m_selectedObject->m_objectID];
+                        if (info.hasEditSpecial) {
+                            isSpecial = true;
+                        }
+                    }
+                }
+            }
 
             if (isSpecial) {
                 auto spr = CCSprite::createWithSpriteFrameName("GJ_editObjBtn4_001.png");
@@ -49,6 +78,7 @@ void QuickExtras::onEditor() {
             m_editorUI->m_editSpecialBtn->setContentSize({40.f, 40.f});
             m_editorUI->m_editSpecialBtn->setColor(selected ? ccColor3B{255, 255, 255} : ccColor3B{166, 166, 166});
             m_editorUI->m_editSpecialBtn->setOpacity(selected ? 255 : 175);
+            m_editorUI->m_editSpecialBtn->setEnabled(selected);
             m_editorUI->m_editSpecialBtn->m_animationEnabled = selected;
 
             if (auto editorButtonsMenu = m_editorUI->getChildByID("editor-buttons-menu")) {

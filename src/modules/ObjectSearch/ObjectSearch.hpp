@@ -1,7 +1,6 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <Geode/ui/NineSlice.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/CreateMenuItem.hpp>
 #include <Geode/modify/EditButtonBar.hpp>

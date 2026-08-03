@@ -2,7 +2,6 @@
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include "Events.hpp"
-#include "Geode/loader/Log.hpp"
 #include "InputsHandler.hpp"
 #include "utils/Utils.hpp"
 #include "CanvasRotate.hpp"

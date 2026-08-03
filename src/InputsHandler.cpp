@@ -1,6 +1,5 @@
 #include "InputsHandler.hpp"
 #include "Events.hpp"
-#include "modules/Fixes/ZoomGroundFix.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"

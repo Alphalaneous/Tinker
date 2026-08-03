@@ -2,7 +2,6 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
-#include <Geode/ui/Button.hpp>
 
 class Group : public CCNode {};
 

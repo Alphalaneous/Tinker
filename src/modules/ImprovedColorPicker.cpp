@@ -1,5 +1,4 @@
 #include "ImprovedColorPicker.hpp"
-#include <Geode/ui/NineSlice.hpp>
 #include "utils/Constants.hpp"
 #include "utils/NextFree/NextFreeProvider.hpp"
 #include "utils/NextFree/sources/ColorSource.hpp"
@@ -135,6 +134,10 @@ void ICPCustomizeObjectLayer::updateSelection(const std::vector<Ref<ColorChannel
             i->setVisible(channelObj->getValue() == selected);
         }
     }
+
+    if (updateColor) {
+        updateSprite(m_colorSprite, m_customColorChannel);
+    }
 }
 
 void ICPCustomizeObjectLayer::highlightSelected(ButtonSprite* sprite) {
@@ -175,6 +178,7 @@ void ICPCustomizeObjectLayer::updateLiveSelectButton() {
                 m_colorSprite->setVisible(true);
                 break;
         }
+        updateSprite(m_colorSprite, m_customColorChannel);
     }
 }
 
@@ -286,13 +290,31 @@ void ICPCustomizeObjectLayer::setChannelModified() {
     }
 }
 
-void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite) {
+ccColor3B ImprovedColorPicker::getRealizedColor(int channelID) {
+    auto channel = m_editorLayer->m_levelSettings->m_effectManager->getColorAction(channelID);
+    if (!channel) {
+        return ccWHITE;
+    }
+    if (channel->m_copyColorLoop) {
+        return ccWHITE;
+    }
+    if (channel->m_copyID) {
+        return GameToolbox::transformColor(getRealizedColor(channel->m_copyID), channel->m_copyHSV);
+    }
+    return channel->m_fromColor;
+}
+
+void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite, int colorID) {
     auto channelObj = typeinfo_cast<CCInteger*>(sprite->getUserObject("channel"_spr));
-    if (!channelObj) return;
+
+    if (colorID == -1) {
+        if (!channelObj) return;
+        colorID = channelObj->getValue();
+    }
 
     using namespace tinker::constants::color_channels;
 
-    if (channelObj->getValue() == 0) {
+    if (colorID == 0) {
         sprite->setOpacity(50);
         return;
     }
@@ -301,7 +323,7 @@ void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite) {
 
     auto allActions = LevelEditorLayer::get()->m_levelSettings->m_effectManager->getAllColorActions();
     for (auto actionI : allActions->asExt<ColorAction>()) {
-        if (actionI->m_colorID == channelObj->getValue()) {
+        if (actionI->m_colorID == colorID) {
             action = actionI;
             break;
         }
@@ -309,13 +331,18 @@ void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite) {
 
     if (action) {
         sprite->updateValues(action);
-
-        if (auto label = sprite->getChildByID("id-label")) {
-            label->setVisible(!action->m_copyID);
+        if (action->m_copyID != 0) {
+            sprite->setColor(ImprovedColorPicker::get()->getRealizedColor(action->m_colorID));
         }
     }
 
-    switch (channelObj->getValue()) {
+    if (sprite->m_copyLabel) {
+        sprite->m_copyLabel->setScale(0.3f);
+        sprite->m_copyLabel->setAnchorPoint({1.f, 1.f});
+        sprite->m_copyLabel->setPosition(sprite->getContentSize() - CCPoint{3.5f, 2.5f});
+    }
+
+    switch (colorID) {
         case Black: {
             sprite->setColor({0, 0, 0});
             break;
@@ -374,7 +401,7 @@ ColorChannelSprite* ICPCustomizeObjectLayer::createSprite(int channel, bool rece
                 "bigFont.fnt"
             );
             label->limitLabelWidth(25.f, 0.4f, 0.2f);
-            label->setPosition(spr->getContentSize() / 2.f);
+            label->setPosition(spr->getContentSize() / 2.f + CCPoint{0.f, 0.5f});
             label->setID("id-label"_spr);
             spr->addChild(label);
 
@@ -674,6 +701,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     scrollToChannel(m_customColorChannel, true);
 
     cull(fields->m_colorList->getContentLayer(), fields->m_colorList->getScrollPoint(), singleHeight);
+    updateSprite(m_colorSprite, m_customColorChannel);
 
     fields->m_inited = true;
     
@@ -704,39 +732,37 @@ void ICPCustomizeObjectLayer::cull(cocos2d::CCNode* content, const cocos2d::CCPo
 void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
     auto fields = m_fields.self();
 
-    auto addRecentChannel = [&](bool modified, int finalChannel) {
-        if (!modified || finalChannel == -1) {
-            return;
+    auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(
+        LevelEditorLayer::get(),
+        "improved-color-picker/recents"
+    );
+
+    std::vector<int> recents;
+    recents.reserve(10);
+
+    if (fields->m_modifiedChannel1) {
+        recents.push_back(fields->m_finalChannel1);
+    }
+
+    if (fields->m_modifiedChannel2) {
+        recents.push_back(fields->m_finalChannel2);
+    }
+
+    for (int channel : saved) {
+        if (fields->m_modifiedChannel1 && channel == fields->m_finalChannel1) continue;
+        if (fields->m_modifiedChannel2 && channel == fields->m_finalChannel2) continue;
+
+        recents.push_back(channel);
+        if (recents.size() == 10) {
+            break;
         }
+    }
 
-        auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(
-            LevelEditorLayer::get(),
-            "improved-color-picker/recents"
-        );
-
-        std::vector<int> recents;
-        recents.reserve(10);
-
-        recents.push_back(finalChannel);
-
-        for (int channel : saved) {
-            if (channel != finalChannel) {
-                recents.push_back(channel);
-                if (recents.size() == 10) {
-                    break;
-                }
-            }
-        }
-
-        alpha::level_storage::setSavedValue(
-            LevelEditorLayer::get(),
-            "improved-color-picker/recents",
-            recents
-        );
-    };
-
-    addRecentChannel(fields->m_modifiedChannel1, fields->m_finalChannel1);
-    addRecentChannel(fields->m_modifiedChannel2, fields->m_finalChannel2);
+    alpha::level_storage::setSavedValue(
+        LevelEditorLayer::get(),
+        "improved-color-picker/recents",
+        recents
+    );
 
     fields->m_colorList->removeFromParent();
 

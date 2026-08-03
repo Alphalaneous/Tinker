@@ -1,4 +1,5 @@
 #include "ObjectNames.hpp"
+#include "utils/Utils.hpp"
 
 void ObjectNames::checkNames() {
     auto req = web::WebRequest();
@@ -96,7 +97,29 @@ void ObjectNames::downloadNames() {
     );
 }
 
+std::string ObjectNames::deduceFromID(ZStringView id) {
+    auto splitSlash = utils::string::split(id, "/");
+    if (splitSlash.empty()) return "Unknown";
+
+    StringBuffer<> str;
+    auto last = splitSlash[splitSlash.size() - 1];
+
+    auto splitDash = utils::string::split(last, "-");
+    bool first = true;
+    for (const auto& part : splitDash) {
+        if (!first) {
+            str.append(" ");
+        }
+        str.append(tinker::utils::capitalize(part));
+        first = false;
+    }
+    return str.str();
+}
+
 Result<std::string_view> ObjectNames::getName(unsigned int id) {
+    if (id >= 100000000) {
+        return Ok("Custom Object");
+    }
     auto iter = m_names.find(id);
     if (iter == m_names.end()) return Err("Name not found for ID");
 

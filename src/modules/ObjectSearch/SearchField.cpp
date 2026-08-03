@@ -1,6 +1,6 @@
 #include "SearchField.hpp"
-#include "misc/ObjectNames.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include <smjs.object-collab/include/Optionals.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
 #include "utils/Utils.hpp"
@@ -49,13 +49,26 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
                 auto info = infoForID(id);
                 if (info) arr->addObject(info.unwrap().item);
             }
+            else {
+                auto registryRes = object_collab::getOptionalRegister();
+                if (registryRes) {
+                    auto registry = registryRes.unwrap();
+                    for (auto& [k, v] : registry) {
+                        if (v.id == parts[1]) {
+                            auto info = infoForID(k);
+                            if (info) arr->addObject(info.unwrap().item);
+                        }
+                    }
+                }
+            }
         }
     }
     else if (lower.starts_with("exact:")) {
+        auto& items = static_cast<OSEditorUI*>(ObjectSearch::get()->m_editorUI)->m_fields->m_items;
         std::vector<std::string> parts = tinker::utils::split(lower, ":", 2);
         if (parts.size() == 2) {
-            for (auto& [k, v] : ObjectNames::get()->getNames()) {
-                std::string lowerV = geode::utils::string::toLower(v);
+            for (auto& [k, v] : items) {
+                std::string lowerV = geode::utils::string::toLower(v.name);
                 if (lowerV == geode::utils::string::trim(parts[1])) {
                     auto info = infoForID(k);
                     if (info) arr->addObject(info.unwrap().item);
@@ -73,9 +86,10 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
         std::vector<NameScore> nameScores;
 
         auto queryWords = geode::utils::string::split(lower, " ");
+        auto& items = static_cast<OSEditorUI*>(ObjectSearch::get()->m_editorUI)->m_fields->m_items;
 
-        for (const auto& [k, v] : ObjectNames::get()->getNames()) {
-            auto nameWords = geode::utils::string::split(geode::utils::string::toLower(v), " ");
+        for (const auto& [k, v] : items) {
+            auto nameWords = geode::utils::string::split(geode::utils::string::toLower(v.name), " ");
 
             int totalScore = 0;
             bool matches = true;
@@ -102,7 +116,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
             }
 
             if (matches) {
-                nameScores.push_back({k, v, totalScore});
+                nameScores.push_back({k, v.name, totalScore});
             }
         }
 

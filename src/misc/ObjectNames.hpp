@@ -10,6 +10,7 @@ class ObjectNames : public Singleton<ObjectNames> {
 public:
     void checkNames();
     Result<std::string_view> getName(unsigned int id);
+    std::string deduceFromID(ZStringView id);
     const std::unordered_map<unsigned int, std::string>& getNames();
 protected:
     int checkVersion();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <Geode/binding/GameObject.hpp>
 #include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include <alphalaneous.good_grid/include/DrawNode.hpp>

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Geode/ui/Button.hpp>
-#include <Geode/ui/NineSlice.hpp>
 #include <Geode/Geode.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 

@@ -6,6 +6,7 @@
 #include "modules/CenteredObjectButtons.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <smjs.object-collab/include/Optionals.hpp>
 #include "third-party/ObjectIDDisplay.hpp"
 #include "utils/Constants.hpp"
 
@@ -129,7 +130,22 @@ void OSEditorUI::onSetupCreateMenu() {
 
             auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, this, menu_selector(EditorUI::onCreateButton));
 
-            fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, std::string(ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault()), cmi->m_objectID, tab->m_tabIndex, cmi};
+            std::string name;
+            if (cmi->m_objectID >= 100000000) {
+                auto registryRes = object_collab::getOptionalRegister();
+                if (registryRes) {
+                    auto registry = registryRes.unwrap();
+                    auto& info = registry[cmi->m_objectID];
+                    name = ObjectNames::get()->deduceFromID(info.id);
+                }
+                else {
+                    name = "Unknown";
+                }
+            }
+            else {
+                name = ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault();
+            }
+            fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, name, cmi->m_objectID, tab->m_tabIndex, cmi};
             fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
         }
     }

@@ -2,6 +2,7 @@
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "InputsHandler.hpp"
 #include "RotationNode.hpp"
+#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "utils/Utils.hpp"
 #include "modules/NavigationCircle/JoystickNavigation.hpp"
 
@@ -202,6 +203,14 @@ bool CanvasRotate::isEditorUITouch(CCTouch* touch) {
     }
 
     if (m_editorUI->m_transformTouchID == touchID) {
+        return false;
+    }
+
+    if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "alk.allium/allium") {
+        return false;
+    }
+
+    if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "michael.sculptorv4/sculptor") {
         return false;
     }
 

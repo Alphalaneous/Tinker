@@ -64,11 +64,8 @@ class $modify(IGVSetupSpawnPopup, SetupSpawnPopup) {
 
     bool init(EffectGameObject* object, cocos2d::CCArray* objects);
     void fixNamedEditorGroups(float dt);
-    void addRemap(int oldID, int newID);
-    void onDeleteRemap(cocos2d::CCObject* sender);
-    void onSelectRemap(cocos2d::CCObject* sender);
     void updateRemapButtons(float dt);
-
+    void onSelectRemap2(cocos2d::CCObject* sender);
 };
 
 class $modify(IGVSetupRandAdvTriggerPopup, SetupRandAdvTriggerPopup) {
