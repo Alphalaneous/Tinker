@@ -1,3 +1,6 @@
+# 1.0.51
+- <c-dddddd>Fix a crash</c>
+
 # 1.0.50
 After some extended thought after recent events, I am not gonna let some of you bring me down anymore. I am human after all, please respect that. Keeping this alive as my main sole project, as I have a passion for it and don't want to abandon it.
 - <c-dddddd>Fix Allium compatibility issues</c>
