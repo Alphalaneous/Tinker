@@ -254,3 +254,29 @@ bool MASetupObjectOptions2Popup::init(GameObject* object, cocos2d::CCArray* obje
 
     return true;
 }
+
+void MASetupTriggerPopup::createMultiTriggerItems(cocos2d::CCPoint touchPos, cocos2d::CCPoint spawnPos, cocos2d::CCPoint multiPos) {
+    if (typeinfo_cast<SetupAdvFollowPopup*>(this)) {
+        auto winSize = CCDirector::get()->getWinSize();
+        multiPos = CCPoint{winSize.width / 2.f - 200.f, winSize.height / 2.f - 110.f};
+    }
+    SetupTriggerPopup::createMultiTriggerItems(touchPos, spawnPos, multiPos);
+}
+
+cocos2d::CCArray* MASetupTriggerPopup::createToggleValueControl(int property, gd::string label, cocos2d::CCPoint position, bool vertical, int page, int group, float scale) {
+    if (typeinfo_cast<SetupAdvFollowPopup*>(this)) {
+        if (property == 571) {
+            position.y += 8.5f;
+        }
+    }
+    return SetupTriggerPopup::createToggleValueControl(property, label, position, vertical, page, group, scale);
+}
+
+cocos2d::CCArray* MASetupTriggerPopup::createCustomToggleValueControl(int property, bool toggled, bool notClickable, gd::string text, cocos2d::CCPoint position, bool vertical, int page, int group) {
+    if (typeinfo_cast<SetupAdvFollowPopup*>(this)) {
+        if (property == 0 || property == 1 || property == 2) {
+            position.y += 8.5f;
+        }
+    }
+    return SetupTriggerPopup::createCustomToggleValueControl(property, toggled, notClickable, text, position, vertical, page, group);
+}

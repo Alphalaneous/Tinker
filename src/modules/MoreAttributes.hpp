@@ -5,6 +5,7 @@
 #include <Geode/modify/SetupAdvFollowPopup.hpp>
 #include <Geode/modify/SetupInstantCollisionTriggerPopup.hpp>
 #include <Geode/modify/SetupObjectOptions2Popup.hpp>
+#include <Geode/modify/SetupTriggerPopup.hpp>
 
 class $editorModule(MoreAttributes) {
 };
@@ -34,4 +35,12 @@ class $modify(MASetupObjectOptions2Popup, SetupObjectOptions2Popup) {
     $registerEditorHooks(MoreAttributes)
 
     bool init(GameObject* object, cocos2d::CCArray* objects);
+};
+
+class $modify(MASetupTriggerPopup, SetupTriggerPopup) {
+    $registerEditorHooks(MoreAttributes)
+
+    void createMultiTriggerItems(cocos2d::CCPoint touchPos, cocos2d::CCPoint spawnPos, cocos2d::CCPoint multiPos);
+    cocos2d::CCArray* createCustomToggleValueControl(int property, bool toggled, bool notClickable, gd::string text, cocos2d::CCPoint position, bool vertical, int page, int group);
+    cocos2d::CCArray* createToggleValueControl(int property, gd::string label, cocos2d::CCPoint position, bool vertical, int page, int group, float scale);
 };

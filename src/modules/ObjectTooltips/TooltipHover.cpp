@@ -248,6 +248,7 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
 }
 
 void TooltipHover::showTooltip(CreateMenuItem* item) {
+    if (!item) return;
     if (item->m_objectID < 0) return;
 
     std::string customObjectID;
@@ -278,14 +279,16 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         name = fmt::format("Unnamed {}", item->m_objectID);
     }
 
-    auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
+    auto y = item->getPositionY() + item->getContentHeight() / 2.f;
+    auto parent = item->getParent();
+    if (!parent) return;
 
-    auto positionWorld = item->getParent()->convertToWorldSpace({item->getPositionX(), y + HeightOffset});
+    auto positionWorld = parent->convertToWorldSpace({item->getPositionX(), y + HeightOffset});
     auto positionHere = convertToNodeSpace(positionWorld);
     m_tooltipLabel->setString(name.c_str());
 
     float heightOffset = 0.f;
-    if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
+    if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
         std::string str;
         if (item->m_objectID >= 100000000) {
             str = customObjectID;
@@ -323,7 +326,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
 
     m_tooltipLabel->setPosition({2.5f, m_tooltipBG->getContentHeight() - 2.5f});
 
-    if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
+    if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
         m_tooltipIDLabel->setPosition({2.5f, 2.5f});
     }
 

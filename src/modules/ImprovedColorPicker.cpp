@@ -331,8 +331,10 @@ void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite, int color
 
     if (action) {
         sprite->updateValues(action);
-        if (action->m_copyID != 0) {
-            sprite->setColor(ImprovedColorPicker::get()->getRealizedColor(action->m_colorID));
+        if (ImprovedColorPicker::getSetting<bool, "show-copy-color">()) {
+            if (action->m_copyID != 0) {
+                sprite->setColor(ImprovedColorPicker::get()->getRealizedColor(action->m_colorID));
+            }
         }
     }
 
@@ -351,6 +353,10 @@ void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite, int color
             sprite->setOpacity(120);
             break;
         }
+    }
+
+    if (!channelObj) {
+        sprite->setOpacity(255);
     }
 }
 

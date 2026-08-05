@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.51",
+	"version": "v1.0.52",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -161,16 +161,16 @@
 			"default": 0.1,
 			"name": "Minimum Scroll Zoom",
 			"description": "How far you can zoom out when scrolling.",
-			"min": 0.1,
+			"min": 0.005,
 			"max": 2
 		},
 		"zoom-maximum": {
 			"type": "float",
-			"default": 10000000,
+			"default": 1000,
 			"name": "Maximum Scroll Zoom",
 			"description": "How far you can zoom in when scrolling.",
 			"min": 2,
-			"max": 10000000
+			"max": 10000
 		},
 		"pinch-to-zoom": {
 			"type": "bool",
@@ -698,6 +698,12 @@
 				"android": false,
 				"ios": false
 			}
+		},
+		"ImprovedColorPicker-show-copy-color": {
+			"type": "bool",
+			"name": "Show Copy Color",
+			"description": "Show the copy color instead of grey.",
+			"default": true
 		},
 		"ImprovedColorPicker-out-of-range-ids": {
 			"type": "bool",

@@ -398,6 +398,10 @@ void InputEditorUI::onScroll() {
     float x = fields->m_scroll.x;
     float y = fields->m_scroll.y;
 
+    if (fields->m_scroll.equals({0.f, 0.f})) {
+        return;
+    }
+
     #ifdef GEODE_IS_MACOS
     int naturalMult = isNaturalScrollEnabled() ? 1 : -1;
     float xMult = 1 * naturalMult;
@@ -460,7 +464,7 @@ void InputEditorUI::onScroll() {
             fields->m_startSwipe = layer->convertToNodeSpace(m_swipeStart);
             fields->m_activeZoom = true;
         }
-        fields->m_targetScale = std::max(fields->m_targetScale, 0.1f);
+        fields->m_targetScale = std::max(fields->m_targetScale, getSetting<float, "zoom-minimum">());
 
         auto winSize = CCDirector::get()->getWinSize();
 
@@ -478,17 +482,18 @@ void InputEditorUI::onScroll() {
         auto oldScale = fields->m_targetScale;
 
         float newScale = fields->m_targetScale * std::powf(zoomFactor, -newY * zoomSpeed);
-        fields->m_targetScale = std::min(std::max(newScale, getSetting<float, "zoom-minimum">()), getSetting<float, "zoom-maximum">());
+        fields->m_targetScale = std::clamp(newScale, getSetting<float, "zoom-minimum">(), getSetting<float, "zoom-maximum">());
 
         if (getSetting<bool, "smooth-scroll-enabled">()) {
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
 
-                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, layer->getScale(), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
+                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, std::clamp(layer->getScale(), getSetting<float, "zoom-minimum">(), getSetting<float, "zoom-maximum">()), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
                     scale = start + (end - start) * t;
+                    if (scale == 0.f) return;
 
                     if (getSetting<bool, "zoom-to-cursor">()) {
-                        auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2, m_editorLayer->m_gameState.m_cameraAngle);
+                        auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
                         auto prevPos = layer->convertToNodeSpace(mousePos);
                     
                         updateZoom(scale);
@@ -511,15 +516,19 @@ void InputEditorUI::onScroll() {
             fields->m_activeZoom = false;
 
             if (getSetting<bool, "zoom-to-cursor">()) {
-                auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2, m_editorLayer->m_gameState.m_cameraAngle);
+                auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+                if (mousePos.equals({0.f, 0.f})) return;
+                
                 auto prevPos = layer->convertToNodeSpace(mousePos);
             
+                if (fields->m_targetScale == 0.f) return;
                 updateZoom(fields->m_targetScale);
 
                 auto newPos = layer->convertToWorldSpace(prevPos);
                 layer->setPosition(layer->getPosition() + mousePos - newPos);
             }
             else {
+                if (fields->m_targetScale == 0.f) return;
                 updateZoom(fields->m_targetScale);
             }
             m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
@@ -547,7 +556,7 @@ void InputEditorUI::onScroll() {
         newX *= -1;
     }
 
-    auto newPos = tinker::utils::rotatePointAroundPivot({newX, newY}, {0, 0}, m_editorLayer->m_gameState.m_cameraAngle);
+    auto newPos = tinker::utils::rotatePointAroundPivot({newX, newY}, {0.f, 0.f}, m_editorLayer->m_gameState.m_cameraAngle);
 
     auto oldPos = fields->m_targetPos;
     fields->m_targetPos = fields->m_targetPos + newPos;

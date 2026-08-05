@@ -1,3 +1,13 @@
+# 1.0.52
+- <c-dddddd>Add some sanity checks to tooltips</c>
+- <c-dddddd>Add some sanity checks to smooth zooming</c>
+- <c-dddddd>Fix color preview opacity</c>
+- <c-dddddd>Fix overlapping buttons in Advanced Follow</c>
+- <c-dddddd>Add show copy color option</c>
+- <c-dddddd>Decrease minimum zoom option to 0.005</c>
+- <c-dddddd>Decrease maximum zoom option to 10000</c>
+- <c-dddddd>Change default maximum zoom to 1000</c>
+
 # 1.0.51
 - <c-dddddd>Fix a crash</c>
 
