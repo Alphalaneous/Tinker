@@ -9,7 +9,7 @@
 class $editorModule(ImprovedColorPicker) {
     bool onToggled(bool state) override;
     bool onSettingChanged(std::string_view key, const matjson::Value& value) override;
-    ccColor3B getRealizedColor(int channelID);
+    ccColor3B getRealizedColor(int channelID, unsigned int depth = 0);
 
     Ref<CCSpriteFrame> m_colorChannelSpriteFrame;
 

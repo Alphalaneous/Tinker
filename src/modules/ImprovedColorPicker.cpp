@@ -290,16 +290,16 @@ void ICPCustomizeObjectLayer::setChannelModified() {
     }
 }
 
-ccColor3B ImprovedColorPicker::getRealizedColor(int channelID) {
+ccColor3B ImprovedColorPicker::getRealizedColor(int channelID, unsigned int depth) {
     auto channel = m_editorLayer->m_levelSettings->m_effectManager->getColorAction(channelID);
     if (!channel) {
         return ccWHITE;
     }
-    if (channel->m_copyColorLoop) {
+    if (channel->m_copyColorLoop || depth > 10) {
         return ccWHITE;
     }
     if (channel->m_copyID) {
-        return GameToolbox::transformColor(getRealizedColor(channel->m_copyID), channel->m_copyHSV);
+        return GameToolbox::transformColor(getRealizedColor(channel->m_copyID, depth + 1), channel->m_copyHSV);
     }
     return channel->m_fromColor;
 }

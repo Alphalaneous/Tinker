@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.52",
+	"version": "v1.0.53",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -76,6 +76,12 @@
 			"description": "Dragging any slider in any trigger hides the trigger UI.",
 			"enable-if": "!loaded:ninkaz.editor_utils",
 			"enable-if-description": "This feature is not compatible with Ninkaz's Editor Utils."
+		},
+		"ImprovedFontSelection-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Improved Font Selection",
+			"description": "Show fonts in a scrollable view and preview text with them."
 		},
 		"ImprovedLinkControls-enabled": {
 			"type": "bool",
@@ -323,6 +329,12 @@
 			"default": true,
 			"name": "Slope Orientation Fix",
 			"description": "Fix slope hitboxes not rendering properly when rotating them and template slopes not placing at the right orientation."
+		},
+		"FixHeadHitting-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Head hitting (breakable blocks) fix",
+			"description": "Fixes a vanilla bug where you can hit your head on `anything after changing gravity in a session, this also broke breakable blocks."
 		},
 		"NoTouchPasteStateFix-enabled": {
 			"type": "bool",

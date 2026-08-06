@@ -533,6 +533,12 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     addObjectToPage(fields->m_scrollBar, 1);
     addObjectToPage(fields->m_groupCountLabel, 1);
     addObjectToPage(fields->m_scrollLayer, 1);
+
+    if (m_page != 1) {
+        fields->m_scrollBar->setVisible(false);
+        fields->m_groupCountLabel->setVisible(false);
+        fields->m_scrollLayer->setVisible(false);
+    }
 }
 
 void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {

@@ -1,3 +1,9 @@
+# 1.0.53
+- <c-dddddd>Fix a crash with recursive copy color</c>
+- <c-dddddd>Fix spawn remap buttons persisting on other pages</c>
+- <c-dddddd>Add head hitting/breakable blocks physics bug fix</c>
+- <c-dddddd>Added an improved font picker</c>
+
 # 1.0.52
 - <c-dddddd>Add some sanity checks to tooltips</c>
 - <c-dddddd>Add some sanity checks to smooth zooming</c>
