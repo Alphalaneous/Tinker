@@ -18,7 +18,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
 
     constexpr float centerOffset = 30.f;
 
-    auto bg = m_mainLayer->getChildByType<CCScale9Sprite>();
+    auto bg = m_mainLayer->getChildByType<CCScale9Sprite>(0);
 
     bg->setContentSize(m_mainLayer->getContentSize());
     bg->setPosition(m_mainLayer->getContentSize() / 2.f);
