@@ -93,7 +93,7 @@ void ObjectSelectContainer::shiftObject(bool forward) {
 
     m_scrollLayer->setScrollX(0);
     m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
-    m_scrollLayer->setScrollX(spr->getPositionX() - m_objectsBG->getContentWidth() / 2.f);
+    m_scrollLayer->setScrollX(spr->getPositionX() - m_scrollLayer->getContentWidth() / 2.f);
 
     auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
     auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
@@ -224,7 +224,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     m_scrollLayer->setScrollX(0);
     m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
-    m_scrollLayer->setScrollX(spr->getPositionX() - m_objectsBG->getContentWidth() / 2.f);
+    m_scrollLayer->setScrollX(spr->getPositionX() - m_scrollLayer->getContentWidth() / 2.f);
 
     auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
     auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
