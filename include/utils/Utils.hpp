@@ -8,10 +8,11 @@ using namespace geode::prelude;
 namespace tinker::utils {
 
     struct ColorData {
-		ccColor3B color;
-		bool blending;
-		GLubyte opacity;
-	};
+        ccColor3B color;
+        bool blending;
+        GLubyte opacity;
+        ColorAction* action;
+    };
 
     struct AxisBounds {
         float min;

@@ -24,13 +24,15 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
     m_noElasticity = true;
     m_closeBtn->removeFromParent();
 
+    getChildrenExt();
+
     constexpr float padding = 3.f;
 
     auto levelSettings = editorLayer->m_levelSettings;
 
     m_backgroundID = std::max(1, levelSettings->m_backgroundIndex);
     m_groundID = levelSettings->m_groundIndex;
-    m_groundLineID = levelSettings->m_groundLineIndex;
+    m_groundLineID = std::max(1, levelSettings->m_groundLineIndex);
     m_middlegroundID = levelSettings->m_middleGroundIndex;
 
     m_stylePreview = ArtPreview::create({m_size.width / 2.f - padding, m_size.height - padding * 2.f}, m_backgroundID, m_groundID, m_groundLineID, m_middlegroundID);

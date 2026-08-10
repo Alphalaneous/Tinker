@@ -122,6 +122,7 @@ void ICPCustomizeObjectLayer::updateLiveSelectButton() {
             case Lighter:
             case Black:
             case White:
+            case Default:
             case -1:
                 m_liveSelectButton->setVisible(false);
                 if (m_customColorChannel == -1 && ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
@@ -575,6 +576,10 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     updateCustomColorLabels();
     scrollToChannel(m_customColorChannel, true);
 
+    if (m_customColorChannel == tinker::constants::color_channels::Default) {
+        m_liveSelectButton->setVisible(false);
+    }
+
     cull(fields->m_colorList->getContentLayer(), fields->m_colorList->getScrollPoint(), singleHeight);
     if (fields->m_colorSprite) fields->m_colorSprite->setColorID(m_customColorChannel);
 
@@ -613,21 +618,27 @@ void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
     );
 
     std::vector<int> recents;
+    std::set<int> recentsSet;
+
     recents.reserve(10);
 
     if (fields->m_modifiedChannel1) {
         recents.push_back(fields->m_finalChannel1);
+        recentsSet.insert(fields->m_finalChannel1);
     }
 
-    if (fields->m_modifiedChannel2) {
+    if (fields->m_modifiedChannel2 && fields->m_finalChannel1 != fields->m_finalChannel2) {
         recents.push_back(fields->m_finalChannel2);
+        recentsSet.insert(fields->m_finalChannel2);
     }
 
     for (int channel : saved) {
         if (fields->m_modifiedChannel1 && channel == fields->m_finalChannel1) continue;
         if (fields->m_modifiedChannel2 && channel == fields->m_finalChannel2) continue;
+        if (recentsSet.contains(channel)) continue;
 
         recents.push_back(channel);
+        recentsSet.insert(channel);
         if (recents.size() == 10) {
             break;
         }

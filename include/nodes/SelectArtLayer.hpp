@@ -38,7 +38,7 @@ protected:
     SelectArtType m_type;
 
     CCLayerColor* m_scrollBG;
-    alpha::ui::AdvancedScrollLayer* m_scrollLayer;
+    Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer;
     LevelEditorLayer* m_editorLayer;
     LevelSettingsLayer* m_levelSettingsLayer;
     ArtPreview* m_stylePreview;

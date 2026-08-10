@@ -1,3 +1,10 @@
+# 1.0.59
+- <c-dddddd>Improve live color previewing</c>
+- <c-dddddd>Fix HSV preview button showing for preview object colors popup when the default color is selected (and thus doing nothing when pressed)</c>
+- <c-dddddd>Fix recent colors being duplicated if you pick the same color for base and detail</c>
+- <c-dddddd>Fix line not being visibly selected when a line hasn't been selected yet in the new stuyle picker</c>
+- <c-dddddd>Fix a crash that can happen with QOLMod and the new style picker</c>
+
 # 1.0.58
 - <c-dddddd>Who knew there were so many crashes, fixed another, apologies for so many updates, I just don't want the editor crashing for anyone</c>
 

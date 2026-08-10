@@ -1,5 +1,6 @@
 #include "nodes/ColorChannelSprite.hpp"
 #include "utils/Constants.hpp"
+#include "utils/Utils.hpp"
 #include "modules/ImprovedColorPicker.hpp"
 
 namespace tinker::ui {
@@ -135,27 +136,13 @@ void ColorChannelSprite::updateSprite() {
             auto editor = LevelEditorLayer::get();
 
             if (m_live) {
-                auto allActions = editor->m_effectManager->getAllColorActions();
+                auto colorData = utils::getActiveColor(editor, m_colorID);
 
-                for (auto colorAction : allActions->asExt<ColorAction>()) {
-                    if (colorAction->m_colorID == m_colorID) {
-                        action = colorAction;
-                        break;
-                    }
-                }
+                color = colorData.color;
+                action = colorData.action;
 
-                if (action) {
-                    color = action->m_color;
-
-                    for (auto& pulse : editor->m_effectManager->m_pulseEffectVector) {
-                        if (pulse.m_targetGroupID == action->m_colorID) {
-                            color = editor->m_effectManager->colorForPulseEffect(color, &pulse);
-                        }
-                    }
-
-                    if (action->m_currentOpacity < 1) {
-                        m_opacityLabel->setString(numToString(action->m_currentOpacity, 2).c_str());
-                    }
+                if (colorData.opacity < 255) {
+                    m_opacityLabel->setString(numToString(colorData.opacity / 255.f, 2).c_str());
                 }
             }
             else {

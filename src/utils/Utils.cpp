@@ -201,7 +201,7 @@ namespace tinker::utils {
                 opacity = colorAction->m_currentOpacity * 255;
             }
 
-            return {color, blending, opacity};
+            return {color, blending, opacity, action->m_colorAction};
         }
         return {{255, 255, 255}, false, 255};
     }

@@ -194,6 +194,14 @@ bool ArtPreview::init(CCSize size, int background, int ground, int groundLine, i
     return true;
 }
 
+cocos2d::CCArray* ArtPreview::getChildren() {
+    return m_fakeChildren;
+}
+
+unsigned int ArtPreview::getChildrenCount() const {
+    return 0;
+}
+
 void ArtPreview::updateBG(int background) {
     m_preview->updateBG(background);
 }

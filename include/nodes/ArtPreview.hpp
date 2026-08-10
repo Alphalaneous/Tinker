@@ -63,9 +63,14 @@ public:
 protected:
     bool init(CCSize size, int background, int ground, int groundLine, int middleground);
 
+    // I am sorry, but this fixes a crash from QOLMod
+    cocos2d::CCArray* getChildren();
+    unsigned int getChildrenCount() const;
+
     Ref<CCNode> m_container;
     PreviewGameLayer* m_preview;
     alpha::ui::RenderNode* m_render;
+    Ref<CCArray> m_fakeChildren;
 };
 
 }
