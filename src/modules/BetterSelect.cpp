@@ -315,6 +315,8 @@ bool HoverObjectNode::init() {
 
 void HoverObjectNode::stopHover() {
     auto editorUI = EditorUI::get();
+    if (!editorUI) return;
+    
     m_stopped = true;
     for (const auto& obj : m_lastObjects->asExt<GameObject>()) {
         obj->deselectObject();
