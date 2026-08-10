@@ -170,39 +170,41 @@ bool ObjectSelectContainer::init(CCArray* objects) {
         if (auto enhanced = typeinfo_cast<EnhancedGameObject*>(obj)) {
             enhanced->m_animateOnTrigger = animateOnTrigger;
         }
-
-        auto gameObject = spr->getChildByType<GameObject>(0);
-        if (gameObject) {
-            gameObject->setVisible(true);
-            gameObject->setOpacity(255);
-            tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
-        }
-        if (obj->m_objectID == tinker::constants::objects::Particle) {
-            spr = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
-        }
-        m_objectSprites[obj] = spr;
-        spr->setID("selected-object-sprite"_spr);
-
-        auto realBounds = tinker::utils::getRealBounds(spr);
-
-        if (realBounds.size.height != 0.f && realBounds.size.width != 0.f) {
-            auto scaleMultiplier = 30.f / realBounds.size.height;
-            scaleMultiplier = std::min(scaleMultiplier, 30.f / realBounds.size.width);
-
-            spr->setScale(scaleMultiplier);
-        }
-
-        if (idx == m_index) {
-            auto child = spr->getChildByType<GameObject>(0);
-            if (child) {
-                child->selectObject({0, 255, 0});
+        
+        if (spr) {
+            auto gameObject = spr->getChildByType<GameObject>(0);
+            if (gameObject) {
+                gameObject->setVisible(true);
+                gameObject->setOpacity(255);
+                tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
             }
-            else {
-                spr->setColor({0, 255, 0});
+            if (obj->m_objectID == tinker::constants::objects::Particle) {
+                spr = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
             }
-        }
+            m_objectSprites[obj] = spr;
+            spr->setID("selected-object-sprite"_spr);
 
-        m_scrollLayer->getContentLayer()->addChild(spr);
+            auto realBounds = tinker::utils::getRealBounds(spr);
+
+            if (realBounds.size.height != 0.f && realBounds.size.width != 0.f) {
+                auto scaleMultiplier = 30.f / realBounds.size.height;
+                scaleMultiplier = std::min(scaleMultiplier, 30.f / realBounds.size.width);
+
+                spr->setScale(scaleMultiplier);
+            }
+
+            if (idx == m_index) {
+                auto child = spr->getChildByType<GameObject>(0);
+                if (child) {
+                    child->selectObject({0, 255, 0});
+                }
+                else {
+                    spr->setColor({0, 255, 0});
+                }
+            }
+
+            m_scrollLayer->getContentLayer()->addChild(spr);
+        }
         idx++;
     } 
 
