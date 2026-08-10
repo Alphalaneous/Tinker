@@ -7,10 +7,12 @@ void FLTEffectGameObject::setOpacity(unsigned char opacity) {
     }
     if (m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
         auto teleport = reinterpret_cast<TeleportPortalObject*>(this);
-        if (teleport->m_orangePortal->m_isSelected) {
-            opacity = 255;
+        if (teleport->m_orangePortal) {
+            if (teleport->m_orangePortal->m_isSelected) {
+                opacity = 255;
+            }
+            teleport->m_orangePortal->EffectGameObject::setOpacity(opacity);
         }
-        teleport->m_orangePortal->EffectGameObject::setOpacity(opacity);
     }
     EffectGameObject::setOpacity(opacity);
 }
@@ -20,15 +22,19 @@ void FLTSetGroupIDLayer::onClose(cocos2d::CCObject* sender) {
 
     if (m_targetObject && m_targetObject->m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
         auto teleport = reinterpret_cast<TeleportPortalObject*>(m_targetObject);
-        teleport->m_orangePortal->m_editorLayer = teleport->m_editorLayer;
-        teleport->m_orangePortal->m_editorLayer2 = teleport->m_editorLayer2;
+        if (teleport->m_orangePortal) {
+            teleport->m_orangePortal->m_editorLayer = teleport->m_editorLayer;
+            teleport->m_orangePortal->m_editorLayer2 = teleport->m_editorLayer2;
+        }
     }
     if (m_targetObjects && m_targetObjects->count() > 0) {
         for (auto obj : m_targetObjects->asExt<GameObject>()) {
             if (obj->m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
                 auto teleport = reinterpret_cast<TeleportPortalObject*>(obj);
-                teleport->m_orangePortal->m_editorLayer = teleport->m_editorLayer;
-                teleport->m_orangePortal->m_editorLayer2 = teleport->m_editorLayer2;  
+                if (teleport->m_orangePortal) {
+                    teleport->m_orangePortal->m_editorLayer = teleport->m_editorLayer;
+                    teleport->m_orangePortal->m_editorLayer2 = teleport->m_editorLayer2;  
+                }
             }
         }
     }
@@ -40,10 +46,12 @@ TeleportPortalObject* FLTTeleportPortalObject::create(char const* frame, bool tr
 
     ret->runAction(CallFuncExt::create([ret] {
         if (!ret->m_isTrigger && ret->m_orangePortal) {
-            ret->m_orangePortal->m_editorLayer = ret->m_editorLayer;
-            ret->m_orangePortal->m_editorLayer2 = ret->m_editorLayer2;
+            if (ret->m_orangePortal) {
+                ret->m_orangePortal->m_editorLayer = ret->m_editorLayer;
+                ret->m_orangePortal->m_editorLayer2 = ret->m_editorLayer2;
 
-            ret->m_orangePortal->setUserObject("teleport-owner"_spr, ret);
+                ret->m_orangePortal->setUserObject("teleport-owner"_spr, ret);
+            }
         }
     }));
 

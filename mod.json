@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.54",
+	"version": "v1.0.55",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -246,13 +246,6 @@
 			"type": "info",
 			"description": "All things related to objects.",
 			"color": "#000000"
-		},
-		"BetterSelect-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Better Selection Tools",
-			"description": "Lets you hold alt while hovering an object to see all objects at that position, use scroll wheel or left and right arrows to pick which object you want to select.",
-			"platforms": ["win", "mac"]
 		},
 		"DurationDrag-enabled": {
 			"type": "bool",
@@ -1053,6 +1046,30 @@
 			"description": "The Y offset of the whole tab.",
 			"min": 2,
 			"max": 16
+		},
+		"BetterSelect-title": {
+			"type": "title",
+			"name": "Selection Picker",
+			"platforms": ["win", "mac"]
+		},
+		"BetterSelect-description": {
+			"type": "info",
+			"description": "Lets you hold a modifier while hovering an object to see all objects at that position, use scroll wheel or left and right arrows to pick which object you want to select.",
+			"color": "#000000",
+			"platforms": ["win", "mac"]
+		},
+		"BetterSelect-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled",
+			"platforms": ["win", "mac"]
+		},
+		"BetterSelect-modifier": {
+			"type": "keybind",
+			"name": "Modifier",
+			"default": ["Alt+LeftMenu"],
+			"category": "editor",
+			"platforms": ["win", "mac"]
 		},
 		"SingleDeselect-title": {
 			"type": "title",

@@ -1,3 +1,10 @@
+# 1.0.55
+- <c-dddddd>Fix crash with linked teleport portals and the selection picker</c>
+- <c-dddddd>Fix crash when using selection picker with Editor Collab enabled</c>
+- <c-dddddd>Selection picker now works with swipe</c>
+- <c-dddddd>Selection picker now has a modifier keybind option</c>
+- <c-dddddd>Clean up selection picker design</c>
+
 # 1.0.54
 - <c-dddddd>Improved font picker now auto scrolls to the selected font when opened</c>
 - <c-dddddd>Adjust font picker positions and scrollbar width</c>

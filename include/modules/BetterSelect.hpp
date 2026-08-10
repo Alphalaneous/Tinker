@@ -2,6 +2,7 @@
 
 #include "module/Module.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <Geode/modify/EditorUI.hpp>
 
 using namespace alpha::prelude;
 
@@ -12,6 +13,7 @@ public:
     static ObjectSelectContainer* create(CCArray* objects);
 
     void shiftObject(bool forward);
+    GameObject* getCurrentObject();
 protected:
 
     bool init(CCArray* objects);
@@ -31,6 +33,7 @@ class HoverObjectNode : public CCNode, public TouchDelegate {
 public:
     static HoverObjectNode* create();
     bool hoveringObjects();
+    void stopHover();
 
 protected:
 
@@ -41,17 +44,20 @@ protected:
     void onEnter() override;
     void onExit() override;
 
+    void selectObject(GameObject* object);
+
     void onHoverObjects(const CCPoint& pos);
 
     void showObjectList();
     void removeObjectList();
-
     void shiftObject(bool forward);
 
     ObjectSelectContainer* m_activeSelectContainer;
     Ref<CCArray> m_lastObjects;
     CCPoint m_lastPos;
     bool m_active;
+    bool m_modifierPressed;
+    bool m_stopped;
 };
 
 }
@@ -59,6 +65,14 @@ protected:
 class $module(BetterSelect) {
     void onEditor();
     bool hoveringObjects();
+    void stopHover();
 
     tinker::ui::HoverObjectNode* m_hover;
+};
+
+class $modify(BSEditorUI, EditorUI) {
+    $registerHooks(BetterSelect)
+
+    void deselectObject(GameObject* object);
+    void deselectAll();
 };
