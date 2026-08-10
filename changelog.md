@@ -1,3 +1,6 @@
+# 1.0.57
+- <c-dddddd>Fix a crash when alt tabbing while hovering an object</c>
+
 # 1.0.56
 - <c-dddddd>Fix another crash with Editor Collab</c>
 - <c-dddddd>Fix a crash when opening the editor</c>

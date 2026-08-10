@@ -134,6 +134,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     addOnExitCallback([this] {
         m_scrollLayer->removeFromParent();
+        m_scrollLayer = nullptr;
     });
 
     m_selectDot = CCSprite::create("smallDot.png");

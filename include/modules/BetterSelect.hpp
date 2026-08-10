@@ -22,8 +22,8 @@ protected:
 
     Ref<CCArray> m_objects;
 
-    geode::NineSlice* m_objectsBG;
-    AdvancedScrollLayer* m_scrollLayer;
+    Ref<geode::NineSlice> m_objectsBG;
+    Ref<AdvancedScrollLayer> m_scrollLayer;
     std::unordered_map<Ref<GameObject>, Ref<CCSprite>> m_objectSprites;
 
     CCSprite* m_selectDot;
