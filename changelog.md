@@ -1,3 +1,8 @@
+# 1.0.56
+- <c-dddddd>Fix another crash with Editor Collab</c>
+- <c-dddddd>Fix a crash when opening the editor</c>
+- <c-dddddd>Fix a bug where the select picker wouldn't open after hovering certain objects</c>
+
 # 1.0.55
 - <c-dddddd>Fix crash with linked teleport portals and the selection picker</c>
 - <c-dddddd>Fix crash when using selection picker with Editor Collab enabled</c>

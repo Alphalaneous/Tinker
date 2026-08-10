@@ -8,16 +8,14 @@ void BetterSelect::onEditor() {
 }
 
 bool BetterSelect::hoveringObjects() {
+    if (!m_hover) return false;
     return m_hover->hoveringObjects();
 }
 
 void BetterSelect::stopHover() {
-    m_hover->stopHover();
-}
-
-void BSEditorUI::deselectObject(GameObject* object) {
-    BetterSelect::get()->stopHover();
-    EditorUI::deselectObject(object);
+    if (m_hover) {
+        m_hover->stopHover();
+    }
 }
 
 void BSEditorUI::deselectAll() {
@@ -359,10 +357,16 @@ void HoverObjectNode::shiftObject(bool forward) {
 void HoverObjectNode::showObjectList() {
     if (m_stopped) return;
 
+    runAction(CallFuncExt::create([container = Ref(m_activeSelectContainer)] {
+        if (container) {
+            container->removeFromParent();
+        }
+    }));
+
     if (m_activeSelectContainer) {
-        m_activeSelectContainer->removeFromParent();
-        m_activeSelectContainer = nullptr;
+        m_activeSelectContainer->setVisible(false);
     }
+    m_activeSelectContainer = nullptr;
     m_active = true;
 
     auto editorUI = EditorUI::get();

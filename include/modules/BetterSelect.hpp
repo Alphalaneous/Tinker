@@ -52,7 +52,7 @@ protected:
     void removeObjectList();
     void shiftObject(bool forward);
 
-    ObjectSelectContainer* m_activeSelectContainer;
+    Ref<ObjectSelectContainer> m_activeSelectContainer;
     Ref<CCArray> m_lastObjects;
     CCPoint m_lastPos;
     bool m_active;
@@ -73,6 +73,5 @@ class $module(BetterSelect) {
 class $modify(BSEditorUI, EditorUI) {
     $registerHooks(BetterSelect)
 
-    void deselectObject(GameObject* object);
     void deselectAll();
 };
