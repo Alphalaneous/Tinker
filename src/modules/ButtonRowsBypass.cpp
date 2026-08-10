@@ -1,4 +1,4 @@
-#include "ButtonRowsBypass.hpp"
+#include "modules/ButtonRowsBypass.hpp"
 
 bool ButtonRowsBypass::onToggled(bool state) {
     return true;

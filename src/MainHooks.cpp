@@ -7,7 +7,7 @@
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "../../include/UIScaling.hpp"
 #include "settings/SettingsPopup.hpp"
-#include "utils/NextFree/NextFreeProvider.hpp"
+#include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/Utils.hpp"
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
@@ -15,8 +15,11 @@ bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
 
     NextFreeProvider::get()->setEditorLayer(this);
 
-    for (const auto& createModule : ModuleRegistry<EditorModuleBase>::get()->m_modules) {
-        fields->m_modules.push_back(createModule());
+    for (const auto& [k, v] : ModuleRegistry::get()->m_modules) {
+        auto& data = ModuleRegistry::get()->getData(k);
+        if (!data.isGlobal()) {
+            fields->m_modules[k] = v();
+        }
     }
 
     if (!LevelEditorLayer::init(level, noUI)) return false;
@@ -24,15 +27,16 @@ bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     return true;
 }
 
-std::vector<std::shared_ptr<EditorModuleBase>>* MainLevelEditorLayer::getModules() {
+StringMap<std::shared_ptr<ModuleBase>>* MainLevelEditorLayer::getModules() {
     return &m_fields->m_modules;
 }
 
-void MainLevelEditorLayer::forEachModule(geode::Function<void(EditorModuleBase*)> moduleCallback) {
+void MainLevelEditorLayer::forEachModule(geode::Function<void(ModuleBase*)> moduleCallback) {
     if (!moduleCallback) return;
-    for (auto& module : *getModules()) {
-        if (module->moduleEnabled()) {
-            moduleCallback(module.get());
+    for (auto& [k, v] : *getModules()) {
+        auto& data = ModuleRegistry::get()->getData(k);
+        if (data.moduleEnabled()) {
+            moduleCallback(v.get());
         }
     }
 }
@@ -45,8 +49,8 @@ EditorUI* MainEditorUI::s_editorUI = nullptr;
 
 MainEditorUI::Fields::~Fields() {
     s_editorUI = nullptr;
-    for (const auto& [k, v] : ModuleRegistry<EditorModuleBase>::get()->m_hooks) {
-        for (auto hook : v) {
+    for (auto& [k, v] : ModuleRegistry::get()->m_data) {
+        for (auto hook : v.getHooks()) {
             (void) hook->disable();
         }
     }
@@ -61,11 +65,10 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
     auto modules = static_cast<MainLevelEditorLayer*>(editorLayer)->getModules();
 
-    for (const auto& module : *modules) {
-        module->m_editorLayer = m_editorLayer;
-        module->m_editorUI = this;
-        if (module->moduleEnabled()) {
-            module->onEditor();
+    for (const auto& [k, v] : *modules) {
+        auto& data = ModuleRegistry::get()->getData(k);
+        if (data.moduleEnabled()) {
+            data.onEditor();
         }
     }
 
@@ -324,9 +327,12 @@ void MainEditorPauseLayer::saveLevel() {
 }
 
 $on_game(ModsLoaded) {
-    static std::vector<std::shared_ptr<GlobalModuleBase>> modules;
-    for (const auto& module : ModuleRegistry<GlobalModuleBase>::get()->m_modules) {
-        modules.push_back(module());
+    static std::vector<std::shared_ptr<ModuleBase>> modules;
+    for (auto& [k, v] : ModuleRegistry::get()->m_modules) {
+        auto& data = ModuleRegistry::get()->getData(k);
+        if (data.isGlobal()) {
+            modules.push_back(v());
+        }
     }
 }
 

@@ -1,10 +1,10 @@
-#include "ImprovedLinkControls.hpp"
+#include "modules/ImprovedLinkControls.hpp"
 #include "modules/UIScaling.hpp"
 
 void ImprovedLinkControls::onEditor() {
     #ifndef GEODE_IS_MOBILE
-    auto zoomMenu = m_editorUI->getChildByID("zoom-menu");
-    auto linkMenu = m_editorUI->getChildByID("link-menu");
+    auto zoomMenu = getEditor()->getChildByID("zoom-menu");
+    auto linkMenu = getEditor()->getChildByID("link-menu");
     linkMenu->setContentSize({ 125.f, zoomMenu->getContentHeight() + 29.f });
     static_cast<AxisLayout*>(linkMenu->getLayout())->setGap(3.f);
     linkMenu->updateLayout();

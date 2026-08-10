@@ -1,4 +1,4 @@
-#include "RepeatingEditorButtons.hpp"
+#include "modules/RepeatingEditorButtons.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool RepeatingEditorButtons::onToggled(bool state) {
@@ -57,29 +57,29 @@ void REBCCMenuItemSpriteExtra::unselected() {
 }
 
 void RepeatingEditorButtons::onEditor() {
-    m_editorUI->runAction(CallFuncExt::create([this] {
-        for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(m_editorUI->m_editButtonBar->m_buttonArray)) {
+    getEditor()->runAction(CallFuncExt::create([this] {
+        for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(getEditor()->m_editButtonBar->m_buttonArray)) {
             if (btn->getID() == "alphalaneous.tinker/reference-import") continue;
             btn->setRepeatable(true);
         }
     }));
 
-    static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_undoBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_redoBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_layerNextBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(m_editorUI->m_layerPrevBtn)->setRepeatable(true);
+    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_undoBtn)->setRepeatable(true);
+    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_redoBtn)->setRepeatable(true);
+    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_layerNextBtn)->setRepeatable(true);
+    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_layerPrevBtn)->setRepeatable(true);
 
-    if (auto zoomMenu = m_editorUI->getChildByID("zoom-menu")) {
+    if (auto zoomMenu = getEditor()->getChildByID("zoom-menu")) {
         for (auto btn : zoomMenu->getChildrenExt<REBCCMenuItemSpriteExtra*>()) {
             btn->setRepeatable(true);
         }
     }
 
-    if (auto customEditMenu = m_editorUI->getChildByID("hjfod.betteredit/custom-move-menu")) {
+    if (auto customEditMenu = getEditor()->getChildByID("hjfod.betteredit/custom-move-menu")) {
         recursivelySetRepeat(customEditMenu);
     }
 
-    for (auto child : m_editorUI->getChildrenExt()) {
+    for (auto child : getEditor()->getChildrenExt()) {
         auto bar = typeinfo_cast<EditButtonBar*>(child);
         if (!bar) continue;
         auto menu = bar->getChildByType<CCMenu>(0);

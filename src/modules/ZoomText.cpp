@@ -1,4 +1,4 @@
-#include "ZoomText.hpp"
+#include "modules/ZoomText.hpp"
 
 bool ZoomText::onToggled(bool state) {
     if (state) {
@@ -23,7 +23,7 @@ void ZoomText::onEditor() {
     m_zoomLabel->setID("zoom-text"_spr);
     m_zoomLabel->setOpacity(0);
     m_zoomLabel->setZOrder(99999);
-    m_editorUI->addChild(m_zoomLabel);
+    getEditor()->addChild(m_zoomLabel);
 
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         auto winSize = CCDirector::get()->getWinSize();
@@ -34,7 +34,7 @@ void ZoomText::onEditor() {
     addEventListener("editor-zoom", EditorZoomEvent(), [this] (float zoom) {
         if (!m_zoomLabel) return;
 
-        m_zoomLabel->setString(fmt::format("Zoom: {}x", numToString(m_editorLayer->m_objectLayer->getScale(), 2)).c_str());
+        m_zoomLabel->setString(fmt::format("Zoom: {}x", numToString(getEditorLayer()->m_objectLayer->getScale(), 2)).c_str());
         m_zoomLabel->setOpacity(255);
         m_zoomLabel->stopAllActions();
         m_zoomLabel->runAction(CCSequence::create(

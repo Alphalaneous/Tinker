@@ -1,4 +1,4 @@
-#include "CleanPause.hpp"
+#include "modules/CleanPause.hpp"
 #include <Geode/ui/SliderNode.hpp>
 #include "modules/UIScaling.hpp"
 #include "third-party/BlurAPI.hpp"

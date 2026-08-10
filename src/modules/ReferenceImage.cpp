@@ -1,16 +1,16 @@
-#include "ReferenceImage.hpp"
+#include "modules/ReferenceImage.hpp"
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
 
 void ReferenceImage::onEditor() {
-    auto btn = m_editorUI->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
+    auto btn = getEditor()->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
     btn->setID("reference-import"_spr);
-    m_editorUI->m_editButtonBar->m_buttonArray->addObject(btn);
+    getEditor()->m_editButtonBar->m_buttonArray->addObject(btn);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    m_editorUI->m_editButtonBar->reloadItems(cols, rows);
+    getEditor()->m_editButtonBar->reloadItems(cols, rows);
 }
 
 bool RICustomizeObjectLayer::init(GameObject* object, CCArray* objectArray) {

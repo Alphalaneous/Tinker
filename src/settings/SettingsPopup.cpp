@@ -1,8 +1,7 @@
-#include "SettingsPopup.hpp"
-#include "Geode/ui/ScrollLayer.hpp"
+#include "settings/SettingsPopup.hpp"
 #include "alphalaneous.alphas-ui-pack/include/nodes/scroll/AdvancedScrollLayer.hpp"
 #include "settings/SettingNodeRegistry.hpp"
-#include "SettingNode.hpp"
+#include "settings/SettingNode.hpp"
 
 SettingsPopup* SettingsPopup::create() {
     auto ret = new SettingsPopup();

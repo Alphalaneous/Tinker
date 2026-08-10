@@ -1,4 +1,4 @@
-#include "SlopeDirectionIndicators.hpp"
+#include "modules/SlopeDirectionIndicators.hpp"
 
 bool SlopeDirectionIndicators::onToggled(bool state) {
     return true;

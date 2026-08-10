@@ -1,4 +1,4 @@
-#include "NegateInput.hpp"
+#include "modules/NegateInput.hpp"
 
 bool NegateInput::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "always-show-negate-button") {

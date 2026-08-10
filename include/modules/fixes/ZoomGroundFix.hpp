@@ -1,0 +1,14 @@
+#pragma once
+
+#include "module/Module.hpp"
+#include <Geode/modify/GJBaseGameLayer.hpp>
+
+class $module(ZoomGroundFix) {
+	bool onToggled(bool state);
+};
+
+class $modify(ZGFGJBaseGameLayer, GJBaseGameLayer) {
+	$registerHooks(ZoomGroundFix)
+
+	void updateCameraBGArt(CCPoint position, float zoom);
+};

@@ -1,4 +1,4 @@
-#include "CopyObjectString.hpp"
+#include "modules/CopyObjectString.hpp"
 
 #ifndef GEODE_IS_IOS
 

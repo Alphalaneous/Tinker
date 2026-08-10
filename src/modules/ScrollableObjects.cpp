@@ -1,8 +1,8 @@
-#include "ScrollableObjects.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/ObjectSearch.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <razoom.object_groups/include/ObjectFoundEvent.hpp>
-#include "modules/ObjectSearch/ObjectSearch.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
@@ -12,8 +12,8 @@ bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Va
 }
 
 void ScrollableObjects::onEditor() {
-    auto leftSpacerLine = m_editorUI->getChildByID("spacer-line-left");
-    auto rightSpacerLine = m_editorUI->getChildByID("spacer-line-right");
+    auto leftSpacerLine = getEditor()->getChildByID("spacer-line-left");
+    auto rightSpacerLine = getEditor()->getChildByID("spacer-line-right");
 
     if (leftSpacerLine) leftSpacerLine->setZOrder(11);
     if (rightSpacerLine) rightSpacerLine->setZOrder(11);
@@ -49,19 +49,19 @@ void ScrollableObjects::onEditor() {
         scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
     });
 
-    m_editorUI->runAction(CallFuncExt::create([this] {
+    getEditor()->runAction(CallFuncExt::create([this] {
         auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
         auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-        auto fields = static_cast<SOEditorUI*>(m_editorUI)->m_fields.self();
+        auto fields = static_cast<SOEditorUI*>(getEditor())->m_fields.self();
 
-        fields->m_groupsGotoMenu = m_editorUI->getChildByID("razoom.object_groups/goto_obj_menu");
+        fields->m_groupsGotoMenu = getEditor()->getChildByID("razoom.object_groups/goto_obj_menu");
         if (fields->m_groupsGotoMenu) {
             fields->m_groupsGotoObjectsButton = fields->m_groupsGotoMenu->getChildByType<CCMenuItemSpriteExtra>(0);
             fields->m_groupsGotoMenu->removeFromParent();
         }
 
-        fields->m_groupsTogglesMenu = m_editorUI->getChildByID("razoom.object_groups/toggle_menu");
+        fields->m_groupsTogglesMenu = getEditor()->getChildByID("razoom.object_groups/toggle_menu");
         if (fields->m_groupsTogglesMenu) {
             fields->m_groupsTogglesButton = fields->m_groupsTogglesMenu->getChildByType<CCMenuItemSpriteExtra>(0);
             fields->m_groupsTogglesMenu->removeFromParent();

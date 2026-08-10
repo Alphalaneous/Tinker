@@ -6,12 +6,12 @@
 
 using namespace tinker::ui;
 
-class $editorModule(RotationSliders) {
+class $module(RotationSliders) {
     void onEditor();
 };
 
 class $modify(RSEditorUI, EditorUI) {
-    $registerEditorHooks(RotationSliders)
+    $registerHooks(RotationSliders)
 
     struct Fields {
         Ref<CCMenuItemSpriteExtra> m_rotationXYControlsButton;

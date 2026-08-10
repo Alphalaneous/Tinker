@@ -1,4 +1,4 @@
-#include "SettingsCache.hpp"
+#include "settings/SettingsCache.hpp"
 
 const StringMap<SettingsCache::SettingCategory>& SettingsCache::getSettings() {
     return m_settings;

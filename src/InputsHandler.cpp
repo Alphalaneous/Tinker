@@ -1,7 +1,8 @@
 #include "InputsHandler.hpp"
 #include "Events.hpp"
+#include "modules/BetterSelect.hpp"
 #include "utils/Utils.hpp"
-#include "modules/CanvasRotate/CanvasRotate.hpp"
+#include "modules/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "actions/CCCallbackAction.hpp"
 #include "actions/CCValueTo.hpp"
@@ -449,6 +450,10 @@ void InputEditorUI::onScroll() {
                 barFields->m_scrollBar->scroll((x * multiplier) * xMult * (invertScroll ? -1 : 1), (y * multiplier) * yMult * (invertScroll ? -1 : 1));
             }
         }
+        return;
+    }
+
+    if (BetterSelect::isEnabled() && BetterSelect::get()->hoveringObjects()) {
         return;
     }
 

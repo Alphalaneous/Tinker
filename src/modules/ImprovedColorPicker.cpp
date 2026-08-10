@@ -1,8 +1,8 @@
-#include "ImprovedColorPicker.hpp"
+#include "modules/ImprovedColorPicker.hpp"
 #include "utils/Constants.hpp"
-#include "utils/NextFree/NextFreeProvider.hpp"
-#include "utils/NextFree/sources/ColorSource.hpp"
-#include "utils/NextFree/NextFreeOffsetInput.hpp"
+#include "utils/next-free/NextFreeProvider.hpp"
+#include "utils/next-free/sources/ColorSource.hpp"
+#include "nodes/NextFreeOffsetInput.hpp"
 
 bool ImprovedColorPicker::onToggled(bool state) {
     m_toggledHooks.toggle(state);
@@ -13,43 +13,6 @@ bool ImprovedColorPicker::onSettingChanged(std::string_view key, const matjson::
     return true;
 }
 
-namespace tinker::ui {
-
-LazyColorRow* LazyColorRow::create(geode::Function<void(LazyColorRow* self)> callback, int min, int max) {
-    auto ret = new LazyColorRow();
-    if (ret->init(std::move(callback), min, max)) {
-        ret->autorelease();
-        return ret;
-    }
-    delete ret;
-    return nullptr;
-}
-
-bool LazyColorRow::init(geode::Function<void(LazyColorRow* self)> callback, int min, int max) {
-    if (!CCMenu::init()) return false;
-    m_callback = std::move(callback);
-    m_min = min;
-    m_max = max;
-
-    return true;
-}
-
-int LazyColorRow::getMin() {
-    return m_min;
-}
-
-int LazyColorRow::getMax() {
-    return m_max;
-}
-
-void LazyColorRow::load() {
-    if (m_loaded) return;
-    if (m_callback) m_callback(this);
-    m_loaded = true;
-}
-
-}
-
 void ICPCustomizeObjectLayer::onSelectMode(CCObject* sender) {
     CustomizeObjectLayer::onSelectMode(sender);
     checkAllowLighter();
@@ -57,21 +20,18 @@ void ICPCustomizeObjectLayer::onSelectMode(CCObject* sender) {
     m_customColorChannel = getActiveMode(true);
     updateCustomColorLabels();
     scrollToChannel(m_customColorChannel, true);
+
+    if (m_colorSprite) m_colorSprite->setVisible(false);
 }
 
 void ICPCustomizeObjectLayer::updateLighterButtons() {
     auto fields = m_fields.self();
     for (const auto& btn : fields->m_lighterButtons) {
         btn->setEnabled(fields->m_allowLighterChannel);
-        auto spr = static_cast<CCSprite*>(btn->getChildByID("channel-sprite"_spr));
+        auto spr = static_cast<tinker::ui::ColorChannelSprite*>(btn->getChildByID("channel-sprite"_spr));
         if (!spr) return;
 
-        auto opacity = fields->m_allowLighterChannel ? 255 : 50;
-        spr->setOpacity(opacity);
-
-        auto label = static_cast<CCLabelBMFont*>(spr->getChildByID("id-label"_spr));
-        if (!label) return;
-        label->setOpacity(opacity);
+        spr->setEnabled(fields->m_allowLighterChannel);
     }
 }
 
@@ -116,7 +76,7 @@ void ICPCustomizeObjectLayer::onSelectColor(CCObject* sender) {
     updateCustomColorLabels();
 }
 
-void ICPCustomizeObjectLayer::updateSelection(const std::vector<Ref<ColorChannelSprite>>& items, bool updateColor) {
+void ICPCustomizeObjectLayer::updateSelection(const std::vector<Ref<tinker::ui::ColorChannelSprite>>& items, bool updateColor) {
     auto selected = getActiveMode(true);
     auto fields = m_fields.self();
 
@@ -127,16 +87,12 @@ void ICPCustomizeObjectLayer::updateSelection(const std::vector<Ref<ColorChannel
     }
 
     for (const auto& sprite : items) {
-        if (auto i = sprite->getChildByID("selected-indicator"_spr)) {
-            auto channelObj = typeinfo_cast<CCInteger*>(sprite->getUserObject("channel"_spr));
-            if (!channelObj) continue;
-            if (updateColor) updateSprite(sprite);
-            i->setVisible(channelObj->getValue() == selected);
-        }
+        if (updateColor) sprite->updateSprite();
+        sprite->setSelected(sprite->getColorID() == selected);
     }
 
     if (updateColor) {
-        updateSprite(m_colorSprite, m_customColorChannel);
+        if (fields->m_colorSprite) fields->m_colorSprite->setColorID(m_customColorChannel);
     }
 }
 
@@ -171,15 +127,15 @@ void ICPCustomizeObjectLayer::updateLiveSelectButton() {
                 if (m_customColorChannel == -1 && ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
                     m_liveSelectButton->setVisible(true);
                 }
-                m_colorSprite->setVisible(false);
                 break;
             default:
                 m_liveSelectButton->setVisible(true);
-                m_colorSprite->setVisible(true);
                 break;
         }
-        updateSprite(m_colorSprite, m_customColorChannel);
+        if (fields->m_colorSprite) fields->m_colorSprite->setColorID(m_customColorChannel);
+        if (m_colorSprite) m_colorSprite->setVisible(false);
     }
+
 }
 
 void ICPCustomizeObjectLayer::updateCustomColorLabels() {
@@ -290,144 +246,20 @@ void ICPCustomizeObjectLayer::setChannelModified() {
     }
 }
 
-ccColor3B ImprovedColorPicker::getRealizedColor(int channelID, unsigned int depth) {
-    auto channel = m_editorLayer->m_levelSettings->m_effectManager->getColorAction(channelID);
-    if (!channel) {
-        return ccWHITE;
-    }
-    if (channel->m_copyColorLoop || depth > 10) {
-        return ccWHITE;
-    }
-    if (channel->m_copyID) {
-        return GameToolbox::transformColor(getRealizedColor(channel->m_copyID, depth + 1), channel->m_copyHSV);
-    }
-    return channel->m_fromColor;
-}
-
-void ICPCustomizeObjectLayer::updateSprite(ColorChannelSprite* sprite, int colorID) {
-    auto channelObj = typeinfo_cast<CCInteger*>(sprite->getUserObject("channel"_spr));
-
-    if (colorID == -1) {
-        if (!channelObj) return;
-        colorID = channelObj->getValue();
-    }
-
-    using namespace tinker::constants::color_channels;
-
-    if (colorID == 0) {
-        sprite->setOpacity(50);
-        return;
-    }
-
-    ColorAction* action = nullptr;
-
-    auto allActions = LevelEditorLayer::get()->m_levelSettings->m_effectManager->getAllColorActions();
-    for (auto actionI : allActions->asExt<ColorAction>()) {
-        if (actionI->m_colorID == colorID) {
-            action = actionI;
-            break;
-        }
-    }
-
-    if (action) {
-        sprite->updateValues(action);
-        if (ImprovedColorPicker::getSetting<bool, "show-copy-color">()) {
-            if (action->m_copyID != 0) {
-                sprite->setColor(ImprovedColorPicker::get()->getRealizedColor(action->m_colorID));
-            }
-        }
-    }
-
-    if (sprite->m_copyLabel) {
-        sprite->m_copyLabel->setScale(0.3f);
-        sprite->m_copyLabel->setAnchorPoint({1.f, 1.f});
-        sprite->m_copyLabel->setPosition(sprite->getContentSize() - CCPoint{3.5f, 2.5f});
-    }
-
-    switch (colorID) {
-        case Black: {
-            sprite->setColor({0, 0, 0});
-            break;
-        }
-        case LightBackground: {
-            sprite->setOpacity(120);
-            break;
-        }
-    }
-
-    if (!channelObj) {
-        sprite->setOpacity(255);
-    }
-}
-
-ColorChannelSprite* ICPCustomizeObjectLayer::createSprite(int channel, bool recent) {
-    using namespace tinker::constants::color_channels;
-
-    auto fields = m_fields.self();
-
-    auto spr = ColorChannelSprite::create();
-    spr->setScale(0.8f);
-    spr->setUserObject("channel"_spr, CCInteger::create(channel));
-    spr->setID("channel-sprite"_spr);
-    if (!recent) {
-        fields->m_colorChannelSprites.push_back(spr);
-    }
-    else {
-        fields->m_recentColorSprites.push_back(spr);
-    }
-
-    if (recent && channel == Default) {
-        spr->setOpacity(105);
-        spr->setColor({20, 20, 20});
-    }
-    else {
-        if (!fields->m_colorChannelSelectionSpriteFrame) {
-            fields->m_colorChannelSelectionSpriteFrame = CCSpriteFrameCache::get()->spriteFrameByName("GJ_select_001.png");
-        }
-        auto selection = CCSprite::createWithSpriteFrame(fields->m_colorChannelSelectionSpriteFrame);
-        selection->setScale(1.1f);
-        selection->setID("selected-indicator"_spr);
-        selection->setPosition(spr->getContentSize() / 2.f);
-        selection->setVisible(false);
-        spr->addChild(selection);
-
-        if (channel != Black && channel != White) {
-            std::string text;
-
-            auto iter = ColorNamesShort.find(channel);
-            if (iter == ColorNamesShort.end()) {
-                text = utils::numToString(channel);
-            }
-            else {
-                text = iter->second;
-            }
-
-            auto label = CCLabelBMFont::create(
-                text.c_str(),
-                "bigFont.fnt"
-            );
-            label->limitLabelWidth(25.f, 0.4f, 0.2f);
-            label->setPosition(spr->getContentSize() / 2.f + CCPoint{0.f, 0.5f});
-            label->setID("id-label"_spr);
-            spr->addChild(label);
-
-            if (!fields->m_allowLighterChannel && channel == Lighter) {
-                spr->setOpacity(50);
-                label->setOpacity(50);
-            }
-        }
-        
-        updateSprite(spr);
-    }
-
-    return spr;
-}
-
 CCMenuItemSpriteExtra* ICPCustomizeObjectLayer::createChannelButton(int channel, bool recent) {
     using namespace tinker::constants::color_channels;
     auto compactUI = ImprovedColorPicker::getSetting<bool, "compact-ui">();
+    auto fields = m_fields.self();
 
-    auto btn = CCMenuItemExt::createSpriteExtra(createSprite(channel, recent), [this] (auto sender) {
+    auto spr = tinker::ui::ColorChannelSprite::create(channel, true);
+    if (recent) {
+        fields->m_recentColorSprites.push_back(spr);
+    }
+    else {
+        fields->m_colorChannelSprites.push_back(spr);
+    }
+
+    auto btn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
         onSelectColor(sender);
     });
 
@@ -436,11 +268,11 @@ CCMenuItemSpriteExtra* ICPCustomizeObjectLayer::createChannelButton(int channel,
     btn->setScale(compactUI ? 0.746f : 1.f);
     btn->m_baseScale = btn->getScale();
 
-    if (recent && channel == Default) {
+    if (recent && channel == -2) {
         btn->setEnabled(false);
     }
     if (channel == Lighter) {
-        m_fields->m_lighterButtons.push_back(btn);
+        fields->m_lighterButtons.push_back(btn);
     }
     return btn;
 }
@@ -454,7 +286,7 @@ std::vector<CCMenuItemSpriteExtra*> ICPCustomizeObjectLayer::getRecents() {
     auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(LevelEditorLayer::get(), "improved-color-picker/recents");
 
     for (int i = 0; i < columnCount; i++) {
-        int channel = 0;
+        int channel = -2;
         if (i < saved.size()) {
             channel = saved[i];
         }
@@ -479,6 +311,14 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
         menu->setPositionY(winSize.height / 2.f + 50.f);
     }
 
+    m_colorSprite->setVisible(false);
+
+    fields->m_colorSprite = tinker::ui::ColorChannelSprite::create(0, false);
+    fields->m_colorSprite->setPosition(m_colorSprite->getPosition());
+    fields->m_colorSprite->setScale(m_colorSprite->getScale());
+
+    m_colorSpriteButton->addChild(fields->m_colorSprite);
+
     auto channelsMenu = m_mainLayer->getChildByID("channels-menu");
     auto specialsMenu = m_mainLayer->getChildByID("special-channels-menu");
 
@@ -493,10 +333,12 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     m_arrowUp->setContentSize({35.f, 30.f});
     m_arrowUp->getNormalImage()->setPosition(m_arrowUp->getContentSize() / 2.f);
     m_arrowUp->setSizeMult(1.f);
+    m_arrowUp->setPositionY(m_arrowUp->getPositionY() + 5.f);
 
     m_arrowDown->setContentSize({35.f, 30.f});
     m_arrowDown->getNormalImage()->setPosition(m_arrowDown->getContentSize() / 2.f);
     m_arrowDown->setSizeMult(1.f);
+    m_arrowDown->setPositionY(m_arrowDown->getPositionY() - 5.f);
 
     m_customColorInputBG->setOpacity(120);
 
@@ -509,11 +351,44 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
         menu->setScale(0.8f);
     }
 
-    auto selectPos = CCPoint(winSize.width / 2.f + 210.f, winSize.height / 2.f - 15.f);
+    auto selectPos = CCPoint(winSize.width / 2.f + 210.f, winSize.height / 2.f + 5.f);
+    
     m_mainLayer->getChildByID("select-channel-menu")->setPosition(selectPos);
     m_mainLayer->getChildByID("channel-input-bg")->setPosition(selectPos);
     m_mainLayer->getChildByID("channel-input")->setPosition(selectPos);
     m_customColorInput->m_maxLabelWidth = 38.f;
+
+    auto liveMenu = CCMenu::create();
+    liveMenu->setContentSize({35.f, 40.f});
+    liveMenu->ignoreAnchorPointForPosition(false);
+    liveMenu->setAnchorPoint({0.5f, 0.5f});
+    liveMenu->setPosition({winSize.width / 2.f + 210.f, winSize.height / 2.f - 70.f});
+    m_mainLayer->addChild(liveMenu);
+
+    auto liveLabel = CCLabelBMFont::create("Preview", "goldFont.fnt");
+    liveLabel->setScale(0.3f);
+    liveLabel->setAnchorPoint({0.5f, 0.f});
+    liveLabel->setPosition({liveMenu->getContentWidth() / 2.f, 32.f});
+
+    liveMenu->addChild(liveLabel);
+
+    auto liveToggle = CCMenuItemExt::createTogglerWithStandardSprites(0.7f, [fields, this] (CCMenuItemToggler* toggler) {
+        for (const auto& spr : fields->m_colorChannelSprites) {
+            spr->setLive(!toggler->isToggled());
+            spr->updateSprite();
+        }
+        for (const auto& spr : fields->m_recentColorSprites) {
+            spr->setLive(!toggler->isToggled());
+            spr->updateSprite();
+        }
+
+        fields->m_colorSprite->setLive(!toggler->isToggled());
+        fields->m_colorSprite->updateSprite();
+    });
+
+    liveToggle->setPosition({liveMenu->getContentWidth() / 2.f, liveToggle->getScaledContentHeight() / 2.f + 7.f});
+
+    liveMenu->addChild(liveToggle);
 
     float heightOffset = compactUI ? 35.f : 42.f;
 
@@ -659,12 +534,6 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
             fields->m_rows.push_back(currentRow);
             yIdx++;
         }
-        /*auto button = createChannelButton(i + 1);
-        auto x = singleWidth / 2.f + (singleWidth + gap) * idx;
-        button->setPosition({x, singleHeight / 2.f});
-
-        currentRow->addChild(button);
-        currentRow->setContentWidth(currentRow->getContentWidth() + singleWidth + gap);*/
     }
     if (currentRow) {
         currentRow->setContentWidth(currentRow->getContentWidth() - gap);
@@ -707,7 +576,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     scrollToChannel(m_customColorChannel, true);
 
     cull(fields->m_colorList->getContentLayer(), fields->m_colorList->getScrollPoint(), singleHeight);
-    updateSprite(m_colorSprite, m_customColorChannel);
+    if (fields->m_colorSprite) fields->m_colorSprite->setColorID(m_customColorChannel);
 
     fields->m_inited = true;
     
@@ -787,24 +656,4 @@ void ICPCustomizeObjectLayer::scrollToChannel(int channel, bool instant) {
             fields->m_colorList->setScrollY(fields->m_colorList->getContentLayer()->getContentHeight() - (row->getPositionY() - row->getContentHeight() / 2.f + fields->m_colorList->getContentHeight() / 2.f), !instant);
         }
     }
-}
-
-// slight performance boost loading 1000+ of the same sprite
-bool CheatColorChannelSprite::init() {
-    auto& frame = ImprovedColorPicker::get()->m_colorChannelSpriteFrame;
-    if (!frame) {
-        frame = CCSpriteFrameCache::get()->spriteFrameByName("GJ_colorBtn_001.png");
-    }
-
-    return initWithSpriteFrame(frame);
-}
-
-ColorChannelSprite* ICPColorChannelSprite::create() {
-    auto ret = new CheatColorChannelSprite();
-    if (ret->init()) {
-        ret->autorelease();
-        return reinterpret_cast<ColorChannelSprite*>(ret);
-    }
-    delete ret;
-    return nullptr;
 }

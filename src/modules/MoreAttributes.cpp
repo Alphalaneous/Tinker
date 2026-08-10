@@ -1,4 +1,4 @@
-#include "MoreAttributes.hpp"
+#include "modules/MoreAttributes.hpp"
 
 bool MASetupKeyframePopup::init(KeyframeGameObject* object, cocos2d::CCArray* objects, LevelEditorLayer* layer) {
     if (!SetupKeyframePopup::init(object, objects, layer)) return false;

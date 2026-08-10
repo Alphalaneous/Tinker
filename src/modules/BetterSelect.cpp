@@ -1,0 +1,425 @@
+#include "modules/BetterSelect.hpp"
+#include "utils/Constants.hpp"
+#include "utils/Utils.hpp"
+
+void BetterSelect::onEditor() {
+    m_hover = tinker::ui::HoverObjectNode::create();
+    getEditor()->addChild(m_hover);
+}
+
+bool BetterSelect::hoveringObjects() {
+    return m_hover->hoveringObjects();
+}
+
+namespace tinker::ui {
+
+ObjectSelectContainer* ObjectSelectContainer::create(CCArray* objects) {
+    auto ret = new ObjectSelectContainer();
+    if (ret->init(objects)) {
+        ret->autorelease();
+        return ret;
+    }
+    delete ret;
+    return nullptr;
+}
+
+void ObjectSelectContainer::shiftObject(bool forward) {
+    auto editorUI = EditorUI::get();
+
+    if (forward) {
+        m_index++;
+        if (m_index >= m_objects->count()) {
+            m_index = 0;
+        }
+    }
+    else {
+        m_index--;
+        if (m_index < 0) {
+            m_index = m_objects->count() - 1;
+        }
+    }
+    
+    int idx = 0;
+    for (auto obj : m_objects->asExt<GameObject>()) {
+        if (!obj) {
+            idx++;
+            continue;
+        }
+
+        auto spr = m_objectSprites[obj];
+        if (idx == m_index) {
+            auto link = editorUI->m_linkControlsDisabled;
+            editorUI->m_linkControlsDisabled = true;
+            editorUI->selectObject(obj, false);
+            editorUI->m_linkControlsDisabled = link;
+            editorUI->updateButtons();
+            auto gameObject = spr->getChildByType<GameObject>(0);
+            if (gameObject) {
+                gameObject->selectObject({0, 255, 0});
+            }
+            else {
+                spr->setColor({0, 255, 0});
+            }
+        }
+        else {
+            obj->selectObject({245, 245, 66});
+            auto gameObject = spr->getChildByType<GameObject>(0);
+            if (gameObject) {
+                gameObject->selectObject({255, 255, 255});
+                tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
+            }
+            else {
+                spr->setColor({255, 255, 255});
+            }
+        }
+
+        idx++;
+    }
+
+    if (m_index >= m_objectSprites.size()) return;
+
+    auto spr = m_objectSprites[m_objects->asExt<GameObject>()[m_index]];
+
+    m_scrollLayer->setScrollX(0);
+    m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
+    m_scrollLayer->setScrollX(spr->getPositionX() - m_objectsBG->getContentWidth() / 2.f);
+
+    auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
+    auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
+
+    m_selectDot->setPosition({sprBg.x, 3.f});
+}
+
+bool ObjectSelectContainer::init(CCArray* objects) {
+    m_objects = objects->shallowCopy();
+
+    setContentSize({30.f, 30.f});
+    setID("selected-objects-container"_spr);
+    setZOrder(10001);
+    setAnchorPoint({0.5f, 0.f});
+
+    m_objectsBG = geode::NineSlice::create("square02b_001.png");
+    m_objectsBG->setAnchorPoint({0.f, 0.f});
+    m_objectsBG->setColor({0, 0, 0});
+    m_objectsBG->setOpacity(200);
+    m_objectsBG->setContentSize({30.f, 30.f});
+    m_objectsBG->setID("selected-objects-bg"_spr);
+
+    addChild(m_objectsBG);
+
+    m_scrollLayer = AdvancedScrollLayer::create(m_objectsBG->getContentSize());
+    m_scrollLayer->getContentLayer()->setLayout(SimpleRowLayout::create()
+        ->setGap(5.f)
+        ->setPadding({5.f, 5.f, 5.f, 6.f})
+        ->setMainAxisScaling(AxisScaling::Grow)
+        ->setCrossAxisScaling(AxisScaling::ScaleDown)
+        ->ignoreInvisibleChildren(false)
+    );
+    m_scrollLayer->getContentLayer()->setContentHeight(30.f);
+    m_scrollLayer->setAnchorPoint({0.f, 0.f});
+    m_scrollLayer->setHorizontalScroll(true);
+    m_scrollLayer->setVerticalScroll(false);
+    m_scrollLayer->setDraggingEnabled(false);
+    m_scrollLayer->setHorizontalScrollWheel(false);
+    m_scrollLayer->setID("object-scroll-layer"_spr);
+    m_objectsBG->addChild(m_scrollLayer);
+
+    m_selectDot = CCSprite::create("smallDot.png");
+    m_selectDot->setScale(0.2f);
+    m_selectDot->setID("selection-indicator"_spr);
+
+    m_objectsBG->addChild(m_selectDot);
+
+    auto editorUI = EditorUI::get();
+    editorUI->createUndoSelectObject(false);
+
+    for (const auto& [obj, spr] : m_objectSprites) {
+        spr->removeFromParent();
+    }
+    m_objectSprites.clear();
+
+    m_index = 0;
+    if (objects->containsObject(editorUI->m_selectedObject)) {
+        for (auto obj : objects->asExt<GameObject>()) {
+            if (obj && editorUI->m_selectedObject == obj) {
+                break;
+            }
+            m_index++;
+        }
+    }
+
+    int idx = 0;
+    for (auto obj : objects->asExt<GameObject>()) {
+        if (!obj) continue;
+        
+        auto animateOnTrigger = false;
+        if (auto enhanced = typeinfo_cast<EnhancedGameObject*>(obj)) {
+            animateOnTrigger = enhanced->m_animateOnTrigger;
+            enhanced->m_animateOnTrigger = false;
+        }
+
+        auto spr = editorUI->spriteFromObjectString(obj->getSaveString(editorUI->m_editorLayer), true, false, 1, nullptr, nullptr, nullptr);
+
+        if (auto enhanced = typeinfo_cast<EnhancedGameObject*>(obj)) {
+            enhanced->m_animateOnTrigger = animateOnTrigger;
+        }
+
+        auto gameObject = spr->getChildByType<GameObject>(0);
+        if (gameObject) {
+            gameObject->setVisible(true);
+            gameObject->setOpacity(255);
+            tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
+
+        }
+        if (obj->m_objectID == tinker::constants::objects::Particle) {
+            spr = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
+        }
+        m_objectSprites[obj] = spr;
+        spr->setID("selected-object-sprite"_spr);
+
+        auto realBounds = tinker::utils::getRealBounds(spr);
+
+        if (realBounds.size.height != 0.f && realBounds.size.width != 0.f) {
+            auto scaleMultiplier = 30.f / realBounds.size.height;
+            scaleMultiplier = std::min(scaleMultiplier, 30.f / realBounds.size.width);
+
+            spr->setScale(scaleMultiplier);
+        }
+
+        if (idx == m_index) {
+            auto child = spr->getChildByType<GameObject>(0);
+            if (child) {
+                child->selectObject({0, 255, 0});
+            }
+            else {
+                spr->setColor({0, 255, 0});
+            }
+            if (obj != editorUI->m_selectedObject) {
+                auto link = editorUI->m_linkControlsDisabled;
+                editorUI->m_linkControlsDisabled = true;
+                editorUI->selectObject(obj, false);
+                editorUI->m_linkControlsDisabled = link;
+                editorUI->updateButtons();
+            }
+        }
+
+        m_scrollLayer->getContentLayer()->addChild(spr);
+        idx++;
+    } 
+
+    m_scrollLayer->getContentLayer()->updateLayout();
+
+    setContentWidth(std::min(150.f, m_scrollLayer->getContentLayer()->getContentWidth()));
+    m_objectsBG->setContentSize(getContentSize());
+
+    m_scrollLayer->setContentWidth(m_objectsBG->getContentWidth());
+
+    auto spr = m_objectSprites[objects->asExt<GameObject>()[m_index]];
+
+    m_scrollLayer->setScrollX(0);
+    m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
+    m_scrollLayer->setScrollX(spr->getPositionX() - m_objectsBG->getContentWidth() / 2.f);
+
+    auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
+    auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
+
+    m_selectDot->setPosition({sprBg.x, 3.f});
+
+    return true;
+}
+
+HoverObjectNode* HoverObjectNode::create() {
+    auto ret = new HoverObjectNode();
+    if (ret->init()) {
+        ret->autorelease();
+        return ret;
+    }
+    delete ret;
+    return nullptr;
+}
+
+bool HoverObjectNode::init() {
+    setAnchorPoint({0.f, 0.f});
+    setID("object-hover-node"_spr);
+    setZOrder(500);
+    setContentSize(CCDirector::get()->getWinSize());
+    m_lastObjects = CCArray::create();
+    
+    addEventListener(ModifierEvent(), [this] (KeyboardModifier modifier, KeyboardModifier lastModifier) {
+        auto changed = [&] (KeyboardModifier mod) {
+            return bool(lastModifier & mod) != bool(modifier & mod);
+        };
+
+        if (changed(KeyboardModifier::Alt)) {
+            removeObjectList();
+            onHoverObjects(m_lastPos);
+        }
+    });
+
+    addEventListener(ScrollWheelEvent(), [this] (double x, double y) {
+        if (y == 0 || !m_active) return;
+        shiftObject(y < 0);
+    });
+
+    addEventListener(KeyboardInputEvent(), [this] (KeyboardInputData& data) {
+        if (!m_active) return;
+        if (data.action == geode::KeyboardInputData::Action::Press || data.action == geode::KeyboardInputData::Action::Repeat) {
+            if (data.key == enumKeyCodes::KEY_Left) {
+                shiftObject(false);
+            }
+            if (data.key == enumKeyCodes::KEY_Right) {
+                shiftObject(true);
+            }
+        }
+    });
+
+    return true;
+}
+
+void HoverObjectNode::shiftObject(bool forward) {
+    if (m_activeSelectContainer) {
+        m_activeSelectContainer->shiftObject(forward);
+    }
+}
+
+void HoverObjectNode::showObjectList() {
+    if (m_activeSelectContainer) {
+        m_activeSelectContainer->removeFromParent();
+        m_activeSelectContainer = nullptr;
+    }
+    m_active = true;
+
+    auto editorUI = EditorUI::get();
+
+    if (m_lastObjects->count() == 1) {
+        auto obj = m_lastObjects->asExt<GameObject>()[0];
+        if (editorUI->m_selectedObject != obj) {
+            auto link = editorUI->m_linkControlsDisabled;
+            editorUI->m_linkControlsDisabled = true;
+            editorUI->selectObject(m_lastObjects->asExt<GameObject>()[0], false);
+            editorUI->m_linkControlsDisabled = link;
+        }
+        return;
+    }
+
+    m_activeSelectContainer = ObjectSelectContainer::create(m_lastObjects);
+
+    auto center = editorUI->getGroupCenter(m_lastObjects, false) + CCPoint{0.f, 20.f};
+    m_activeSelectContainer->setPosition(center);
+    m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
+
+    editorUI->m_editorLayer->m_objectLayer->addChild(m_activeSelectContainer);
+}
+
+void HoverObjectNode::removeObjectList() {
+    m_active = false;
+
+    if (m_activeSelectContainer) {
+        m_activeSelectContainer->removeFromParent();
+    }
+    m_lastObjects->removeAllObjects();
+    m_activeSelectContainer = nullptr;
+}
+
+void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
+    auto editorUI = EditorUI::get();
+    bool shouldShowObjectList = false;
+
+    for (const auto& obj : m_lastObjects->asExt<GameObject>()) {
+        obj->deselectObject();
+    }
+
+    if (editorUI->m_selectedObject && m_lastObjects->containsObject(editorUI->m_selectedObject)) {
+        editorUI->m_selectedObject->selectObject({0, 255, 0});
+    }
+    else if (editorUI->m_selectedObjects) {
+        for (auto selected : editorUI->m_selectedObjects->asExt<GameObject>()) {
+            if (m_lastObjects->containsObject(selected)) {
+                selected->selectObject({0, 255, 0});
+            }
+        }
+    }
+
+    bool skipShow = false;
+
+    if (CCKeyboardDispatcher::get()->getAltKeyPressed() 
+        && !editorUI->m_scaleControl->isVisible() 
+        && !editorUI->m_rotationControl->isVisible() 
+        && editorUI->m_selectedMode == 3 
+        && editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Playing
+    ) {
+        auto objects = editorUI->m_editorLayer->objectsAtPosition(pos);
+    
+        if (m_lastObjects->count() == objects->count()) {
+            skipShow = true;
+            auto unmatched = objects->shallowCopy();
+
+            for (auto obj : m_lastObjects->asExt()) {
+                int index = unmatched->indexOfObject(obj);
+                if (index == UINT_MAX) {
+                    break;
+                }
+
+                unmatched->removeObjectAtIndex(index);
+            }
+
+            skipShow = unmatched->count() == 0;
+        }
+
+        m_lastObjects->removeAllObjects();
+
+        for (auto obj : objects->asExt<GameObject>()) {
+            if (!obj || !editorUI->canSelectObject(obj)) continue;
+
+            m_lastObjects->addObject(obj);
+
+            if ((editorUI->m_selectedObject && (editorUI->m_selectedObject != obj)) && !(editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj))) {
+                obj->selectObject({245, 245, 66});
+            }
+        }
+
+        if (m_lastObjects->count() > 0) {
+            shouldShowObjectList = true;
+        }
+    }
+    else {
+        m_lastObjects->removeAllObjects();
+    }
+
+    if (shouldShowObjectList) {
+        if (!skipShow) {
+            showObjectList();
+        }
+    }
+    else {
+        removeObjectList();
+    }
+}
+
+bool HoverObjectNode::hoveringObjects() {
+    return m_active;
+}
+
+bool HoverObjectNode::mouseEntered(TouchEvent* touch) {
+    return true;
+}
+
+void HoverObjectNode::mouseMoved(TouchEvent* touch) {
+    auto editorUI = EditorUI::get();
+    auto objectSpace = editorUI->m_editorLayer->m_objectLayer->convertToNodeSpace(touch->getLocation());
+
+    onHoverObjects(objectSpace);
+    m_lastPos = objectSpace;
+}
+
+void HoverObjectNode::onEnter() {
+    CCNode::onEnter();
+    CCTouchDispatcher::get()->addTargetedDelegate(this, -530, false);
+}
+
+void HoverObjectNode::onExit() {
+    CCNode::onExit();
+    CCTouchDispatcher::get()->removeDelegate(this);
+}
+
+}

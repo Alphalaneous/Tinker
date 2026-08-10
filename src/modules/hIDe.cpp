@@ -1,4 +1,4 @@
-#include "hIDe.hpp"
+#include "modules/hIDe.hpp"
 
 bool hIDe::onToggled(bool state) {
     return true;

@@ -1,32 +1,32 @@
-#include "EditTools.hpp"
+#include "modules/EditTools.hpp"
 #include "utils/Utils.hpp"
 #include "utils/Constants.hpp"
 
 void EditTools::onEditor() {
-    auto fields = static_cast<ETEditorUI*>(m_editorUI)->m_fields.self();
+    auto fields = static_cast<ETEditorUI*>(getEditor())->m_fields.self();
 
-    fields->m_centerObjectButton = m_editorUI->getSpriteButton("center-object.png"_spr, menu_selector(ETEditorUI::onCenterObjects), nullptr, 0.9f);
+    fields->m_centerObjectButton = getEditor()->getSpriteButton("center-object.png"_spr, menu_selector(ETEditorUI::onCenterObjects), nullptr, 0.9f);
     fields->m_centerObjectButton->setID("center-objects"_spr);
-    m_editorUI->m_editButtonBar->m_buttonArray->addObject(fields->m_centerObjectButton);
+    getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_centerObjectButton);
 
-    fields->m_centerCameraButton = m_editorUI->getSpriteButton("center-camera.png"_spr, menu_selector(ETEditorUI::onCenterCamera), nullptr, 0.9f);
+    fields->m_centerCameraButton = getEditor()->getSpriteButton("center-camera.png"_spr, menu_selector(ETEditorUI::onCenterCamera), nullptr, 0.9f);
     fields->m_centerCameraButton->setID("center-camera"_spr);
-    m_editorUI->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
+    getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    m_editorUI->m_editButtonBar->reloadItems(cols, rows);
+    getEditor()->m_editButtonBar->reloadItems(cols, rows);
 
-    m_editorUI->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    getEditor()->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down & !repeat) {
-            static_cast<ETEditorUI*>(m_editorUI)->onCenterCamera(nullptr);
+            static_cast<ETEditorUI*>(getEditor())->onCenterCamera(nullptr);
         }
     });
 
-    m_editorUI->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    getEditor()->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down) {
-            static_cast<ETEditorUI*>(m_editorUI)->onCenterObjects(nullptr);
+            static_cast<ETEditorUI*>(getEditor())->onCenterObjects(nullptr);
         }
     });
 }

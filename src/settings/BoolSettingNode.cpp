@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#include "SettingNode.hpp"
+#include "settings/SettingNode.hpp"
 
 using namespace geode::prelude;
 

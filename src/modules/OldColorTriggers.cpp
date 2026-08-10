@@ -1,4 +1,4 @@
-#include "OldColorTriggers.hpp"
+#include "modules/OldColorTriggers.hpp"
 #include "utils/Constants.hpp"
 
 using namespace tinker::constants::objects;

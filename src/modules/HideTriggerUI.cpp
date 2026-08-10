@@ -1,4 +1,4 @@
-#include "HideTriggerUI.hpp"
+#include "modules/HideTriggerUI.hpp"
 
 bool HideTriggerUI::onToggled(bool state) {
     return true;

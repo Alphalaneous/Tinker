@@ -1,12 +1,12 @@
-#include "AutoBuildHelper.hpp"
+#include "modules/AutoBuildHelper.hpp"
 #include "MainHooks.hpp"
 
 void AutoBuildHelper::removeFromEditorUI() {
     if (!m_bhToggler) return;
-    m_editorUI->m_uiItems->removeObject(m_bhToggler);
+    getEditor()->m_uiItems->removeObject(m_bhToggler);
     m_bhToggler->removeFromParent();
 
-    auto menu = m_editorUI->getChildByID("toolbar-toggles-menu");
+    auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
     if (menu) {
         menu->updateLayout();
     }
@@ -69,7 +69,7 @@ bool AutoBuildHelper::onSettingChanged(std::string_view key, const matjson::Valu
 }
 
 void AutoBuildHelper::showOnEditorUI() {
-    auto menu = m_editorUI->getChildByID("toolbar-toggles-menu");
+    auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
     if (!menu) return;
 
     auto autoBuildHelperSpr = CCSprite::create("build_helper.png"_spr);
@@ -86,7 +86,7 @@ void AutoBuildHelper::showOnEditorUI() {
     autoBuildHelperSprOn->setContentSize({40.f, 40.f});
     autoBuildHelperSprOff->setContentSize({40.f, 40.f});
 
-    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, m_editorUI, menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
+    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, getEditor(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
 
     bool isToggled = Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false);
@@ -97,7 +97,7 @@ void AutoBuildHelper::showOnEditorUI() {
     menu->addChild(m_bhToggler);
     menu->updateLayout();
     
-    m_editorUI->m_uiItems->addObject(m_bhToggler);
+    getEditor()->m_uiItems->addObject(m_bhToggler);
 }
 
 void AutoBuildHelper::showOnPause() {

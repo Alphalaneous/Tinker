@@ -1,3 +1,17 @@
+# 1.0.54
+- <c-dddddd>Improved font picker now auto scrolls to the selected font when opened</c>
+- <c-dddddd>Adjust font picker positions and scrollbar width</c>
+- <c-dddddd>Added an improved style picker</c>
+- <c-dddddd>Rename "G1" (for ground color 1) to "G" for consistency with "MG"</c>
+- <c-dddddd>Live Colors now uses a consistent Color Channel Sprite as everywhere else</c>
+- <c-dddddd>Increase Live Colors scale slightly</c>
+- <c-dddddd>Live Colors now respects pulse HSV properly</c>
+- <c-dddddd>Change copy color label to be more visible</c>
+- <c-dddddd>Decrease scale of color ID label slightly</c>
+- <c-dddddd>Add live color preview checkbox to color select popup</c>
+- <c-dddddd>(Desktop only) Add better selection tools, hold alt while hovering an object to see all objects at that position, use scroll wheel or left and right arrows to pick which object you want to select</c>
+- <c-dddddd>Restructure entire mod</c>
+
 # 1.0.53
 - <c-dddddd>Fix a crash with recursive copy color</c>
 - <c-dddddd>Fix spawn remap buttons persisting on other pages</c>

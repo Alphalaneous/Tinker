@@ -1,4 +1,4 @@
-#include "CustomToolbarBackground.hpp"
+#include "modules/CustomToolbarBackground.hpp"
 #include "third-party/BlurAPI.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
@@ -29,7 +29,7 @@ bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjs
 
 void CustomToolbarBackground::onEditor() {
     
-    auto toolbarBG = static_cast<CCSprite*>(m_editorUI->getChildByID("background-sprite"));
+    auto toolbarBG = static_cast<CCSprite*>(getEditor()->getChildByID("background-sprite"));
     
     auto oldContentSize = toolbarBG->getContentSize();
     toolbarBG->setTextureRect({-1.f, -1.f, 0.f, 0.f});
@@ -53,7 +53,7 @@ void CustomToolbarBackground::onEditor() {
 
     if (getSetting<bool, "blur-behind">()) {
 	    BlurAPI::addBlur(toolbarBG);
-	    BlurAPI::addBlur(m_editorUI->getChildByID("build-tabs-menu"));
+	    BlurAPI::addBlur(getEditor()->getChildByID("build-tabs-menu"));
     }
 }
 

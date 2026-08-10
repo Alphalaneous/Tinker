@@ -1,4 +1,4 @@
-#include "ImprovedFontSelection.hpp"
+#include "modules/ImprovedFontSelection.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
 bool ImprovedFontSelection::onToggled(bool state) {
@@ -108,7 +108,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     scrollLayer->setID("font-scroll-layer"_spr);
 
     for (int i = 0; i < 60; i++) {
-        auto font = FontContainer::create(i, scrollLayer->getContentWidth(), fontNameForID(i), fontForID(i), this);
+        auto font = tinker::ui::FontContainer::create(i, scrollLayer->getContentWidth(), fontNameForID(i), fontForID(i), this);
         fields->m_fontContainers.push_back(font);
 
         scrollLayer->getContentLayer()->addChild(font);
@@ -128,10 +128,18 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     };
 
     scrollbar->setStyle(style);
-    scrollbar->setPositionX(scrollbar->getPositionX() - 16.f);
+    scrollbar->setPositionX(scrollbar->getPositionX() - 14.f);
     scrollbar->setID("font-scroll-bar"_spr);
+    scrollbar->setContentWidth(10.f);
 
     scrollBG->addChild(scrollbar);
+
+    for (auto fontContainer : fields->m_fontContainers) {
+        if (fontContainer->getFontID() == m_font) {
+            scrollLayer->setScrollY(scrollLayer->getContentLayer()->getContentHeight() - fontContainer->getPositionY() - scrollLayer->getContentHeight() / 2.f);
+            break;
+        }
+    }
     
     return true;
 }
@@ -192,83 +200,4 @@ void IFSSelectFontLayer::updateFont(int id) {
 
     GameManager::get()->m_levelEditorLayer->updateLevelFont(m_font);
     EditorUI::get()->resetSelectedObjectsColor();
-}
-
-FontContainer* FontContainer::create(int id, float width, ZStringView text, ZStringView fontFile, IFSSelectFontLayer* fontLayer) {
-    auto ret = new FontContainer();
-    if (ret->init(id, width, text, fontFile, fontLayer)) {
-        ret->autorelease();
-        return ret;
-    }
-    delete ret;
-    return nullptr;
-}
-
-bool FontContainer::init(int id, float width, ZStringView text, ZStringView fontFile, IFSSelectFontLayer* fontLayer) {
-    GLubyte opacity = (id % 2 == 0) ? 50 : 0;
-    if (!CCLayerColor::initWithColor({0, 0, 0, opacity})) return false;
-
-    setContentSize({width, 30.f});
-
-    m_id = id;
-    m_text = text;
-    m_fontFile = fontFile;
-    m_fontLayer = fontLayer;
-
-    setID(fmt::format("font-{}"_spr, id));
-
-    auto menu = CCMenu::create();
-    menu->setContentSize(getContentSize());
-    menu->ignoreAnchorPointForPosition(false);
-    menu->setAnchorPoint({0.f, 0.f});
-    menu->setPosition({0.f, 0.f});
-    menu->setID("main-menu"_spr);
-
-    m_toggle = CCMenuItemExt::createTogglerWithFrameName("GJ_selectSongOnBtn_001.png", "GJ_selectSongBtn_001.png", 0.5f, [this] (auto sender) {
-        m_fontLayer->updateFont(getFontID());
-    });
-    m_toggle->setID("use-toggle"_spr);
-
-    if (fontLayer->m_font == id) {
-        m_toggle->toggle(true);
-    }
-
-    m_toggle->setPosition({menu->getContentWidth() - m_toggle->getContentWidth() / 2.f - 12.f, menu->getContentHeight() / 2.f});
-    m_toggle->m_notClickable = true;
-
-    menu->addChild(m_toggle);
-
-    addChild(menu);
-
-    return true;
-}
-
-void FontContainer::setVisible(bool visible) {
-    CCNode::setVisible(visible);
-
-    if (visible && !m_label) {
-        m_label = CCLabelBMFont::create(m_text.c_str(), m_fontFile.c_str());
-        m_label->setAnchorPoint({0.f, 0.5f});
-        m_label->setScale(0.6f);
-        m_label->limitLabelWidth(getContentWidth() - 70.f, 0.6f, 0.1f);
-        m_label->setPosition({5.f, getContentHeight() / 2.f});
-        m_label->setID("font-name-label"_spr);
-        addChild(m_label);
-
-        auto idLabel = CCLabelBMFont::create(fmt::format("({})", m_id + 1).c_str(), "chatFont.fnt");
-        idLabel->setAnchorPoint({0.f, 0.5f});
-        idLabel->setOpacity(127);
-        idLabel->setScale(0.5f);
-        idLabel->setPosition({m_label->boundingBox().getMaxX() + 5.f, getContentHeight() / 2.f});
-        idLabel->setID("font-id-label"_spr);
-        addChild(idLabel);
-    }
-}
-
-void FontContainer::toggle(bool toggle) {
-    m_toggle->toggle(toggle);
-}
-
-int FontContainer::getFontID() {
-    return m_id;
 }

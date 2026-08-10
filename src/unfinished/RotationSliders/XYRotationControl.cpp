@@ -1,6 +1,6 @@
 #include "XYRotationControl.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
-#include "modules/ImprovedControls/ImprovedControls.hpp"
+#include "modules/ImprovedControls.hpp"
 #include "utils/Utils.hpp"
 
 using namespace tinker::ui;

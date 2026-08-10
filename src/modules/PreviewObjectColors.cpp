@@ -1,21 +1,21 @@
-#include "PreviewObjectColors.hpp"
-#include "ScrollableObjects.hpp"
+#include "modules/PreviewObjectColors.hpp"
+#include "modules/ScrollableObjects.hpp"
+#include "modules/UIScaling.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
 void PreviewObjectColors::onEditor() {
-    auto savedObj = alpha::level_storage::getSavedValue<std::string>(m_editorLayer, "color-object");
+    auto savedObj = alpha::level_storage::getSavedValue<std::string>(getEditorLayer(), "color-object");
 
-    auto editorUI = static_cast<POCEditorUI*>(m_editorUI);
+    auto editorUI = static_cast<POCEditorUI*>(getEditor());
     auto fields = editorUI->m_fields.self();
 
     if (!savedObj.empty()) {
-        auto objects = m_editorLayer->createObjectsFromString(savedObj, true, true);
+        auto objects = getEditorLayer()->createObjectsFromString(savedObj, true, true);
         fields->m_defaultObject = static_cast<GameObject*>(objects->firstObject());
-        m_editorUI->deleteObject(fields->m_defaultObject, true);
+        getEditor()->deleteObject(fields->m_defaultObject, true);
     }
     else {
         fields->m_defaultObject = GameObject::createWithKey(207);
@@ -26,11 +26,11 @@ void PreviewObjectColors::onEditor() {
     fields->m_defaultObject->m_baseColor->m_defaultColorID = 0;
     fields->m_defaultObject->m_detailColor->m_defaultColorID = 0;
 
-    m_editorUI->schedule(schedule_selector(POCEditorUI::updateObjectColors));
+    getEditor()->schedule(schedule_selector(POCEditorUI::updateObjectColors));
 
     if (ScrollableObjects::isEnabled()) {
-        m_editorUI->runAction(CallFuncExt::create([this] {
-            for (auto child : m_editorUI->getChildrenExt()) {
+        getEditor()->runAction(CallFuncExt::create([this] {
+            for (auto child : getEditor()->getChildrenExt()) {
                 if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
                     if (!bar->m_hasCreateItems) continue;
                     auto soBar = static_cast<SOEditButtonBar*>(bar);
@@ -49,8 +49,8 @@ void PreviewObjectColors::onEditor() {
         btnContainer->setID("color-preview-container"_spr);
         btnContainer->setZOrder(100);
         btnContainer->setAnchorPoint({1.f, 1.f});
-        m_editorUI->addChild(btnContainer);
-        m_editorUI->m_uiItems->addObject(btnContainer);
+        getEditor()->addChild(btnContainer);
+        getEditor()->m_uiItems->addObject(btnContainer);
 
         auto btn = geode::Button::createWithSpriteFrameName("GJ_editHSVBtn2_001.png", [this] (auto sender) {
             editColor();
@@ -70,7 +70,7 @@ void PreviewObjectColors::onEditor() {
             float x = winSize.width - (95.f * scale);
             btnContainer->setScale(0.65f * scale);
 
-            auto spacer = m_editorUI->getChildByID("spacer-line-right");
+            auto spacer = getEditor()->getChildByID("spacer-line-right");
             if (spacer) {
                 x = spacer->boundingBox().getMinX();
             }
@@ -87,9 +87,9 @@ void PreviewObjectColors::onEditor() {
     }
 
     addEventListener(LevelSavedEvent(), [this] {
-        auto editorUI = static_cast<POCEditorUI*>(m_editorUI);
+        auto editorUI = static_cast<POCEditorUI*>(getEditor());
         auto fields = editorUI->m_fields.self();
-        alpha::level_storage::setSavedValue(m_editorLayer, "color-object", std::string(fields->m_defaultObject->getSaveString(m_editorLayer)));
+        alpha::level_storage::setSavedValue(getEditorLayer(), "color-object", std::string(fields->m_defaultObject->getSaveString(getEditorLayer())));
     });
 }
 
@@ -105,7 +105,7 @@ void PreviewObjectColors::setButtonVisible(geode::Button* button) {
 }
 
 void PreviewObjectColors::editColor() {
-    auto editorUI = static_cast<POCEditorUI*>(m_editorUI);
+    auto editorUI = static_cast<POCEditorUI*>(getEditor());
     auto fields = editorUI->m_fields.self();
 
     auto customizeObjectLayer = CustomizeObjectLayer::create(fields->m_defaultObject, nullptr);

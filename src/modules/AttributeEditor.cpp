@@ -1,1 +1,1 @@
-#include "AttributeEditor.hpp"
+#include "modules/AttributeEditor.hpp"

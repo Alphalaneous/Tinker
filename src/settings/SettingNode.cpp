@@ -1,5 +1,4 @@
-#include "SettingNode.hpp"
-#include "Geode/ui/SimpleAxisLayout.hpp"
+#include "settings/SettingNode.hpp"
 
 namespace tinker::settings {
 

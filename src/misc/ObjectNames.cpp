@@ -1,4 +1,4 @@
-#include "ObjectNames.hpp"
+#include "misc/ObjectNames.hpp"
 #include "utils/Utils.hpp"
 
 void ObjectNames::checkNames() {

@@ -3,12 +3,12 @@
 #include "module/Module.hpp"
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 
-class $editorModule(FixTextSplit) {
-    bool onToggled(bool state) override;
+class $module(FixTextSplit) {
+    bool onToggled(bool state);
 };
 
 class $modify(FTSCustomizeObjectLayer, CustomizeObjectLayer) {
-    $registerEditorHooks(FixTextSplit);
+    $registerHooks(FixTextSplit);
 
     struct TextObjectAttributes {
         char c;

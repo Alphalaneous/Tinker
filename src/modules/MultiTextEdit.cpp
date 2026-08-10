@@ -1,4 +1,4 @@
-#include "MultiTextEdit.hpp"
+#include "modules/MultiTextEdit.hpp"
 #include "utils/Constants.hpp"
 
 bool MultiTextEdit::onToggled(bool state) {

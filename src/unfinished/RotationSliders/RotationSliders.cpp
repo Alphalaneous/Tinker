@@ -1,25 +1,22 @@
 #include "RotationSliders.hpp"
-#include <Geode/Enums.hpp>
-#include <Geode/binding/ButtonSprite.hpp>
-#include <Geode/binding/GameObject.hpp>
 
 void RotationSliders::onEditor() {
-    auto editorUI = static_cast<RSEditorUI*>(m_editorUI);
+    auto editorUI = static_cast<RSEditorUI*>(getEditor());
     auto fields = editorUI->m_fields.self();
 
-    fields->m_rotationXYControlsButton = m_editorUI->getSpriteButton("center-object.png"_spr, menu_selector(RSEditorUI::activateRotationXYControl), nullptr, 0.9f);
+    fields->m_rotationXYControlsButton = getEditor()->getSpriteButton("center-object.png"_spr, menu_selector(RSEditorUI::activateRotationXYControl), nullptr, 0.9f);
     fields->m_rotationXYControlsButton->setID("rotation-xy-toggle"_spr);
-    m_editorUI->m_editButtonBar->m_buttonArray->addObject(fields->m_rotationXYControlsButton);
+    getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_rotationXYControlsButton);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    m_editorUI->m_editButtonBar->reloadItems(cols, rows);
+    getEditor()->m_editButtonBar->reloadItems(cols, rows);
 
     fields->m_rotationXYControls = XYRotationControl::create();
     fields->m_rotationXYControls->setVisible(false);
 
-    m_editorLayer->m_objectLayer->addChild(fields->m_rotationXYControls);
+    getEditorLayer()->m_objectLayer->addChild(fields->m_rotationXYControls);
 
     addEventListener(ObjectMovedEvent(), [editorUI, fields] () {
         if (fields->m_rotationXYControls) {

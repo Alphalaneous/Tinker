@@ -1,10 +1,10 @@
-#include "HideUI.hpp"
+#include "modules/HideUI.hpp"
 #include "MainHooks.hpp"
 #include "utils/Utils.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
 void HideUI::onEditor() {
-    auto undoMenu = m_editorUI->getChildByID("undo-menu");
+    auto undoMenu = getEditor()->getChildByID("undo-menu");
     if (!undoMenu) return;
 
     auto showEye = CCSprite::create("show-eye.png"_spr);
@@ -16,7 +16,7 @@ void HideUI::onEditor() {
     hideEye->setScale(0.75f);
 
     auto toggler = CCMenuItemExt::createToggler(hideEye, showEye, [this] (auto sender) {
-        m_editorUI->showUI(sender->isToggled());
+        getEditor()->showUI(sender->isToggled());
     });
     toggler->m_notClickable = true;
 
@@ -43,16 +43,16 @@ void HideUI::onEditor() {
     });
 
     addEventListener(ShowUIEvent(), [this, toggler] (bool show) {
-        m_editorUI->m_toolbarHeight = show ? tinker::utils::getToolbarHeight() : 0;
+        getEditor()->m_toolbarHeight = show ? tinker::utils::getToolbarHeight() : 0;
         
         toggler->toggle(!show);
-        toggler->setVisible(m_editorLayer->m_playbackMode != PlaybackMode::Playing);
+        toggler->setVisible(getEditorLayer()->m_playbackMode != PlaybackMode::Playing);
 
         if (getSetting<bool, "hide-all">()) {
-            bool shouldHide = toggler->isToggled() && m_editorLayer->m_playbackMode != PlaybackMode::Playing;
-            m_editorUI->m_playtestBtn->setVisible(!shouldHide);
+            bool shouldHide = toggler->isToggled() && getEditorLayer()->m_playbackMode != PlaybackMode::Playing;
+            getEditor()->m_playtestBtn->setVisible(!shouldHide);
             
-            auto settingsMenu = m_editorUI->getChildByID("settings-menu");
+            auto settingsMenu = getEditor()->getChildByID("settings-menu");
             if (settingsMenu) {
                 auto pauseButton = settingsMenu->getChildByID("pause-button");
                 if (pauseButton) {

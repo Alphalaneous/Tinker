@@ -1,4 +1,4 @@
-#include "GridControl.hpp"
+#include "modules/GridControl.hpp"
 #include "utils/Utils.hpp"
 
 #ifndef GEODE_IS_ANDROID32
@@ -60,9 +60,9 @@ void GridControl::onEditor() {
 
     addEventListener(UIScaleUpdated(), [this, container] (float scale, bool scaleToolbars, bool fullReload) {
         container->setScale(std::min(0.85f, scale));
-        auto settingsMenu = m_editorUI->getChildByID("settings-menu");
+        auto settingsMenu = getEditor()->getChildByID("settings-menu");
 
-        auto available = tinker::utils::getAvailableSpace(settingsMenu, m_editorUI->m_positionSlider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f});
+        auto available = tinker::utils::getAvailableSpace(settingsMenu, getEditor()->m_positionSlider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f});
         
         if (tinker::utils::nodeFits(container, available, tinker::utils::Axis::Horizontal)) {
             container->setAnchorPoint({1.f, 0.5f});
@@ -70,7 +70,7 @@ void GridControl::onEditor() {
         }
         else {
             container->setAnchorPoint({0.5f, 0.5f});
-            container->setPosition({m_editorUI->m_positionSlider->getPositionX(), getSliderMinY(m_editorUI) - 12.f});
+            container->setPosition({getEditor()->m_positionSlider->getPositionX(), getSliderMinY(getEditor()) - 12.f});
         }
     });
 
@@ -95,11 +95,11 @@ void GridControl::onEditor() {
         decBtn->activate();
     });
 
-    m_editorUI->m_uiItems->addObject(container);
-    m_editorUI->addChild(container);
+    getEditor()->m_uiItems->addObject(container);
+    getEditor()->addChild(container);
 
-    m_editorUI->addOnEnterCallback([this] {
-        m_oldBEControl = m_editorUI->getChildByID("hjfod.betteredit/grid-size-controls");
+    getEditor()->addOnEnterCallback([this] {
+        m_oldBEControl = getEditor()->getChildByID("hjfod.betteredit/grid-size-controls");
         if (m_oldBEControl) {
             // hacky hide so BE doesn't crash when changing grid with its keybinds
             m_oldBEControl->setVisible(false);
@@ -121,7 +121,7 @@ void GridControl::updateGrid(float newValue, bool updateInput) {
     }
 
     Mod::get()->setSavedValue("grid-size", newValue);
-    m_editorUI->updateGridNodeSize();
+    getEditor()->updateGridNodeSize();
 
     if (updateInput) {
         m_input->setString(numToString(newValue));

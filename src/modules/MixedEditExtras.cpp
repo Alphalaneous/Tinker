@@ -1,4 +1,4 @@
-#include "MixedEditExtras.hpp"
+#include "modules/MixedEditExtras.hpp"
 
 bool MixedEditExtras::onToggled(bool state) {
     return true;

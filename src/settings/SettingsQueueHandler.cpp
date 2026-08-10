@@ -1,5 +1,5 @@
-#include "SettingsQueueHandler.hpp"
-#include "SettingsCache.hpp"
+#include "settings/SettingsQueueHandler.hpp"
+#include "settings/SettingsCache.hpp"
 
 void SettingsQueueHandler::addFeature(const std::string& name) {
     m_features.push_back(std::move(name));

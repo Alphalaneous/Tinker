@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "misc/ValueToggler.hpp"
-#include "misc/ScaleSlider.hpp"
+#include "nodes/ValueToggler.hpp"
+#include "nodes/ScaleSlider.hpp"
 
 using namespace geode::prelude;
 

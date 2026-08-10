@@ -1,4 +1,4 @@
-#include "CCCallbackAction.hpp"
+#include "actions/CCCallbackAction.hpp"
 
 CCCallbackAction* CCCallbackAction::create(CCFiniteTimeAction* action, geode::Function<void(CCNode*)> cb) {
     auto p = new CCCallbackAction();

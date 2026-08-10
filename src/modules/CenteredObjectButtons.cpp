@@ -1,4 +1,4 @@
-#include "CenteredObjectButtons.hpp"
+#include "modules/CenteredObjectButtons.hpp"
 
 CreateMenuItem* COBCreateMenuItem::create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector) {
     auto ret = CreateMenuItem::create(normal, selected, target, selector);

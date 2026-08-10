@@ -1,4 +1,4 @@
-#include "LDMObjectCount.hpp"
+#include "modules/LDMObjectCount.hpp"
 #include "MainHooks.hpp"
 
 bool LDMObjectCount::onToggled(bool state) {
@@ -44,13 +44,13 @@ void LDMObjectCount::setLabel(EditorPauseLayer* pauseLayer) {
     if (!objectCountLabel) return; 
 
     int ldmCount = 0;
-    for (auto obj : m_editorLayer->m_objects->asExt<GameObject>()) {
+    for (auto obj : getEditorLayer()->m_objects->asExt<GameObject>()) {
         ldmCount += obj->m_isHighDetail;
     }
 
     objectCountLabel->setString(fmt::format(
         "{} | LDM: {} ({}%)",
         objectCountLabel->getString(), ldmCount,
-        m_editorLayer->m_objects->count() ? static_cast<int>(100.f * ldmCount / m_editorLayer->m_objects->count()) : 0
+        getEditorLayer()->m_objects->count() ? static_cast<int>(100.f * ldmCount / getEditorLayer()->m_objects->count()) : 0
     ).c_str());
 }

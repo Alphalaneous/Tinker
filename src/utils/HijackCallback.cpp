@@ -1,4 +1,4 @@
-#include "HijackCallback.hpp"
+#include "utils/HijackCallback.hpp"
 
 HijackCallback* HijackCallback::create(Hijack method, SEL_MenuHandler originalSelector) {
     auto ret = new HijackCallback();

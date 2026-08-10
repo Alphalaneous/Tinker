@@ -1,7 +1,7 @@
-#include "Utils.hpp"
 #include "MainHooks.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
+#include "utils/Utils.hpp"
 
 namespace tinker::utils {
 
@@ -206,6 +206,131 @@ namespace tinker::utils {
         return {{255, 255, 255}, false, 255};
     }
 
+    void updateGameObjectColor(LevelEditorLayer* levelEditorLayer, GameObject* gameObject) {
+        using namespace tinker::constants;
+        
+        if (!isColorable(gameObject)) return;
+
+        if (auto baseColor = gameObject->m_baseColor) {
+            auto baseColorData = getActiveColor(levelEditorLayer, baseColor->m_colorID);
+            bool blending = baseColorData.blending;
+            auto color = baseColorData.color;
+
+            if (baseColor->m_colorID == color_channels::Black) {
+                color = ccColor3B{0, 0, 0};
+            }
+
+            gameObject->updateHSVState();
+
+            auto blend = blending 
+                ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
+                : ccBlendFunc{GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
+
+            if (auto anim = typeinfo_cast<AnimatedGameObject*>(gameObject)) {
+                if (auto animSpr = anim->m_animatedSprite) {
+                    if (auto paSpr = animSpr->m_paSprite) {
+                        for (auto child : paSpr->getChildrenExt()) {
+                            if (child == anim->m_eyeSpritePart && !anim->m_childSprite) continue;
+                            auto spr = static_cast<CCSprite*>(child);
+                            spr->setBlendFunc(blend);
+                        }
+                    }
+                }
+            }
+            else if (typeinfo_cast<EnhancedGameObject*>(gameObject) || gameObject->m_hasCustomChild) {
+                for (auto child : gameObject->getChildrenExt()) {
+                    if (child == gameObject->m_colorSprite) continue;
+                    if (auto spr = typeinfo_cast<CCSprite*>(child)) {
+                        spr->setBlendFunc(blend);
+                    }
+                }
+            }
+
+            if (gameObject->m_objectID == objects::SpikedSquareHazard || gameObject->m_objectID == objects::SpikedCircleHazard || gameObject->m_objectID == objects::TriangleHazard) {
+                for (auto child : gameObject->getChildrenExt()) {
+                    if (child->getChildrenCount() == 0) {
+                        if (auto spr = typeinfo_cast<CCSprite*>(child)) {
+                            spr->setBlendFunc(blend);
+                        }
+                    }
+                }
+            }
+
+            gameObject->setBlendFunc(blend);
+
+            if (baseColor->m_usesHSV) {
+                color = GameToolbox::transformColor(color, baseColor->m_hsv);
+            }
+            gameObject->updateMainColor(color);
+        }
+        if (auto detailColor = gameObject->m_detailColor) {
+            auto detailColorData = getActiveColor(levelEditorLayer, detailColor->m_colorID);
+
+            bool blending = detailColorData.blending;
+            auto color = detailColorData.color;
+
+            if (detailColor->m_colorID == color_channels::Black) {
+                color = ccColor3B{0, 0, 0};
+            }
+
+            gameObject->updateHSVState();
+
+            auto blend = blending 
+                ? ccBlendFunc{GL_SRC_ALPHA, GL_ONE} 
+                : ccBlendFunc{GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
+
+            std::function<void(CCNode*)> applyBlend = [&](CCNode* node) {
+                for (auto child : node->getChildrenExt()) {
+                    if (auto spr = typeinfo_cast<CCSprite*>(child)) {
+                        spr->setBlendFunc(blend);
+                        applyBlend(spr);
+                    }
+                }
+            };
+            
+            if (auto anim = typeinfo_cast<AnimatedGameObject*>(gameObject)) {
+                if (anim->m_childSprite) {
+                    anim->m_childSprite->setBlendFunc(blend);
+                }
+                else {
+                    if (auto eye = anim->m_eyeSpritePart) {
+                        eye->setBlendFunc(blend);
+                    }
+                }
+            }
+            else if (typeinfo_cast<EnhancedGameObject*>(gameObject)) {
+                for (auto child : gameObject->getChildrenExt()) {
+                    applyBlend(child);
+                }
+            }
+            else {
+                if (gameObject->m_objectID == objects::SpikedSquareHazard || gameObject->m_objectID == objects::SpikedCircleHazard || gameObject->m_objectID == objects::TriangleHazard) {
+                    for (auto child : gameObject->getChildrenExt()) {
+                        if (child->getChildrenCount() > 0) {
+                            applyBlend(child);
+                            if (auto spr = typeinfo_cast<CCSprite*>(child)) {
+                                spr->setBlendFunc(blend);
+                            }
+                        }
+                    }
+                }
+                else {
+                    applyBlend(gameObject);
+                }
+            }
+
+            if (auto spr = gameObject->m_colorSprite) {
+                spr->setBlendFunc(blend);
+            }
+
+            if (detailColor->m_usesHSV) {
+                color = GameToolbox::transformColor(color, detailColor->m_hsv);
+            }
+            gameObject->updateSecondaryColor(color);
+        }
+        gameObject->setOpacity(255);
+    }
+
     void updateCreateButtonColor(LevelEditorLayer* levelEditorLayer, CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
         using namespace tinker::constants;
         
@@ -381,6 +506,20 @@ namespace tinker::utils {
         }
     }
 
+    ccColor3B getRealizedColor(int channelID, unsigned int depth) {
+        auto channel = LevelEditorLayer::get()->m_levelSettings->m_effectManager->getColorAction(channelID);
+        if (!channel) {
+            return ccWHITE;
+        }
+        if (channel->m_copyColorLoop || depth > 10) {
+            return ccGRAY;
+        }
+        if (channel->m_copyID) {
+            return GameToolbox::transformColor(getRealizedColor(channel->m_copyID, depth + 1), channel->m_copyHSV);
+        }
+        return channel->m_fromColor;
+    }
+
     CCRect getRealBounds(CCNode* node, const std::vector<CCNode*>& ignore) {
         auto winSize = CCDirector::get()->getWinSize();
         if (!node->isVisible()) return {0, 0, 0, 0};
@@ -553,6 +692,256 @@ namespace tinker::utils {
         return numToString(rounded);
     }
 
+    bool nodesIntersect(cocos2d::CCNode* a, cocos2d::CCNode* b) {
+        if (!a || !b) return false;
+
+        auto getWorldRect = [](cocos2d::CCNode* node) {
+            auto size = node->getContentSize();
+
+            CCPoint corners[4] = {
+                {0, 0},
+                {size.width, 0},
+                {size.width, size.height},
+                {0, size.height}
+            };
+
+            float minX = FLT_MAX;
+            float minY = FLT_MAX;
+            float maxX = -FLT_MAX;
+            float maxY = -FLT_MAX;
+
+            for (const auto& corner : corners) {
+                auto world = node->convertToWorldSpace(corner);
+
+                minX = std::min(minX, world.x);
+                minY = std::min(minY, world.y);
+                maxX = std::max(maxX, world.x);
+                maxY = std::max(maxY, world.y);
+            }
+
+            return cocos2d::CCRect(
+                minX,
+                minY,
+                maxX - minX,
+                maxY - minY
+            );
+        };
+
+        return getWorldRect(a).intersectsRect(getWorldRect(b));
+    }
+
+    CCPoint getEndPos(EffectGameObject* object) {
+        using namespace tinker::constants::objects;
+
+        auto dgl = LevelEditorLayer::get()->m_drawGridLayer;
+        const auto* settings = dgl->m_editorLayer->m_levelSettings;
+        const int startSpeed = static_cast<int>(settings->m_startSpeed);
+
+        float duration;
+
+        if (object->m_objectID == PulseTrigger) {
+            duration = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
+        }
+        else if (object->m_objectID == SFXTrigger) {
+            SFXTriggerGameObject* sfxTrigger = static_cast<SFXTriggerGameObject*>(object);
+            duration = sfxTrigger->m_soundDuration;
+        }
+        else {
+            duration = object->m_duration;
+        }
+
+        CCPoint currentPos = object->getPosition();
+        if (currentPos.x < 0.f && !object->m_isSpawnTriggered)
+            currentPos.x = 0.00001f;
+
+        if (duration <= 0.f) {
+            return currentPos;
+        }
+
+        if (object->m_isSpawnTriggered) {
+            return {
+                currentPos.x + duration * 311.5801f,
+                currentPos.y
+            };
+        }
+
+        const float currentTime = LevelTools::timeForPos(
+            currentPos,
+            dgl->m_speedObjects,
+            startSpeed,
+            object->m_ordValue,
+            object->m_channelValue,
+            false,
+            dgl->m_editorLayer->m_isPlatformer,
+            true,
+            false,
+            false
+        );
+
+        const bool wasRotated = LevelTools::getLastGameplayRotated();
+
+        CCPoint newPos = LevelTools::posForTimeInternal(
+            currentTime + duration,
+            dgl->m_speedObjects,
+            startSpeed,
+            dgl->m_editorLayer->m_isPlatformer,
+            false,
+            true,
+            dgl->m_editorLayer->m_gameState.m_rotateChannel,
+            false
+        );
+
+        const bool nowRotated = LevelTools::getLastGameplayRotated();
+
+        if (wasRotated == nowRotated) {
+            return wasRotated ? CCPoint{currentPos.x, newPos.y} : CCPoint{newPos.x, currentPos.y};
+        }
+
+        return newPos;
+    }
+
+    EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const CCPoint& unitRefDir) {
+
+        float maxProj = -FLT_MAX;
+        EffectGameObject* furthest = objects[0];
+
+        auto refStart = furthest->getPosition();
+        auto refEnd = furthest->m_endPosition;
+
+        if (refEnd == CCPointZero) refEnd = refStart;
+
+        bool refIsLesser = refEnd.x < refStart.x;
+
+        if (!furthest->m_isSpawnTriggered && !refIsLesser) {
+            refStart.x = std::max(refStart.x, 0.f);
+            refEnd.x = std::max(refEnd.x, 0.f);
+        }
+
+        for (auto obj : objects) {
+            auto start = obj->getPosition();
+            auto end = obj->m_endPosition;
+
+            if (end == CCPointZero) end = start;
+
+            bool isLesser = end.x < start.x;
+
+            if (!obj->m_isSpawnTriggered && !isLesser) {
+                start.x = std::max(start.x, 0.f);
+                end.x = std::max(end.x, 0.f);
+            }
+
+            if (isLesser != refIsLesser) continue;
+
+            float proj = (end.x - refStart.x) * unitRefDir.x + (end.y - refStart.y) * unitRefDir.y;
+
+            if (isLesser) {
+                if (proj <= maxProj) {
+                    maxProj = proj;
+                    furthest = obj;
+                }
+            }
+            else {
+                if (proj >= maxProj) {
+                    maxProj = proj;
+                    furthest = obj;
+                }
+            }
+        }
+
+        return furthest;
+    }
+
+    geode::Result<std::pair<CCPoint, CCPoint>> getCenter(EditorUI* editorUI) {
+        using namespace tinker::constants::objects;
+
+        std::vector<EffectGameObject*> objects;
+        for (auto obj : CCArrayExt<GameObject*>(editorUI->m_selectedObjects)) {
+            if (obj->m_dontIgnoreDuration && obj->m_objectID != SFXTrigger) {
+                objects.push_back(static_cast<EffectGameObject*>(obj));
+            }
+        }
+
+        if (objects.size() < 2) return geode::Err("Need at least two EffectGameObjects");
+
+        CCPoint refStart = objects[0]->getPosition();
+        CCPoint refEnd = objects[0]->m_endPosition;
+
+        if (!objects[0]->m_isSpawnTriggered) {
+            refStart.x = std::max(refStart.x, 0.f);
+            refEnd.x = std::max(refEnd.x, 0.f);
+        }
+
+        if (refEnd == CCPointZero) refEnd = refStart; 
+
+        bool refNoDuration = objects[0]->m_duration == 0 || (objects[0]->m_objectID == PulseTrigger && objects[0]->m_fadeInDuration + objects[0]->m_holdDuration + objects[0]->m_fadeOutDuration == 0);
+
+        CCPoint refDir = refEnd - refStart;
+
+        if (refDir.x <= 0.f) refDir.x = 0.00001f;
+
+        float refLen = std::sqrt(refDir.x * refDir.x + refDir.y * refDir.y);
+        if (refLen == 0.f) refLen = 0.00001f;
+
+        CCPoint unitRefDir = { refDir.x / refLen, refDir.y / refLen };
+        CCPoint ortho = { -unitRefDir.y, unitRefDir.x };
+
+        float minProj = FLT_MAX;
+        float maxProj = -FLT_MAX;
+        for (auto obj : objects) {
+            CCPoint start = obj->getPosition();
+            CCPoint end = obj->m_endPosition;
+
+            float proj = start.x * ortho.x + start.y * ortho.y;
+            minProj = std::min(minProj, proj);
+            maxProj = std::max(maxProj, proj);
+        }
+
+        float centerProj = (minProj + maxProj) / 2.f;
+        float refProj = refStart.x * ortho.x + refStart.y * ortho.y;
+
+        auto furthestObj = getFurthestEndObject(objects, unitRefDir);
+
+        CCPoint furthestStart = furthestObj->getPosition();
+        if (furthestStart.x <= 0 && !furthestObj->m_isSpawnTriggered) furthestStart.x = 0.00001;
+
+        CCPoint furthestEnd = furthestObj->m_endPosition;
+
+        if (furthestEnd == CCPointZero) furthestEnd = furthestStart;
+
+        bool isLesser = furthestEnd.x < furthestStart.x;
+        int multiplier = isLesser ? -1 : 1;
+
+        if (!furthestObj->m_isSpawnTriggered && !isLesser) {
+            furthestStart.x = std::max(furthestStart.x, 0.f);
+            furthestEnd.x = std::max(furthestEnd.x, 0.f);
+        }
+
+        float startAlong = (furthestStart.x - refStart.x) * unitRefDir.x + (furthestStart.y - refStart.y) * unitRefDir.y;
+
+        float offset = 60.f * multiplier;
+
+        float startAlongWith60 = startAlong + offset;
+
+        auto startCenter = CCPoint{
+            refStart.x + unitRefDir.x * startAlongWith60 + ortho.x * (centerProj - refProj),
+            refStart.y + unitRefDir.y * startAlongWith60 + ortho.y * (centerProj - refProj)
+        };
+
+        float maxAlongDir = (furthestEnd.x - refStart.x) * unitRefDir.x + (furthestEnd.y - refStart.y) * unitRefDir.y;
+
+        auto endCenter = CCPoint{
+            refStart.x + unitRefDir.x * maxAlongDir + ortho.x * (centerProj - refProj),
+            refStart.y + unitRefDir.y * maxAlongDir + ortho.y * (centerProj - refProj)
+        };
+
+        auto past = CCPoint{
+            endCenter.x + unitRefDir.x * offset,
+            endCenter.y + unitRefDir.y * offset
+        };
+
+        return geode::Ok(std::make_pair(startCenter, past));
+    }
+
     namespace color {
         float wrapDegrees(float h) {
             h = std::fmod(h, 360.f);
@@ -621,6 +1010,25 @@ namespace tinker::utils {
             }
 
             return {r1 + m, g1 + m, b1 + m};
+        }
+
+        ccColor3B getContrastingColor(const ccColor3B& color) {
+            auto linearize = [](float c) {
+                c /= 255.0f;
+                return c <= 0.04045f
+                    ? c / 12.92f
+                    : std::pow((c + 0.055f) / 1.055f, 2.4f);
+            };
+
+            float r = linearize(color.r);
+            float g = linearize(color.g);
+            float b = linearize(color.b);
+
+            float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+
+            return luminance > 0.179f
+                ? ccColor3B{0, 0, 0}
+                : ccColor3B{255, 255, 255};
         }
 
         cocos2d::ccColor4B hueShift(cocos2d::ccColor4B color, float shiftDegrees) {

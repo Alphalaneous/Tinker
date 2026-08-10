@@ -1,4 +1,4 @@
-#include "ThatPasteButton.hpp"
+#include "modules/ThatPasteButton.hpp"
 #include "utils/Utils.hpp"
 
 bool ThatPasteButton::onToggled(bool state) {
@@ -20,11 +20,11 @@ bool ThatPasteButton::isGroupDefault(GameObject* object) {
 }
 
 bool ThatPasteButton::areObjectGroupsDefault() {
-    if (m_editorUI->m_selectedObject) {
-        return isGroupDefault(m_editorUI->m_selectedObject);
+    if (getEditor()->m_selectedObject) {
+        return isGroupDefault(getEditor()->m_selectedObject);
     }
-    else if (m_editorUI->m_selectedObjects) {
-        for (auto obj : m_editorUI->m_selectedObjects->asExt<GameObject>()) {
+    else if (getEditor()->m_selectedObjects) {
+        for (auto obj : getEditor()->m_selectedObjects->asExt<GameObject>()) {
             bool isDefault = isGroupDefault(obj);
             if (!isDefault) return false;
         }
@@ -51,11 +51,11 @@ bool ThatPasteButton::isColorDefault(GameObject* object) {
 }
 
 bool ThatPasteButton::areObjectColorsDefault() {
-    if (m_editorUI->m_selectedObject) {
-        return isColorDefault(m_editorUI->m_selectedObject);
+    if (getEditor()->m_selectedObject) {
+        return isColorDefault(getEditor()->m_selectedObject);
     }
-    else if (m_editorUI->m_selectedObjects) {
-        for (auto obj : m_editorUI->m_selectedObjects->asExt<GameObject>()) {
+    else if (getEditor()->m_selectedObjects) {
+        for (auto obj : getEditor()->m_selectedObjects->asExt<GameObject>()) {
             bool isDefault = isColorDefault(obj);
             if (!isDefault) return false;
         }
@@ -65,7 +65,7 @@ bool ThatPasteButton::areObjectColorsDefault() {
 }
 
 void ThatPasteButton::onEditor() {
-    auto buttons = m_editorUI->getChildByID("editor-buttons-menu");
+    auto buttons = getEditor()->getChildByID("editor-buttons-menu");
     if (!buttons) return;
 
     if (auto pasteStateButton = typeinfo_cast<CCMenuItemSpriteExtra*>(buttons->getChildByID("paste-state-button"))) {
@@ -75,7 +75,7 @@ void ThatPasteButton::onEditor() {
             if (!ThatPasteButton::isEnabled() || !getSetting<bool, "toggle-paste-state">()) return orig(sender);
 
             int showCount = getSetting<int, "object-requirement">();
-            bool show = (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() >= showCount) || (showCount == 1 && m_editorUI->m_selectedObject);
+            bool show = (getEditor()->m_selectedObjects && getEditor()->m_selectedObjects->count() >= showCount) || (showCount == 1 && getEditor()->m_selectedObject);
 
             if (show && pasteStateButton->getOpacity() == 255) {
                 if (getSetting<bool, "dont-show-if-default">() && areObjectGroupsDefault()) {
@@ -97,7 +97,7 @@ void ThatPasteButton::onEditor() {
             if (!ThatPasteButton::isEnabled() || !getSetting<bool, "toggle-paste-color">()) return orig(sender);
 
             int showCount = getSetting<int, "object-requirement">();
-            bool show = (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() >= showCount) || (showCount == 1 && m_editorUI->m_selectedObject);
+            bool show = (getEditor()->m_selectedObjects && getEditor()->m_selectedObjects->count() >= showCount) || (showCount == 1 && getEditor()->m_selectedObject);
             
             if (show && pasteColorButton->getOpacity() == 255) {
                 if (getSetting<bool, "dont-show-if-default">() && areObjectColorsDefault()) {
@@ -125,7 +125,7 @@ void ThatPasteButton::onEditor() {
             if (!ThatPasteButton::isEnabled() || !getSetting<bool, "toggle-paste-state-group">()) return orig(sender);
 
             int showCount = getSetting<int, "object-requirement">();
-            bool show = (m_editorUI->m_selectedObjects && m_editorUI->m_selectedObjects->count() >= showCount) || (showCount == 1 && m_editorUI->m_selectedObject);
+            bool show = (getEditor()->m_selectedObjects && getEditor()->m_selectedObjects->count() >= showCount) || (showCount == 1 && getEditor()->m_selectedObject);
                 
             if (show) {
                 if (getSetting<bool, "dont-show-if-default">() && areObjectGroupsDefault()) {

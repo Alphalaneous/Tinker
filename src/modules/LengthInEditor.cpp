@@ -1,23 +1,23 @@
-#include "LengthInEditor.hpp"
-#include "UIScaling.hpp"
+#include "modules/LengthInEditor.hpp"
+#include "modules/UIScaling.hpp"
 
 bool LengthInEditor::onToggled(bool state) {
     if (state) {
         onEditor();
-        m_timeLabel->setString(getTime(m_editorLayer->getLastObjectX()).c_str());
+        m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
     }
     else {
-        m_editorUI->m_uiItems->removeObject(m_lengthContainer);
+        getEditor()->m_uiItems->removeObject(m_lengthContainer);
         m_lengthContainer->removeFromParent();
 
         auto winSize = CCDirector::get()->getWinSize();
-        auto undoMenu = m_editorUI->getChildByID("undo-menu");
+        auto undoMenu = getEditor()->getChildByID("undo-menu");
         float scale = 1.f;
         if (undoMenu) {
             scale = undoMenu->getScale();
         }
 
-        auto objectInfoLabel = m_editorUI->getChildByID("object-info-label");
+        auto objectInfoLabel = getEditor()->getChildByID("object-info-label");
         objectInfoLabel->setPosition({objectInfoLabel->getPositionX(), winSize.height - 50.f * scale});
     }
     return true;
@@ -26,8 +26,8 @@ bool LengthInEditor::onToggled(bool state) {
 void LengthInEditor::onEditor() {
     auto winSize = CCDirector::get()->getWinSize();
 
-    auto undoMenu = m_editorUI->getChildByID("undo-menu");
-    auto playbackMenu = m_editorUI->getChildByID("playback-menu");
+    auto undoMenu = getEditor()->getChildByID("undo-menu");
+    auto playbackMenu = getEditor()->getChildByID("playback-menu");
 
     if (!undoMenu || !playbackMenu) return;
 
@@ -53,20 +53,20 @@ void LengthInEditor::onEditor() {
     m_lengthContainer->addChild(lengthLabel);
     m_lengthContainer->addChild(m_timeLabel);
 
-    if (!m_editorUI->m_editorLayer->m_levelSettings->m_platformerMode) {
-        m_editorUI->addChild(m_lengthContainer);
-        m_editorUI->m_uiItems->addObject(m_lengthContainer);
+    if (!getEditorLayer()->m_levelSettings->m_platformerMode) {
+        getEditor()->addChild(m_lengthContainer);
+        getEditor()->m_uiItems->addObject(m_lengthContainer);
     }
 
     addEventListener(LevelTypeChangedEvent(), [this] (bool isPlatformer) {
         if (isPlatformer) {
-            m_editorUI->removeChild(m_lengthContainer);
-            m_editorUI->m_uiItems->removeObject(m_lengthContainer);
+            getEditor()->removeChild(m_lengthContainer);
+            getEditor()->m_uiItems->removeObject(m_lengthContainer);
         }
         else {
             if (!m_lengthContainer->getParent()) {
-                m_editorUI->addChild(m_lengthContainer);
-                m_editorUI->m_uiItems->addObject(m_lengthContainer);
+                getEditor()->addChild(m_lengthContainer);
+                getEditor()->m_uiItems->addObject(m_lengthContainer);
             }
         }
     });
@@ -76,16 +76,16 @@ void LengthInEditor::onEditor() {
     });
 
     addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
-        m_editorUI->runAction(CallFuncExt::create([this, scale] {
-            auto undoMenu = m_editorUI->getChildByID("undo-menu");
-            auto playbackMenu = m_editorUI->getChildByID("playback-menu");
+        getEditor()->runAction(CallFuncExt::create([this, scale] {
+            auto undoMenu = getEditor()->getChildByID("undo-menu");
+            auto playbackMenu = getEditor()->getChildByID("playback-menu");
 
             if (!undoMenu || !playbackMenu) return;
             m_lengthContainer->setScale(0.5f * scale);
             m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
 
-            if (m_editorUI->m_objectInfoLabel) {
-                m_editorUI->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
+            if (getEditor()->m_objectInfoLabel) {
+                getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
             }
 
             UpdateObjectLabel().send();
@@ -96,8 +96,8 @@ void LengthInEditor::onEditor() {
 std::string LengthInEditor::getTime(float x) {
     auto point = CCPoint{x + 340.f, 0.f};
     
-    int seconds = LevelTools::timeForPos(point, m_editorLayer->m_drawGridLayer->m_speedObjects, (int)m_editorLayer->m_levelSettings->m_startSpeed, 0, 0, 0, 0, 0, 0, 0);
-    int timestamp = m_editorLayer->m_level->m_timestamp;
+    int seconds = LevelTools::timeForPos(point, getEditorLayer()->m_drawGridLayer->m_speedObjects, (int)getEditorLayer()->m_levelSettings->m_startSpeed, 0, 0, 0, 0, 0, 0, 0);
+    int timestamp = getEditorLayer()->m_level->m_timestamp;
     float time = timestamp / 240.0f;
     if (timestamp > 0 && seconds < time) {
         seconds = time;

@@ -1,4 +1,4 @@
-#include "RelocateBuildTools.hpp"
+#include "modules/RelocateBuildTools.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
 StringMap<std::string> RelocateBuildTools::s_labelToIcon = {
@@ -21,7 +21,7 @@ StringMap<std::string> RelocateBuildTools::s_labelToIcon = {
 };
 
 void RelocateBuildTools::onEditor() {
-    m_pauseLayer = EditorPauseLayer::create(m_editorLayer);
+    m_pauseLayer = EditorPauseLayer::create(getEditorLayer());
     m_pauseLayer->setTouchEnabled(false);
     m_pauseLayer->setKeyboardEnabled(false);
     m_pauseLayer->setKeypadEnabled(false);

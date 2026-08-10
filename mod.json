@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.53",
+	"version": "v1.0.54",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -88,6 +88,12 @@
 			"default": true,
 			"name": "Enable Improved Link Controls",
 			"description": "Fix the link control buttons being clickable when toggled off, also fixes the size."
+		},
+		"ImprovedArtPicker-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Improved Style Picker",
+			"description": "Show backgrounds, grounds, and middlegrounds in one popup with a preview of what you have selected."
 		},
 		"LDMObjectCount-enabled": {
 			"type": "bool",
@@ -240,6 +246,13 @@
 			"type": "info",
 			"description": "All things related to objects.",
 			"color": "#000000"
+		},
+		"BetterSelect-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Better Selection Tools",
+			"description": "Lets you hold alt while hovering an object to see all objects at that position, use scroll wheel or left and right arrows to pick which object you want to select.",
+			"platforms": ["win", "mac"]
 		},
 		"DurationDrag-enabled": {
 			"type": "bool",
@@ -1455,7 +1468,9 @@
 	},
 	"api": {
 		"include": [
-			"include/*.hpp"
+			"include/API.hpp",
+			"include/ImprovedGroupView.hpp",
+			"include/UIScaling.hpp"
 		]
 	}
 }

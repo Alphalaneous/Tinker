@@ -1,4 +1,4 @@
-#include "AwesomeModifierIcons.hpp"
+#include "modules/AwesomeModifierIcons.hpp"
 #include "utils/Constants.hpp"
 
 using namespace tinker::constants::objects;
@@ -57,7 +57,7 @@ void AMIEffectGameObject::updateLetters() {
 void AwesomeModifierIcons::onEditor() {
     if (!AwesomeModifierIcons::getSetting<bool, "move-f-block">()) return;
 
-    auto buttonBars = m_editorUI->m_createButtonBars->asExt<EditButtonBar>();
+    auto buttonBars = getEditor()->m_createButtonBars->asExt<EditButtonBar>();
 
     auto portalTabIt = std::find_if(buttonBars.begin(), buttonBars.end(),
         [](auto bar) { 

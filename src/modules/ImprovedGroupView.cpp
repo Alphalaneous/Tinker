@@ -1,5 +1,5 @@
+#include "modules/ImprovedGroupView.hpp"
 #include "ImprovedGroupView.hpp"
-#include "../../include/ImprovedGroupView.hpp"
 #include "utils/Utils.hpp"
 #include <spaghettdev.named-editor-groups/api/NIDManager.hpp>
 

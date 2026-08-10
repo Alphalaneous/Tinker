@@ -1,4 +1,4 @@
-#include "MusicCameraLock.hpp"
+#include "modules/MusicCameraLock.hpp"
 
 bool MusicCameraLock::onToggled(bool state) {
     if (!state) {
@@ -25,7 +25,7 @@ void MusicCameraLock::onEditor() {
         m_cameraLocked = !toggler->isToggled();
     });
 
-    m_editorUI->m_uiItems->addObject(m_toggler);
+    getEditor()->m_uiItems->addObject(m_toggler);
 }
 
 void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
