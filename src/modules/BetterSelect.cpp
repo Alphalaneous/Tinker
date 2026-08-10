@@ -132,11 +132,6 @@ bool ObjectSelectContainer::init(CCArray* objects) {
     m_scrollLayer->setID("object-scroll-layer"_spr);
     m_objectsBG->addChild(m_scrollLayer);
 
-    addOnExitCallback([this] {
-        m_scrollLayer->removeFromParent();
-        m_scrollLayer = nullptr;
-    });
-
     m_selectDot = CCSprite::create("smallDot.png");
     m_selectDot->setScale(0.2f);
     m_selectDot->setID("selection-indicator"_spr);

@@ -1,3 +1,6 @@
+# 1.0.58
+- <c-dddddd>Who knew there were so many crashes, fixed another, apologies for so many updates, I just don't want the editor crashing for anyone</c>
+
 # 1.0.57
 - <c-dddddd>Fix a crash when alt tabbing while hovering an object</c>
 
