@@ -7,14 +7,16 @@ using namespace geode::prelude;
 
 namespace tinker::settings {
 
-class SettingNodeBase : public CCNode {
+class SettingNodeBase : public CCLayerColor {
 public:
     bool init(float width, std::shared_ptr<SettingV3> setting);
 
     virtual bool settingWasChanged();
+    virtual void updateState();
+    virtual void commit();
+    virtual void resetToDefault();
 protected:
 
-    Ref<geode::NineSlice> m_background;
     Ref<CCLabelBMFont> m_title;
     Ref<geode::Button> m_infoButton;
     Ref<CCNode> m_titleContainer;

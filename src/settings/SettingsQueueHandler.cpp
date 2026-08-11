@@ -23,7 +23,7 @@ void SettingsQueueHandler::queueShow() {
                 content.append("### Features\n");
 
                 for (const auto& v : m_features) {
-                    auto& list = SettingsCache::get()->getSettingsList();
+                    auto& list = SettingsCache::get()->getSettingsMap();
                     auto settingIter = list.find(v);
                     if (settingIter == list.end()) continue;
 
@@ -42,7 +42,7 @@ void SettingsQueueHandler::queueShow() {
                 content.append("### Settings\n");
 
                 for (const auto& v : m_settings) {
-                    auto& list = SettingsCache::get()->getSettingsList();
+                    auto& list = SettingsCache::get()->getSettingsMap();
                     auto settingIter = list.find(v);
                     if (settingIter == list.end()) continue;
 

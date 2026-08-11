@@ -31,7 +31,7 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
     auto levelSettings = editorLayer->m_levelSettings;
 
     m_backgroundID = std::max(1, levelSettings->m_backgroundIndex);
-    m_groundID = levelSettings->m_groundIndex;
+    m_groundID = std::max(1, levelSettings->m_groundIndex);
     m_groundLineID = std::max(1, levelSettings->m_groundLineIndex);
     m_middlegroundID = levelSettings->m_middleGroundIndex;
 
@@ -524,10 +524,8 @@ void SelectArtLayer::loadType(SelectArtType type) {
     for (const auto& btn : artVec) {
         if (btn->getTag() == id) {
             float scrollY = m_scrollLayer->getContentLayer()->getContentHeight() - btn->getPositionY() - m_scrollLayer->getContentHeight() / 2.f;
-            // I need to fix culling (this forces an update)
-            m_scrollLayer->setScrollY(0);
-            m_scrollLayer->setScrollY(m_scrollLayer->getContentLayer()->getContentHeight());
             m_scrollLayer->setScrollY(scrollY);
+            m_scrollLayer->forceCull();
             break;
         }
     }

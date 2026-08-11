@@ -304,11 +304,19 @@ void UIScaling::setScaling(bool fullReload) {
             linkMenu->setAnchorPoint({0.5f, 0.5f});
             if (auto zoomMenu = getEditor()->getChildByID("zoom-menu")) {
                 linkMenu->setScale(m_scale);
-                #ifdef GEODE_IS_MOBILE
-                linkMenu->setPosition(CCPoint{9.8f * m_scale + zoomMenu->getScaledContentWidth() + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 3.f * m_scale - linkMenu->getScaledContentHeight() / 2.f - 26.f * m_scale} + getSafeOffset());
-                #else
-                linkMenu->setPosition(CCPoint{zoomMenu->getPositionX() + zoomMenu->getScaledContentWidth() / 2.f + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, playtestMenu->getPositionY() + 4.f * m_scale - (linkMenu->getScaledContentHeight() / 2.f)});
-                #endif
+                linkMenu->setContentSize({ 125.f, zoomMenu->getContentHeight() + 29.f});
+                static_cast<AxisLayout*>(linkMenu->getLayout())->setGap(1.5f);
+
+                getEditor()->m_unlinkBtn->setZOrder(0);
+                getEditor()->m_linkBtn->setZOrder(1);
+                getEditor()->m_enableLinkBtn->setZOrder(2);
+
+                linkMenu->updateLayout();
+
+                linkMenu->addOnEnterCallback([this, linkMenu, zoomMenu] {
+                    linkMenu->setScale(m_scale * 0.8f);
+                    linkMenu->setPosition({zoomMenu->getPositionX() + zoomMenu->getScaledContentWidth() / 2.f + linkMenu->getScaledContentWidth() / 2.f + 5.f * m_scale, zoomMenu->getPositionY() + 2.5f * m_scale});
+                });
             }
         }
     }

@@ -85,7 +85,7 @@ public:
                 }
 
                 auto cached = SettingsCache::get()
-                    ->getSettingsList()
+                    ->getSettingsMap()
                     .find(enabledKey.data());
 
                 if (cached->second->hasEnableIf) {
@@ -98,11 +98,7 @@ public:
     }
 
 private:
-    static void globalHookToggle() {
-        if constexpr (!Global) {
-            return;
-        }
-
+    static void hookToggle() {
         auto enabled = isEnabled();
 
         for (const auto& hook :
@@ -125,7 +121,7 @@ public:
             [] (S value) {
                 if (!EditorUI::get()) {
                     setting = value;
-                    globalHookToggle();
+                    hookToggle();
                     return;
                 }
 
@@ -157,7 +153,7 @@ public:
                     }
 
                     setting = value;
-                    globalHookToggle();
+                    hookToggle();
                     return;
                 }
 
@@ -201,7 +197,7 @@ public:
                     tinker::utils::concat<Name, "-enabled">()
                 >()
             ) {
-                globalHookToggle();
+                hookToggle();
             }
 
             $queuedSettings.erase(key.data());

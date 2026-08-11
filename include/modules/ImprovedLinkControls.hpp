@@ -4,7 +4,6 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(ImprovedLinkControls) {
-    void onEditor();
 };
 
 class $modify(ILCEditorUI, EditorUI) {

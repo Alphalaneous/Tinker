@@ -299,22 +299,12 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
     auto spr = CCSprite::create("hammer-button.png"_spr);
 
     auto tinkerBtn = CCMenuItemExt::createSpriteExtra(spr, [] (auto sender) {
-        geode::openSettingsPopup(Mod::get());
+        SettingsPopup::create()->show();
     });
     tinkerBtn->setZOrder(1000);
     tinkerBtn->setID("tinker-settings"_spr);
 
     guidelinesMenu->addChild(tinkerBtn);
-
-    /*auto spr2 = CCSprite::create("hammer-button.png"_spr);
-    auto tinkerBtn2 = CCMenuItemExt::createSpriteExtra(spr2, [] (auto sender) {
-        SettingsPopup::create()->show();
-    });
-    tinkerBtn2->setZOrder(1000);
-    tinkerBtn2->setColor({255, 0, 255});
-    tinkerBtn2->setID("tinker-settings-2"_spr);
-
-    guidelinesMenu->addChild(tinkerBtn2);*/
 
     guidelinesMenu->updateLayout();
 

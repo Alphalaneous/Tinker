@@ -74,4 +74,5 @@ class $modify(BSEditorUI, EditorUI) {
     $registerHooks(BetterSelect)
 
     void deselectAll();
+    void keyDown(cocos2d::enumKeyCodes key, double timestamp);
 };

@@ -3,10 +3,12 @@
 namespace tinker::settings {
 
 bool SettingNodeBase::init(float width, std::shared_ptr<SettingV3> setting) {
-    if (!CCNode::init()) return false;
+    if (!CCLayerColor::initWithColor({0, 0, 0, 50})) return false;
     m_setting = setting;
 
     setContentSize({width, 30});
+    ignoreAnchorPointForPosition(false);
+    setAnchorPoint({0.5f, 0.5f});
 
     m_titleContainer = CCNode::create();
     m_titleContainer->setAnchorPoint({0.f, 0.5f});
@@ -23,13 +25,6 @@ bool SettingNodeBase::init(float width, std::shared_ptr<SettingV3> setting) {
     m_title = CCLabelBMFont::create(setting->getDisplayName().c_str(), "bigFont.fnt");
     m_title->limitLabelWidth(width / 2.f - 20.f, 1.f, 0.01f);
     m_titleContainer->addChild(m_title);
-
-    m_background = geode::NineSlice::create("tab-bg.png"_spr);
-    m_background->setContentSize(getContentSize());
-    m_background->setPosition(getContentSize() / 2.f);
-    m_background->setZOrder(-1000);
-    m_background->setOpacity(10);
-    addChild(m_background);
 
     m_infoButton = geode::Button::createWithSpriteFrameName("GJ_infoIcon_001.png", [this] (auto sender) {
         if (m_setting) {
@@ -56,6 +51,18 @@ bool SettingNodeBase::init(float width, std::shared_ptr<SettingV3> setting) {
 
 bool SettingNodeBase::settingWasChanged() {
     return false;
+}
+
+void SettingNodeBase::updateState() {
+    
+}
+
+void SettingNodeBase::commit() {
+    
+}
+
+void SettingNodeBase::resetToDefault() {
+    
 }
 
 }

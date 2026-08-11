@@ -23,6 +23,17 @@ void BSEditorUI::deselectAll() {
     EditorUI::deselectAll();
 }
 
+void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
+    auto hover = BetterSelect::get()->m_hover;
+    if (hover && hover->hoveringObjects()) {
+        if (key == enumKeyCodes::KEY_Left || key == enumKeyCodes::KEY_Right) {
+            return;
+        }
+    }
+
+    EditorUI::keyDown(key, timestamp);
+}
+
 namespace tinker::ui {
 
 ObjectSelectContainer* ObjectSelectContainer::create(CCArray* objects) {
@@ -218,9 +229,8 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     auto spr = m_objectSprites[objects->asExt<GameObject>()[m_index]];
 
-    m_scrollLayer->setScrollX(0);
-    m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
     m_scrollLayer->setScrollX(spr->getPositionX() - m_scrollLayer->getContentWidth() / 2.f);
+    m_scrollLayer->forceCull();
 
     auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
     auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);

@@ -15,13 +15,31 @@ bool ImprovedColorPicker::onSettingChanged(std::string_view key, const matjson::
 
 void ICPCustomizeObjectLayer::onSelectMode(CCObject* sender) {
     CustomizeObjectLayer::onSelectMode(sender);
-    checkAllowLighter();
+    bool isColorMode = m_selectedMode == 1 || m_selectedMode == 2;
+    if (isColorMode) {
+        checkAllowLighter();
 
-    m_customColorChannel = getActiveMode(true);
-    updateCustomColorLabels();
-    scrollToChannel(m_customColorChannel, true);
+        m_customColorChannel = getActiveMode(true);
+        updateCustomColorLabels();
+        scrollToChannel(m_customColorChannel, true);
 
-    if (m_colorSprite) m_colorSprite->setVisible(false);
+        if (m_colorSprite) m_colorSprite->setVisible(false);
+    }
+
+    m_customColorInput->setVisible(isColorMode);
+    m_customColorInputBG->setVisible(isColorMode);
+
+    if (auto menu = m_mainLayer->getChildByID("browse-menu")) {
+        if (auto button = menu->getChildByID("browse-button")) {
+            button->setVisible(isColorMode);
+        }
+        menu->updateLayout();
+    }
+
+    auto fields = m_fields.self();
+    if (fields->m_previewMenu) {
+        fields->m_previewMenu->setVisible(isColorMode);
+    }
 }
 
 void ICPCustomizeObjectLayer::updateLighterButtons() {
@@ -211,17 +229,21 @@ void ICPCustomizeObjectLayer::onUpdateCustomColor(CCObject* sender) {
 }
 
 void ICPCustomizeObjectLayer::textChanged(CCTextInputNode* input) {
-    if (!ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
-        auto numRes = geode::utils::numFromString<int>(input->getString());
-        if (numRes) {
-            auto num = numRes.unwrap();
-            if (num > 999 || num < 1) return;
+    if (input->getTag() == 0) {
+        if (!ImprovedColorPicker::getSetting<bool, "out-of-range-ids">()) {
+            auto numRes = geode::utils::numFromString<int>(input->getString());
+            if (numRes) {
+                auto num = numRes.unwrap();
+                if (num > 999 || num < 1) return;
+            }
         }
+        CustomizeObjectLayer::textChanged(input);
+        m_customColorChannel = getActiveMode(true);
+        scrollToChannel(m_customColorChannel, false);
+        updateLiveSelectButton();
+        return;
     }
     CustomizeObjectLayer::textChanged(input);
-    m_customColorChannel = getActiveMode(true);
-    scrollToChannel(m_customColorChannel, false);
-    updateLiveSelectButton();
 }
 
 void ICPCustomizeObjectLayer::onNextColorChannel(cocos2d::CCObject* sender) {
@@ -359,19 +381,21 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     m_mainLayer->getChildByID("channel-input")->setPosition(selectPos);
     m_customColorInput->m_maxLabelWidth = 38.f;
 
-    auto liveMenu = CCMenu::create();
-    liveMenu->setContentSize({35.f, 40.f});
-    liveMenu->ignoreAnchorPointForPosition(false);
-    liveMenu->setAnchorPoint({0.5f, 0.5f});
-    liveMenu->setPosition({winSize.width / 2.f + 210.f, winSize.height / 2.f - 70.f});
-    m_mainLayer->addChild(liveMenu);
+    fields->m_previewMenu = CCMenu::create();
+    fields->m_previewMenu->setContentSize({35.f, 40.f});
+    fields->m_previewMenu->ignoreAnchorPointForPosition(false);
+    fields->m_previewMenu->setAnchorPoint({0.5f, 0.5f});
+    fields->m_previewMenu->setPosition({winSize.width / 2.f + 210.f, winSize.height / 2.f - 70.f});
+    fields->m_previewMenu->setID("preview-menu"_spr);
+    m_mainLayer->addChild(fields->m_previewMenu);
 
     auto liveLabel = CCLabelBMFont::create("Preview", "goldFont.fnt");
     liveLabel->setScale(0.3f);
     liveLabel->setAnchorPoint({0.5f, 0.f});
-    liveLabel->setPosition({liveMenu->getContentWidth() / 2.f, 32.f});
+    liveLabel->setPosition({fields->m_previewMenu->getContentWidth() / 2.f, 32.f});
+    liveLabel->setID("preview-label"_spr);
 
-    liveMenu->addChild(liveLabel);
+    fields->m_previewMenu->addChild(liveLabel);
 
     auto liveToggle = CCMenuItemExt::createTogglerWithStandardSprites(0.7f, [fields, this] (CCMenuItemToggler* toggler) {
         for (const auto& spr : fields->m_colorChannelSprites) {
@@ -387,9 +411,10 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
         fields->m_colorSprite->updateSprite();
     });
 
-    liveToggle->setPosition({liveMenu->getContentWidth() / 2.f, liveToggle->getScaledContentHeight() / 2.f + 7.f});
+    liveToggle->setPosition({fields->m_previewMenu->getContentWidth() / 2.f, liveToggle->getScaledContentHeight() / 2.f + 7.f});
+    liveToggle->setID("preview-toggle"_spr);
 
-    liveMenu->addChild(liveToggle);
+    fields->m_previewMenu->addChild(liveToggle);
 
     float heightOffset = compactUI ? 35.f : 42.f;
 

@@ -34,6 +34,7 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
 
         std::vector<Ref<tinker::ui::ColorChannelSprite>> m_recentColorSprites;
         CCMenu* m_recentColorsMenu;
+        CCMenu* m_previewMenu;
 
         std::vector<Ref<CCMenuItemSpriteExtra>> m_lighterButtons;
 

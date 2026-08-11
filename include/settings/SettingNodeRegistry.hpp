@@ -16,11 +16,11 @@ struct SettingNodeRegistry : public Singleton<SettingNodeRegistry> {
         auto& nodes = SettingNodeRegistry::get()->m_settingNodes;
         auto iter = nodes.find(type);
         if (iter == nodes.end()) {
-            log::warn("Unknown setting type: \"{}\" for \"{}\"", type, setting->getKey());
+            //log::warn("Unknown setting type: \"{}\" for \"{}\"", type, setting->getKey());
             return SettingNodeRegistry::get()->m_settingNodes["mirror"](width, setting);
         }
 
-        log::debug("Loaded setting type: \"{}\" for \"{}\"", type, setting->getKey());
+        //log::debug("Loaded setting type: \"{}\" for \"{}\"", type, setting->getKey());
         return iter->second(width, setting);
     }
 };

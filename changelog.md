@@ -1,8 +1,16 @@
+# 1.0.60
+- <c-dddddd>Fix arrow buttons doing both selection picking and switching editor layers at once if Custom Keybinds isn't installed</c>
+- <c-dddddd>Fix ground not being visibly selected when a ground hasn't been selected yet in the new style picker</c>
+- <c-dddddd>Fix settings hooks not being properly toggled when changed</c>
+- <c-dddddd>Fix inputting numbers in a text object not working properly</c>
+- <c-dddddd>Fix color channel input, browse button, and preview color checkbox showing in text input tab</c>
+- <c-dddddd>Redesign the settings menu (first iteration before reorganizing and such)</c>
+
 # 1.0.59
 - <c-dddddd>Improve live color previewing</c>
 - <c-dddddd>Fix HSV preview button showing for preview object colors popup when the default color is selected (and thus doing nothing when pressed)</c>
 - <c-dddddd>Fix recent colors being duplicated if you pick the same color for base and detail</c>
-- <c-dddddd>Fix line not being visibly selected when a line hasn't been selected yet in the new stuyle picker</c>
+- <c-dddddd>Fix line not being visibly selected when a line hasn't been selected yet in the new style picker</c>
 - <c-dddddd>Fix a crash that can happen with QOLMod and the new style picker</c>
 
 # 1.0.58
