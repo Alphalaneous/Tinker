@@ -1,3 +1,12 @@
+# 1.0.61
+- <c-dddddd>Fix selection picker not highlighting objects green</c>
+- <c-dddddd>Always show selection picker above mouse instead of group center (as it can position off screen with group parents)</c>
+- <c-dddddd>Make ICGJScaleControl::loadValues safer</c>
+- <c-dddddd>Fix instant collision trigger "Remap Fix" checkbox overlapping multi trigger checkbox</c>
+- <c-dddddd>Stop selection picker hover on GD being backgrounded to prevent issues with Alt Tabbing</c>
+- <c-dddddd>Make settings UI match geode's when opened from the Geode menu</c>
+- <c-dddddd>Add shameless self promotion</c>
+
 # 1.0.60
 - <c-dddddd>Fix arrow buttons doing both selection picking and switching editor layers at once if Custom Keybinds isn't installed</c>
 - <c-dddddd>Fix ground not being visibly selected when a ground hasn't been selected yet in the new style picker</c>

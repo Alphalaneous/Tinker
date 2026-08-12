@@ -12,6 +12,10 @@
 
 ---
 
+*Support banner art by [yoxnol](https://twitter.com/yoxnol)*
+
+---
+
 ## Recommendations
 
 Sometimes, your experience with one mod can be improved by having other mods installed as well. I recommend the following mods alongside Tinker.

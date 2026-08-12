@@ -649,7 +649,9 @@ CCPoint ICGJScaleControl::getPivotLocation() {
     CCPoint position;
 
     if (!fields->m_objects || fields->m_objects->count() == 0) {
-        position = fields->m_object->getPosition();
+        if (fields->m_object) {
+            position = fields->m_object->getPosition();
+        }
     }
     else {
         if (fields->m_objects) {
@@ -675,9 +677,11 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     if (fields->m_scaleToggle) {
         fields->m_scaleToggle->setVisible(!obj);
     }
-    auto parent = m_scaleLockButton->getParent();
-    if (parent) {
-        parent->updateLayout();
+    if (m_scaleLockButton) {
+        auto parent = m_scaleLockButton->getParent();
+        if (parent) {
+            parent->updateLayout();
+        }
     }
 
     setPosition(getPivotLocation());

@@ -299,7 +299,7 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
     auto spr = CCSprite::create("hammer-button.png"_spr);
 
     auto tinkerBtn = CCMenuItemExt::createSpriteExtra(spr, [] (auto sender) {
-        SettingsPopup::create()->show();
+        tinker::ui::SettingsPopup::create(false)->show();
     });
     tinkerBtn->setZOrder(1000);
     tinkerBtn->setID("tinker-settings"_spr);

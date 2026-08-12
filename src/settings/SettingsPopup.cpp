@@ -2,6 +2,7 @@
 #include "settings/SettingNodeRegistry.hpp"
 #include "settings/SettingNode.hpp"
 #include "settings/SettingsCache.hpp"
+#include "settings/SupportButton.hpp"
 #include "nodes/PopupBorder.hpp"
 #include "utils/Utils.hpp"
 #include <Geode/modify/SliderTouchLogic.hpp>
@@ -16,9 +17,11 @@ struct SliderStateChanged final : Event<SliderStateChanged, bool(bool started)> 
     using Event::Event;
 };
 
-SettingsPopup* SettingsPopup::create() {
+namespace tinker::ui {
+
+SettingsPopup* SettingsPopup::create(bool useGeodeTheme) {
     auto ret = new SettingsPopup();
-    if (ret->init()) {
+    if (ret->init(useGeodeTheme)) {
         ret->autorelease();
         return ret;
     }
@@ -26,10 +29,16 @@ SettingsPopup* SettingsPopup::create() {
     return nullptr;
 }
 
-bool SettingsPopup::init() {
+bool SettingsPopup::init(bool useGeodeTheme) {
     if (!Popup::init({450, 280}, "GJ_square01.png")) return false;
     m_bgSprite->removeFromParent();
     m_noElasticity = true;
+
+    if (useGeodeTheme) {
+        auto circleButtonSprite = CircleButtonSprite::createWithSpriteFrameName("geode.loader/close.png", 0.8f, geode::CircleBaseColor::DarkPurple);
+        circleButtonSprite->setScale(0.85f);
+        m_closeBtn->setSprite(circleButtonSprite);
+    }
 
     constexpr float topOffset = 3.f;
     constexpr float bottomOffset = 3.f;
@@ -37,7 +46,16 @@ bool SettingsPopup::init() {
     constexpr float rightOffset = 3.f;
     constexpr float settingsWidth = 320.f;
 
-    auto bottomLayer = CCLayerColor::create({84, 84, 84, 255});
+    auto mainColor = useGeodeTheme ? ccColor4B{39, 39, 54, 255} : ccColor4B{84, 84, 84, 255};
+    auto secondaryColor = useGeodeTheme ? ccColor4B{26, 25, 34, 255} : ccColor4B{153, 85, 51, 255};
+    auto bottomColor = useGeodeTheme ? ccColor3B{21, 19, 23} : ccColor3B{17, 17, 17};
+
+    auto topLeftColor = useGeodeTheme ? ccColor3B{66, 61, 78} : ccColor3B{140, 140, 140};
+    auto topRightColor = useGeodeTheme ? ccColor3B{47, 44, 56} : ccColor3B{255, 170, 85};
+
+    auto searchBGColor = useGeodeTheme ? ccColor3B{60, 60, 60} : ccColor3B{0, 0, 0};
+
+    auto bottomLayer = CCLayerColor::create(mainColor);
     bottomLayer->setAnchorPoint({0.f, 0.f});
     bottomLayer->ignoreAnchorPointForPosition(false);
     bottomLayer->setContentSize({m_size.width - leftOffset - rightOffset, 25.f});
@@ -58,7 +76,7 @@ bool SettingsPopup::init() {
 
     m_mainLayer->addChild(bottomLayer);
 
-    auto settingsArea = CCLayerColor::create({153, 85, 51, 255});
+    auto settingsArea = CCLayerColor::create(secondaryColor);
     settingsArea->setContentSize({settingsWidth, m_size.height - topOffset - bottomOffset - bottomLayer->getContentHeight()});
     settingsArea->setAnchorPoint({1.f, 1.f});
     settingsArea->ignoreAnchorPointForPosition(false);
@@ -99,6 +117,7 @@ bool SettingsPopup::init() {
     searchInput->setTextAlign(TextInputAlign::Left);
     searchInput->setPosition({searchPadding, searchPadding});
     searchInput->getBGSprite()->setOpacity(45);
+    searchInput->getBGSprite()->setColor(searchBGColor);
     searchInput->setCallback([this] (const std::string& str) {
         m_searchQuery = str;
         loadSettingNodes(false);
@@ -155,7 +174,7 @@ bool SettingsPopup::init() {
 
     settingsArea->addChild(settingScrollbar);
 
-    auto categoryArea = CCLayerColor::create({84, 84, 84, 255});
+    auto categoryArea = CCLayerColor::create(mainColor);
     categoryArea->setContentSize({m_size.width - settingsWidth - leftOffset - rightOffset, m_size.height - topOffset - bottomOffset});
     categoryArea->setAnchorPoint({0.f, 0.f});
     categoryArea->ignoreAnchorPointForPosition(false);
@@ -176,10 +195,17 @@ bool SettingsPopup::init() {
 
     m_mainLayer->addChild(categoryArea);
 
-    auto catgeoryScrollBG = CCLayerColor::create({0, 0, 0, 127});
-    catgeoryScrollBG->setContentSize({categoryArea->getContentWidth(), categoryArea->getContentHeight() - 60.f});
+    auto supportBtn = tinker::ui::SupportButton::create(categoryArea->getContentWidth());
+    supportBtn->setPosition({0, bottomLayer->getContentHeight()});
+    supportBtn->setZOrder(1);
+    supportBtn->setID("support-button"_spr);
+
+    categoryArea->addChild(supportBtn);
+
+    auto catgeoryScrollBG = CCLayerColor::create({0, 0, 0, static_cast<GLubyte>(useGeodeTheme ? 150 : 127)});
+    catgeoryScrollBG->setContentSize({categoryArea->getContentWidth(), categoryArea->getContentHeight() - 60.f - supportBtn->getContentHeight()});
     catgeoryScrollBG->setAnchorPoint({0.f, 0.f});
-    catgeoryScrollBG->setPosition({0.f, bottomLayer->getContentHeight()});
+    catgeoryScrollBG->setPosition({0.f, bottomLayer->getContentHeight() + supportBtn->getContentHeight()});
     catgeoryScrollBG->ignoreAnchorPointForPosition(false);
     catgeoryScrollBG->setID("category-scroll-bg"_spr);
 
@@ -241,7 +267,7 @@ bool SettingsPopup::init() {
 
     categoryArea->addChild(titleLabel);
 
-    auto applyBtnSpr = ButtonSprite::create("Apply", 50, 0, 1.f, true, "goldFont.fnt", "GJ_button_01.png", 30.f);
+    auto applyBtnSpr = ButtonSprite::create("Apply", 50, 0, 1.f, true, "goldFont.fnt", useGeodeTheme ? "geode.loader/GE_button_05.png" : "GJ_button_01.png", 30.f);
     applyBtnSpr->setCascadeColorEnabled(true);
     applyBtnSpr->setCascadeOpacityEnabled(true);
     applyBtnSpr->setScale(0.6f);
@@ -260,7 +286,7 @@ bool SettingsPopup::init() {
 
     bottomLayer->addChild(applyBtn);
 
-    auto resetBtnSpr = ButtonSprite::create("Reset", 50, 0, 1.f, true, "goldFont.fnt", "GJ_button_01.png", 30.f);
+    auto resetBtnSpr = ButtonSprite::create("Reset", 50, 0, 1.f, true, "goldFont.fnt", useGeodeTheme ? "geode.loader/GE_button_05.png" : "GJ_button_01.png", 30.f);
     resetBtnSpr->setScale(0.5f);
     
     auto resetBtn = geode::Button::createWithNode(resetBtnSpr, [this] (auto sender) {
@@ -298,7 +324,7 @@ bool SettingsPopup::init() {
     folderSprSub->setScale(0.55f);
 
     folderSpr->addChildAtPosition(folderSprSub, Anchor::Center, ccp(0, -3));
-    auto savedBtnSpr = IconButtonSprite::create("GJ_button_01.png", folderSpr, "", "bigFont.fnt");
+    auto savedBtnSpr = IconButtonSprite::create(useGeodeTheme ? "geode.loader/GE_button_05.png" : "GJ_button_01.png", folderSpr, "", "bigFont.fnt");
     savedBtnSpr->setScale(0.45f);
     savedBtnSpr->getIcon()->setScale(savedBtnSpr->getIcon()->getScale() * 1.4f);
 
@@ -310,7 +336,7 @@ bool SettingsPopup::init() {
 
     bottomLayer->addChild(savedBtn);
 
-    auto borderLeft = tinker::ui::PopupBorder::create({140, 140, 140}, 255, {17, 17, 17}, 255);
+    auto borderLeft = tinker::ui::PopupBorder::create(topLeftColor, 255, bottomColor, 255);
     borderLeft->setContentSize({m_size.width - settingsWidth - rightOffset, m_size.height});
     borderLeft->hideRight(true);
     borderLeft->setZOrder(10001);
@@ -320,7 +346,7 @@ bool SettingsPopup::init() {
 
     m_mainLayer->addChild(borderLeft);
 
-    auto borderRight = tinker::ui::PopupBorder::create({255, 170, 85}, 255, {17, 17, 17}, 255);
+    auto borderRight = tinker::ui::PopupBorder::create(topRightColor, 255, bottomColor, 255);
     borderRight->setContentSize({settingsWidth + rightOffset, m_size.height});
     borderRight->hideLeft(true);
     borderRight->setZOrder(borderLeft->getZOrder());
@@ -499,6 +525,8 @@ void SettingsPopup::onClose(CCObject* sender) {
     Popup::onClose(sender);
 }
 
+}
+
 class $modify(SettingsSliderTouchLogic, SliderTouchLogic) {
 
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
@@ -522,7 +550,11 @@ class $nodeModify(MyModPopup, ModPopup) {
 		auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(getChildByIDRecursive("settings-button"));
         if (btn) {
             tinker::utils::hijackButton(btn, [] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
-        	    SettingsPopup::create()->show();
+        	    auto geode = tinker::utils::getMod<"geode.loader">();
+                auto theme = geode->getSettingValue<std::string>("used-theme");
+                
+                bool geodeTheme = theme != "Geometry Dash";
+                tinker::ui::SettingsPopup::create(geodeTheme)->show();
             });
         }
 	}

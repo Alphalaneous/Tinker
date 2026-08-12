@@ -23,6 +23,11 @@ void BSEditorUI::deselectAll() {
     EditorUI::deselectAll();
 }
 
+void BSAppDelegate::applicationDidEnterBackground() {
+    AppDelegate::applicationDidEnterBackground();
+    BetterSelect::get()->stopHover();
+}
+
 void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
     auto hover = BetterSelect::get()->m_hover;
     if (hover && hover->hoveringObjects()) {
@@ -71,6 +76,8 @@ void ObjectSelectContainer::shiftObject(bool forward) {
 
         auto spr = m_objectSprites[obj];
         if (idx == m_index) {
+            obj->selectObject({0, 255, 0});
+
             auto gameObject = spr->getChildByType<GameObject>(0);
             if (gameObject) {
                 gameObject->selectObject({0, 255, 0});
@@ -80,9 +87,8 @@ void ObjectSelectContainer::shiftObject(bool forward) {
             }
         }
         else {
-            if (!obj->m_isSelected) {
-                obj->selectObject({245, 245, 66});
-            }
+            obj->selectObject({245, 245, 66});
+        
             auto gameObject = spr->getChildByType<GameObject>(0);
             if (gameObject) {
                 gameObject->selectObject({255, 255, 255});
@@ -205,6 +211,8 @@ bool ObjectSelectContainer::init(CCArray* objects) {
             }
 
             if (idx == m_index) {
+                obj->selectObject({0, 255, 0});
+
                 auto child = spr->getChildByType<GameObject>(0);
                 if (child) {
                     child->selectObject({0, 255, 0});
@@ -374,6 +382,9 @@ void HoverObjectNode::showObjectList() {
     }));
 
     if (m_activeSelectContainer) {
+        if (m_activeSelectContainer->getCurrentObject()) {
+            m_activeSelectContainer->getCurrentObject()->deselectObject();
+        }
         m_activeSelectContainer->setVisible(false);
     }
     m_activeSelectContainer = nullptr;
@@ -387,8 +398,7 @@ void HoverObjectNode::showObjectList() {
 
     m_activeSelectContainer = ObjectSelectContainer::create(m_lastObjects);
 
-    auto center = editorUI->getGroupCenter(m_lastObjects, false) + CCPoint{0.f, 20.f};
-    m_activeSelectContainer->setPosition(center);
+    m_activeSelectContainer->setPosition(m_lastPos + CCPoint{0.f, 5.f});
     m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
 
     editorUI->m_editorLayer->m_objectLayer->addChild(m_activeSelectContainer);
@@ -401,8 +411,13 @@ void HoverObjectNode::removeObjectList() {
             m_active = false;
 
             if (m_activeSelectContainer) {
+                if (m_activeSelectContainer->getCurrentObject()) {
+                    m_activeSelectContainer->getCurrentObject()->deselectObject();
+                }
                 m_activeSelectContainer->removeFromParent();
             }
+            EditorUI::get()->resetSelectedObjectsColor();
+
             m_lastObjects->removeAllObjects();
             m_activeSelectContainer = nullptr;
         }));
@@ -456,10 +471,11 @@ void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
         m_lastObjects->removeAllObjects();
         m_lastObjects->addObjectsFromArray(allowedObjects);
 
-        for (auto obj : allowedObjects->asExt<GameObject>()) {            
-            if (!obj->m_isSelected) {
-                obj->selectObject({245, 245, 66});
-            }
+        for (auto obj : allowedObjects->asExt<GameObject>()) {
+            obj->selectObject({245, 245, 66});
+        }
+        if (m_activeSelectContainer && m_activeSelectContainer->getCurrentObject()) {
+            m_activeSelectContainer->getCurrentObject()->selectObject({0, 255, 0});
         }
 
         if (m_lastObjects->count() > 0) {
@@ -473,6 +489,10 @@ void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
     if (shouldShowObjectList) {
         if (!skipShow) {
             showObjectList();
+        }
+        if (m_activeSelectContainer) {
+            m_activeSelectContainer->setPosition(m_lastPos + CCPoint{0.f, 5.f});
+            m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
         }
     }
     else {

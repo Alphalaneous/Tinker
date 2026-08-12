@@ -160,7 +160,7 @@ bool MASetupInstantCollisionTriggerPopup::init(EffectGameObject* object, cocos2d
     }
 
     auto winSize = CCDirector::get()->getWinSize();
-    auto point = CCPoint{winSize.width / 2.f + m_width / 2.f - 70.f, winSize.height / 2.f - m_height / 2.f + 20.f};
+    auto point = CCPoint{winSize.width / 2.f + m_width / 2.f - 72.f, winSize.height / 2.f - m_height / 2.f + 50.f};
 
     createToggleButton("Remap\nFix", menu_selector(MASetupInstantCollisionTriggerPopup::onRemapFix), remapFix, point);
 

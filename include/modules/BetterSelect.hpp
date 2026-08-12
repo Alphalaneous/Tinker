@@ -3,6 +3,7 @@
 #include "module/Module.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/AppDelegate.hpp>
 
 using namespace alpha::prelude;
 
@@ -75,4 +76,10 @@ class $modify(BSEditorUI, EditorUI) {
 
     void deselectAll();
     void keyDown(cocos2d::enumKeyCodes key, double timestamp);
+};
+
+class $modify(BSAppDelegate, AppDelegate) {
+    $registerHooks(BetterSelect)
+
+    void applicationDidEnterBackground();
 };

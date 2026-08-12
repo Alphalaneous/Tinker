@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.60",
+	"version": "v1.0.61",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -19,6 +19,7 @@
 		"alphalaneous.editortab_api": "v2.1.11",
 		"alphalaneous.level-storage-api": "v1.0.0",
 		"alk.better-touch-prio": "v1.0.16",
+		"prevter.imageplus": "v1.1.1",
 		"spaghettdev.named-editor-groups": {
 			"version": "v2.4.1",
             "required": false
@@ -44,6 +45,9 @@
 		},
 		"sprites": [
 			"resources/*.png"
+		],
+		"files": [
+			"resources/*.gif"
 		]
 	},
 	"links": {

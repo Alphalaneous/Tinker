@@ -7,10 +7,12 @@
 
 using namespace geode::prelude;
 
+namespace tinker::ui {
+
 class SettingsPopup : public geode::Popup {
 public:
-    static SettingsPopup* create();
-    bool init() override;
+    static SettingsPopup* create(bool useGeodeTheme);
+    bool init(bool useGeodeTheme);
     void onClose(CCObject* sender) override;
 protected:
 
@@ -31,3 +33,5 @@ protected:
     std::vector<Ref<tinker::settings::SettingNodeBase>> m_settingNodes;
     std::unordered_map<Ref<tinker::settings::SettingNodeBase>, std::shared_ptr<SettingsCache::SettingInfo>> m_settingNodeMap;
 };
+
+}

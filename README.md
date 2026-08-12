@@ -12,6 +12,10 @@
 
 ---
 
+*Support banner art by [yoxnol](https://twitter.com/yoxnol)*
+
+---
+
 ## Interface
 Customize different aspects of the editor's interface.
 
