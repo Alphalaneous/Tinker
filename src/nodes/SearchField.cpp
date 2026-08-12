@@ -1,6 +1,6 @@
 #include "nodes/SearchField.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
-#include <smjs.object-collab/include/Optionals.hpp>
+#include <smjs.object-collab/include/object_collab_optional.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
 #include "utils/Utils.hpp"

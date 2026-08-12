@@ -5,7 +5,7 @@
 #include "modules/ObjectTooltips.hpp"
 #include "InputsHandler.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include <smjs.object-collab/include/Optionals.hpp>
+#include <smjs.object-collab/include/object_collab_optional.hpp>
 
 namespace tinker::ui {
 

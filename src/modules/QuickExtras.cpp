@@ -1,6 +1,6 @@
 #include "modules/QuickExtras.hpp"
 #include "utils/Constants.hpp"
-#include <smjs.object-collab/include/Optionals.hpp>
+#include <smjs.object-collab/include/object_collab_optional.hpp>
 
 void QuickExtras::onEditor() {
     if (auto editorButtonsMenu = getEditor()->getChildByID("editor-buttons-menu")) {

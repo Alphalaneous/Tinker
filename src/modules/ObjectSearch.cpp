@@ -5,7 +5,7 @@
 #include "modules/CenteredObjectButtons.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
-#include <smjs.object-collab/include/Optionals.hpp>
+#include <smjs.object-collab/include/object_collab_optional.hpp>
 #include "third-party/ObjectIDDisplay.hpp"
 #include "utils/Constants.hpp"
 
