@@ -1,5 +1,6 @@
 # 1.0.62
 - <c-dddddd>Fix a crash on iOS when closing the style picker specifically after switching from one tab to another</c>
+- <c-dddddd>Fix "MIddleground" typo</c>
 
 # 1.0.61
 - <c-dddddd>Fix selection picker not highlighting objects green</c>

@@ -188,7 +188,7 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
 
     togglerMenu->addChild(createTabToggler(SelectArtType::Background, "Background", "background-toggler"_spr, {0.6f, -1.f}));
     togglerMenu->addChild(createTabToggler(SelectArtType::Ground, "Ground", "ground-toggler"_spr, {0.6f, -0.7f}));
-    togglerMenu->addChild(createTabToggler(SelectArtType::Middleground, "MIddleground", "middleground-toggler"_spr, {0.6f, -1.f}));
+    togglerMenu->addChild(createTabToggler(SelectArtType::Middleground, "Middleground", "middleground-toggler"_spr, {0.6f, -1.f}));
 
     togglerMenu->updateLayout();
 
