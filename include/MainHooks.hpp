@@ -18,6 +18,7 @@ class $modify(MainLevelEditorLayer, LevelEditorLayer) {
     };
 
     bool init(GJGameLevel* level, bool noUI);
+    void mainUpdate(float dt);
     
     StringMap<std::shared_ptr<ModuleBase>>* getModules();
     void forEachModule(geode::Function<void(ModuleBase*)> moduleCallback);
@@ -46,7 +47,6 @@ class $modify(MainEditorUI, EditorUI) {
 
     bool init(LevelEditorLayer* editorLayer);
     void showUI(bool show);
-    void mainUpdate(float dt);
     void fixTabPositions();
     void checkPlatformerState(MainEditorUI::Fields* fields);
     void checkObjectPlacement(MainEditorUI::Fields* fields);

@@ -24,7 +24,7 @@ namespace tinker::utils {
         return {key, value};
     }
 
-    void forEachObject(GJBaseGameLayer const* game, std::function<void(GameObject*)> const& callback) {
+    void forEachObject(GJBaseGameLayer const* game, geode::Function<void(GameObject*)> callback) {
         int count = game->m_sections.empty() ? -1 : game->m_sections.size();
         for (int i = game->m_leftSectionIndex; i <= game->m_rightSectionIndex && i < count; ++i) {
             auto leftSection = game->m_sections[i];

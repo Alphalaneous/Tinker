@@ -26,7 +26,7 @@ void PreviewObjectColors::onEditor() {
     fields->m_defaultObject->m_baseColor->m_defaultColorID = 0;
     fields->m_defaultObject->m_detailColor->m_defaultColorID = 0;
 
-    getEditor()->schedule(schedule_selector(POCEditorUI::updateObjectColors));
+    getEditorLayer()->schedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
 
     if (ScrollableObjects::isEnabled()) {
         getEditor()->runAction(CallFuncExt::create([this] {
@@ -144,8 +144,8 @@ GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
     return ret;
 }
 
-void POCEditorUI::updateObjectColors(float dt) {
-    auto fields = m_fields.self();
+void POCLevelEditorLayer::updateObjectColors(float dt) {
+    auto fields = static_cast<POCEditorUI*>(m_editorUI)->m_fields.self();
     for (auto child : getChildrenExt()) {
         if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
             if (!bar->isVisible()) continue;
@@ -155,13 +155,13 @@ void POCEditorUI::updateObjectColors(float dt) {
                 auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(bar);
                 for (auto item : scrollEditButtonBar->m_fields->m_visibleNodes) {
                     if (!nodeIsVisible(item)) continue;
-                    tinker::utils::updateCreateButtonColor(m_editorLayer, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::updateCreateButtonColor(this, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
             else {
                 for (auto item : bar->m_buttonArray->asExt<CreateMenuItem>()) {
                     if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
-                    tinker::utils::updateCreateButtonColor(m_editorLayer, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::updateCreateButtonColor(this, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
         }
@@ -173,7 +173,7 @@ void POCEditorUI::updateObjectColors(float dt) {
             if (auto innerMenu = group->getChildByType<CCMenu>(1)) {
                 for (auto btn : innerMenu->getChildrenExt()) {
                     if (!btn->isVisible()) continue;
-                    tinker::utils::updateCreateButtonColor(m_editorLayer, btn, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::updateCreateButtonColor(this, btn, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
         }

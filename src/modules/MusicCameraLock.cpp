@@ -34,7 +34,7 @@ void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
     auto toggler = MusicCameraLock::get()->m_toggler;
 
     if (m_playbackActive) {
-        schedule(schedule_selector(MCLEditorUI::lockCamera));
+        m_editorLayer->schedule(schedule_selector(MCLLevelEditorLayer::lockCamera));
         if (playbackMenu && toggler) {
             toggler->removeFromParent();
             playbackMenu->addChild(toggler);
@@ -42,7 +42,7 @@ void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
         }
     }
     else {
-        unschedule(schedule_selector(MCLEditorUI::lockCamera));
+        m_editorLayer->unschedule(schedule_selector(MCLLevelEditorLayer::lockCamera));
         if (toggler) toggler->removeFromParent();
         if (playbackMenu) playbackMenu->updateLayout();
     }
@@ -53,7 +53,7 @@ void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
 void MCLEditorUI::onPlaytest(CCObject* sender) {
     EditorUI::onPlaytest(sender);
 
-    unschedule(schedule_selector(MCLEditorUI::lockCamera));
+    m_editorLayer->unschedule(schedule_selector(MCLLevelEditorLayer::lockCamera));
     
     auto playbackMenu = getChildByID("playback-menu");
     auto toggler = MusicCameraLock::get()->m_toggler;
@@ -62,30 +62,30 @@ void MCLEditorUI::onPlaytest(CCObject* sender) {
     if (playbackMenu) playbackMenu->updateLayout();
 }
 
-void MCLEditorUI::lockCamera(float dt) {
+void MCLLevelEditorLayer::lockCamera(float dt) {
     if (!MusicCameraLock::get()->m_cameraLocked) return;
 
-    auto dgl = m_editorLayer->m_drawGridLayer;
+    auto dgl = m_drawGridLayer;
 
     auto winSize = CCDirector::get()->getWinSize();
-    float scale = m_editorLayer->m_objectLayer->getScale();
+    float scale = m_objectLayer->getScale();
 
     float x, y;
 
     if (dgl->m_playbackX == 0) {
-        x = m_editorLayer->m_objectLayer->getPositionX();
+        x = m_objectLayer->getPositionX();
     }
     else {
         x = -((dgl->m_playbackX) * scale - winSize.width / 4.f);
     }
 
     if (dgl->m_playbackY == 0) {
-        y = m_editorLayer->m_objectLayer->getPositionY();
+        y = m_objectLayer->getPositionY();
     }
     else {
         y = -((dgl->m_playbackY) * scale - winSize.height / 2.f - tinker::utils::getToolbarHeight() / 2.f);
     }
 
-    m_editorLayer->m_objectLayer->setPosition(CCPoint{x, y});
-    updateSlider();
+    m_objectLayer->setPosition(CCPoint{x, y});
+    m_editorUI->updateSlider();
 }

@@ -1,3 +1,7 @@
+# 1.0.63
+- <c-dddddd>Add Object Alignment, hold X or use the toggle to enable</c>
+- <c-dddddd>Fix some unscheduling issues when a level saves</c>
+
 # 1.0.62
 - <c-dddddd>Fix a crash on iOS when closing the style picker specifically after switching from one tab to another</c>
 - <c-dddddd>Fix "MIddleground" typo</c>

@@ -24,6 +24,7 @@ bool CanvasRotate::onToggled(bool state) {
         if (m_rotationNode) {
             m_rotationNode->removeFromParent();
         }
+        getEditorLayer()->unschedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
         getEditorLayer()->m_gameState.m_cameraAngle = 0.f;
 
         if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
@@ -65,7 +66,7 @@ void CanvasRotate::onEditor() {
     m_rotationNode->setID("rotation-node"_spr);
     getEditor()->addChild(m_rotationNode);
 
-    getEditor()->schedule(schedule_selector(CREditorUI::updateSliderRotation));
+    getEditorLayer()->schedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
     
     getEditor()->runAction(CallFuncExt::create([this] {
         auto fields = static_cast<CREditorUI*>(getEditor())->m_fields.self();
@@ -122,12 +123,12 @@ void CREditorUI::onCreateObject(int id) {
     EditorUI::onCreateObject(id);
 }
 
-void CREditorUI::updateSliderRotation(float dt) {
+void CRLevelEditorLayer::updateSliderRotation(float dt) {
     if (!CanvasRotate::getSetting<bool, "rotate-slider-thumb">()) return;
-    if (!m_positionSlider) return;
-    if (!m_positionSlider->getThumb()) return;
+    if (!m_editorUI->m_positionSlider) return;
+    if (!m_editorUI->m_positionSlider->getThumb()) return;
 
-    m_positionSlider->getThumb()->setRotation(m_editorLayer->m_gameState.m_cameraAngle);
+    m_editorUI->m_positionSlider->getThumb()->setRotation(m_gameState.m_cameraAngle);
 }
 
 GameObject* CREditorUI::createObject(int objectID, CCPoint position) {

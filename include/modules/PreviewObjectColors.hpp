@@ -2,6 +2,7 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 
 class Group : public CCNode {};
 
@@ -20,9 +21,12 @@ class $modify(POCEditorUI, EditorUI) {
     };
 
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
-	void updateObjectColors(float dt);
 
 	static void _onModify(auto& self) {
         (void) self.setHookPriorityBeforePre("EditorUI::editObject", "ninkaz.editor_utils"); 
     }
+};
+
+class $modify(POCLevelEditorLayer, LevelEditorLayer) {
+	void updateObjectColors(float dt);
 };

@@ -144,12 +144,12 @@ void SPTEditorUI::showSwitcher() {
     fields->m_switcherLabel->setOpacity(255);
     fields->m_switcherContainer->setOpacity(127);
 
-    unschedule(schedule_selector(SPTEditorUI::hideSwitcher));
-    scheduleOnce(schedule_selector(SPTEditorUI::hideSwitcher), 1.f);
+    m_editorLayer->unschedule(schedule_selector(SPTLevelEditorLayer::hideSwitcher));
+    m_editorLayer->scheduleOnce(schedule_selector(SPTLevelEditorLayer::hideSwitcher), 1.f);
 }
 
-void SPTEditorUI::hideSwitcher(float dt) {
-    auto fields = m_fields.self();
+void SPTLevelEditorLayer::hideSwitcher(float dt) {
+    auto fields = static_cast<SPTEditorUI*>(m_editorUI)->m_fields.self();
     fields->m_switcherLabel->stopAllActions();
     fields->m_switcherContainer->stopAllActions();
 

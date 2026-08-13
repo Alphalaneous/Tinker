@@ -96,7 +96,7 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
         m_objectInfoLabel->setPositionX(x + offset);
     });
 
-    schedule(schedule_selector(MainEditorUI::mainUpdate));
+    editorLayer->schedule(schedule_selector(MainLevelEditorLayer::mainUpdate));
 
     return true;
 }
@@ -118,15 +118,16 @@ bool MainEditorUI::isUIVisible() {
     return m_fields->m_uiVisible;
 }
 
-void MainEditorUI::mainUpdate(float dt) {
-    auto fields = m_fields.self();
+void MainLevelEditorLayer::mainUpdate(float dt) {
+    auto editor = MainEditorUI::get();
+    auto fields = editor->m_fields.self();
 
-    checkObjectPlacement(fields);
-    checkPlatformerState(fields);
-    checkModifierState(fields);
+    editor->checkObjectPlacement(fields);
+    editor->checkPlatformerState(fields);
+    editor->checkModifierState(fields);
 
     // hack to fix y positions of tabs being wrong for some people (???)
-    fixTabPositions();
+    editor->fixTabPositions();
 }
 
 void MainEditorUI::checkPlatformerState(MainEditorUI::Fields* fields) {

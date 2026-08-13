@@ -23,7 +23,7 @@ void LiveColors::onEditor() {
 
     getEditor()->addChild(m_colorsMenu);
 
-    getEditor()->schedule(schedule_selector(LCEditorUI::checkColors), 1.f / 60.f);
+    getEditorLayer()->schedule(schedule_selector(LCLevelEditorLayer::checkColors), 1.f / 60.f);
 
     addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         auto winSize = CCDirector::get()->getWinSize();
@@ -77,7 +77,7 @@ void LCEditorUI::showUI(bool show) {
     }
 }
 
-void LCEditorUI::checkColors(float dt) {
+void LCLevelEditorLayer::checkColors(float dt) {
     std::set<int> activeColors;
 
     using namespace tinker::constants::color_channels;
@@ -88,10 +88,10 @@ void LCEditorUI::checkColors(float dt) {
         btn->setColorData(-1);
     }
 
-    tinker::utils::forEachObject(m_editorLayer, [&activeColors, this](GameObject* object) {
-        if (m_editorLayer->m_currentLayer != -1 
-            && object->m_editorLayer != m_editorLayer->m_currentLayer 
-            && object->m_editorLayer2 != m_editorLayer->m_currentLayer) return;
+    tinker::utils::forEachObject(this, [&activeColors, this](GameObject* object) {
+        if (m_currentLayer != -1 
+            && object->m_editorLayer != m_currentLayer 
+            && object->m_editorLayer2 != m_currentLayer) return;
 
         if (auto base = object->m_baseColor) {
             int id = base->m_colorID == 0 ? base->m_defaultColorID : base->m_colorID;
@@ -104,7 +104,7 @@ void LCEditorUI::checkColors(float dt) {
     });
 
     int count = 0;
-    for (auto action : m_editorLayer->m_effectManager->m_colorActionSpriteVector) {
+    for (auto action : m_effectManager->m_colorActionSpriteVector) {
         static const std::unordered_set<int> invalidColorIDs = {
             PlayerColor1, PlayerColor2, Black, White, Lighter
         };
@@ -124,10 +124,10 @@ void LCEditorUI::checkColors(float dt) {
 
     float heightOffset = tinker::utils::getToolbarHeight();
 
-    if (m_tabsMenu && m_tabsMenu->isVisible()) {
-        heightOffset += m_tabsMenu->getScaledContentHeight();
+    if (m_editorUI->m_tabsMenu && m_editorUI->m_tabsMenu->isVisible()) {
+        heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();
     }
 
-    auto fields = m_fields.self();
-    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0.f) + 5.f * m_positionSlider->getScale());
+    auto fields = static_cast<LCEditorUI*>(m_editorUI)->m_fields.self();
+    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0.f) + 5.f * m_editorUI->m_positionSlider->getScale());
 }

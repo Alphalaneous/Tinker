@@ -27,7 +27,6 @@ class $modify(SPTEditorUI, EditorUI) {
 
     void updateOverlay();
     void showSwitcher();
-    void hideSwitcher(float dt);
     void showUI(bool show);
     void onPlaytest(cocos2d::CCObject* sender);
     void updatePlaytestMenu();
@@ -80,4 +79,6 @@ class $modify(SPTLevelEditorLayer, LevelEditorLayer) {
     void setActiveStartPos(StartPosObject* startPos);
     void setStartPosIndex(int idx);
     StartPosObject* getActiveStartPos();
+
+    void hideSwitcher(float dt);
 };

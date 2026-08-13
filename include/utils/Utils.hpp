@@ -31,7 +31,7 @@ namespace tinker::utils {
     void updateCreateButtonColor(LevelEditorLayer* levelEditorLayer, CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2);
     void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method);
     std::pair<std::string, std::string> splitIntoPair(const std::string& str);
-    void forEachObject(GJBaseGameLayer const* game, std::function<void(GameObject*)> const& callback);
+    void forEachObject(GJBaseGameLayer const* game, geode::Function<void(GameObject*)> callback);
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees);
     std::string capitalize(std::string_view input);
     std::vector<std::string> split(const std::string& str, const std::string& delimiter, int limit = -1);

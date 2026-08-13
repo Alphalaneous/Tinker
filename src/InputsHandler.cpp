@@ -1,6 +1,7 @@
 #include "InputsHandler.hpp"
 #include "Events.hpp"
 #include "modules/BetterSelect.hpp"
+#include "modules/ObjectAlignment.hpp"
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
@@ -38,7 +39,8 @@ bool TouchForward::init(EditorUI* editorUI) {
         CCTouchDispatcher::get()->removeDelegate(m_editorUI);
     });
 
-    registerTouch<CanvasRotate>(2);
+    registerTouch<CanvasRotate>(3);
+    registerTouch<ObjectAlignment>(2);
     registerTouch<InputEditorUI>(1);
 
     return true;
@@ -139,7 +141,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     
     auto fields = m_fields.self();
 
-    schedule(schedule_selector(InputEditorUI::checkScrolling));
+    editorLayer->schedule(schedule_selector(InputLevelEditorLayer::checkScrolling));
 
     addEventListener(ScrollWheelEvent(), [this, fields](double x, double y) {
         fields->m_scroll = CCPoint{static_cast<float>(x), static_cast<float>(y)};
@@ -595,8 +597,8 @@ void InputEditorUI::onScroll() {
     }
 }
 
-void InputEditorUI::checkScrolling(float dt) {
-    auto fields = m_fields.self();
+void InputLevelEditorLayer::checkScrolling(float dt) {
+    auto fields = InputEditorUI::get()->m_fields.self();
 
     fields->m_speedScale = dt / CCDirector::get()->getDeltaTime();
 

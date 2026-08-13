@@ -2,6 +2,7 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 
 namespace tinker::ui {
     class ColorVisualButton;
@@ -29,5 +30,8 @@ class $modify(LCEditorUI, EditorUI) {
     };
     
     void showUI(bool show);
+};
+
+class $modify(LCLevelEditorLayer, LevelEditorLayer) {
 	void checkColors(float dt);
 };

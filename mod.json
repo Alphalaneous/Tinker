@@ -541,7 +541,7 @@
 			"enable-if": "pinch-to-zoom"
 		},
 		"CanvasRotate-align-modifier": {
-			"name": "Align Modifier",
+			"name": "Rotate Align Modifier",
 			"description": "Align placed objects to your exact camera rotation when held.",
 			"type": "keybind",
 			"default": ["]"],
@@ -896,6 +896,40 @@
 				"ios": false
 			}
 		},
+		"ObjectAlignment-title": {
+			"type": "title",
+			"name": "Object Alignment"
+		},
+		"ObjectAlignment-description": {
+			"type": "info",
+			"description": "Align free moved objects to other objects.",
+			"color": "#000000"
+		},
+		"ObjectAlignment-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"ObjectAlignment-snap-distance": {
+			"type": "float",
+			"default": 5,
+			"name": "Snap Distance",
+			"description": "How far the object must be from a alignment point to snap to it.",
+			"min": 1,
+			"max": 15
+		},
+		"ObjectAlignment-show-toggle": {
+			"type": "bool",
+			"name": "Show Toggle",
+			"description": "Show Align toggle at bottom right",
+			"default": true
+		},
+		"ObjectAlignment-align-modifier": {
+			"name": "Object Align Modifier",
+			"type": "keybind",
+			"default": ["X", "Ctrl+X"],
+			"category": "editor"
+		},
 		"ObjectSearch-title": {
 			"type": "title",
 			"name": "Object Search"
@@ -1070,7 +1104,7 @@
 		},
 		"BetterSelect-modifier": {
 			"type": "keybind",
-			"name": "Modifier",
+			"name": "Select Picker Modifier",
 			"default": ["Alt+LeftMenu"],
 			"category": "editor",
 			"platforms": ["win", "mac"]

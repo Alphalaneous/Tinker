@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/AppDelegate.hpp>
 
@@ -148,7 +149,6 @@ class $modify(InputEditorUI, EditorUI) {
     void scrollWheel(float y, float x);
     void disableBetterEditHook();
 
-    void checkScrolling(float dt);
 
     void addActiveAlert(CCNode* alert);
     void removeActiveAlert(CCNode* alert);
@@ -177,6 +177,10 @@ class $modify(InputEditorUI, EditorUI) {
     void onPause(cocos2d::CCObject* sender);
 
     static InputEditorUI* get();
+};
+
+class $modify(InputLevelEditorLayer, LevelEditorLayer) {
+    void checkScrolling(float dt);
 };
 
 class $modify(InputEditorPauseLayer, EditorPauseLayer) {

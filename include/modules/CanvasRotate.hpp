@@ -54,7 +54,6 @@ class $modify(CREditorUI, EditorUI) {
     void playtestStopped();
     void clickOnPosition(CCPoint pos);
     void triggerSwipeMode();
-    void updateSliderRotation(float dt);
 };
 
 class $modify(CRLevelEditorLayer, LevelEditorLayer) {
@@ -63,4 +62,5 @@ class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     cocos2d::CCArray* objectsAtPosition(cocos2d::CCPoint position);
     CCArray* objectsInRect(CCRect rect, bool ignoreLayerCheck);
 	OBB2D* rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees);
+    void updateSliderRotation(float dt);
 };
