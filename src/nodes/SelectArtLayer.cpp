@@ -455,7 +455,9 @@ void SelectArtLayer::keyBackClicked() {
     m_scrollLayer->removeFromParent();
     m_scrollLayer = nullptr;
     m_artNodes.clear();
-    Popup::keyBackClicked();
+    runAction(CallFuncExt::create([this] {
+        Popup::keyBackClicked();
+    }));
 }
 
 void SelectArtLayer::updateSprites(SelectArtType type) {
