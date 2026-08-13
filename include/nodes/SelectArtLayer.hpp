@@ -15,7 +15,6 @@ public:
 
     void loadType(SelectArtType type);
     void updateSprites(SelectArtType type);
-    void keyBackClicked();
     void colorSelectClosed(cocos2d::CCNode* popup);
 
 protected:

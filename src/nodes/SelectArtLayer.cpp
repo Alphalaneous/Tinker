@@ -233,6 +233,54 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
 
     m_mainLayer->addChild(colorContainer);
 
+    addEventListener(CloseEvent(this), [this] () {
+        if (m_backgroundChanged) {
+            if (m_editorLayer->m_background) {
+                m_editorLayer->m_background->removeFromParent();
+                m_editorLayer->m_background = nullptr;
+            }
+            m_editorLayer->m_levelSettings->m_backgroundIndex = m_backgroundID;
+            GameManager::get()->loadBackground(m_editorLayer->m_levelSettings->m_backgroundIndex);
+            
+            auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("bgIcon_{:02d}_001.png", m_backgroundID).c_str());
+            m_levelSettingsLayer->m_backgroundSprite->setDisplayFrame(newSpr);
+            m_editorLayer->createBackground(m_editorLayer->m_levelSettings->m_backgroundIndex);
+        }
+        if (m_groundChanged) {
+            if (m_editorLayer->m_groundLayer) {
+                m_editorLayer->m_groundLayer->removeFromParent();
+                m_editorLayer->m_groundLayer = nullptr;
+            }
+            if (m_editorLayer->m_groundLayer2) {
+                m_editorLayer->m_groundLayer2->removeFromParent();
+                m_editorLayer->m_groundLayer2 = nullptr;
+            }
+
+            m_editorLayer->m_levelSettings->m_groundIndex = m_groundID;
+            m_editorLayer->m_levelSettings->m_groundLineIndex = m_groundLineID;
+
+            GameManager::get()->loadGround(m_editorLayer->m_levelSettings->m_groundIndex);
+
+            auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("gIcon_{:02d}_001.png", m_groundID).c_str());
+            m_levelSettingsLayer->m_groundSprite->setDisplayFrame(newSpr);
+            m_editorLayer->createGroundLayer(m_editorLayer->m_levelSettings->m_groundIndex, m_editorLayer->m_levelSettings->m_groundLineIndex);
+        }
+        if (m_middlegroundChanged) {
+            if (m_editorLayer->m_middleground) {
+                m_editorLayer->m_middleground->removeFromParent();
+                m_editorLayer->m_middleground = nullptr;
+            }
+
+            m_editorLayer->m_levelSettings->m_middleGroundIndex = m_middlegroundID;
+
+            GameManager::get()->loadMiddleground(m_editorLayer->m_levelSettings->m_middleGroundIndex);
+
+            auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("mgIcon_{:02d}_001.png", m_middlegroundID).c_str());
+            m_levelSettingsLayer->m_middlegroundSprite->setDisplayFrame(newSpr);
+            m_editorLayer->createMiddleground(m_editorLayer->m_levelSettings->m_middleGroundIndex);
+        }
+    });
+
     return true;
 }
 
@@ -403,61 +451,6 @@ geode::Button* SelectArtLayer::createArtButton(SelectArtType type, int id) {
     btn->setScale(0.75f);
 
     return btn;
-}
-
-void SelectArtLayer::keyBackClicked() {
-    if (m_backgroundChanged) {
-        if (m_editorLayer->m_background) {
-            m_editorLayer->m_background->removeFromParent();
-            m_editorLayer->m_background = nullptr;
-        }
-        m_editorLayer->m_levelSettings->m_backgroundIndex = m_backgroundID;
-        GameManager::get()->loadBackground(m_editorLayer->m_levelSettings->m_backgroundIndex);
-        
-        auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("bgIcon_{:02d}_001.png", m_backgroundID).c_str());
-        m_levelSettingsLayer->m_backgroundSprite->setDisplayFrame(newSpr);
-        m_editorLayer->createBackground(m_editorLayer->m_levelSettings->m_backgroundIndex);
-    }
-    if (m_groundChanged) {
-        if (m_editorLayer->m_groundLayer) {
-            m_editorLayer->m_groundLayer->removeFromParent();
-            m_editorLayer->m_groundLayer = nullptr;
-        }
-        if (m_editorLayer->m_groundLayer2) {
-            m_editorLayer->m_groundLayer2->removeFromParent();
-            m_editorLayer->m_groundLayer2 = nullptr;
-        }
-
-        m_editorLayer->m_levelSettings->m_groundIndex = m_groundID;
-        m_editorLayer->m_levelSettings->m_groundLineIndex = m_groundLineID;
-
-        GameManager::get()->loadGround(m_editorLayer->m_levelSettings->m_groundIndex);
-
-        auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("gIcon_{:02d}_001.png", m_groundID).c_str());
-        m_levelSettingsLayer->m_groundSprite->setDisplayFrame(newSpr);
-        m_editorLayer->createGroundLayer(m_editorLayer->m_levelSettings->m_groundIndex, m_editorLayer->m_levelSettings->m_groundLineIndex);
-    }
-    if (m_middlegroundChanged) {
-        if (m_editorLayer->m_middleground) {
-            m_editorLayer->m_middleground->removeFromParent();
-            m_editorLayer->m_middleground = nullptr;
-        }
-
-        m_editorLayer->m_levelSettings->m_middleGroundIndex = m_middlegroundID;
-
-        GameManager::get()->loadMiddleground(m_editorLayer->m_levelSettings->m_middleGroundIndex);
-
-        auto newSpr = CCSpriteFrameCache::get()->spriteFrameByName(fmt::format("mgIcon_{:02d}_001.png", m_middlegroundID).c_str());
-        m_levelSettingsLayer->m_middlegroundSprite->setDisplayFrame(newSpr);
-        m_editorLayer->createMiddleground(m_editorLayer->m_levelSettings->m_middleGroundIndex);
-    }
-    m_scrollLayer->getContentLayer()->removeAllChildren();
-    m_scrollLayer->removeFromParent();
-    m_scrollLayer = nullptr;
-    m_artNodes.clear();
-    runAction(CallFuncExt::create([this] {
-        Popup::keyBackClicked();
-    }));
 }
 
 void SelectArtLayer::updateSprites(SelectArtType type) {
