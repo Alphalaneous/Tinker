@@ -1,3 +1,6 @@
+# 1.0.62
+- <c-dddddd>Fix a crash on iOS when closing the style picker specifically after switching from one tab to another</c>
+
 # 1.0.61
 - <c-dddddd>Fix selection picker not highlighting objects green</c>
 - <c-dddddd>Always show selection picker above mouse instead of group center (as it can position off screen with group parents)</c>

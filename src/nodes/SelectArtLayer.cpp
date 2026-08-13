@@ -451,6 +451,9 @@ void SelectArtLayer::keyBackClicked() {
         m_levelSettingsLayer->m_middlegroundSprite->setDisplayFrame(newSpr);
         m_editorLayer->createMiddleground(m_editorLayer->m_levelSettings->m_middleGroundIndex);
     }
+    m_scrollLayer->getContentLayer()->removeAllChildren();
+    m_scrollLayer->removeFromParent();
+    m_scrollLayer = nullptr;
     Popup::keyBackClicked();
 }
 
