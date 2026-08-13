@@ -448,6 +448,7 @@ geode::Button* SelectArtLayer::createArtButton(SelectArtType type, int id) {
     btn->setColor({125, 125, 125});
     btn->setTag(id);
     btn->setZOrder(id);
+    btn->setID(fmt::format("art-{}"_spr, id));
     btn->setScale(0.75f);
 
     return btn;
@@ -483,51 +484,53 @@ void SelectArtLayer::updateSprites(SelectArtType type) {
 void SelectArtLayer::loadType(SelectArtType type) {
     m_scrollLayer->getContentLayer()->removeAllChildren();
 
-    constexpr float centerOffset = 0.f;
-    auto contentSize = CCSize{m_size.width / 2.f - 3.f + centerOffset, m_size.height - 120.f};
+    runAction(CallFuncExt::create([this, type] {
+        constexpr float centerOffset = 0.f;
+        auto contentSize = CCSize{m_size.width / 2.f - 3.f + centerOffset, m_size.height - 120.f};
 
-    m_lineContainer->setVisible(type == SelectArtType::Ground);
+        m_lineContainer->setVisible(type == SelectArtType::Ground);
 
-    auto& artVec = m_artNodes[type];
+        auto& artVec = m_artNodes[type];
 
-    int id = 0;
-    switch (type) {
-        case SelectArtType::Background: {
-            id = m_backgroundID;
-            break;
+        int id = 0;
+        switch (type) {
+            case SelectArtType::Background: {
+                id = m_backgroundID;
+                break;
+            }
+            case SelectArtType::Ground: {
+                id = m_groundID;
+                contentSize = CCSize{m_size.width / 2.f - 3.f + centerOffset, m_size.height - 140.f};
+                break;
+            }
+            case SelectArtType::Middleground: {
+                id = m_middlegroundID;
+                break;
+            }
+            default: {
+                break;
+            }
         }
-        case SelectArtType::Ground: {
-            id = m_groundID;
-            contentSize = CCSize{m_size.width / 2.f - 3.f + centerOffset, m_size.height - 140.f};
-            break;
-        }
-        case SelectArtType::Middleground: {
-            id = m_middlegroundID;
-            break;
-        }
-        default: {
-            break;
-        }
-    }
 
-    m_scrollBG->setContentSize(contentSize);
-    m_scrollLayer->setContentSize(m_scrollBG->getContentSize());
+        m_scrollBG->setContentSize(contentSize);
+        m_scrollLayer->setContentSize(m_scrollBG->getContentSize());
 
-    for (const auto& btn : artVec) {
-        m_scrollLayer->getContentLayer()->addChild(btn);
-        btn->setColor(btn->getTag() == id ? ccColor3B{255, 255, 255} : ccColor3B{125, 125, 125});
-    }
-
-    m_scrollLayer->getContentLayer()->updateLayout();
-
-    for (const auto& btn : artVec) {
-        if (btn->getTag() == id) {
-            float scrollY = m_scrollLayer->getContentLayer()->getContentHeight() - btn->getPositionY() - m_scrollLayer->getContentHeight() / 2.f;
-            m_scrollLayer->setScrollY(scrollY);
-            m_scrollLayer->forceCull();
-            break;
+        for (const auto& btn : artVec) {
+            m_scrollLayer->getContentLayer()->addChild(btn);
+            btn->setColor(btn->getTag() == id ? ccColor3B{255, 255, 255} : ccColor3B{125, 125, 125});
         }
-    }
+
+        m_scrollLayer->getContentLayer()->updateLayout();
+
+        for (const auto& btn : artVec) {
+            if (btn->getTag() == id) {
+                float scrollY = m_scrollLayer->getContentLayer()->getContentHeight() - btn->getPositionY() - m_scrollLayer->getContentHeight() / 2.f;
+                m_scrollLayer->setScrollY(scrollY);
+                m_scrollLayer->forceCull();
+                break;
+            }
+        }
+    }));
 }
 
 }
