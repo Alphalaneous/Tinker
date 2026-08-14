@@ -26,6 +26,7 @@ bool SupportButton::init(float width) {
     m_banner->setCascadeColorEnabled(true);
     m_banner->setAnchorPoint({0.f, 0.f});
 
+    #ifndef GEODE_IS_ANDROID32
     auto alphaSmile = CCSprite::create("alpha-smile.gif"_spr);
     alphaSmile->setAnchorPoint({1.f, 0.f});
     alphaSmile->setPositionX(m_banner->getContentWidth());
@@ -33,6 +34,7 @@ bool SupportButton::init(float width) {
     alphaSmile->setID("alpha-smile-:3"_spr);
 
     m_banner->addChild(alphaSmile);
+    #endif
 
     addChild(m_banner);
     setContentSize(m_banner->getContentSize());

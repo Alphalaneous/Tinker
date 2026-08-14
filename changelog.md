@@ -1,3 +1,6 @@
+# 1.0.65
+- <c-dddddd>Remove Alpha Smile gif on Android32 because of an ImagePlus crash</c>
+
 # 1.0.64
 - <c-dddddd>Fix a crash when closing the settings popup on iOS</c>
 - <c-dddddd>Trim settings search queries</c>
