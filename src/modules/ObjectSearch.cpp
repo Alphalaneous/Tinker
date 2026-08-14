@@ -80,7 +80,7 @@ void ObjectSearch::onEditor() {
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({getEditor()->getContentWidth() / 2.f, tinker::utils::getToolbarHeight() + 5.f * scale + buildTabHeight});
+        fields->m_searchField->setPosition({getEditor()->getContentWidth() / 2.f, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
     }));
 

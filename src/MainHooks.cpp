@@ -174,18 +174,18 @@ void MainEditorUI::fixTabPositions() {
 
         float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y;
         if (tab->getScaledContentHeight() == 0) {
-            posY = tinker::utils::getToolbarHeight() / 2.f;
+            posY = tinker::utils::getToolbarHeight(false) / 2.f;
         }
         tab->setPositionY(posY);
     }
 
     m_deleteMenu->setContentSize({0, 0});
-    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight() / 2.f);
+    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight(false) / 2.f);
 }
 
 void MainEditorUI::updateButtons() {
     auto toolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = tinker::utils::getToolbarHeight();
+    m_toolbarHeight = tinker::utils::getToolbarHeight(false);
     EditorUI::updateButtons();
     m_toolbarHeight = toolbarHeight;
     UpdateButtonsEvent().send();

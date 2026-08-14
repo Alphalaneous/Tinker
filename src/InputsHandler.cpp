@@ -34,6 +34,7 @@ bool TouchForward::init(EditorUI* editorUI) {
     m_editorUI = editorUI;
     setZOrder(100);
     setTouchEnabled(true);
+    setID("touch-forward"_spr);
 
     editorUI->addOnEnterCallback([this] {
         CCTouchDispatcher::get()->removeDelegate(m_editorUI);
@@ -652,7 +653,7 @@ CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
 
 bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
     auto fields = m_fields.self();
-
+    
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
         return false;
     }

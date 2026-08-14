@@ -24,7 +24,7 @@ namespace tinker::utils {
         Horizontal
     };
 
-    float getToolbarHeight();
+    float getToolbarHeight(bool checkVisible = true);
     bool isColorable(GameObject* object);
     ColorData getActiveColor(LevelEditorLayer* editorLayer, int colorID);
     void updateGameObjectColor(LevelEditorLayer* levelEditorLayer, GameObject* gameObject);

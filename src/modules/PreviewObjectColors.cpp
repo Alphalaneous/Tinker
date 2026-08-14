@@ -75,7 +75,7 @@ void PreviewObjectColors::onEditor() {
                 x = spacer->boundingBox().getMinX();
             }
             
-            btnContainer->setPosition({x - 3.f * scale, tinker::utils::getToolbarHeight() - 4.f * scale});
+            btnContainer->setPosition({x - 3.f * scale, tinker::utils::getToolbarHeight(false) - 4.f * scale});
         });
 
         alpha::editor_tabs::addTabSwitchCallback([this, btn] (auto id) {

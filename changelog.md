@@ -1,3 +1,10 @@
+# 1.0.64
+- <c-dddddd>Fix a crash when closing the settings popup on iOS</c>
+- <c-dddddd>Trim settings search queries</c>
+- <c-dddddd>Fix link menu scaling and positioning</c>
+- <c-dddddd>Fix UI positioning with Editor Collab</c>
+- <c-dddddd>Fix settings button in pause menu overlapping with Object Collab "Copy C-Data" button</c>
+
 # 1.0.63
 - <c-dddddd>Add Object Alignment, hold X or use the toggle to enable</c>
 - <c-dddddd>Fix some unscheduling issues when a level saves</c>

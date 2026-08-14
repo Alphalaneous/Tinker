@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.63",
+	"version": "v1.0.64",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -1229,7 +1229,7 @@
 		},
 		"UIScaling-title": {
 			"type": "title",
-			"name": "UI Scaling"
+			"name": "UI Scale"
 		},
 		"UIScaling-description": {
 			"type": "info",

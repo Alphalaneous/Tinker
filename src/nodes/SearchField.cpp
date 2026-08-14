@@ -296,7 +296,7 @@ void SearchField::onClosed() {
         scale = node->getScale();
     }
 
-    setPosition({m_editorUI->getContentWidth() / 2, tinker::utils::getToolbarHeight() + 5.f * scale + buildTabHeight});
+    setPosition({m_editorUI->getContentWidth() / 2, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
 
     auto tab = m_editorUI->m_fields->m_searchBar;
 
@@ -308,7 +308,7 @@ void SearchField::onClosed() {
 
 void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
     #ifdef GEODE_IS_MOBILE
-    m_yOffset = std::max(yOffset, tinker::utils::getToolbarHeight() + 15.f);
+    m_yOffset = std::max(yOffset, tinker::utils::getToolbarHeight(false) + 15.f);
    
     runAction(CallFuncExt::create([this] {
         setupTabOffset();

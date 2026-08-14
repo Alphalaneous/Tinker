@@ -8,9 +8,6 @@
 #include <Geode/modify/SliderTouchLogic.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
-#define FTS_FUZZY_MATCH_IMPLEMENTATION
-#include <Geode/external/fts/fts_fuzzy_match.h>
-
 class TitleSettingNodeV3 : public CCNode {};
 
 struct SliderStateChanged final : Event<SliderStateChanged, bool(bool started)> {
@@ -119,7 +116,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     searchInput->getBGSprite()->setOpacity(45);
     searchInput->getBGSprite()->setColor(searchBGColor);
     searchInput->setCallback([this] (const std::string& str) {
-        m_searchQuery = str;
+        m_searchQuery = geode::utils::string::trim(str);
         loadSettingNodes(false);
     });
 
@@ -468,34 +465,36 @@ void SettingsPopup::loadSettings() {
 void SettingsPopup::loadSettingNodes(bool retainPosition) {
     auto scroll = m_settingScrollLayer->getScrollPoint().y;
     m_settingScrollLayer->getContentLayer()->removeAllChildren();
-    bool even = false;
+    runAction(CallFuncExt::create([this, retainPosition, scroll] {
+        bool even = false;
 
-    std::unordered_map<SettingsCache::SettingCategory*, std::set<std::shared_ptr<SettingsCache::SettingInfo>>> m_resultsForQuery;
-    for (const auto& category : SettingsCache::get()->getCategoryList()) {
-        m_resultsForQuery[category] = category->settingsForSearch(m_searchQuery);
-    }
-    
-    for (const auto& node : m_settingNodes) {
-        auto& info = m_settingNodeMap[node];
-        if (m_category.empty()) {
-            if (m_categoryCollapsed[info->category->id] && info->type != "title") continue;
+        std::unordered_map<SettingsCache::SettingCategory*, std::set<std::shared_ptr<SettingsCache::SettingInfo>>> m_resultsForQuery;
+        for (const auto& category : SettingsCache::get()->getCategoryList()) {
+            m_resultsForQuery[category] = category->settingsForSearch(m_searchQuery);
         }
-        else {
-            if (info->category->id != m_category || info->type == "title") continue;
+        
+        for (const auto& node : m_settingNodes) {
+            auto& info = m_settingNodeMap[node];
+            if (m_category.empty()) {
+                if (m_categoryCollapsed[info->category->id] && info->type != "title") continue;
+            }
+            else {
+                if (info->category->id != m_category || info->type == "title") continue;
+            }
+
+            if (!m_resultsForQuery[info->category].contains(info)) continue;
+
+            node->setOpacity(even ? 10 : 50);
+            m_settingScrollLayer->addChild(node);
+            even = !even;
         }
 
-        if (!m_resultsForQuery[info->category].contains(info)) continue;
-
-        node->setOpacity(even ? 10 : 50);
-        m_settingScrollLayer->addChild(node);
-        even = !even;
-    }
-
-    m_settingScrollLayer->getContentLayer()->updateLayout();
-    if (retainPosition) {
-        m_settingScrollLayer->setScrollY(scroll);
-    }
-    m_settingScrollLayer->forceCull();
+        m_settingScrollLayer->getContentLayer()->updateLayout();
+        if (retainPosition) {
+            m_settingScrollLayer->setScrollY(scroll);
+        }
+        m_settingScrollLayer->forceCull();
+    }));
 }
 
 bool SettingsPopup::hasUncommitted() {

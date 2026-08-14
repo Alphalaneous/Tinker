@@ -64,11 +64,11 @@ bool NavigationControl::init(EditorUI* editorUI) {
 
     if (JoystickNavigation::s_resetPosition) {
         Mod::get()->setSavedValue("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-        Mod::get()->setSavedValue("nav-joystick-pos-y", tinker::utils::getToolbarHeight() + getScaledContentHeight() / 2 + 20);
+        Mod::get()->setSavedValue("nav-joystick-pos-y", tinker::utils::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
     }
 
     auto posX = Mod::get()->getSavedValue<float>("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", tinker::utils::getToolbarHeight() + getScaledContentHeight() / 2 + 20);
+    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", tinker::utils::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
 
     CCSize winSize = CCDirector::get()->getWinSize();
 

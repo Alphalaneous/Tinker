@@ -98,8 +98,8 @@ namespace tinker::utils {
         return result;
     }
 
-    float getToolbarHeight() {
-        if (MainEditorUI::get() && !MainEditorUI::get()->isUIVisible()) {
+    float getToolbarHeight(bool checkVisible) {
+        if (MainEditorUI::get() && checkVisible && !MainEditorUI::get()->isUIVisible()) {
             return 0;
         }
         float height = tinker::constants::ToolbarHeight;
