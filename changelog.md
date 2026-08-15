@@ -1,3 +1,15 @@
+# 1.0.66
+- <c-dddddd>Make toolbar UI scaling safer</c>
+- <c-dddddd>UI Scaling's Safe Area setting now properly affects tab menu pages</c>
+- <c-dddddd>Fix objects being offset when both snap and align are enabled</c>
+- <c-dddddd>Fix Reset All not resetting all in the custom settings menu</c>
+- <c-dddddd>Fix color of selected CreateMenuItems</c>
+- <c-dddddd>Fix linked orange teleport portals being able to be jumped to in the create tab, and placing phantom objects</c>
+- <c-dddddd>Fix Object Alignment being stuck active if you hid the toggle while it was toggled on</c>
+- <c-dddddd>Enabling/Disabling the Object Alignment toggle no longer requires reopening the editor</c>
+- <c-dddddd>Enabling/Disabling the Lasso Select toggle no longer requires reopening the editor</c>
+- <c-dddddd>Add Toggler Overflow Menu</c>
+
 # 1.0.65
 - <c-dddddd>Remove Alpha Smile gif on Android32 because of an ImagePlus crash</c>
 

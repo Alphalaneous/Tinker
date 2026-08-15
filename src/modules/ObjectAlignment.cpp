@@ -1,8 +1,45 @@
 #include "modules/ObjectAlignment.hpp"
+#include "modules/TogglerOverflow.hpp"
 #include "utils/Utils.hpp"
+#include <alphalaneous.editorsounds/include/API.hpp>
 
 bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "snap-distance" || key == "align-modifier") return true;
+
+    if (key == "show-toggle") {
+        auto res = value.asBool();
+        if (!res) return true;
+
+        auto editor = getEditor();
+        auto show = res.unwrap();
+
+        if (!show) {
+            m_alignToggled = false;
+            m_toggler->removeFromParent();
+
+            auto menu = editor->getChildByID("toolbar-toggles-menu");
+            if (!menu) return true;
+
+            menu->updateLayout();
+        }
+        else {
+            m_alignToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
+            auto menu = editor->getChildByID("toolbar-toggles-menu");
+            if (!menu) return true;
+
+            menu->addChild(m_toggler);
+            m_toggler->toggle(m_alignToggled);
+
+            menu->updateLayout();
+        }
+
+        if (TogglerOverflow::isEnabled()) {
+            TogglerOverflow::get()->updateContainer();
+        }
+
+        return true;
+    }
+
     return false;
 }
 
@@ -140,8 +177,6 @@ void ObjectAlignment::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch*
         return;
     }
 
-    next(touch);
-    
     float deltaX = 0.f;
     if (m_closestEdges.horizontalTarget) {
         deltaX = m_closestEdges.horizontalTarget.value() - m_closestEdges.horizontalSource.value();
@@ -151,6 +186,12 @@ void ObjectAlignment::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch*
     if (m_closestEdges.verticalTarget) {
         deltaY = m_closestEdges.verticalTarget.value() - m_closestEdges.verticalSource.value();
     }
+
+    if (deltaX != 0.f || deltaY != 0.f) {
+        editor->m_snapObjectExists = false;
+    }
+
+    next(touch);
 
     if (editor->m_selectedObjects->count() == 0) {
         editor->moveObject(editor->m_selectedObject, {deltaX, deltaY});
@@ -167,6 +208,7 @@ void ObjectAlignment::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTo
 }
 
 void ObjectAlignment::onEditor() {
+    auto editor = getEditor();
     auto editorLayer = getEditorLayer();
     m_alignmentNode = CCDrawNode::create();
     m_alignmentNode->setID("object-align-draw"_spr);
@@ -178,11 +220,9 @@ void ObjectAlignment::onEditor() {
         m_alignActive = down;
     });
 
-    getEditorLayer()->schedule(schedule_selector(OALevelEditorLayer::updateAlignmentDraw));
+    editorLayer->schedule(schedule_selector(OALevelEditorLayer::updateAlignmentDraw));
 
-    if (!getSetting<bool, "show-toggle">()) return;
-
-    auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
+    auto menu = editor->getChildByID("toolbar-toggles-menu");
     if (!menu) return;
 
     auto spr = CCSprite::create("align.png"_spr);
@@ -197,21 +237,24 @@ void ObjectAlignment::onEditor() {
     sprOn->setContentSize({40.f, 40.f});
     sprOff->setContentSize({40.f, 40.f});
 
-    auto toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
+    m_toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
         m_alignToggled = !toggler->isToggled();
         Mod::get()->setSavedValue<bool>("object-alignment-toggle", m_alignToggled);
     });
-    toggler->setID("object-align-button"_spr);
+    m_toggler->setID("object-align-button"_spr);
+    alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
 
-    bool isToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
+    if (getSetting<bool, "show-toggle">()) {
+        bool isToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
 
-    toggler->toggle(isToggled);
-    m_alignToggled = isToggled;
+        m_toggler->toggle(isToggled);
+        m_alignToggled = isToggled;
 
-    menu->addChild(toggler);
-    menu->updateLayout();
-    
-    getEditor()->m_uiItems->addObject(toggler);
+        menu->addChild(m_toggler);
+        
+        menu->updateLayout();
+    }
+    editor->m_uiItems->addObject(m_toggler);
 }
 
 void OALevelEditorLayer::updateAlignmentDraw(float dt) {

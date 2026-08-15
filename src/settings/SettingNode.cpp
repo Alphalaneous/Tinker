@@ -65,4 +65,8 @@ void SettingNodeBase::resetToDefault() {
     
 }
 
+std::shared_ptr<SettingV3> SettingNodeBase::getSetting() {
+    return m_setting;
+}
+
 }

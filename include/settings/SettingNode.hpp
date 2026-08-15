@@ -15,6 +15,8 @@ public:
     virtual void updateState();
     virtual void commit();
     virtual void resetToDefault();
+
+    std::shared_ptr<SettingV3> getSetting();
 protected:
 
     Ref<CCLabelBMFont> m_title;

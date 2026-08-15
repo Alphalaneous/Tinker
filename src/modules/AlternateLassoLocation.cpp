@@ -1,11 +1,45 @@
 #include "modules/AlternateLassoLocation.hpp"
+#include "modules/TogglerOverflow.hpp"
+#include <alphalaneous.editorsounds/include/API.hpp>
+
+bool AlternateLassoLocation::onToggled(bool state) {
+    if (!state) {
+        auto buttonsMenu = getEditor()->getChildByID("editor-buttons-menu");
+        if (!buttonsMenu) return true;
+
+        auto lassoMenu = buttonsMenu->getChildByID("undefined0.lasso-select/lasso-button-menu");
+        if (!lassoMenu) return true;
+
+        if (m_originalToggler) {
+            lassoMenu->addChild(m_originalToggler);
+        }
+        m_newToggler->removeFromParent();
+        m_newToggler = nullptr;
+
+        auto togglesMenu = getEditor()->getChildByID("toolbar-toggles-menu");
+        if (!togglesMenu) return true;
+
+        togglesMenu->updateLayout();
+    }
+    else {
+        onEditor();
+    }
+
+    if (TogglerOverflow::isEnabled()) {
+        TogglerOverflow::get()->updateContainer();
+    }
+
+    return true;
+}
 
 void AlternateLassoLocation::onEditor() {
-    auto togglesMenu = getEditor()->getChildByID("toolbar-toggles-menu");
+    auto editor = getEditor();
+
+    auto togglesMenu = editor->getChildByID("toolbar-toggles-menu");
     if (!togglesMenu) return;
 
-    getEditor()->runAction(CallFuncExt::create([this] {   
-        auto buttonsMenu = getEditor()->getChildByID("editor-buttons-menu");
+    editor->runAction(CallFuncExt::create([this, editor] {   
+        auto buttonsMenu = editor->getChildByID("editor-buttons-menu");
         if (!buttonsMenu) return;
 
         auto lassoMenu = buttonsMenu->getChildByID("undefined0.lasso-select/lasso-button-menu");
@@ -28,14 +62,15 @@ void AlternateLassoLocation::onEditor() {
     sprOn->setContentSize({40.f, 40.f});
     sprOff->setContentSize({40.f, 40.f});
 
-    auto toggler = CCMenuItemToggler::create(sprOn, sprOff, getEditor(), menu_selector(AlternateLassoLocation::onLasso));
-    toggler->setID("undefined0.lasso-select/lasso-button-toggler");
-    toggler->toggle(tinker::utils::getMod<"undefined0.lasso-select">()->getSavedValue<bool>("use-lasso", true));
+    m_newToggler = CCMenuItemToggler::create(sprOn, sprOff, getEditor(), menu_selector(AlternateLassoLocation::onLasso));
+    m_newToggler->setID("undefined0.lasso-select/lasso-button-toggler");
+    m_newToggler->toggle(tinker::utils::getMod<"undefined0.lasso-select">()->getSavedValue<bool>("use-lasso", true));
+    alpha::editor_sounds::assignToMenuItem(m_newToggler, "toolbar-toggles");
 
-    togglesMenu->addChild(toggler);
+    togglesMenu->addChild(m_newToggler);
     togglesMenu->updateLayout();
         
-    getEditor()->m_uiItems->addObject(toggler);
+    editor->m_uiItems->addObject(m_newToggler);
 }
 
 void AlternateLassoLocation::onLasso(CCObject* sender) {

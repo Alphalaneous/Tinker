@@ -32,6 +32,10 @@
 			"version": "v0.5.4-beta.1",
 			"required": false
 		},
+		"alphalaneous.editorsounds": {
+			"version": "v1.3.0",
+			"required": false
+		},
 		"geode.devtools": {
 			"version": "v1.14.0",
 			"required": false
@@ -142,6 +146,12 @@
 			"default": true,
 			"name": "Enable Slope Direction Indicators",
 			"description": "Show the front and back of slopes when selected to assist with not inverting slopes."
+		},
+		"TogglerOverflow-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Toggler Overflow Menu",
+			"description": "If there are more than 4 togglers shown in the bottom right menu, hide them and show extras in an overflow menu instead"
 		},
 		"ZoomText-enabled": {
 			"type": "bool",

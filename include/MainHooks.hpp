@@ -57,6 +57,8 @@ class $modify(MainEditorUI, EditorUI) {
     void updateZoom(float zoom);
     void updateObjectInfoLabel();
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
+    void enableButton_(CreateMenuItem* button);
+    void disableButton_(CreateMenuItem* button);
 
     bool isUIVisible();
     static MainEditorUI* get();

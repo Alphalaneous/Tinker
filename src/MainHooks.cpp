@@ -201,6 +201,54 @@ void MainEditorUI::deactivateScaleControl() {
     EditorUI::deactivateScaleControl();
 }
 
+void MainEditorUI::enableButton_(CreateMenuItem* button) {
+    auto sprite = static_cast<ButtonSprite*>(button->getNormalImage());
+    if (sprite->m_subBGSprite) {
+        sprite->m_subBGSprite->setColor({255, 255, 255});
+    }
+    else if (sprite->m_BGSprite) {
+        sprite->m_BGSprite->setColor({255, 255, 255});
+    }
+
+    if (button->m_objectID < 0) return;
+
+    auto object = static_cast<EffectGameObject*>(sprite->m_subSprite);
+    if (object->m_classType == GameObjectClassType::Effect && object->isColorObject() && object->m_shouldPreview) {
+        object->setObjectColor({200, 200, 255});
+    }
+    else {
+        auto objectID = object->m_objectID;
+        if (objectID == 918 || objectID == 919 || (objectID != 1584 && objectID != 2012) && object->getMainColorMode() != 1010) {
+            object->setObjectColor({255, 255, 255});
+        }
+        else {
+            object->setObjectColor({0, 0, 0});
+        }
+    }
+    object->setChildColor({200, 200, 255});
+}
+
+void MainEditorUI::disableButton_(CreateMenuItem* button) {
+    auto sprite = static_cast<ButtonSprite*>(button->getNormalImage());
+    if (sprite->m_subBGSprite) {
+        sprite->m_subBGSprite->setColor({127, 127, 127});
+    }
+
+    else if (sprite->m_BGSprite) {
+        sprite->m_BGSprite->setColor({127, 127, 127});
+    }
+    if (button->m_objectID < 0) return;
+
+    auto object = static_cast<EffectGameObject*>(sprite->m_subSprite);
+    if (object->m_classType == GameObjectClassType::Effect && object->isColorObject() && object->m_shouldPreview) {
+        object->setObjectColor({100, 100, 127});
+    }
+    else {
+        object->setObjectColor({127, 127, 127});
+    }
+    object->setChildColor({100, 100, 127});
+}
+
 void MainEditorUI::updateCreateMenu(bool selectTab) {
     if (m_selectedMode != 2) {
         m_createButtonBar->setVisible(false);
@@ -208,20 +256,24 @@ void MainEditorUI::updateCreateMenu(bool selectTab) {
         return;
     }
 
+    if (m_selectedObjectIndex == 749) {
+        m_selectedObjectIndex = 0;
+    }
+
     m_createButtonBar->setVisible(true);
     m_tabsMenu->setVisible(true);
 
     for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
-        enableButton(item);
+        enableButton_(item);
     }
 
     for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
-        enableButton(item);
+        enableButton_(item);
     }
 
     for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
         if (item->m_objectID == m_selectedObjectIndex) {
-            disableButton(item);
+            disableButton_(item);
             if (!selectTab) {
                 return;
             }
@@ -233,7 +285,7 @@ void MainEditorUI::updateCreateMenu(bool selectTab) {
 
     for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
         if (item->m_objectID == m_selectedObjectIndex) {
-            disableButton(item);
+            disableButton_(item);
             if (!selectTab) {
                 return;
             }

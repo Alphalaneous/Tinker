@@ -1,6 +1,7 @@
 #include "nodes/TooltipHover.hpp"
 #include "misc/ObjectNames.hpp"
 #include "modules/ScrollableObjects.hpp"
+#include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
 #include "modules/ObjectTooltips.hpp"
 #include "InputsHandler.hpp"
@@ -22,7 +23,7 @@ TooltipHover* TooltipHover::create() {
 bool TooltipHover::init() {
     setAnchorPoint({0.f, 0.f});
     setID("tooltip-hover-node"_spr);
-    setZOrder(500);
+    setZOrder(1000);
     setContentSize(CCDirector::get()->getWinSize());
 
     m_tooltipBG = NineSlice::create("square02_001.png");
@@ -110,11 +111,21 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
     auto origItem = m_activeItem;
     if (origItem) setButtonOpacity(origItem, 255);
 
-    bool isInObjectGroups = false;
+    bool shouldSkip = false;
+
+    if (TogglerOverflow::isEnabled()) {
+        auto node = TogglerOverflow::get()->m_container;
+
+        if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
+            shouldSkip = true;
+            hideTooltip();
+            m_activeItem = nullptr;
+        }
+    }
 
     for (auto& [node, items] : ObjectTooltips::get()->getObjectGroups()) {
         if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
-            isInObjectGroups = true;
+            shouldSkip = true;
 
             if (!items.contains(m_activeItem)) {
                 hideTooltip();
@@ -145,7 +156,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
 
     if (!editButtonBar->m_hasCreateItems) return;
 
-    if (!isInObjectGroups) {
+    if (!shouldSkip) {
         if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
             m_activeItem = nullptr;
         }

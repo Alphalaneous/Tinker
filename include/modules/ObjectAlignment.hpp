@@ -26,6 +26,7 @@ class $module(ObjectAlignment) {
     bool m_alignActive;
     bool m_alignToggled;
     CCDrawNode* m_alignmentNode;
+    Ref<CCMenuItemToggler> m_toggler;
     SnapEdge m_closestEdges;
 };
 

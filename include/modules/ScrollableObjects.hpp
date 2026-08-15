@@ -50,6 +50,7 @@ class $modify(SOEditButtonBar, EditButtonBar) {
         int m_cols;
 
         bool m_initialized;
+        bool m_loading;
 
         CCRect m_world;
 

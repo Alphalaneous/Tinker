@@ -1,5 +1,7 @@
 #include "modules/AutoBuildHelper.hpp"
+#include "modules/TogglerOverflow.hpp"
 #include "MainHooks.hpp"
+#include <alphalaneous.editorsounds/include/API.hpp>
 
 void AutoBuildHelper::removeFromEditorUI() {
     if (!m_bhToggler) return;
@@ -11,6 +13,10 @@ void AutoBuildHelper::removeFromEditorUI() {
         menu->updateLayout();
     }
     m_bhToggler = nullptr;
+
+    if (TogglerOverflow::isEnabled()) {
+        TogglerOverflow::get()->updateContainer();
+    }
 }
 
 void AutoBuildHelper::removeFromPause() {
@@ -88,6 +94,7 @@ void AutoBuildHelper::showOnEditorUI() {
 
     m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, getEditor(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
+    alpha::editor_sounds::assignToMenuItem(m_bhToggler, "toolbar-toggles");
 
     bool isToggled = Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false);
 
@@ -98,6 +105,10 @@ void AutoBuildHelper::showOnEditorUI() {
     menu->updateLayout();
     
     getEditor()->m_uiItems->addObject(m_bhToggler);
+
+    if (TogglerOverflow::isEnabled()) {
+        TogglerOverflow::get()->updateContainer();
+    }
 }
 
 void AutoBuildHelper::showOnPause() {

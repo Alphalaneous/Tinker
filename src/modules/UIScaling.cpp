@@ -356,6 +356,9 @@ void UIScaling::setScaling(bool fullReload) {
 
     if (editor->m_tabsMenu) {
         editor->m_tabsMenu->setScale(toolbarScale);
+        editor->setContentWidth(winSize.width - getSafeOffset().x * 2.f);
+        alpha::editor_tabs::updateTabMenu();
+        editor->setContentWidth(winSize.width);
         editor->m_tabsMenu->setPosition({winSize.width / 2.f, editor->m_toolbarHeight - 1.f});
         editor->m_tabsMenu->setAnchorPoint({0.5f, 0.f});
     }
@@ -443,8 +446,6 @@ void UIScaling::setScaling(bool fullReload) {
         editor->m_deleteMenu->setPosition({winSize.width / 2.f, editor->m_toolbarHeight / 2.f});
         editor->m_deleteMenu->setScale(toolbarScale);
     }
-
-    alpha::editor_tabs::updateTabMenu();
 
     if (objectGroupsRowMenu) {
         objectGroupsRowMenu->setScale(0.561f * m_scale);

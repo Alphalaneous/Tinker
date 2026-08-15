@@ -235,260 +235,270 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
     setUserFlag("alphalaneous.editortab_api/disable-rewrite");
     auto editorUI = EditorUI::get();
-    if (!editorUI || !ScrollableObjects::get()->shouldLoadBars()) return;
+    if (!editorUI || !ScrollableObjects::get()->shouldLoadBars() || fields->m_loading) return;
 
-    float currentX = 0;
+    float currentX = 0.f;
+    fields->m_loading = true;
 
     if (fields->m_scrollLayer) {
         currentX = fields->m_scrollLayer->getScrollPoint().x;
         fields->m_scrollLayer->removeFromParent();
+        fields->m_scrollLayer = nullptr;
     }
     if (fields->m_scrollBar) {
         fields->m_scrollBar->removeFromParent();
+        fields->m_scrollBar = nullptr;
     }
     if (fields->m_objectsMenu) {
         fields->m_objectsMenu->removeFromParent();
+        fields->m_objectsMenu = nullptr;
     }
     if (fields->m_extrasMenu) {
         fields->m_extrasMenu->removeFromParent();
+        fields->m_extrasMenu = nullptr;
     }
     if (fields->m_extrasMenuContainer) {
         fields->m_extrasMenuContainer->removeFromParent();
+        fields->m_extrasMenuContainer = nullptr;
     }
     if (fields->m_separator) {
         fields->m_separator->removeFromParent();
+        fields->m_separator = nullptr;
     }
 
-    fields->m_widthOffset = 0.f;
+    runAction(CallFuncExt::create([this, fields, editorUI, rows, objects, currentX] {
+        fields->m_widthOffset = 0.f;
 
-    if (m_tabIndex == 13 || !fields->m_extrasButtons.empty()) {
-        fields->m_widthOffset = -26.f;
-    }
-
-    setAnchorPoint({0.5f, 0.f});
-
-    fields->m_initialized = true;
-    float widthOffset = 180.f;
-
-    auto spacerLeft = editorUI->getChildByID("spacer-line-left");
-    auto spacerRight = editorUI->getChildByID("spacer-line-right");
-
-    if (spacerLeft && spacerRight) {
-        widthOffset = spacerLeft->getPositionX() + (editorUI->getContentWidth() - spacerRight->getPositionX());
-    }
-
-    auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), tinker::constants::ToolbarHeight};
-    setContentSize(size);
-
-    if (spacerLeft && spacerRight) {
-        float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2.f;
-        setPosition({x, 0.f});
-    }
-    else {
-        setPosition({getContentWidth() / 2.f, 0.f});
-    }
-
-    auto dots = getChildByID("alphalaneous.editortab_api/dots");
-    if (dots) {
-        dots->setVisible(false);
-    }
-
-    float scrollHeight = ScrollableObjects::getSetting<float, "scrollbar-height">();
-    float scrollPadding = 2.f;
-    float topPadding = 6.f;
-    float bottomPadding = ScrollableObjects::getSetting<float, "y-offset">();
-
-    auto newSize = CCSize{size.width + fields->m_widthOffset, size.height - scrollHeight - scrollPadding - bottomPadding - topPadding};
-
-    float gap = 5.f;
-    float height = rows * (40.f + gap) - gap; 
-
-    float scale = (newSize.height) / height;
-    fields->m_rows = rows;
-
-
-    fields->m_objectsMenu = CCMenu::create();
-    fields->m_objectsMenu->setContentSize({newSize.width, height});
-    fields->m_objectsMenu->setScale(scale);
-    fields->m_objectsMenu->setAnchorPoint({0.f, 0.f});
-    fields->m_objectsMenu->setPosition({0.f, 0.f});
-    fields->m_objectsMenu->setID("items-menu"_spr);
-
-    std::vector<Ref<CreateMenuItem>> customControls;
-
-    int rIdx = objects->count();
-
-    int rowIdx = 0;
-    int colIdx = 0;
-
-    float width = 0.f;
-
-    for (auto object : objects->asExt<CCNode>()) {
-        rIdx--;
-        object->removeFromParentAndCleanup(false);
-        object->setScale(1);
-        object->setVisible(true);
-
-        if (m_hasCreateItems) {
-            auto cmi = static_cast<CreateMenuItem*>(object);
-            cmi->m_tabIndex = m_tabIndex;
-            cmi->m_baseScale = 1.f;
-        }
-        else if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
-            item->m_baseScale = 1.f;
+        if (m_tabIndex == 13 || !fields->m_extrasButtons.empty()) {
+            fields->m_widthOffset = -26.f;
         }
 
-        if (m_tabIndex == 13 && rIdx < 4) {
-            customControls.push_back(static_cast<CreateMenuItem*>(object));
-            continue;
+        setAnchorPoint({0.5f, 0.f});
+
+        fields->m_initialized = true;
+        float widthOffset = 180.f;
+
+        auto spacerLeft = editorUI->getChildByID("spacer-line-left");
+        auto spacerRight = editorUI->getChildByID("spacer-line-right");
+
+        if (spacerLeft && spacerRight) {
+            widthOffset = spacerLeft->getPositionX() + (editorUI->getContentWidth() - spacerRight->getPositionX());
         }
 
-        object->setPosition({object->getContentWidth() / 2.f + (object->getContentWidth() + gap) * colIdx, fields->m_objectsMenu->getContentHeight() - object->getContentHeight() / 2.f - (object->getContentHeight() + gap) * rowIdx});
+        auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), tinker::constants::ToolbarHeight};
+        setContentSize(size);
 
-        if (rowIdx == 0) {
-            width += object->getContentWidth() + gap;
-        }
-
-        fields->m_objectsMenu->addChild(object);
-        fields->m_items.push_back(object);
-
-        rowIdx++;
-        if (rowIdx == rows) {
-            rowIdx = 0;
-            colIdx++;
-        }
-    }
-
-    width -= gap;
-
-    fields->m_objectsMenu->setContentSize({width, height});
-
-    fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize);
-    fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight});
-    fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
-    fields->m_scrollLayer->setHorizontalScroll(true);
-    fields->m_scrollLayer->setHorizontalScrollWheel(true);
-    fields->m_scrollLayer->setVerticalScroll(false);
-    fields->m_scrollLayer->setTouchPriority(-130);
-    fields->m_scrollLayer->setID("buttons-scroll-layer"_spr);
-    #ifdef GEODE_IS_MOBILE
-    fields->m_scrollLayer->setScrollDelta(2.5f);
-    #else
-    fields->m_scrollLayer->setScrollDelta(1.5f);
-    #endif
-    
-    fields->m_scrollLayer->setCullingMethod([this, fields](CCNode* content, const CCPoint& scroll) {
-        cull(fields, scroll.x);
-    });
-
-    fields->m_scrollLayout = RowLayout::create();
-    fields->m_scrollLayout->setAutoScale(false);
-    fields->m_scrollLayout->setAutoGrowAxis(fields->m_scrollLayer->getContentWidth());
-    fields->m_scrollLayout->ignoreInvisibleChildren(false);
-    fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Start);
-    fields->m_scrollLayout->setCrossAxisLineAlignment(AxisAlignment::End);
-
-    fields->m_scrollLayout->setGap(0);
-    fields->m_scrollLayer->setLayout(fields->m_scrollLayout);
-
-    fields->m_scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_scrollLayer, alpha::ui::ScrollOrientation::HORIZONTAL);
-    fields->m_scrollBar->setContentWidth(scrollHeight);
-    fields->m_scrollBar->setContentHeight(newSize.width - 10.f);
-    fields->m_scrollBar->setPosition({fields->m_scrollBar->getPosition().x, bottomPadding + scrollHeight / 2.f});
-    fields->m_scrollBar->setID("buttons-scroll-bar"_spr);
-
-    addChild(fields->m_scrollLayer);
-    addChild(fields->m_scrollBar);
-
-    auto spacerStart = CCNode::create();
-    spacerStart->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
-    auto spacerEnd = CCNode::create();
-    spacerEnd->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
-
-    fields->m_scrollLayer->addChild(spacerStart);
-    fields->m_scrollLayer->addChild(fields->m_objectsMenu);
-    fields->m_scrollLayer->addChild(spacerEnd);
-
-    fields->m_scrollLayer->updateLayout();
-
-    fields->m_scrollLayer->setScrollX(currentX);
-
-    float btnWidth = 40.f + gap;
-    fields->m_cols = std::ceil((fields->m_scrollLayer->getContentWidth() / fields->m_objectsMenu->getScale()) / btnWidth);
-
-    bool larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
-
-    bool editTabBar = getID() == "edit-tab-bar";
-
-    if ((!larger && m_tabIndex != 13) || editTabBar) {
-
-        AxisLayout* layout = nullptr;
-
-        if (!editTabBar) {
-            fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20.f) / scale);
-            fields->m_scrollLayer->setHorizontalScroll(false);
-            layout = RowLayout::create();
+        if (spacerLeft && spacerRight) {
+            float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2.f;
+            setPosition({x, 0.f});
         }
         else {
-            layout = ColumnLayout::create();
-        }
-        
-        fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Center);
-        
-        layout->setAutoScale(false);
-        layout->setGrowCrossAxis(true);
-        layout->ignoreInvisibleChildren(false);
-        layout->setGap(gap);
-        layout->setAxis(Axis::Row);
-        layout->setAutoGrowAxis(std::nullopt);
-        layout->setAxisReverse(false);
-        layout->setCrossAxisReverse(false);
-        layout->setAxisAlignment(AxisAlignment::Start);
-
-        fields->m_objectsMenu->setLayout(layout);
-
-        float maxX = 0.f;
-
-        for (auto child : fields->m_objectsMenu->getChildrenExt()) {
-            auto bb = child->boundingBox();
-            if (bb.getMaxX() > maxX) maxX = bb.getMaxX();
+            setPosition({getContentWidth() / 2.f, 0.f});
         }
 
-        fields->m_objectsMenu->setContentWidth(maxX);
+        auto dots = getChildByID("alphalaneous.editortab_api/dots");
+        if (dots) {
+            dots->setVisible(false);
+        }
+
+        float scrollHeight = ScrollableObjects::getSetting<float, "scrollbar-height">();
+        float scrollPadding = 2.f;
+        float topPadding = 6.f;
+        float bottomPadding = ScrollableObjects::getSetting<float, "y-offset">();
+
+        auto newSize = CCSize{size.width + fields->m_widthOffset, size.height - scrollHeight - scrollPadding - bottomPadding - topPadding};
+
+        float gap = 5.f;
+        float height = rows * (40.f + gap) - gap; 
+
+        float scale = (newSize.height) / height;
+        fields->m_rows = rows;
+
+
+        fields->m_objectsMenu = CCMenu::create();
+        fields->m_objectsMenu->setContentSize({newSize.width, height});
+        fields->m_objectsMenu->setScale(scale);
+        fields->m_objectsMenu->setAnchorPoint({0.f, 0.f});
+        fields->m_objectsMenu->setPosition({0.f, 0.f});
+        fields->m_objectsMenu->setID("items-menu"_spr);
+
+        std::vector<Ref<CreateMenuItem>> customControls;
+
+        int rIdx = objects->count();
+
+        int rowIdx = 0;
+        int colIdx = 0;
+
+        float width = 0.f;
+
+        for (auto object : objects->asExt<CCNode>()) {
+            rIdx--;
+            object->removeFromParentAndCleanup(false);
+            object->setScale(1);
+            object->setVisible(true);
+
+            if (m_hasCreateItems) {
+                auto cmi = static_cast<CreateMenuItem*>(object);
+                cmi->m_tabIndex = m_tabIndex;
+                cmi->m_baseScale = 1.f;
+            }
+            else if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
+                item->m_baseScale = 1.f;
+            }
+
+            if (m_tabIndex == 13 && rIdx < 4) {
+                customControls.push_back(static_cast<CreateMenuItem*>(object));
+                continue;
+            }
+
+            object->setPosition({object->getContentWidth() / 2.f + (object->getContentWidth() + gap) * colIdx, fields->m_objectsMenu->getContentHeight() - object->getContentHeight() / 2.f - (object->getContentHeight() + gap) * rowIdx});
+
+            if (rowIdx == 0) {
+                width += object->getContentWidth() + gap;
+            }
+
+            fields->m_objectsMenu->addChild(object);
+            fields->m_items.push_back(object);
+
+            rowIdx++;
+            if (rowIdx == rows) {
+                rowIdx = 0;
+                colIdx++;
+            }
+        }
+
+        width -= gap;
+
+        fields->m_objectsMenu->setContentSize({width, height});
+
+        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize);
+        fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight});
+        fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
+        fields->m_scrollLayer->setHorizontalScroll(true);
+        fields->m_scrollLayer->setHorizontalScrollWheel(true);
+        fields->m_scrollLayer->setVerticalScroll(false);
+        fields->m_scrollLayer->setTouchPriority(-130);
+        fields->m_scrollLayer->setID("buttons-scroll-layer"_spr);
+        #ifdef GEODE_IS_MOBILE
+        fields->m_scrollLayer->setScrollDelta(2.5f);
+        #else
+        fields->m_scrollLayer->setScrollDelta(1.5f);
+        #endif
+        
+        fields->m_scrollLayer->setCullingMethod([this, fields](CCNode* content, const CCPoint& scroll) {
+            cull(fields, scroll.x);
+        });
+
+        fields->m_scrollLayout = RowLayout::create();
+        fields->m_scrollLayout->setAutoScale(false);
+        fields->m_scrollLayout->setAutoGrowAxis(fields->m_scrollLayer->getContentWidth());
+        fields->m_scrollLayout->ignoreInvisibleChildren(false);
+        fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Start);
+        fields->m_scrollLayout->setCrossAxisLineAlignment(AxisAlignment::End);
+
+        fields->m_scrollLayout->setGap(0);
+        fields->m_scrollLayer->setLayout(fields->m_scrollLayout);
+
+        fields->m_scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_scrollLayer, alpha::ui::ScrollOrientation::HORIZONTAL);
+        fields->m_scrollBar->setContentWidth(scrollHeight);
+        fields->m_scrollBar->setContentHeight(newSize.width - 10.f);
+        fields->m_scrollBar->setPosition({fields->m_scrollBar->getPosition().x, bottomPadding + scrollHeight / 2.f});
+        fields->m_scrollBar->setID("buttons-scroll-bar"_spr);
+
+        addChild(fields->m_scrollLayer);
+        addChild(fields->m_scrollBar);
+
+        auto spacerStart = CCNode::create();
+        spacerStart->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
+        auto spacerEnd = CCNode::create();
+        spacerEnd->setContentSize({10.f, fields->m_scrollLayer->getContentHeight() - 5.f});
+
+        fields->m_scrollLayer->addChild(spacerStart);
+        fields->m_scrollLayer->addChild(fields->m_objectsMenu);
+        fields->m_scrollLayer->addChild(spacerEnd);
 
         fields->m_scrollLayer->updateLayout();
 
-        larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
-    }
+        fields->m_scrollLayer->setScrollX(currentX);
 
-    fields->m_scrollBar->setVisible(larger);
+        float btnWidth = 40.f + gap;
+        fields->m_cols = std::ceil((fields->m_scrollLayer->getContentWidth() / fields->m_objectsMenu->getScale()) / btnWidth);
 
-    createExtrasMenu();
+        bool larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
 
-    if (m_tabIndex == 13) {
-        fields->m_separator->setVisible(true);
+        bool editTabBar = getID() == "edit-tab-bar";
 
-        for (const auto& item : customControls) {
-            item->removeFromParent();
-            fields->m_extrasMenu->addChild(item);
+        if ((!larger && m_tabIndex != 13) || editTabBar) {
+
+            AxisLayout* layout = nullptr;
+
+            if (!editTabBar) {
+                fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20.f) / scale);
+                fields->m_scrollLayer->setHorizontalScroll(false);
+                layout = RowLayout::create();
+            }
+            else {
+                layout = ColumnLayout::create();
+            }
+            
+            fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Center);
+            
+            layout->setAutoScale(false);
+            layout->setGrowCrossAxis(true);
+            layout->ignoreInvisibleChildren(false);
+            layout->setGap(gap);
+            layout->setAxis(Axis::Row);
+            layout->setAutoGrowAxis(std::nullopt);
+            layout->setAxisReverse(false);
+            layout->setCrossAxisReverse(false);
+            layout->setAxisAlignment(AxisAlignment::Start);
+
+            fields->m_objectsMenu->setLayout(layout);
+
+            float maxX = 0.f;
+
+            for (auto child : fields->m_objectsMenu->getChildrenExt()) {
+                auto bb = child->boundingBox();
+                if (bb.getMaxX() > maxX) maxX = bb.getMaxX();
+            }
+
+            fields->m_objectsMenu->setContentWidth(maxX);
+
+            fields->m_scrollLayer->updateLayout();
+
+            larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
         }
-        fields->m_extrasMenu->updateLayout();
-    }
-    else {
-        if (!fields->m_extrasButtons.empty()) {
+
+        fields->m_scrollBar->setVisible(larger);
+
+        createExtrasMenu();
+
+        if (m_tabIndex == 13) {
             fields->m_separator->setVisible(true);
+
+            for (const auto& item : customControls) {
+                item->removeFromParent();
+                fields->m_extrasMenu->addChild(item);
+            }
+            fields->m_extrasMenu->updateLayout();
+        }
+        else {
+            if (!fields->m_extrasButtons.empty()) {
+                fields->m_separator->setVisible(true);
+            }
+
+            for (const auto& item : fields->m_extrasButtons) {
+                item->removeFromParent();
+                fields->m_extrasMenu->addChild(item);
+            }
+            fields->m_extrasMenu->updateLayout();
         }
 
-        for (const auto& item : fields->m_extrasButtons) {
-            item->removeFromParent();
-            fields->m_extrasMenu->addChild(item);
-        }
-        fields->m_extrasMenu->updateLayout();
-    }
+        fields->m_world = alpha::utils::rectToWorld(fields->m_scrollLayer);
+        fields->m_loading = false;
 
-    fields->m_world = alpha::utils::rectToWorld(fields->m_scrollLayer);
-
-    cull(fields, fields->m_scrollLayer->getScrollPoint().x);
+        cull(fields, fields->m_scrollLayer->getScrollPoint().x);
+    }));
 }
 
 void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
