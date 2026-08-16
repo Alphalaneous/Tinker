@@ -25,8 +25,10 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     setAnchorPoint({1.f, 0.f});
     setContentSize({90.f + LeftOffset, Height});
     ignoreAnchorPointForPosition(false);
+    setID("toolbar-toggler-overflow"_spr);
 
     m_background = NineSlice::create("square02_001.png");
+    m_background->setID("background"_spr);
     m_background->setOpacity(40);
     m_background->setZOrder(-1);
     m_background->setAnchorPoint({0.f, 0.f});
@@ -34,6 +36,7 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     addChild(m_background);
 
     m_mainMenu = CCMenu::create();
+    m_mainMenu->setID("main-menu"_spr);
     m_mainMenu->setAnchorPoint({0.f, 0.f});
     m_mainMenu->setContentSize(getContentSize());
     m_mainMenu->setLayout(ColumnLayout::create()
@@ -50,22 +53,28 @@ bool ToggleContainer::init(EditorUI* editorUI) {
 
     addChild(m_mainMenu);
 
-    m_background->setContentSize(m_mainMenu->getScaledContentSize() + CCSize{m_background->getInsetRight() + LeftOffset, 0.f});
-
     m_separator = CCSprite::createWithSpriteFrameName("edit_vLine_001.png");
     m_separator->setPosition({11.5f, getContentHeight() / 2.f});
+    m_separator->setScale(1 / ScaleMult);
+    m_separator->setID("separator"_spr);
 
     addChild(m_separator);
 
     auto arrowContainer = CCNode::create();
     arrowContainer->setAnchorPoint({0.5f, 0.5f});
+    arrowContainer->setID("arrow-container"_spr);
 
     auto arrowOn = CCSprite::createWithSpriteFrameName("edit_leftBtn_001.png");
     arrowOn->setFlipX(true);
+    arrowOn->setID("arrow-on"_spr);
     auto arrowOff = CCSprite::createWithSpriteFrameName("edit_leftBtn_001.png");
+    arrowOff->setID("arrow-off"_spr);
 
     m_expandOn = CircleButtonSprite::create(arrowOn, geode::CircleBaseColor::Cyan);
+    m_expandOn->setID("expand-on"_spr);
+
     m_expandOff = CircleButtonSprite::create(arrowOff, geode::CircleBaseColor::Green);
+    m_expandOff->setID("expand-off"_spr);
 
     arrowOn->setScale(1.f);
     arrowOn->setPosition(m_expandOn->getScaledContentSize() / 2.f + CCPoint{1.f, 0.f});
@@ -93,6 +102,7 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     });
     m_expandButton->setZOrder(1);
     m_expandButton->setScale(0.35f);
+    m_expandButton->setID("expand-button"_spr);
 
     m_expandButton->setPosition({m_separator->getPositionX(), getContentHeight() / 2.f});
     addChild(m_expandButton);
@@ -108,9 +118,48 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     return true;
 }
 
-void ToggleContainer::updateContainer(bool addBack) {
-    //show(false);
+void ToggleContainer::showToggle(CCNode* node, bool show, bool animate) {
+    CCSprite* spr = nullptr;
+    CCSprite* spr2 = nullptr;
+    if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+        spr = typeinfo_cast<CCSprite*>(btn->getNormalImage());
+        btn->setEnabled(show);
+    }
+    if (auto btn = typeinfo_cast<CCMenuItemToggler*>(node)) {
+        spr = typeinfo_cast<CCSprite*>(btn->m_onButton->getNormalImage());
+        spr2 = typeinfo_cast<CCSprite*>(btn->m_offButton->getNormalImage());
+        btn->setEnabled(show);
+    }
+    if (!spr) {
+        if (auto sprite = typeinfo_cast<CCSprite*>(node)) {
+            spr = sprite;
+        }
+    }
+    auto showForSprite = [&] (CCSprite* spr) {
+        if (!spr) return;
+        spr->setCascadeOpacityEnabled(true);
+        spr->stopAllActions();
+        if (animate) {
+            if (show) {
+                spr->runAction(CCEaseOut::create(CCFadeTo::create(0.06f, 255), 2.f));
+                spr->runAction(CCEaseOut::create(CCScaleTo::create(0.06f, 1.f), 2.f));
+            }
+            else {
+                spr->runAction(CCEaseIn::create(CCFadeTo::create(0.06f, 0), 2.f));
+                spr->runAction(CCEaseIn::create(CCScaleTo::create(0.06f, 0.3f), 2.f));
+            }
+        }
+        else {
+            spr->setOpacity(show ? 255 : 0);
+            spr->setScale(show ? 1.f : 0.3f);
+        }
+    };
 
+    showForSprite(spr);
+    showForSprite(spr2);
+}
+
+void ToggleContainer::updateContainer(bool addBack) {
     m_isUsed = false;
 
     auto toolbarTogglesMenu = m_editorUI->getChildByID("toolbar-toggles-menu");
@@ -124,15 +173,17 @@ void ToggleContainer::updateContainer(bool addBack) {
         }
     }
 
-
     for (auto& node : m_nodes) {
         bool hasParent = node->getParent();
         node->removeFromParent();
         node->setZOrder(5);
         node->setScale(1);
+
         if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node.data())) {
             btn->m_baseScale = 1.f;
         }
+
+        showToggle(node, true, false);
         if (hasParent) {
             toolbarTogglesMenu->addChild(node);
         }
@@ -163,6 +214,12 @@ void ToggleContainer::updateContainer(bool addBack) {
         m_editorUI->m_rotateBtn->setZOrder(3);
         m_editorUI->m_snapBtn->setZOrder(4);
 
+        for (auto& node : m_nodes) {
+            if (node->getZOrder() == 5) {
+                showToggle(node, false, false);
+            }
+        }
+
         toolbarTogglesMenu->removeAllChildren();
 
         for (const auto& toggle : m_nodes) {
@@ -171,6 +228,8 @@ void ToggleContainer::updateContainer(bool addBack) {
 
         m_mainMenu->updateLayout();
     }
+
+    m_background->setContentSize(m_mainMenu->getScaledContentSize() + CCSize{m_background->getInsetRight() + LeftOffset + UIScaling::getSafeOffset().x / m_mainMenu->getScale(), 0.f});
 
     m_background->setVisible(m_isUsed);
     m_separator->setVisible(m_isUsed);
@@ -181,6 +240,8 @@ void ToggleContainer::updateContainer(bool addBack) {
     if (spacerLineRight) {
         spacerLineRight->setOpacity(m_isUsed ? 0 : 255);
     }
+
+    show(false);
 }
 
 void ToggleContainer::show(bool show) {
@@ -207,11 +268,20 @@ void ToggleContainer::show(bool show) {
         float x = startingX - (widthDiff * uiScale) - RightOffset * uiScale;
         runAction(CCEaseOut::create(CCMoveTo::create(0.06f, {x, getPositionY()}), 2.f));
         m_background->runAction(CCEaseOut::create(CCFadeTo::create(0.06f, 220), 2.f));
-
+        for (auto& node : m_nodes) {
+            if (node->getZOrder() == 5) {
+                showToggle(node, true, true);
+            }
+        }
     }
     else {
         runAction(CCEaseIn::create(CCMoveTo::create(0.06f, {startingX, getPositionY()}), 2.f));
         m_background->runAction(CCEaseIn::create(CCFadeTo::create(0.06f, 60), 2.f));
+        for (auto& node : m_nodes) {
+            if (node->getZOrder() == 5) {
+                showToggle(node, false, true);
+            }
+        }
     }
 }
 
@@ -222,7 +292,7 @@ void ToggleContainer::registerWithTouchDispatcher() {
 bool ToggleContainer::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     if (!m_isUsed) return false;
     
-    if (alpha::utils::isPointInsideNode(this, touch->getLocation())) {
+    if (alpha::utils::isPointInsideNode(m_background, touch->getLocation())) {
         return true;
     }
     show(false);

@@ -11,6 +11,7 @@ public:
 
     void show(bool show);
     void updateContainer(bool addBack = true);
+    void showToggle(CCNode* node, bool show, bool animate);
 
 protected:
     bool init(EditorUI* editorUI);

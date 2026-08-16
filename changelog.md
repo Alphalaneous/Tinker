@@ -1,3 +1,15 @@
+# 1.0.67
+- <c-dddddd>SIX SEVEN</c>
+- <c-dddddd>Improve Toggle Overflow Menu look when safe areas are used</c>
+- <c-dddddd>Fixed Toggle Overflow Menu closing when you are clicking inside it</c>
+- <c-dddddd>Add animations to Toggle Overflow Menu</c>
+- <c-dddddd>Fix separator line scale in Toggle Overflow Menu</c>
+- <c-dddddd>Add missing node IDs to Toggle Overflow Menu</c>
+- <c-dddddd>Add missing node IDs to Grid Controls</c>
+- <c-dddddd>Add shadows to Style Picker UI</c>
+- <c-dddddd>Add shadows to Font Picker UI</c>
+- <c-dddddd>Fix missing shadow in custom settings UI</c>
+
 # 1.0.66
 - <c-dddddd>Make toolbar UI scaling safer</c>
 - <c-dddddd>UI Scaling's Safe Area setting now properly affects tab menu pages</c>

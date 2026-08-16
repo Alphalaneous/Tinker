@@ -34,6 +34,19 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
 
     bg->addChild(leftBG);
 
+    auto sideShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    sideShadow->setOpacity(30);
+    sideShadow->setZOrder(10);
+    sideShadow->setRotation(-90.f);
+    sideShadow->setColor({0, 0, 0});
+    sideShadow->setAnchorPoint({0.5f, 0.f});
+    sideShadow->setScaleY(0.075f);
+    sideShadow->setScaleX((leftBG->getContentHeight() - 6.f) / sideShadow->getContentWidth());
+    sideShadow->setPosition({leftBG->getContentWidth() - leftBG->getInsetRight(), leftBG->getContentHeight() / 2.f});
+    sideShadow->setID("right-preview-shadow"_spr);
+
+    leftBG->addChild(sideShadow);
+
     getChildByType<CCLabelBMFont>(0)->setVisible(false);
     getChildByType<CCLabelBMFont>(1)->setVisible(false);
 
@@ -101,6 +114,31 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     scrollBG->setPosition({m_mainLayer->getContentWidth() / 2.f - centerOffset, m_mainLayer->getContentHeight() / 2.f + 5.f});
 
     m_mainLayer->addChild(scrollBG);
+
+    auto bottomShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    bottomShadow->setOpacity(30);
+    bottomShadow->setZOrder(10);
+    bottomShadow->setColor({0, 0, 0});
+    bottomShadow->setAnchorPoint({0.f, 0.f});
+    bottomShadow->setScaleY(0.075f);
+    bottomShadow->setScaleX(scrollBG->getContentWidth() / bottomShadow->getContentWidth());
+    bottomShadow->setPositionY(0.f);
+    bottomShadow->setID("bottom-scroll-shadow"_spr);
+
+    scrollBG->addChild(bottomShadow);
+
+    auto topShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    topShadow->setOpacity(30);
+    topShadow->setZOrder(10);
+    topShadow->setFlipY(true);
+    topShadow->setColor({0, 0, 0});
+    topShadow->setAnchorPoint({0.f, 1.f});
+    topShadow->setScaleY(0.075f);
+    topShadow->setScaleX(scrollBG->getContentWidth() / topShadow->getContentWidth());
+    topShadow->setPositionY(scrollBG->getScaledContentHeight());
+    topShadow->setID("top-scroll-shadow"_spr);
+
+    scrollBG->addChild(topShadow);
 
     auto scrollLayer = alpha::ui::AdvancedScrollLayer::create(scrollBG->getContentSize());
     scrollLayer->setAnchorPoint({0.f, 0.f});

@@ -79,7 +79,6 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     settingsArea->ignoreAnchorPointForPosition(false);
     settingsArea->setPosition(m_size - CCSize{rightOffset, topOffset});
     settingsArea->setID("settings-layer"_spr);
-    settingsArea->setZOrder(1);
     
     m_mainLayer->addChild(settingsArea);
 
@@ -174,6 +173,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     auto categoryArea = CCLayerColor::create(mainColor);
     categoryArea->setContentSize({m_size.width - settingsWidth - leftOffset - rightOffset, m_size.height - topOffset - bottomOffset});
     categoryArea->setAnchorPoint({0.f, 0.f});
+    categoryArea->setZOrder(1);
     categoryArea->ignoreAnchorPointForPosition(false);
     categoryArea->setPosition({leftOffset, bottomOffset});
     categoryArea->setID("category-layer"_spr);

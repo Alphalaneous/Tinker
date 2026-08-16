@@ -28,6 +28,7 @@ void GridControl::onEditor() {
         value = *next;
         updateGrid(value);
     });
+    decBtn->setID("decrement-grid-size-button"_spr);
     container->addChild(decBtn);
 
     m_input = TextInput::create(60.f, "Grid");
@@ -53,6 +54,7 @@ void GridControl::onEditor() {
         value = *next;
         updateGrid(value);
     });
+    incBtn->setID("increment-grid-size-button"_spr);
     container->addChild(incBtn);
 
     container->updateLayout();

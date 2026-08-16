@@ -43,6 +43,7 @@ protected:
     ArtPreview* m_stylePreview;
     SelectArtDelegate* m_delegate;
     std::vector<CCMenuItemToggler*> m_tabTogglers;
+    CCSprite* m_topShadow;
 
     CCNode* m_lineContainer;
     std::vector<CCMenuItemToggler*> m_lineTogglers;

@@ -44,6 +44,19 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
 
     m_mainLayer->addChild(m_stylePreview);
 
+    auto sideShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    sideShadow->setOpacity(50);
+    sideShadow->setZOrder(10);
+    sideShadow->setRotation(-90.f);
+    sideShadow->setColor({0, 0, 0});
+    sideShadow->setAnchorPoint({0.f, 0.f});
+    sideShadow->setScaleY(0.075f);
+    sideShadow->setScaleX(m_stylePreview->getContentHeight() / sideShadow->getContentWidth());
+    sideShadow->setPositionX(m_stylePreview->getContentWidth());
+    sideShadow->setID("right-preview-shadow"_spr);
+
+    m_stylePreview->addChild(sideShadow);
+
     auto foregroundBorder = geode::NineSlice::create("GJ_square07.png");
     foregroundBorder->setContentSize(m_size);
     foregroundBorder->setZOrder(10000);
@@ -101,6 +114,31 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
     m_scrollBG->setPosition({m_size.width / 2.f - centerOffset, m_size.height - 70.f});
 
     m_mainLayer->addChild(m_scrollBG);
+
+    auto bottomShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    bottomShadow->setOpacity(30);
+    bottomShadow->setZOrder(10);
+    bottomShadow->setColor({0, 0, 0});
+    bottomShadow->setAnchorPoint({0.f, 0.f});
+    bottomShadow->setScaleY(0.075f);
+    bottomShadow->setScaleX(m_scrollBG->getContentWidth() / bottomShadow->getContentWidth());
+    bottomShadow->setPositionY(0.f);
+    bottomShadow->setID("bottom-scroll-shadow"_spr);
+
+    m_scrollBG->addChild(bottomShadow);
+
+    m_topShadow = CCSprite::createWithSpriteFrameName("d_gradient_c_01_001.png");
+    m_topShadow->setOpacity(30);
+    m_topShadow->setZOrder(10);
+    m_topShadow->setFlipY(true);
+    m_topShadow->setColor({0, 0, 0});
+    m_topShadow->setAnchorPoint({0.f, 1.f});
+    m_topShadow->setScaleY(0.075f);
+    m_topShadow->setScaleX(m_scrollBG->getContentWidth() / m_topShadow->getContentWidth());
+    m_topShadow->setPositionY(m_scrollBG->getContentHeight());
+    m_topShadow->setID("top-scroll-shadow"_spr);
+
+    m_scrollBG->addChild(m_topShadow);
 
     m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(m_scrollBG->getContentSize());
     m_scrollLayer->setAnchorPoint({0.f, 0.f});
@@ -514,6 +552,7 @@ void SelectArtLayer::loadType(SelectArtType type) {
 
         m_scrollBG->setContentSize(contentSize);
         m_scrollLayer->setContentSize(m_scrollBG->getContentSize());
+        m_topShadow->setPositionY(m_scrollBG->getContentHeight());
 
         for (const auto& btn : artVec) {
             m_scrollLayer->getContentLayer()->addChild(btn);
