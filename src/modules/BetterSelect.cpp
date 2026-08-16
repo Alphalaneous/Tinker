@@ -34,6 +34,9 @@ void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
         if (key == enumKeyCodes::KEY_Left || key == enumKeyCodes::KEY_Right) {
             return;
         }
+        else if (key != enumKeyCodes::KEY_Alt && key != enumKeyCodes::KEY_LeftMenu){
+            BetterSelect::get()->stopHover();
+        }
     }
 
     EditorUI::keyDown(key, timestamp);

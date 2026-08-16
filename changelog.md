@@ -9,6 +9,7 @@
 - <c-dddddd>Add shadows to Style Picker UI</c>
 - <c-dddddd>Add shadows to Font Picker UI</c>
 - <c-dddddd>Fix missing shadow in custom settings UI</c>
+- <c-dddddd>Fix Selection Picker alt conflicts with other keybinds</c>
 
 # 1.0.66
 - <c-dddddd>Make toolbar UI scaling safer</c>
