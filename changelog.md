@@ -1,3 +1,8 @@
+# 1.0.70
+- <c-dddddd>Enable Selection Picker for mobile (for keyboard users)</c>
+- <c-dddddd>Auto disable Tinker if Multiplayer Edit is enabled.</c>
+- <c-dddddd>Attempt to fix Toggle Overflow Menu with Editor Collab</c>
+
 # 1.0.69
 - <c-dddddd>Fix a crash</c>
 - <c-dddddd>Fix link controls position on mobile</c>

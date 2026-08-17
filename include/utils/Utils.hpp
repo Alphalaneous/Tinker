@@ -24,6 +24,9 @@ namespace tinker::utils {
         Horizontal
     };
 
+    bool shouldLoadTinker();
+    bool modWillBeLoaded(ZStringView ID);
+
     float getToolbarHeight(bool checkVisible = true);
     bool isColorable(GameObject* object);
     ColorData getActiveColor(LevelEditorLayer* editorLayer, int colorID);

@@ -323,6 +323,7 @@ bool TogglerOverflow::onToggled(bool state) {
     if (!state) {
         auto editor = getEditor();
         removeEventListener("ui-scale");
+        removeEventListener("show-ui");
         m_container->updateContainer(false);
         m_container->removeFromParent();
         editor->m_uiItems->removeObject(m_container);
@@ -343,6 +344,9 @@ void TogglerOverflow::onEditor() {
 
     addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
         m_container->updateScale(scale);
+    });
+    addEventListener("show-ui", ShowUIEvent(), [this] (bool show) {
+        m_container->updateContainer();
     });
 
     if (!m_addedCallbacks) {

@@ -67,6 +67,7 @@ public:
     }
 
     static bool isEnabled() {
+        if (!tinker::utils::shouldLoadTinker()) return false;
         static constexpr auto enabledKey =
             tinker::utils::concat<Name, "-enabled">();
 

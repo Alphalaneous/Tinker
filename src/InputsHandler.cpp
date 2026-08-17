@@ -858,6 +858,8 @@ void InputEditorPauseLayer::customSetup() {
 
 class $baseModify(InputCCTextInputNode, CCTextInputNode) {
     void modify() {
+        if (!tinker::utils::shouldLoadTinker()) return;
+
         addOnEnterCallback([this] {
             auto editor = InputEditorUI::get();
             if (editor) {
@@ -876,6 +878,8 @@ class $baseModify(InputCCTextInputNode, CCTextInputNode) {
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
     void modify() {
+        if (!tinker::utils::shouldLoadTinker()) return;
+
         auto editor = InputEditorUI::get();
         if (!editor) return;
 
@@ -901,6 +905,8 @@ class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
 
 class $baseModify(BlockingGJDropDownLayer, GJDropDownLayer) {
     void modify() {
+        if (!tinker::utils::shouldLoadTinker()) return;
+
         auto editor = InputEditorUI::get();
         if (!editor) return;
 

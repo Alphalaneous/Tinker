@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.69",
+	"version": "v1.0.70",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -1099,27 +1099,23 @@
 		},
 		"BetterSelect-title": {
 			"type": "title",
-			"name": "Selection Picker",
-			"platforms": ["win", "mac"]
+			"name": "Selection Picker"
 		},
 		"BetterSelect-description": {
 			"type": "info",
 			"description": "Lets you hold a modifier while hovering an object to see all objects at that position, use scroll wheel or left and right arrows to pick which object you want to select.",
-			"color": "#000000",
-			"platforms": ["win", "mac"]
+			"color": "#000000"
 		},
 		"BetterSelect-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled",
-			"platforms": ["win", "mac"]
+			"name": "Enabled"
 		},
 		"BetterSelect-modifier": {
 			"type": "keybind",
 			"name": "Select Picker Modifier",
 			"default": ["Alt+LeftMenu"],
-			"category": "editor",
-			"platforms": ["win", "mac"]
+			"category": "editor"
 		},
 		"SingleDeselect-title": {
 			"type": "title",

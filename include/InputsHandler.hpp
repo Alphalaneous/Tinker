@@ -5,6 +5,7 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/AppDelegate.hpp>
+#include "utils/Utils.hpp"
 
 using namespace geode::prelude;
 
@@ -95,6 +96,17 @@ protected:
 
 #ifdef GEODE_IS_MOBILE
 class $modify(InputAppDelegate, AppDelegate) {
+    static void onModify(auto& self) {
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
+    }
+    
     void applicationDidEnterBackground();
 };
 #endif
@@ -103,6 +115,15 @@ class $modify(InputEditorUI, EditorUI) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
+
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
     }
 
     struct Fields {
@@ -189,5 +210,16 @@ class $modify(InputLevelEditorLayer, LevelEditorLayer) {
 };
 
 class $modify(InputEditorPauseLayer, EditorPauseLayer) {
+    static void onModify(auto& self) {
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
+    }
+
     void customSetup();
 };

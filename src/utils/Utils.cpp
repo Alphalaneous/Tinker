@@ -5,6 +5,20 @@
 
 namespace tinker::utils {
 
+    bool shouldLoadTinker() {
+        if (modWillBeLoaded("d050.multiplayeredit")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool modWillBeLoaded(ZStringView ID) {
+        auto mod = Loader::get()->getInstalledMod("d050.multiplayeredit");
+        if (mod && mod->isOrWillBeEnabled()) return true;
+        return false;
+    }
+
     void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method) {
         if (btn->getUserObject("hijack"_spr)) return;
 

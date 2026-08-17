@@ -8,10 +8,22 @@
 #include <Geode/modify/CCTouchDispatcher.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
 #include "module/ModuleBase.hpp"
+#include "utils/Utils.hpp"
 
 using namespace geode::prelude;
 
 class $modify(MainLevelEditorLayer, LevelEditorLayer) {
+
+    static void onModify(auto& self) {
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
+    }
 
     struct Fields {
         StringMap<std::shared_ptr<ModuleBase>> m_modules;
@@ -43,6 +55,15 @@ class $modify(MainEditorUI, EditorUI) {
         (void) self.setHookPriority("EditorUI::init", Priority::Late);
         (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
         (void) self.setHookPriority("EditorUI::updateCreateMenu", Priority::Replace);
+
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
     }
 
     bool init(LevelEditorLayer* editorLayer);
@@ -65,6 +86,16 @@ class $modify(MainEditorUI, EditorUI) {
 };
 
 class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
+    static void onModify(auto& self) {
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
+    }
 
     bool init(GameObject* obj, cocos2d::CCArray* objs);
 };
@@ -75,6 +106,15 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriorityPost("EditorPauseLayer::init", Priority::Late);
+
+        for (const auto& [k, v] : self.m_hooks) { 
+            v->setAutoEnable(false);
+        }
+
+        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        for (const auto& [k, v] : self.m_hooks) { 
+            (void) v->toggle(shouldLoad);
+        }
     }
 
     struct Fields {

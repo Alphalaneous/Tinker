@@ -9,6 +9,7 @@
 #include "settings/SettingsPopup.hpp"
 #include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/Utils.hpp"
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
@@ -376,7 +377,26 @@ void MainEditorPauseLayer::saveLevel() {
     EditorPauseLayer::saveLevel();
 }
 
+class $classModify(UnloadedEditLevelLayer, EditLevelLayer) {
+
+    void modify() {
+        if (tinker::utils::shouldLoadTinker()) return;
+
+        auto editBtn = static_cast<CCMenuItemSpriteExtra*>(getChildByIDRecursive("edit-button"));
+        if (!editBtn) return;
+
+        tinker::utils::hijackButton(editBtn, [] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
+            createQuickPopup("Tinker Not Loaded!", "Tinker will not load with Multiplayer Edit enabled. I do not wish to recieve Tinker bug reports for issues caused by Multiplayer Edit, so I have chosen to make it not load.", "OK", nullptr, [orig, sender] (auto alert, bool selected) {
+                orig(sender);
+            });
+        });
+    }
+
+};
+
 $on_game(ModsLoaded) {
+    if (!tinker::utils::shouldLoadTinker()) return;
+
     static std::vector<std::shared_ptr<ModuleBase>> modules;
     for (auto& [k, v] : ModuleRegistry::get()->m_modules) {
         auto& data = ModuleRegistry::get()->getData(k);
