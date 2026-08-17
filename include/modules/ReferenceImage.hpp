@@ -5,7 +5,7 @@
 #include <Geode/modify/TextGameObject.hpp>
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 
-class $module(ReferenceImage) {
+class $module(ReferenceImage, true) {
 	void onEditor();
 };
 
@@ -26,10 +26,9 @@ class $modify(RITextGameObject, TextGameObject) {
 
 	struct Fields {
 		Ref<LazySprite> m_spr;
-		bool m_isReferenceImage;
 	};
 
-	void onImageFail();
+	void onImageFail(ZStringView icon, ZStringView text);
 	void setAttributes();
 	void setupCustomSprite();
 	bool setupInitial(const std::string& path);

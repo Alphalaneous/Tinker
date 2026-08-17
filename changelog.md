@@ -1,3 +1,24 @@
+# 1.0.68
+- <c-dddddd>Mark Auto Build Helper as incompatible with Editor Collab</c>
+- <c-dddddd>Fix Preview Object Colors no longer working</c>
+- <c-dddddd>Fix Global Hooks toggling off when leaving the editor</c>
+- <c-dddddd>Fix Reference Image showing base64 path in level instead of warning text</c>
+- <c-dddddd>Toggle Overflow Menu sort should now stay consistent</c>
+- <c-dddddd>Fix negate input allowing you to negate inputs that don't support negative numbers</c>
+- <c-dddddd>Fix grid size controls accepting negative numbers (even though it did nothing anyways)</c>
+- <c-dddddd>You can now change all Start Position Tools settings without restarting the editor</c>
+- <c-dddddd>You can now change all Object Tooltips settings without restarting the editor</c>
+- <c-dddddd>You can now change all Negate Input settings without restarting the editor</c>
+- <c-dddddd>You can now toggle Object Summary without restarting the editor</c>
+- <c-dddddd>You can now toggle Object Alignment without restarting the editor</c>
+- <c-dddddd>You can now toggle Duration Drag without restarting the editor</c>
+- <c-dddddd>You can now toggle Live Colors without restarting the editor</c>
+- <c-dddddd>Fixed toggling Length In Editor not updating the position properly</c>
+- <c-dddddd>Improved Length In Editor positioning with UI Scaling</c>
+- <c-dddddd>Move Improved Link Controls into Fixes category. Allow toggling without editor restart</c>
+- <c-dddddd>Fix BetterEdit hooks not being re-enabled if Improved Font Picker was disabled</c>
+- <c-dddddd>Fix text inputs not unfocusing when pausing the editor, breaking the ability to use escape to unpause</c>
+
 # 1.0.67
 - <c-dddddd>SIX SEVEN</c>
 - <c-dddddd>Improve Toggle Overflow Menu look when safe areas are used</c>

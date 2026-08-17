@@ -1,10 +1,31 @@
 #include "modules/LiveColors.hpp"
+#include "MainHooks.hpp"
+#include "modules/UIScaling.hpp"
 #include "utils/Utils.hpp"
 #include "utils/Constants.hpp"
 #include "nodes/ColorVisualButton.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
 using namespace tinker::ui;
+
+bool LiveColors::onToggled(bool state) {
+    if (state) {
+        onEditor();
+        float scale = 1.f;
+        if (UIScaling::isEnabled()) {
+            scale = UIScaling::get()->m_scale;
+        }
+        updateUI(scale);
+    }
+    else {
+        m_colorsMenu->removeFromParent();
+        m_buttons.clear();
+        removeEventListener("ui-scale");
+        removeEventListener("show-ui");
+        getEditorLayer()->unschedule(schedule_selector(LCLevelEditorLayer::checkColors));
+    }
+    return true;
+}
 
 void LiveColors::onEditor() {
     m_colorsMenu = CCMenu::create();
@@ -25,56 +46,54 @@ void LiveColors::onEditor() {
 
     getEditorLayer()->schedule(schedule_selector(LCLevelEditorLayer::checkColors), 1.f / 60.f);
 
-    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
-        auto winSize = CCDirector::get()->getWinSize();
-
-        bool isLowScale = scale <= 0.925f;
-
-        m_colorsMenu->setScale(std::max(0.55f * scale, 0.15f));
-
-        float maxWidth = 0.f;
-        if (isLowScale) {
-            maxWidth = (winSize.width - 20.f * scale) / m_colorsMenu->getScale();
-        }
-        else {
-            maxWidth = (winSize.width - 210.f * scale) / m_colorsMenu->getScale();
-        }
-        float btnWidth = CCSprite::createWithSpriteFrameName("GJ_colorBtn_001.png")->getContentWidth();
-        m_availableBtnCount = std::floor((maxWidth + 5.f)/ (btnWidth + 5.f));
-
-        m_colorsMenu->setContentSize({maxWidth, 30.f});
-
-        m_buttons.clear();
-        m_colorsMenu->removeAllChildren();
-
-        for (int i = 0; i < m_availableBtnCount; i++) {
-            auto btn = ColorVisualButton::create(getEditor());
-            m_buttons.push_back(btn);
-            m_colorsMenu->addChild(btn);
-        }
-
-        m_lastBtnCount = 0;
-        m_colorsMenu->updateLayout();
+    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+        updateUI(scale);
     });
+    
+    addEventListener("show-ui", ShowUIEvent(), [this] (bool show) {
+        auto module = LiveColors::get();
+
+        module->m_colorsMenu->setEnabled(show);
+        if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() != "all-objects"_spr) {
+            module->m_colorsMenu->setVisible(getEditorLayer()->m_playbackMode == PlaybackMode::Playing || show);
+        }
+    });
+}
+
+void LiveColors::updateUI(float scale) {
+    auto winSize = CCDirector::get()->getWinSize();
+
+    bool isLowScale = scale <= 0.925f;
+
+    m_colorsMenu->setScale(std::max(0.55f * scale, 0.15f));
+
+    float maxWidth = 0.f;
+    if (isLowScale) {
+        maxWidth = (winSize.width - 20.f * scale) / m_colorsMenu->getScale();
+    }
+    else {
+        maxWidth = (winSize.width - 210.f * scale) / m_colorsMenu->getScale();
+    }
+    float btnWidth = CCSprite::createWithSpriteFrameName("GJ_colorBtn_001.png")->getContentWidth();
+    m_availableBtnCount = std::floor((maxWidth + 5.f)/ (btnWidth + 5.f));
+
+    m_colorsMenu->setContentSize({maxWidth, 30.f});
+
+    m_buttons.clear();
+    m_colorsMenu->removeAllChildren();
+
+    for (int i = 0; i < m_availableBtnCount; i++) {
+        auto btn = ColorVisualButton::create(getEditor());
+        m_buttons.push_back(btn);
+        m_colorsMenu->addChild(btn);
+    }
+
+    m_lastBtnCount = 0;
+    m_colorsMenu->updateLayout();
 }
 
 void LiveColors::showMenu(bool show) {
     m_colorsMenu->setVisible(show);
-}
-
-void LCEditorUI::showUI(bool show) {
-    EditorUI::showUI(show);
-    auto fields = m_fields.self();
-    fields->m_uiVisible = show;
-
-    float scale = m_positionSlider->getScale();
-
-    auto module = LiveColors::get();
-
-    module->m_colorsMenu->setEnabled(show);
-    if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() != "all-objects"_spr) {
-        module->m_colorsMenu->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing || show);
-    }
 }
 
 void LCLevelEditorLayer::checkColors(float dt) {
@@ -128,6 +147,5 @@ void LCLevelEditorLayer::checkColors(float dt) {
         heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();
     }
 
-    auto fields = static_cast<LCEditorUI*>(m_editorUI)->m_fields.self();
-    module->m_colorsMenu->setPositionY((fields->m_uiVisible ? heightOffset : 0.f) + 5.f * m_editorUI->m_positionSlider->getScale());
+    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 5.f * m_editorUI->m_positionSlider->getScale());
 }

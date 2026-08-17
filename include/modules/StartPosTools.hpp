@@ -8,6 +8,13 @@
 
 class $module(StartPosTools) {
     void onEditor();
+    void setupStartPosSwitcher();
+    void setupNoStartPosButton();
+
+    void removeStartPosSwitcher();
+    void removeNoStartPosButton();
+
+    bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 };
 
@@ -55,6 +62,8 @@ class $modify(SPTLevelEditorLayer, LevelEditorLayer) {
         bool m_fromStart = false;
         Ref<StartPosObject> m_activeStartPos;
     };
+
+    void reloadStartPositions();
 
     void addSpecial(GameObject* object);
     void removeSpecial(GameObject* object);

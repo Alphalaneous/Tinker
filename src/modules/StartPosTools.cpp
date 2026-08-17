@@ -4,10 +4,63 @@
 
 using namespace tinker::ui;
 
+bool StartPosTools::onToggled(bool state) {
+    if (state) {
+        static_cast<SPTLevelEditorLayer*>(getEditorLayer())->reloadStartPositions();
+        onEditor();
+    }
+    else {
+        auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
+
+        removeStartPosSwitcher();
+        removeNoStartPosButton();
+        fields->m_overlay->removeFromParent();
+        fields->m_overlay = nullptr;
+        fields->m_currentlyPlaying = false;
+        fields->m_fromStart = false;
+    }
+    return true;
+}
+
 bool StartPosTools::onSettingChanged(std::string_view key, const matjson::Value& value) {
-    if (key == "start-pos-switcher") return false;
-    if (key == "auto-hide-switcher") return false;
-    if (key == "hide-no-start-pos-button") return false;
+    auto state = value.asBool().unwrapOrDefault();
+    auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
+
+    if (key == "start-pos-switcher") {
+        if (state) {
+            setupStartPosSwitcher();  
+        }
+        else {
+            removeStartPosSwitcher();
+        }
+    }
+    if (key == "hide-no-start-pos-button") {
+        if (state) {
+            removeNoStartPosButton();
+        }
+        else {
+            setupNoStartPosButton();
+        }
+    }
+    if (key == "auto-hide-switcher") {
+        if (getSetting<bool, "start-pos-switcher">()) {
+            fields->m_switcherContainer->stopAllActions();
+            fields->m_switcherLabel->stopAllActions();
+
+            if (state) {
+                fields->m_switcherContainer->setOpacity(0);
+                fields->m_switcherLabel->setOpacity(0);
+                fields->m_prevButton->setVisible(false);
+                fields->m_nextButton->setVisible(false);
+            }
+            else {
+                fields->m_switcherContainer->setOpacity(160);
+                fields->m_switcherLabel->setOpacity(255);
+                fields->m_prevButton->setVisible(true);
+                fields->m_nextButton->setVisible(true);
+            }
+        }
+    }
     return true;
 }
 
@@ -18,15 +71,6 @@ void StartPosTools::onEditor() {
 	fields->m_overlay->setID("start-pos-controls"_spr);
 	getEditorLayer()->m_objectLayer->addChild(fields->m_overlay);
 
-    if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
-        auto spr = CCSprite::create("playtest-start-pos.png"_spr);
-        spr->setScale(0.75f);
-        fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, getEditor(), menu_selector(SPTEditorUI::onPlaytest));
-        fields->m_startPosBtn->setTag(1);
-        fields->m_startPosBtn->setID("playtest-no-startpos-button"_spr);
-        getEditor()->m_uiItems->addObject(fields->m_startPosBtn);
-    }
-
     auto playtestMenu = getEditor()->getChildByID("playtest-menu");
     if (playtestMenu) {
         auto layout = static_cast<AxisLayout*>(playtestMenu->getLayout());
@@ -35,99 +79,153 @@ void StartPosTools::onEditor() {
             layout->setAutoScale(false);
             layout->setAutoGrowAxis(0.f);
         }
-        if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
-            playtestMenu->addChild(fields->m_startPosBtn);
-            playtestMenu->updateLayout();
-        }
     }
+
+    if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
+        setupNoStartPosButton();
+    }
+    
     static_cast<SPTEditorUI*>(getEditor())->updatePlaytestMenu();
 
     if (StartPosTools::getSetting<bool, "start-pos-switcher">()) {
-        fields->m_switcherContainer = geode::NineSlice::create("square02b_001.png");
-        fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
-        fields->m_switcherContainer->setZOrder(500);
-        fields->m_switcherContainer->setContentSize({200.f, 30.f});
-        fields->m_switcherContainer->setPosition({getEditor()->getContentWidth() / 2.f, 20.f});
-        fields->m_switcherContainer->setID("startpos-switcher"_spr);
-        fields->m_switcherContainer->setVisible(false);
-        fields->m_switcherContainer->setColor({0, 0, 0});
+        setupStartPosSwitcher();  
+    }
+}
 
-        getEditor()->addChild(fields->m_switcherContainer);
+void StartPosTools::removeStartPosSwitcher() {
+    auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
 
-        fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
-        fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f);
-        fields->m_switcherLabel->setScale(0.5f);
-        fields->m_switcherLabel->setID("switcher-index-label"_spr);
+    removeEventListener("prev-start-pos");
+    removeEventListener("next-start-pos");
+    removeEventListener("ui-scale");
 
-        fields->m_switcherContainer->addChild(fields->m_switcherLabel);
+    fields->m_switcherContainer->removeFromParent();
+    fields->m_switcherContainer = nullptr;
+    fields->m_switcherLabel = nullptr;
+    fields->m_prevButton = nullptr;
+    fields->m_nextButton = nullptr;
+}
 
-        fields->m_prevButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
-            auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
-            editorLayer->prevStartPos();
-        });
-        fields->m_prevButton->setID("prev-button"_spr);
+void StartPosTools::removeNoStartPosButton() {
+    auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
 
-        fields->m_nextButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
-            auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
-            editorLayer->nextStartPos();
-        });
-        fields->m_nextButton->setID("next-button"_spr);
+    getEditor()->m_uiItems->removeObject(fields->m_startPosBtn);
+    fields->m_startPosBtn->removeFromParent();
+    fields->m_startPosBtn = nullptr;
 
-        fields->m_prevButton->setScale(0.5f);
-        fields->m_nextButton->setScale(0.5f);
+    auto playtestMenu = getEditor()->getChildByID("playtest-menu");
+    if (playtestMenu) {
+        playtestMenu->updateLayout();
+    }
+}
 
-        static_cast<CCSprite*>(fields->m_nextButton->getDisplayNode())->setFlipX(true);
+void StartPosTools::setupNoStartPosButton() {
+    auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
+    auto playtestMenu = getEditor()->getChildByID("playtest-menu");
 
-        fields->m_switcherContainer->addChild(fields->m_prevButton);
-        fields->m_switcherContainer->addChild(fields->m_nextButton);
+    auto spr = CCSprite::create("playtest-start-pos.png"_spr);
+    spr->setScale(0.75f);
+    fields->m_startPosBtn = CCMenuItemSpriteExtra::create(spr, getEditor(), menu_selector(SPTEditorUI::onPlaytest));
+    fields->m_startPosBtn->setTag(1);
+    fields->m_startPosBtn->setID("playtest-no-startpos-button"_spr);
+    getEditor()->m_uiItems->addObject(fields->m_startPosBtn);
+    if (playtestMenu) {
+        playtestMenu->addChild(fields->m_startPosBtn);
+        playtestMenu->updateLayout();
+    }
+}
 
-        static_cast<SPTEditorUI*>(getEditor())->updateSwitcherLabel();
+void StartPosTools::setupStartPosSwitcher() {
+    auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
 
-        if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
-            fields->m_switcherContainer->setOpacity(0);
-            fields->m_switcherLabel->setOpacity(0);
-            fields->m_prevButton->setVisible(false);
-            fields->m_nextButton->setVisible(false);
-        }
-        else {
-            fields->m_switcherContainer->setOpacity(127);
-        }
+    fields->m_switcherContainer = geode::NineSlice::create("square02b_001.png");
+    fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
+    fields->m_switcherContainer->setZOrder(500);
+    fields->m_switcherContainer->setContentSize({200.f, 30.f});
+    fields->m_switcherContainer->setPosition({getEditor()->getContentWidth() / 2.f, 20.f});
+    fields->m_switcherContainer->setID("startpos-switcher"_spr);
+    fields->m_switcherContainer->setVisible(false);
+    fields->m_switcherContainer->setColor({0, 0, 0});
 
-        addEventListener(
-            "prev-start-pos",
-            KeybindSettingPressedEvent(Mod::get(), "StartPosTools-prev-start-pos"),
-            [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
-                if (down && !repeat && getEditorLayer()->m_playbackMode == PlaybackMode::Playing) {
-                    auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
-                    editorLayer->prevStartPos();
-                }
+    getEditor()->addChild(fields->m_switcherContainer);
+
+    fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
+    fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f);
+    fields->m_switcherLabel->setScale(0.5f);
+    fields->m_switcherLabel->setID("switcher-index-label"_spr);
+
+    fields->m_switcherContainer->addChild(fields->m_switcherLabel);
+
+    fields->m_prevButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
+        auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
+        editorLayer->prevStartPos();
+    });
+    fields->m_prevButton->setID("prev-button"_spr);
+
+    fields->m_nextButton = geode::Button::createWithSpriteFrameName("GJ_arrow_02_001.png", [this] (auto sender) {
+        auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
+        editorLayer->nextStartPos();
+    });
+    fields->m_nextButton->setID("next-button"_spr);
+
+    fields->m_prevButton->setScale(0.5f);
+    fields->m_nextButton->setScale(0.5f);
+
+    static_cast<CCSprite*>(fields->m_nextButton->getDisplayNode())->setFlipX(true);
+
+    fields->m_switcherContainer->addChild(fields->m_prevButton);
+    fields->m_switcherContainer->addChild(fields->m_nextButton);
+
+    static_cast<SPTEditorUI*>(getEditor())->updateSwitcherLabel();
+
+    if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
+        fields->m_switcherContainer->setOpacity(0);
+        fields->m_switcherLabel->setOpacity(0);
+        fields->m_prevButton->setVisible(false);
+        fields->m_nextButton->setVisible(false);
+    }
+    else {
+        fields->m_switcherContainer->setOpacity(160);
+    }
+
+    addEventListener(
+        "prev-start-pos",
+        KeybindSettingPressedEvent(Mod::get(), "StartPosTools-prev-start-pos"),
+        [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+            if (down && !repeat && getEditorLayer()->m_playbackMode == PlaybackMode::Playing) {
+                auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
+                editorLayer->prevStartPos();
             }
-        );
+        }
+    );
 
-        addEventListener(
-            "next-start-pos",
-            KeybindSettingPressedEvent(Mod::get(), "StartPosTools-next-start-pos"),
-            [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
-                if (down && !repeat && getEditorLayer()->m_playbackMode == PlaybackMode::Playing) {
-                    auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
-                    editorLayer->nextStartPos();
-                }
+    addEventListener(
+        "next-start-pos",
+        KeybindSettingPressedEvent(Mod::get(), "StartPosTools-next-start-pos"),
+        [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+            if (down && !repeat && getEditorLayer()->m_playbackMode == PlaybackMode::Playing) {
+                auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
+                editorLayer->nextStartPos();
             }
-        );
+        }
+    );
 
-        addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener(
+        "ui-scale",
+        UIScaleUpdated(), 
+        [this] (float scale, bool scaleToolbars, bool fullReload) {
             if (!fullReload) return;
             static_cast<SPTEditorUI*>(getEditor())->updatePlaytestMenu();
-        });
+        }
+    );
 
-        getEditor()->runAction(CallFuncExt::create([this] {
-            auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
-            auto saved = alpha::level_storage::getSaveContainer(editorLayer, Mod::get());
-            if (saved.contains("start-pos-index")) {
-                editorLayer->setStartPosIndex(alpha::level_storage::getSavedValue<int>(editorLayer, "start-pos-index"));
-            }
-        }));
-    }
+    getEditor()->runAction(CallFuncExt::create([this] {
+        auto editorLayer = static_cast<SPTLevelEditorLayer*>(getEditorLayer());
+        auto saved = alpha::level_storage::getSaveContainer(editorLayer, Mod::get());
+        if (saved.contains("start-pos-index")) {
+            editorLayer->setStartPosIndex(alpha::level_storage::getSavedValue<int>(editorLayer, "start-pos-index"));
+        }
+    }));
 }
 
 void SPTEditorUI::showSwitcher() {
@@ -142,7 +240,7 @@ void SPTEditorUI::showSwitcher() {
     fields->m_switcherContainer->stopAllActions();
 
     fields->m_switcherLabel->setOpacity(255);
-    fields->m_switcherContainer->setOpacity(127);
+    fields->m_switcherContainer->setOpacity(160);
 
     m_editorLayer->unschedule(schedule_selector(SPTLevelEditorLayer::hideSwitcher));
     m_editorLayer->scheduleOnce(schedule_selector(SPTLevelEditorLayer::hideSwitcher), 1.f);
@@ -163,17 +261,12 @@ void SPTEditorUI::updateSwitcherLabel() {
     auto fields = m_fields.self();
     auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
 
-    float offset = 60.f;
-    if (StartPosTools::getSetting<bool, "auto-hide-switcher">()) {
-        offset = 10.f;
-    }
-
     fields->m_switcherLabel->setString(fmt::format("{} / {}", editorLayer->getActiveStartPosIndex(), editorLayer->getStartPosCount()).c_str());
-    fields->m_switcherContainer->setContentSize({fields->m_switcherLabel->getScaledContentWidth() + offset, fields->m_switcherLabel->getScaledContentHeight() + 10.f});
+    fields->m_switcherContainer->setContentSize({fields->m_switcherLabel->getScaledContentWidth() + 10.f, fields->m_switcherLabel->getScaledContentHeight() + 10.f});
     fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f + CCPoint{0.f, 0.65f});
 
-    fields->m_prevButton->setPosition({fields->m_prevButton->getScaledContentWidth() / 2.f + 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
-    fields->m_nextButton->setPosition({fields->m_switcherContainer->getContentWidth() - fields->m_nextButton->getScaledContentWidth() / 2.f - 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
+    fields->m_prevButton->setPosition({-fields->m_prevButton->getScaledContentWidth() / 2.f - 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
+    fields->m_nextButton->setPosition({fields->m_switcherContainer->getContentWidth() + fields->m_nextButton->getScaledContentWidth() / 2.f + 5.f, fields->m_switcherContainer->getContentHeight() / 2.f});
 }
 
 void SPTEditorUI::updateOverlay() {
@@ -283,6 +376,22 @@ void SPTGJBaseGameLayer::orderSpawnObjects() {
     }
     
     GJBaseGameLayer::orderSpawnObjects();
+}
+
+void SPTLevelEditorLayer::reloadStartPositions() {
+    auto fields = m_fields.self();
+
+    fields->m_startPosIndex = -1;
+    fields->m_startPosIndexReal = -1;
+    fields->m_startPositions.clear();
+    fields->m_fromStart = false;
+    fields->m_activeStartPos = nullptr;
+
+    for (auto obj : m_objects->asExt<GameObject*>()) {
+        if (obj->m_objectID == tinker::constants::objects::StartPosition) {
+            fields->m_startPositions.push_back(static_cast<StartPosObject*>(obj));
+        }
+    }
 }
 
 void SPTLevelEditorLayer::addSpecial(GameObject* object) {

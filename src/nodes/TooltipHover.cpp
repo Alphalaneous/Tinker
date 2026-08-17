@@ -46,16 +46,25 @@ bool TooltipHover::init() {
     m_tooltipBG->addChild(m_tooltipLabel);
 
     if (ObjectTooltips::getSetting<bool, "show-object-id">()) {
-        m_tooltipIDLabel = CCLabelBMFont::create("", "chatFont.fnt");
-        m_tooltipIDLabel->setScale(0.4f);
-        m_tooltipIDLabel->setID("tooltip-id-label"_spr);
-        m_tooltipIDLabel->setColor({0, 255, 0});
-        m_tooltipIDLabel->setAnchorPoint({0.f, 0.f});
-
-        m_tooltipBG->addChild(m_tooltipIDLabel);
+        addID();
     }
 
     return true;
+}
+
+void TooltipHover::addID() {
+    m_tooltipIDLabel = CCLabelBMFont::create("", "chatFont.fnt");
+    m_tooltipIDLabel->setScale(0.4f);
+    m_tooltipIDLabel->setID("tooltip-id-label"_spr);
+    m_tooltipIDLabel->setColor({0, 255, 0});
+    m_tooltipIDLabel->setAnchorPoint({0.f, 0.f});
+
+    m_tooltipBG->addChild(m_tooltipIDLabel);
+}
+
+void TooltipHover::removeID() {
+    m_tooltipIDLabel->removeFromParent();
+    m_tooltipIDLabel = nullptr;
 }
 
 void TooltipHover::resetTooltip() {

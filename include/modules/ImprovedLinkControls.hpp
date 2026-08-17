@@ -4,6 +4,7 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(ImprovedLinkControls) {
+    bool onToggled(bool state);
 };
 
 class $modify(ILCEditorUI, EditorUI) {

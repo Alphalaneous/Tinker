@@ -21,6 +21,7 @@ class $module(ObjectAlignment) {
     void onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
 
     void onEditor();
+    bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
     bool m_alignActive;

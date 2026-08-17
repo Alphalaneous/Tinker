@@ -17,6 +17,9 @@ namespace tinker::ui {
     public:
         static TooltipHover* create();
         void resetTooltip();
+        
+        void addID();
+        void removeID();
     protected:
         bool init() override;
 

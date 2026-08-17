@@ -62,7 +62,7 @@ void RICustomizeObjectLayer::onSelectMode(CCObject* sender) {
     setTextBtn();
 }
 
-void RITextGameObject::onImageFail() {
+void RITextGameObject::onImageFail(ZStringView icon, ZStringView text) {
     for (auto child : getChildrenExt()) {
         child->setVisible(false);
     }
@@ -74,15 +74,17 @@ void RITextGameObject::onImageFail() {
     node->setCascadeColorEnabled(true);
     node->setCascadeOpacityEnabled(true);
 
-    auto spr = CCSprite::createWithSpriteFrameName("image-btn.png"_spr);
+    auto spr = CCSprite::createWithSpriteFrameName(icon.c_str());
     node->addChild(spr);
 
     node->setContentSize(spr->getContentSize());
     node->setPosition(node->getContentSize() / 2.f);
     spr->setPosition(node->getContentSize() / 2.f);
 
-    auto label = CCLabelBMFont::create("Image Not Found", "chatFont.fnt");
+    auto label = CCLabelBMFont::create(text.c_str(), "chatFont.fnt");
     label->setAnchorPoint({0.5f, 0.f});
+    label->setScale(0.8f);
+    label->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
     label->setPositionX(node->getContentWidth() / 2.f);
     label->setPositionY(node->getContentHeight() + 3.f);
 
@@ -125,15 +127,9 @@ void RITextGameObject::setupCustomSprite() {
 }
 
 bool RITextGameObject::setupInitial(const std::string& path) {
-    if (!LevelEditorLayer::get()) {
-        updateTextObject("[Path Hidden, Delete Object Before Upload!]", false);
-        return false;
-    }
-    else {
-        m_addToNodeContainer = true;
-        for (auto child : getChildrenExt()) {
-            child->setVisible(false);
-        }
+    m_addToNodeContainer = true;
+    for (auto child : getChildrenExt()) {
+        child->setVisible(false);
     }
     
     if (path.empty()) return false;
@@ -145,39 +141,42 @@ void RITextGameObject::setupImage(const std::string& path) {
     auto fields = m_fields.self();
     if (fields->m_spr) fields->m_spr->removeFromParent();
 
-    auto decodedRes = utils::base64::decodeString(path);
-    if (!decodedRes) return;
+    if (LevelEditorLayer::get()) {
+        auto decodedRes = utils::base64::decodeString(path);
+        if (!decodedRes) return;
 
-    auto u16Res = utils::string::utf8ToUtf16(decodedRes.unwrap());
-    if (!u16Res) return;
+        auto u16Res = utils::string::utf8ToUtf16(decodedRes.unwrap());
+        if (!u16Res) return;
 
-    std::filesystem::path decoded = u16Res.unwrap();
+        std::filesystem::path decoded = u16Res.unwrap();
 
-    fields->m_isReferenceImage = true;
+        if (std::filesystem::exists(decoded) && !std::filesystem::is_directory(decoded)) {
+            fields->m_spr = LazySprite::create({60.f, 60.f}, true);
+            fields->m_spr->setZOrder(1);
+            fields->m_spr->setPosition(getContentSize() / 2.f);
+            fields->m_spr->setID("image-reference"_spr);
+            addChild(fields->m_spr);
 
-    if (std::filesystem::exists(decoded) && !std::filesystem::is_directory(decoded)) {
-        fields->m_spr = LazySprite::create({60.f, 60.f}, true);
-        fields->m_spr->setZOrder(1);
-        fields->m_spr->setPosition(getContentSize() / 2.f);
-        fields->m_spr->setID("image-reference"_spr);
-        addChild(fields->m_spr);
-
-        fields->m_spr->setLoadCallback([this, fields](Result<> res) {
-            if (res) setAttributes();
-            else {
-                for (auto child : getChildrenExt()) {
-                    child->setVisible(true);
+            fields->m_spr->setLoadCallback([this, fields](Result<> res) {
+                if (res) setAttributes();
+                else {
+                    for (auto child : getChildrenExt()) {
+                        child->setVisible(true);
+                    }
+                    fields->m_spr->removeFromParent();
+                    fields->m_spr = nullptr;
+                    onImageFail("image-btn.png"_spr, "Image Not Found");
                 }
-                fields->m_spr->removeFromParent();
-                fields->m_spr = nullptr;
-                onImageFail();
-            }
-        });
+            });
 
-        fields->m_spr->loadFromFile(decoded, LazySprite::Format::kFmtUnKnown, true);
+            fields->m_spr->loadFromFile(decoded, LazySprite::Format::kFmtUnKnown, true);
+        }
+        else {
+            onImageFail("image-btn.png"_spr, "Image Not Found");
+        }
     }
     else {
-        onImageFail();
+        onImageFail("image-btn.png"_spr, "Reference Hidden\nDelete Before Upload");
     }
 }
 

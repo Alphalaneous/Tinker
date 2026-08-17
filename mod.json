@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.67",
+	"version": "v1.0.68",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -90,12 +90,6 @@
 			"default": true,
 			"name": "Enable Improved Font Selection",
 			"description": "Show fonts in a scrollable view and preview text with them."
-		},
-		"ImprovedLinkControls-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Improved Link Controls",
-			"description": "Fix the link control buttons being clickable when toggled off, also fixes the size."
 		},
 		"ImprovedArtPicker-enabled": {
 			"type": "bool",
@@ -338,6 +332,12 @@
 			"name": "Toggle Trigger Visibility Fix",
 			"description": "Fix toggle trigger opacity being broken, not allowing them to be hidden properly."
 		},
+		"ImprovedLinkControls-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Fix Link Controls",
+			"description": "Fix the link control buttons being clickable when toggled off."
+		},
 		"FixLinkedTeleport-enabled": {
 			"type": "bool",
 			"default": true,
@@ -477,7 +477,9 @@
 		"AutoBuildHelper-enabled": {
 			"type": "bool",
 			"default": false,
-			"name": "Enabled"
+			"name": "Enabled",
+			"enable-if": "!loaded:alk.editor-collab",
+			"enable-if-description": "This feature is not compatible with Editor Collab."
 		},
 		"AutoBuildHelper-show-on-pause": {
 			"name": "Show on Editor Pause",

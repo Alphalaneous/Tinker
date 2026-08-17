@@ -32,7 +32,7 @@ void GridControl::onEditor() {
     container->addChild(decBtn);
 
     m_input = TextInput::create(60.f, "Grid");
-    m_input->setCommonFilter(CommonFilter::Float);
+    m_input->setFilter("0123456789.");
     m_input->setCallback([this] (std::string const& num) {
         if (auto value = numFromString<float>(num)) {
             updateGrid(value.unwrap(), false);

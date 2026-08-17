@@ -5,20 +5,22 @@ bool LengthInEditor::onToggled(bool state) {
     if (state) {
         onEditor();
         m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
+        float scale = 1.f;
+        if (UIScaling::isEnabled()) {
+            scale = UIScaling::get()->m_scale;
+        }
+        updateUI(scale);
     }
     else {
         getEditor()->m_uiItems->removeObject(m_lengthContainer);
         m_lengthContainer->removeFromParent();
+        m_lengthContainer = nullptr;
 
-        auto winSize = CCDirector::get()->getWinSize();
-        auto undoMenu = getEditor()->getChildByID("undo-menu");
-        float scale = 1.f;
-        if (undoMenu) {
-            scale = undoMenu->getScale();
-        }
+        removeEventListener("level-type-changed-event");
+        removeEventListener("object-change-event");
+        removeEventListener("ui-scale");
 
-        auto objectInfoLabel = getEditor()->getChildByID("object-info-label");
-        objectInfoLabel->setPosition({objectInfoLabel->getPositionX(), winSize.height - 50.f * scale});
+        UpdateObjectLabel().send();
     }
     return true;
 }
@@ -58,7 +60,7 @@ void LengthInEditor::onEditor() {
         getEditor()->m_uiItems->addObject(m_lengthContainer);
     }
 
-    addEventListener(LevelTypeChangedEvent(), [this] (bool isPlatformer) {
+    addEventListener("level-type-changed-event", LevelTypeChangedEvent(), [this] (bool isPlatformer) {
         if (isPlatformer) {
             getEditor()->removeChild(m_lengthContainer);
             getEditor()->m_uiItems->removeObject(m_lengthContainer);
@@ -71,26 +73,48 @@ void LengthInEditor::onEditor() {
         }
     });
 
-    addEventListener(ObjectChangeEvent(), [this] (float lastObjectX) {
+    addEventListener("object-change-event", ObjectChangeEvent(), [this] (float lastObjectX) {
         m_timeLabel->setString(getTime(lastObjectX).c_str());
     });
 
-    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         getEditor()->runAction(CallFuncExt::create([this, scale] {
-            auto undoMenu = getEditor()->getChildByID("undo-menu");
-            auto playbackMenu = getEditor()->getChildByID("playback-menu");
-
-            if (!undoMenu || !playbackMenu) return;
-            m_lengthContainer->setScale(0.5f * scale);
-            m_lengthContainer->setPosition(CCPoint{playbackMenu->getPositionX() - 2.f * scale, undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale} + UIScaling::getSafeOffset());
-
-            if (getEditor()->m_objectInfoLabel) {
-                getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 10.f * scale);
-            }
-
-            UpdateObjectLabel().send();
+            updateUI(scale);
         }));
     });
+}
+
+void LengthInEditor::updateUI(float scale) {
+    auto undoMenu = getEditor()->getChildByID("undo-menu");
+    auto playbackMenu = getEditor()->getChildByID("playback-menu");
+
+    if (!undoMenu || !playbackMenu) return;
+    m_lengthContainer->setScale(0.5f * scale);
+    m_lengthContainer->setPositionY(undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale);
+
+    auto available = tinker::utils::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::Axis::Vertical);
+    
+    float xPos = 0.f;
+    if (tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
+        xPos = 5.f * scale;
+
+        if (getEditor()->m_objectInfoLabel) {
+            auto available = tinker::utils::getAvailableSpace(m_lengthContainer, playbackMenu, tinker::utils::Axis::Vertical);
+            if (tinker::utils::nodeFits(getEditor()->m_objectInfoLabel, available, tinker::utils::Axis::Vertical)) {
+                getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 5.f * scale);
+            }
+        }
+    }
+    else {
+        xPos = playbackMenu->getPositionX() - 2.f * scale;
+        if (getEditor()->m_objectInfoLabel) {
+            getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 5.f * scale);
+        }
+    }
+
+    m_lengthContainer->setPositionX(xPos);
+
+    UpdateObjectLabel().send();
 }
 
 std::string LengthInEditor::getTime(float x) {

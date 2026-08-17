@@ -10,5 +10,5 @@ class $module(LengthInEditor) {
     bool onToggled(bool state);
 
 	std::string getTime(float x);
-
+    void updateUI(float scale);
 };

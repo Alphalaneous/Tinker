@@ -12,6 +12,7 @@
 class $module(DurationDrag) {
     tinker::ui::DurationControl* m_durationControl = nullptr;
 
+    bool onToggled(bool state);
     void onEditor();
 	void updateObjects();
 };

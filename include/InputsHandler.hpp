@@ -108,6 +108,7 @@ class $modify(InputEditorUI, EditorUI) {
     struct Fields {
         std::set<CCNode*> m_activeAlerts;
         std::set<TextInput*> m_textInputs;
+        std::set<CCTextInputNode*> m_allTextInputs;
 
         Ref<CCActionInterval> m_moveX = nullptr;
         Ref<CCActionInterval> m_moveY = nullptr;
@@ -153,6 +154,9 @@ class $modify(InputEditorUI, EditorUI) {
     void addActiveAlert(CCNode* alert);
     void removeActiveAlert(CCNode* alert);
 
+    void addActiveInput(CCTextInputNode* input);
+    void removeActiveInput(CCTextInputNode* input);
+
     bool hasActiveAlerts();
 
     bool isNaturalScrollEnabled();
@@ -173,6 +177,7 @@ class $modify(InputEditorUI, EditorUI) {
     CCMenuItemSpriteExtra* getEditButtonByTag(int tag);
 
     static void addTextInput(TextInput* input);
+    void cancelAllTextInputs();
 
     void onPause(cocos2d::CCObject* sender);
 

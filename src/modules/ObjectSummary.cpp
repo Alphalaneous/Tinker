@@ -3,6 +3,10 @@
 
 using namespace tinker::ui;
 
+bool ObjectSummary::onToggled(bool state) {
+    return true;
+}
+
 bool OSLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* layer) {
     if (!LevelSettingsLayer::init(object, layer)) return false;
 

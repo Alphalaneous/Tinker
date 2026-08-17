@@ -4,6 +4,17 @@
 
 using namespace tinker::ui;
 
+bool DurationDrag::onToggled(bool state) {
+    if (state) {
+        onEditor();
+    }
+    else {
+        m_durationControl->removeFromParent();
+        m_durationControl = nullptr;
+    }
+    return true;
+}
+
 void DDSetGroupIDLayer::onClose(cocos2d::CCObject* sender) {
     SetGroupIDLayer::onClose(sender);
     DurationDrag::get()->updateObjects();

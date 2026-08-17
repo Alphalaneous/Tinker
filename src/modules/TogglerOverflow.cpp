@@ -222,6 +222,16 @@ void ToggleContainer::updateContainer(bool addBack) {
 
         toolbarTogglesMenu->removeAllChildren();
 
+        std::sort(m_nodes.begin(), m_nodes.end(), [] (const Ref<CCNode>& left, const Ref<CCNode>& right) {
+            auto leftID = left->getID();
+            auto rightID = right->getID();
+            
+            return std::lexicographical_compare(
+                leftID.begin(), leftID.end(), rightID.begin(), rightID.end(),
+                [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); }
+            );
+        });
+
         for (const auto& toggle : m_nodes) {
             m_mainMenu->addChild(toggle);
         }

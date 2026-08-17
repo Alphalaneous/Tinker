@@ -14,22 +14,10 @@ class $module(LiveColors) {
     int m_lastBtnCount = 0;
     int m_availableBtnCount = 0;
 
+    bool onToggled(bool state);
     void onEditor();
     void showMenu(bool show);
-};
-
-class $modify(LCEditorUI, EditorUI) {
-    $registerHooks(LiveColors, true)
-
-	static void _onModify(auto& self) {
-        (void) self.setHookPriorityAfterPost("EditorUI::init", "hjfod.betteredit");
-    }
-
-    struct Fields {
-        bool m_uiVisible = true;
-    };
-    
-    void showUI(bool show);
+    void updateUI(float scale);
 };
 
 class $modify(LCLevelEditorLayer, LevelEditorLayer) {

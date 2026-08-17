@@ -3,6 +3,30 @@
 #include "utils/Utils.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
 
+bool ObjectAlignment::onToggled(bool state) {
+    if (state) {
+        onEditor();
+    }
+    else {
+        m_alignmentNode->removeFromParent();
+        removeEventListener("align-modifier-event");
+        getEditorLayer()->unschedule(schedule_selector(OALevelEditorLayer::updateAlignmentDraw));
+        getEditor()->m_uiItems->removeObject(m_toggler);
+        m_toggler->removeFromParent();
+        m_toggler = nullptr;
+        m_alignToggled = false;
+
+        auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
+        if (!menu) return true;
+
+        menu->updateLayout();
+    }
+    if (TogglerOverflow::isEnabled()) {
+        TogglerOverflow::get()->updateContainer();
+    }
+    return true;
+}
+
 bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "snap-distance" || key == "align-modifier") return true;
 
@@ -216,7 +240,7 @@ void ObjectAlignment::onEditor() {
     m_alignmentNode->setZOrder(9999);
     editorLayer->m_objectLayer->addChild(m_alignmentNode);
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "ObjectAlignment-align-modifier"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener("align-modifier-event", KeybindSettingPressedEvent(Mod::get(), "ObjectAlignment-align-modifier"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         m_alignActive = down;
     });
 

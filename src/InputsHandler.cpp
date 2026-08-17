@@ -344,6 +344,12 @@ void InputEditorUI::addTextInput(TextInput* input) {
     });
 }
 
+void InputEditorUI::cancelAllTextInputs() {
+    for (auto input : m_fields->m_allTextInputs) {
+        input->onClickTrackNode(false);
+    }
+}
+
 #ifdef GEODE_IS_MACOS
 #include <CoreFoundation/CoreFoundation.h>
 #include "utils/MacUtils.hpp"
@@ -639,6 +645,18 @@ void InputEditorUI::removeActiveAlert(CCNode* alert) {
     fields->m_activeAlerts.erase(alert);
 }
 
+void InputEditorUI::addActiveInput(CCTextInputNode* input) {
+    auto fields = m_fields.self();
+
+    fields->m_allTextInputs.insert(input);
+}
+
+void InputEditorUI::removeActiveInput(CCTextInputNode* input) {
+    auto fields = m_fields.self();
+
+    fields->m_allTextInputs.erase(input);
+}
+
 void InputEditorUI::scrollWheel(float y, float x) {
     if (!tinker::utils::getSetting<bool, "scroll-delegate-to-vanilla">()) return;
     onScroll();
@@ -816,6 +834,8 @@ void InputEditorPauseLayer::customSetup() {
     #ifndef GEODE_IS_MACOS
     if (!EditorUI::get() || getUserFlag("ignore"_spr)) return;
 
+    InputEditorUI::get()->cancelAllTextInputs();
+
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-exit-pause-menu"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down && !repeat && !InputEditorUI::get()->hasActiveAlerts()) {
             onResume(nullptr);
@@ -835,6 +855,24 @@ void InputEditorPauseLayer::customSetup() {
     });
     #endif
 }
+
+class $baseModify(InputCCTextInputNode, CCTextInputNode) {
+    void modify() {
+        addOnEnterCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->addActiveInput(this);
+            }
+        });
+
+        addOnExitCallback([this] {
+            auto editor = InputEditorUI::get();
+            if (editor) {
+                editor->removeActiveInput(this);
+            }
+        });
+    }
+};
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
     void modify() {

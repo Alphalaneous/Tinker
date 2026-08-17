@@ -10,7 +10,6 @@ class $module(PreviewObjectColors) {
     void onEditor();
     void editColor();
     void setButtonVisible(geode::Button* button);
-    void setButtonScale(geode::Button* button, float scale);
 };
 
 class $modify(POCEditorUI, EditorUI) {

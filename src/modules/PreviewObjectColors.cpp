@@ -93,9 +93,6 @@ void PreviewObjectColors::onEditor() {
     });
 }
 
-void PreviewObjectColors::setButtonScale(geode::Button* button, float scale) {
-}
-
 void PreviewObjectColors::setButtonVisible(geode::Button* button) {
     auto tabRes = alpha::editor_tabs::nodeForTab(alpha::editor_tabs::getCurrentTab().unwrapOrDefault());
     if (!tabRes) return;
@@ -146,7 +143,7 @@ GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
 
 void POCLevelEditorLayer::updateObjectColors(float dt) {
     auto fields = static_cast<POCEditorUI*>(m_editorUI)->m_fields.self();
-    for (auto child : getChildrenExt()) {
+    for (auto child : m_editorUI->getChildrenExt()) {
         if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
             if (!bar->isVisible()) continue;
             if (!bar->m_hasCreateItems) continue;
@@ -166,7 +163,7 @@ void POCLevelEditorLayer::updateObjectColors(float dt) {
             }
         }
     }
-    if (auto pinned = getChildByID("razoom.object_groups/pinned-groups")) {
+    if (auto pinned = m_editorUI->getChildByID("razoom.object_groups/pinned-groups")) {
         if (!pinned->isVisible()) return;
         for (auto group : pinned->getChildrenExt()) {
             if (!group->isVisible()) continue;

@@ -50,6 +50,7 @@ EditorUI* MainEditorUI::s_editorUI = nullptr;
 MainEditorUI::Fields::~Fields() {
     s_editorUI = nullptr;
     for (auto& [k, v] : ModuleRegistry::get()->m_data) {
+        if (v.isGlobal()) continue;
         for (auto hook : v.getHooks()) {
             (void) hook->disable();
         }
@@ -67,9 +68,15 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
     for (const auto& [k, v] : *modules) {
         auto& data = ModuleRegistry::get()->getData(k);
-        if (data.moduleEnabled()) {
-            data.onEditor();
-        }
+        if (!data.moduleEnabled()) continue;
+        
+        data.onEditor();
+    }
+    for (const auto& [k, v] : ModuleRegistry::get()->m_modules) {
+        auto& data = ModuleRegistry::get()->getData(k);
+        if (!data.isGlobal() || !data.moduleEnabled()) continue;
+        
+        data.onEditor();
     }
 
     if (ScrollableObjects::isEnabled()) {
