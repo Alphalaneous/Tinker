@@ -339,7 +339,7 @@ void UIScaling::setScaling(bool fullReload) {
         editor->m_unlinkBtn->setScale(1.f);
         editor->m_unlinkBtn->getNormalImage()->setScale(1.f);
         editor->m_unlinkBtn->setContentSize(editor->m_unlinkBtn->getNormalImage()->getContentSize());
-        editor->m_unlinkBrn->getNormalImage()->setPosition(editor->m_unlinkBtn->getContentSize() / 2.f);
+        editor->m_unlinkBtn->getNormalImage()->setPosition(editor->m_unlinkBtn->getContentSize() / 2.f);
         editor->m_linkBtn->setZOrder(1);
         editor->m_linkBtn->setScale(1.f);
         editor->m_linkBtn->getNormalImage()->setScale(1.f);
