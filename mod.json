@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.70",
+	"version": "v1.0.71",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -421,8 +421,7 @@
 			"name": "Copy Object String",
 			"description": "Copy object string to clipboard when copying in the editor.",
 			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit.",
-			"platforms": ["win", "mac", "android"]
+			"enable-if-description": "This feature is not compatible with BetterEdit."
 		},
 		"hIDe-enabled": {
 			"type": "bool",

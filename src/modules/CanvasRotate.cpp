@@ -81,7 +81,7 @@ void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     auto module = CanvasRotate::get();
     if (!fields->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
 
-    int rot = static_cast<int>(std::round(module->m_rotationNode->getCanvasRotation()));
+    int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
     if (rot < 45 || rot >= 315) {
         offset = CCPoint{offset.x, offset.y};
     }
@@ -163,12 +163,6 @@ GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     applyOffset(ret);
 
     return ret;
-}
-
-void CREditorUI::playtestStopped() {
-    EditorUI::playtestStopped();
-    auto module = CanvasRotate::get();
-    m_editorLayer->m_gameState.m_cameraAngle = module->m_rotationNode->getCanvasRotation();
 }
 
 void CREditorUI::clickOnPosition(CCPoint pos) {
@@ -359,6 +353,11 @@ void CanvasRotate::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch
     onTouchEnded(touch, std::move(next));
 }
 
+void CRLevelEditorLayer::onStopPlaytest() {
+    LevelEditorLayer::onStopPlaytest();
+    auto module = CanvasRotate::get();
+    m_gameState.m_cameraAngle = module->m_rotationNode->getCanvasRotation();
+}
 
 cocos2d::CCArray* CRLevelEditorLayer::objectsAtPosition(cocos2d::CCPoint position) {
     auto module = CanvasRotate::get();

@@ -7,8 +7,16 @@
 class Group : public CCNode {};
 
 class $module(PreviewObjectColors) {
+    Ref<CCNode> m_buttonContainer;
+    Ref<geode::Button> m_buttonForScroll;
+
+    bool m_callbacksAdded;
+
+    bool onToggled(bool state);
     void onEditor();
     void editColor();
+    void setupButton(bool scrollable);
+
     void setButtonVisible(geode::Button* button);
 };
 

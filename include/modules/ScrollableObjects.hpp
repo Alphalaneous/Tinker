@@ -8,13 +8,19 @@
 
 class $module(ScrollableObjects) {
     bool m_shouldLoadBars;
+    bool m_callbacksAdded;
 
     void onEditor();
     bool canScroll();
+    bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
     bool shouldLoadBars();
     void setLoadBars();
+
+    struct ScrollableObjectsToggledEvent final : Event<ScrollableObjectsToggledEvent, bool(bool state)> {
+        using Event::Event;
+    };
 };
 
 class $modify(SOEditorUI, EditorUI) {
@@ -42,8 +48,8 @@ class $modify(SOEditButtonBar, EditButtonBar) {
         Ref<BoomScrollLayer> m_dummyScrollLayer;
         std::vector<Ref<CCNode>> m_items;
 
-        CCSprite* m_separator;
-        ColumnLayout* m_extrasLayout;
+        Ref<CCSprite> m_separator;
+        Ref<ColumnLayout> m_extrasLayout;
 
         float m_widthOffset;
         int m_rows;
@@ -56,18 +62,21 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 
         std::vector<Ref<CCNode>> m_visibleNodes;
         std::vector<Ref<CCMenuItemSpriteExtra>> m_extrasButtons;
-        std::vector<Ref<CCNode>> m_pages;
     };
 
     static EditButtonBar* create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows);
 
+    void revertChanges();
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
     void goToPage(int page);
     void cull(SOEditButtonBar::Fields* fields, float x);
 
     void createExtrasMenu();
     void addToExtrasMenu(CCMenuItemSpriteExtra* button);
+    void removeFromExtrasMenu(CCMenuItemSpriteExtra* button);
+    void removeFromExtrasMenu(ZStringView ID);
     void clearExtrasMenu();
+    void updateScrollSize();
 
     static void _onModify(auto& self) {
         (void) self.setHookPriority("EditButtonBar::loadFromItems", Priority::Replace);

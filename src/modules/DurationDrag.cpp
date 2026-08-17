@@ -57,6 +57,11 @@ void DDEditorUI::selectObjects(CCArray* objects, bool ignoreFilter) {
 	DurationDrag::get()->updateObjects();
 }
 
+void DDLevelEditorLayer::removeObject(GameObject* object, bool noUndo) {
+    LevelEditorLayer::removeObject(object, noUndo);
+	DurationDrag::get()->updateObjects();
+}
+
 void DurationDragDraw::drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY) {
     float dx = end.x - start.x;
     float dy = end.y - start.y;

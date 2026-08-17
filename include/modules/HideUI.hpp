@@ -5,7 +5,10 @@
 
 class $module(HideUI) {
     Ref<CCNode> m_oldBEButton;
+    Ref<CCMenuItemToggler> m_hideButton;
+    bool m_addedCallbacks;
     
+    bool onToggled(bool state);
     void onEditor();
 };
 

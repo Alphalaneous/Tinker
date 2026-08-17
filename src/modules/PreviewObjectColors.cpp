@@ -6,6 +6,41 @@
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
+bool PreviewObjectColors::onToggled(bool state) {
+    if (state) {
+        onEditor();
+    }
+    else {
+        auto fields = static_cast<POCEditorUI*>(getEditor())->m_fields.self();
+        if (m_buttonContainer) {
+            getEditor()->m_uiItems->removeObject(m_buttonContainer);
+            m_buttonContainer->removeFromParent();
+            m_buttonContainer = nullptr;
+        }
+
+        fields->m_defaultObject->m_baseColor->m_colorID = 0;
+        fields->m_defaultObject->m_detailColor->m_colorID = 0;
+
+        static_cast<POCLevelEditorLayer*>(getEditorLayer())->updateObjectColors(0);
+        getEditorLayer()->unschedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
+
+        for (auto child : getEditor()->getChildrenExt()) {
+            if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
+                if (!bar->m_hasCreateItems) continue;
+                auto soBar = static_cast<SOEditButtonBar*>(bar);
+                soBar->removeFromExtrasMenu("color-preview"_spr);
+            }
+        }
+        removeEventListener("scrollable-toggled");
+        removeEventListener("level-saved-event");
+        removeEventListener("ui-scale");
+
+        m_buttonForScroll = nullptr;
+        fields->m_defaultObject = nullptr;
+    }
+    return true;
+}
+
 void PreviewObjectColors::onEditor() {
     auto savedObj = alpha::level_storage::getSavedValue<std::string>(getEditorLayer(), "color-object");
 
@@ -28,7 +63,29 @@ void PreviewObjectColors::onEditor() {
 
     getEditorLayer()->schedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
 
-    if (ScrollableObjects::isEnabled()) {
+    setupButton(ScrollableObjects::isEnabled());
+
+    addEventListener("scrollable-toggled", ScrollableObjects::ScrollableObjectsToggledEvent(), [this] (bool state) {
+        setupButton(state);
+    });
+
+    addEventListener("level-saved-event", LevelSavedEvent(), [this] {
+        auto editorUI = static_cast<POCEditorUI*>(getEditor());
+        auto fields = editorUI->m_fields.self();
+        alpha::level_storage::setSavedValue(getEditorLayer(), "color-object", std::string(fields->m_defaultObject->getSaveString(getEditorLayer())));
+    });
+}
+
+void PreviewObjectColors::setupButton(bool scrollable) {
+    if (m_buttonContainer) {
+        getEditor()->m_uiItems->removeObject(m_buttonContainer);
+        m_buttonContainer->removeFromParent();
+        m_buttonContainer = nullptr;
+    }
+    m_buttonForScroll = nullptr;
+    removeEventListener("ui-scale");
+
+    if (scrollable) {
         getEditor()->runAction(CallFuncExt::create([this] {
             for (auto child : getEditor()->getChildrenExt()) {
                 if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
@@ -45,52 +102,67 @@ void PreviewObjectColors::onEditor() {
         }));
     }
     else {
-        auto btnContainer = CCNode::create();
-        btnContainer->setID("color-preview-container"_spr);
-        btnContainer->setZOrder(100);
-        btnContainer->setAnchorPoint({1.f, 1.f});
-        getEditor()->addChild(btnContainer);
-        getEditor()->m_uiItems->addObject(btnContainer);
+        m_buttonContainer = CCNode::create();
+        m_buttonContainer->setID("color-preview-container"_spr);
+        m_buttonContainer->setZOrder(100);
+        m_buttonContainer->setAnchorPoint({1.f, 1.f});
+        getEditor()->addChild(m_buttonContainer);
+        getEditor()->m_uiItems->addObject(m_buttonContainer);
 
-        auto btn = geode::Button::createWithSpriteFrameName("GJ_editHSVBtn2_001.png", [this] (auto sender) {
+        m_buttonForScroll = geode::Button::createWithSpriteFrameName("GJ_editHSVBtn2_001.png", [this] (auto sender) {
             editColor();
             float scale = 1.f;
             if (UIScaling::isEnabled()) {
                 scale = UIScaling::get()->m_scale;
             }
         });
-        btn->setID("color-preview"_spr);
-        btnContainer->setContentSize(btn->getScaledContentSize());
-        btn->setPosition(btnContainer->getContentSize() / 2.f);
+        m_buttonForScroll->setID("color-preview"_spr);
+        m_buttonContainer->setContentSize(m_buttonForScroll->getScaledContentSize());
+        m_buttonForScroll->setPosition(m_buttonContainer->getContentSize() / 2.f);
 
-        btnContainer->addChild(btn);
+        m_buttonContainer->addChild(m_buttonForScroll);
 
-        addEventListener(UIScaleUpdated(), [this, btn, btnContainer] (float scale, bool scaleToolbars, bool fullReload) {
+        auto uiScale = [&] (float scale) {
+            if (!m_buttonContainer) return;
+
             auto winSize = CCDirector::get()->getWinSize();
             float x = winSize.width - (95.f * scale);
-            btnContainer->setScale(0.65f * scale);
+            m_buttonContainer->setScale(0.65f * scale);
 
             auto spacer = getEditor()->getChildByID("spacer-line-right");
             if (spacer) {
                 x = spacer->boundingBox().getMinX();
             }
             
-            btnContainer->setPosition({x - 3.f * scale, tinker::utils::getToolbarHeight(false) - 4.f * scale});
+            m_buttonContainer->setPosition({x - 3.f * scale, tinker::utils::getToolbarHeight(false) - 4.f * scale});
+        };
+
+        addEventListener("ui-scale", UIScaleUpdated(), [this, uiScale] (float scale, bool scaleToolbars, bool fullReload) {
+            float trueScale = 1.f;
+            if (scaleToolbars) {
+                trueScale = scale;
+            }
+            uiScale(trueScale);
         });
 
-        alpha::editor_tabs::addTabSwitchCallback([this, btn] (auto id) {
-            setButtonVisible(btn);
-        });
-        alpha::editor_tabs::addModeSwitchCallback([this, btn] (auto id) {
-            setButtonVisible(btn);
-        });
+        float scale = 1.f;
+        if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
+            scale = UIScaling::get()->m_scale;
+        }
+        uiScale(scale);
+
+        if (!m_callbacksAdded) {
+            m_callbacksAdded = true;
+            alpha::editor_tabs::addTabSwitchCallback([this] (auto id) {
+                if (!m_buttonForScroll) return;
+                setButtonVisible(m_buttonForScroll);
+            });
+            alpha::editor_tabs::addModeSwitchCallback([this] (auto id) {
+                if (!m_buttonForScroll) return;
+                setButtonVisible(m_buttonForScroll);
+            });
+        }
     }
-
-    addEventListener(LevelSavedEvent(), [this] {
-        auto editorUI = static_cast<POCEditorUI*>(getEditor());
-        auto fields = editorUI->m_fields.self();
-        alpha::level_storage::setSavedValue(getEditorLayer(), "color-object", std::string(fields->m_defaultObject->getSaveString(getEditorLayer())));
-    });
 }
 
 void PreviewObjectColors::setButtonVisible(geode::Button* button) {

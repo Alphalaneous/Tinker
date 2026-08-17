@@ -2,6 +2,21 @@
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
+bool BetterSelect::onToggled(bool state) {
+    if (state) {
+        onEditor();
+    }
+    else {
+        m_hover->removeFromParent();
+        m_hover = nullptr;
+    }
+    return true;
+}
+
+bool BetterSelect::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    return true;
+}
+
 void BetterSelect::onEditor() {
     m_hover = tinker::ui::HoverObjectNode::create();
     getEditor()->addChild(m_hover);

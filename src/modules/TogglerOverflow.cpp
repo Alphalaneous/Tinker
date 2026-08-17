@@ -101,6 +101,7 @@ bool ToggleContainer::init(EditorUI* editorUI) {
         }
     });
     m_expandButton->setZOrder(1);
+    m_expandButton->setTouchMultiplier(1.5f);
     m_expandButton->setScale(0.35f);
     m_expandButton->setID("expand-button"_spr);
 
@@ -109,7 +110,7 @@ bool ToggleContainer::init(EditorUI* editorUI) {
 
     float uiScale = 1.f;
     
-    if (UIScaling::isEnabled()) {
+    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
         uiScale = UIScaling::get()->m_scale;
     }
 
@@ -264,7 +265,7 @@ void ToggleContainer::show(bool show) {
     auto winSize = CCDirector::get()->getWinSize();
     float uiScale = 1.f;
     
-    if (UIScaling::isEnabled()) {
+    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
         uiScale = UIScaling::get()->m_scale;
     }
 
@@ -343,7 +344,11 @@ void TogglerOverflow::onEditor() {
     editor->m_uiItems->addObject(m_container);
 
     addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
-        m_container->updateScale(scale);
+        float realScale = 1.f;
+        if (scaleToolbars) {
+            realScale = scale;
+        }
+        m_container->updateScale(realScale);
     });
     addEventListener("show-ui", ShowUIEvent(), [this] (bool show) {
         m_container->updateContainer();

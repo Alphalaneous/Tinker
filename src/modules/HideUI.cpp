@@ -3,6 +3,38 @@
 #include "utils/Utils.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 
+bool HideUI::onToggled(bool state) {
+    if (state) {
+        onEditor();
+        auto undoMenu = getEditor()->getChildByID("undo-menu");
+        if (undoMenu) {
+            m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
+            if (m_oldBEButton) {
+                m_oldBEButton->removeFromParent();
+            }
+            undoMenu->updateLayout();
+        }
+    }   
+    else {
+        m_hideButton->removeFromParent();
+        m_hideButton = nullptr;
+        
+        auto undoMenu = getEditor()->getChildByID("undo-menu");
+        if (undoMenu) {
+            if (m_oldBEButton) {
+                undoMenu->addChild(m_oldBEButton);
+            }
+            undoMenu->updateLayout();
+        }
+        m_oldBEButton = nullptr;
+        removeEventListener("show-ui-event");
+        removeEventListener("show-keybind");
+        removeEventListener("betteredit-show-keybind");
+
+    }
+    return true;
+}
+
 void HideUI::onEditor() {
     auto undoMenu = getEditor()->getChildByID("undo-menu");
     if (!undoMenu) return;
@@ -15,41 +47,44 @@ void HideUI::onEditor() {
     hideEye->setOpacity(50);
     hideEye->setScale(0.75f);
 
-    auto toggler = CCMenuItemExt::createToggler(hideEye, showEye, [this] (auto sender) {
+    m_hideButton = CCMenuItemExt::createToggler(hideEye, showEye, [this] (auto sender) {
         getEditor()->showUI(sender->isToggled());
     });
-    toggler->m_notClickable = true;
+    m_hideButton->m_notClickable = true;
 
-    toggler->m_offButton->setContentSize({35.f, 40.f});
-    toggler->m_onButton->setContentSize({35.f, 40.f});
-    toggler->setContentSize({35.f, 40.f});
-    toggler->setID("hide-ui-toggle"_spr);
+    m_hideButton->m_offButton->setContentSize({35.f, 40.f});
+    m_hideButton->m_onButton->setContentSize({35.f, 40.f});
+    m_hideButton->setContentSize({35.f, 40.f});
+    m_hideButton->setID("hide-ui-toggle"_spr);
 
-    toggler->m_offButton->setPosition(toggler->getContentSize() / 2.f);
-    toggler->m_onButton->setPosition(toggler->getContentSize() / 2.f);
+    m_hideButton->m_offButton->setPosition(m_hideButton->getContentSize() / 2.f);
+    m_hideButton->m_onButton->setPosition(m_hideButton->getContentSize() / 2.f);
 
-    showEye->setPosition(toggler->m_offButton->getContentSize() / 2.f);
-    hideEye->setPosition(toggler->m_onButton->getContentSize() / 2.f);
+    showEye->setPosition(m_hideButton->m_offButton->getContentSize() / 2.f);
+    hideEye->setPosition(m_hideButton->m_onButton->getContentSize() / 2.f);
 
-    undoMenu->addChild(toggler);
+    undoMenu->addChild(m_hideButton);
 
     undoMenu->updateLayout();
 
-    undoMenu->addOnEnterCallback([this, undoMenu, showEye, hideEye] {
-        m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
-        if (m_oldBEButton) {
-            m_oldBEButton->removeFromParent();
-        }
-    });
+    if (!m_addedCallbacks) {
+        m_addedCallbacks = true;
+        undoMenu->addOnEnterCallback([this, undoMenu, showEye, hideEye] {
+            m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
+            if (m_oldBEButton) {
+                m_oldBEButton->removeFromParent();
+            }
+        });
+    }
 
-    addEventListener(ShowUIEvent(), [this, toggler] (bool show) {
+    addEventListener("show-ui-event", ShowUIEvent(), [this] (bool show) {
         getEditor()->m_toolbarHeight = show ? tinker::utils::getToolbarHeight() : 0;
         
-        toggler->toggle(!show);
-        toggler->setVisible(getEditorLayer()->m_playbackMode != PlaybackMode::Playing);
+        m_hideButton->toggle(!show);
+        m_hideButton->setVisible(getEditorLayer()->m_playbackMode != PlaybackMode::Playing);
 
         if (getSetting<bool, "hide-all">()) {
-            bool shouldHide = toggler->isToggled() && getEditorLayer()->m_playbackMode != PlaybackMode::Playing;
+            bool shouldHide = m_hideButton->isToggled() && getEditorLayer()->m_playbackMode != PlaybackMode::Playing;
             getEditor()->m_playtestBtn->setVisible(!shouldHide);
             
             auto settingsMenu = getEditor()->getChildByID("settings-menu");
@@ -62,14 +97,14 @@ void HideUI::onEditor() {
         }
     });
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "HideUI-toggle-ui-keybind"), [this, toggler] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener("show-keybind", KeybindSettingPressedEvent(Mod::get(), "HideUI-toggle-ui-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (!down || repeat) return;
-        toggler->toggleWithCallback(!toggler->isToggled());
+        m_hideButton->toggleWithCallback(!m_hideButton->isToggled());
     });
 
     auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
     if (betterEdit) {
-        addEventListener(KeybindSettingPressedEvent(betterEdit, "keybind-view-mode"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        addEventListener("betteredit-show-keybind", KeybindSettingPressedEvent(betterEdit, "keybind-view-mode"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
             if (!down) return;
             auto mainEditorUI = MainEditorUI::get();
             if (mainEditorUI && mainEditorUI->isUIVisible()) return;

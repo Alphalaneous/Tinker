@@ -309,8 +309,8 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         }
     });
 
-    if (!std::isfinite(editorLayer->m_objectLayer->getPosition().x) || !std::isfinite(editorLayer->m_objectLayer->getPosition().y)) {
-        editorLayer->m_objectLayer->setPosition({0, 90});
+    if (!std::isfinite(editorLayer->m_objectLayer->getPosition().x) || !std::isfinite(editorLayer->m_objectLayer->getPosition().y) || editorLayer->m_level->m_lastBuildSave->count() == 0) {
+        editorLayer->m_objectLayer->setPosition({130, tinker::utils::getToolbarHeight() / 2.f});
     }
 
     fields->m_forward = tinker::ui::TouchForward::create(this);

@@ -64,6 +64,10 @@ protected:
 }
 
 class $module(BetterSelect) {
+
+    bool onToggled(bool state);
+    bool onSettingChanged(std::string_view key, const matjson::Value& value);
+
     void onEditor();
     bool hoveringObjects();
     void stopHover();

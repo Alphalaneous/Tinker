@@ -7,9 +7,14 @@
 
 class $module(GridControl) {
     TextInput* m_input;
+    Ref<CCNode> m_control;
     Ref<CCNode> m_oldBEControl;
+    bool m_addedCallbacks;
 
+    bool onToggled(bool state);
     void onEditor();
+    void updateUI(float scale);
+    void removeBE();
     void updateGrid(float newValue = 0, bool updateInput = true);
     static float getSliderMinY(EditorUI* editorUI);
 

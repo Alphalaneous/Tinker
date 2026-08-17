@@ -5,6 +5,9 @@ bool RepeatingEditorButtons::onToggled(bool state) {
     if (state) {
         onEditor();
     }
+    else {
+        removeEventListener("group-id-layer-event");
+    }
     return true;
 }
 
@@ -92,7 +95,7 @@ void RepeatingEditorButtons::onEditor() {
         }
     }
 
-    addEventListener(SetGroupIDLayerOpenedEvent(), [this] (SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
+    addEventListener("group-id-layer-event", SetGroupIDLayerOpenedEvent(), [this] (SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
         applyRepeatIfExist(setGroupIDLayer, "add-group-id-next-button");
         applyRepeatIfExist(setGroupIDLayer, "add-group-id-prev-button");
         applyRepeatIfExist(setGroupIDLayer, "editor-layer-next-button");

@@ -475,6 +475,27 @@ void UIScaling::setScaling(bool fullReload) {
 
     UIScaleUpdated().send(m_scale, m_scaleToolbar, fullReload);
     UpdateObjectLabel().send();
+
+    if (toolbarCategoriesMenu) {
+        float offset = 5.f;
+        if (auto be = tinker::utils::getMod<"hjfod.betteredit">()) {
+            if (be->getSettingValue<bool>("view-menu")) {
+                offset = 1.f;
+            }
+        }
+
+        if (objectGroupsGotoMenu) {
+            objectGroupsGotoMenu->setScale(toolbarScale);
+            objectGroupsGotoMenu->setPosition({toolbarCategoriesMenu->getPositionX() + toolbarCategoriesMenu->getScaledContentWidth() / 2.f + offset * toolbarScale + 2.f * toolbarScale, 2.5f * toolbarScale});
+        }
+    }
+
+    if (toolbarTogglesMenu) {
+        if (objectGroupsToggleMenu) {
+            objectGroupsToggleMenu->setScale(toolbarScale);
+            objectGroupsToggleMenu->setPosition({toolbarTogglesMenu->getPositionX() - toolbarTogglesMenu->getScaledContentWidth() / 2.f - 5.f * toolbarScale, 2.5f * toolbarScale});
+        }
+    }
 }
 
 bool UISHSVLiveOverlay::init(GameObject* object, cocos2d::CCArray* objects) {

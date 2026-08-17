@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef GEODE_IS_IOS
-
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 
@@ -17,5 +15,3 @@ class $modify(COSEditorUI, EditorUI) {
     void doCopyObjects(bool withColor);
     void doPasteObjects(bool withColor);
 };
-
-#endif

@@ -1,5 +1,9 @@
 #include "modules/MoreAttributes.hpp"
 
+bool MoreAttributes::onToggled(bool state) {
+    return true;
+}
+
 bool MASetupKeyframePopup::init(KeyframeGameObject* object, cocos2d::CCArray* objects, LevelEditorLayer* layer) {
     if (!SetupKeyframePopup::init(object, objects, layer)) return false;
 

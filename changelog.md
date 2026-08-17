@@ -1,3 +1,19 @@
+# 1.0.71
+- <c-dddddd>Fix camera rotation not properly restoring when stopping playtest on Mac</c>
+- <c-dddddd>Fix deleting objects not properly updating duration dragging on Mac</c>
+- <c-dddddd>You can now change all Selection Picker settings without restarting the editor</c>
+- <c-dddddd>You can now change all Scrollable Toolbar settings without restarting the editor</c>
+- <c-dddddd>You can now change all Preview Object Color settings without restarting the editor</c>
+- <c-dddddd>You can now change all Hide UI settings without restarting the editor</c>
+- <c-dddddd>You can now change all Custom Toolbar Background settings without restarting the editor except Blur Behind</c>
+- <c-dddddd>You can now toggle Grid Controls without restarting the editor</c>
+- <c-dddddd>You can now toggle More Attributes without restarting the editor</c>
+- <c-dddddd>Bring back Copy Object String to iOS</c>
+- <c-dddddd>Fix new level camera starting position being under the ground</c>
+- <c-dddddd>Make Toggle Overflow menu expand button hitbox larger</c>
+- <c-dddddd>Fix Toggle Overflow scaling when scale toolbars is disabled</c>
+- <c-dddddd>Fix object groups button scale when scale toolbars is disabled</c>
+
 # 1.0.70
 - <c-dddddd>Enable Selection Picker for mobile (for keyboard users)</c>
 - <c-dddddd>Auto disable Tinker if Multiplayer Edit is enabled.</c>

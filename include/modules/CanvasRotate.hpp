@@ -51,7 +51,6 @@ class $modify(CREditorUI, EditorUI) {
     void doPasteObjects(bool withColor);
     void onCreateObject(int id);
     GameObject* createObject(int objectID, CCPoint position);
-    void playtestStopped();
     void clickOnPosition(CCPoint pos);
     void triggerSwipeMode();
 };
@@ -59,6 +58,7 @@ class $modify(CREditorUI, EditorUI) {
 class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     $registerHooks(CanvasRotate);
 
+    void onStopPlaytest();
     cocos2d::CCArray* objectsAtPosition(cocos2d::CCPoint position);
     CCArray* objectsInRect(CCRect rect, bool ignoreLayerCheck);
 	OBB2D* rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees);

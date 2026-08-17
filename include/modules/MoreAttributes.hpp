@@ -8,6 +8,7 @@
 #include <Geode/modify/SetupTriggerPopup.hpp>
 
 class $module(MoreAttributes) {
+    bool onToggled(bool state);
 };
 
 class $modify(MASetupKeyframePopup, SetupKeyframePopup) {
