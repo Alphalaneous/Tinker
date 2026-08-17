@@ -339,14 +339,17 @@ void UIScaling::setScaling(bool fullReload) {
         editor->m_unlinkBtn->setScale(1.f);
         editor->m_unlinkBtn->getNormalImage()->setScale(1.f);
         editor->m_unlinkBtn->setContentSize(editor->m_unlinkBtn->getNormalImage()->getContentSize());
+        editor->m_unlinkBrn->getNormalImage()->setPosition(editor->m_unlinkBtn->getContentSize() / 2.f);
         editor->m_linkBtn->setZOrder(1);
         editor->m_linkBtn->setScale(1.f);
         editor->m_linkBtn->getNormalImage()->setScale(1.f);
         editor->m_linkBtn->setContentSize(editor->m_linkBtn->getNormalImage()->getContentSize());
+        editor->m_linkBtn->getNormalImage()->setPosition(editor->m_linkBtn->getContentSize() / 2.f);
         editor->m_enableLinkBtn->setZOrder(2);
         editor->m_enableLinkBtn->setScale(1.f);
         editor->m_enableLinkBtn->getNormalImage()->setScale(1.f);
         editor->m_enableLinkBtn->setContentSize(editor->m_enableLinkBtn->getNormalImage()->getContentSize());
+        editor->m_enableLinkBtn->getNormalImage()->setPosition(editor->m_enableLinkBtn->getContentSize() / 2.f);
 
         linkMenu->updateLayout();
 
