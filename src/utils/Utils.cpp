@@ -625,6 +625,7 @@ namespace tinker::utils {
 
     bool nodeFits(CCNode* node, const AxisBounds& bounds, Axis axis) {
         auto parent = node->getParent();
+        if (!parent) return false;
 
         auto realBounds = getRealBounds(node);
 
