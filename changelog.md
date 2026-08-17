@@ -1,3 +1,7 @@
+# 1.0.69
+- <c-dddddd>Fix a crash</c>
+- <c-dddddd>Fix link controls position on mobile</c>
+
 # 1.0.68
 - <c-dddddd>Mark Auto Build Helper as incompatible with Editor Collab</c>
 - <c-dddddd>Fix Preview Object Colors no longer working</c>
