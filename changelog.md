@@ -1,3 +1,9 @@
+# 1.0.73
+- <c-dddddd>Fix non-alt keys not working properly with the Selection Picker</c>
+- <c-dddddd>Show Tinker version on top right of editor pause for easier debugging from screenshots and video</c>
+- <c-dddddd>Fix default color button showing in recent colors</c>
+- <c-dddddd>Add button to redownload object names in Debug settings</c>
+
 # 1.0.72
 - <c-dddddd>Fix touch not working in bottom right of editor during playtest</c>
 

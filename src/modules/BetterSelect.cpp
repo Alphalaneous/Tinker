@@ -44,12 +44,38 @@ void BSAppDelegate::applicationDidEnterBackground() {
 }
 
 void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
+    auto keybinds = BetterSelect::getSetting<std::vector<Keybind>, "modifier">();
+    std::set<enumKeyCodes> validKeys;
+
+    for (const auto& bind : keybinds) {
+        validKeys.insert(bind.key);
+        if (bind.modifiers & KeyboardModifier::Alt) {
+            validKeys.insert(enumKeyCodes::KEY_LeftMenu);
+            validKeys.insert(enumKeyCodes::KEY_RightMenu);
+            validKeys.insert(enumKeyCodes::KEY_Alt);
+        }
+        if (bind.modifiers & KeyboardModifier::Shift) {
+            validKeys.insert(enumKeyCodes::KEY_LeftShift);
+            validKeys.insert(enumKeyCodes::KEY_RightShift);
+            validKeys.insert(enumKeyCodes::KEY_Shift);
+        }
+        if (bind.modifiers & KeyboardModifier::Control) {
+            validKeys.insert(enumKeyCodes::KEY_LeftControl);
+            validKeys.insert(enumKeyCodes::KEY_RightControl);
+            validKeys.insert(enumKeyCodes::KEY_Control);
+        }
+        if (bind.modifiers & KeyboardModifier::Super) {
+            validKeys.insert(enumKeyCodes::KEY_LeftWindowsKey);
+            validKeys.insert(enumKeyCodes::KEY_RightWindowsKey);
+        }
+    }
+
     auto hover = BetterSelect::get()->m_hover;
     if (hover && hover->hoveringObjects()) {
         if (key == enumKeyCodes::KEY_Left || key == enumKeyCodes::KEY_Right) {
             return;
         }
-        else if (key != enumKeyCodes::KEY_Alt && key != enumKeyCodes::KEY_LeftMenu){
+        else if (!validKeys.contains(key)){
             BetterSelect::get()->stopHover();
         }
     }

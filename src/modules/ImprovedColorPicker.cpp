@@ -648,18 +648,23 @@ void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
     recents.reserve(10);
 
     if (fields->m_modifiedChannel1) {
-        recents.push_back(fields->m_finalChannel1);
-        recentsSet.insert(fields->m_finalChannel1);
+        if (fields->m_finalChannel1 != 0) {
+            recents.push_back(fields->m_finalChannel1);
+            recentsSet.insert(fields->m_finalChannel1);
+        }
     }
 
     if (fields->m_modifiedChannel2 && fields->m_finalChannel1 != fields->m_finalChannel2) {
-        recents.push_back(fields->m_finalChannel2);
-        recentsSet.insert(fields->m_finalChannel2);
+        if (fields->m_finalChannel2 != 0) {
+            recents.push_back(fields->m_finalChannel2);
+            recentsSet.insert(fields->m_finalChannel2);
+        }
     }
 
     for (int channel : saved) {
         if (fields->m_modifiedChannel1 && channel == fields->m_finalChannel1) continue;
         if (fields->m_modifiedChannel2 && channel == fields->m_finalChannel2) continue;
+        if (channel == 0) continue;
         if (recentsSet.contains(channel)) continue;
 
         recents.push_back(channel);

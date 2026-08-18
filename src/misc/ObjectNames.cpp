@@ -1,12 +1,12 @@
 #include "misc/ObjectNames.hpp"
 #include "utils/Utils.hpp"
 
-void ObjectNames::checkNames() {
+void ObjectNames::checkNames(bool ignoreVersion) {
     auto req = web::WebRequest();
 
     m_listener.spawn(
         req.get("https://raw.githubusercontent.com/Alphalaneous/GDObjectNames/refs/heads/main/version"),
-        [this] (web::WebResponse value) {
+        [this, ignoreVersion] (web::WebResponse value) {
             if (value.error()) {
                 loadNamesFromFile();
                 return;
@@ -26,7 +26,7 @@ void ObjectNames::checkNames() {
 
             auto version = numRes.unwrap();
 
-            if (version > checkVersion()) {
+            if (version > checkVersion() || ignoreVersion) {
                 Mod::get()->setSavedValue("object-names-version", version);
                 downloadNames();
             }
@@ -136,4 +136,10 @@ int ObjectNames::checkVersion() {
 
 $on_game(Loaded) {
     ObjectNames::get()->checkNames();
+
+    ButtonSettingPressedEventV3(Mod::get(), "Debug-redownload-object-names").listen([] (auto buttonKey) {
+        if (buttonKey == "redownload") {
+            ObjectNames::get()->checkNames(true);
+        }
+    }).leak();
 }

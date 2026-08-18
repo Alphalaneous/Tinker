@@ -1,5 +1,5 @@
 {
-	"geode": "5.8.2",
+	"geode": "5.9.0",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.72",
+	"version": "v1.0.73",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -1526,6 +1526,13 @@
 			"name": "Module Logs",
 			"default": false,
 			"description": "Show Module Created, Destroyed, and Toggled logs"
+		},
+		"Debug-redownload-object-names": {
+			"type": "button",
+			"buttons": {
+				"redownload": "Redownload Object Names"
+			},
+			"description": "Redownload Object Names if they are showing up as \"Unnamed\" (Requires Internet)"
 		}
 	},
 	"api": {

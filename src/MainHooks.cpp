@@ -1,5 +1,6 @@
 #include "MainHooks.hpp"
 #include <Geode/ui/GeodeUI.hpp>
+#include "nodes/ShadowLabel.hpp"
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
@@ -368,6 +369,18 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
     guidelinesMenu->addChild(tinkerBtn);
 
     guidelinesMenu->updateLayout();
+
+    auto versionLabel = tinker::ui::ShadowLabel::create(fmt::format("Tinker: {}", Mod::get()->getVersion().toVString()), "chatFont.fnt");
+    versionLabel->setAnchorPoint({1.f, 1.f});
+    versionLabel->setOpacity(125);
+    versionLabel->setScale(0.4f);
+    versionLabel->setID("version-label"_spr);
+
+    auto winSize = CCDirector::get()->getWinSize();
+
+    versionLabel->setPosition(convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}));
+
+    addChild(versionLabel);
 
     return true;
 }
