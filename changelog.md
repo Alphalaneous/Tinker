@@ -1,3 +1,6 @@
+# 1.0.72
+- <c-dddddd>Fix touch not working in bottom right of editor during playtest</c>
+
 # 1.0.71
 - <c-dddddd>Fix camera rotation not properly restoring when stopping playtest on Mac</c>
 - <c-dddddd>Fix deleting objects not properly updating duration dragging on Mac</c>
