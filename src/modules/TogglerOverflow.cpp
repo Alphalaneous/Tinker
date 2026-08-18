@@ -301,7 +301,7 @@ void ToggleContainer::registerWithTouchDispatcher() {
 }
 
 bool ToggleContainer::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    if (!m_isUsed) return false;
+    if (!m_isUsed || !nodeIsVisible(this)) return false;
     
     if (alpha::utils::isPointInsideNode(m_background, touch->getLocation())) {
         return true;
