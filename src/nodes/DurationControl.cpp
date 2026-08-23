@@ -29,7 +29,7 @@ CCMenuItemSpriteExtra* DurationControl::createButton(const std::string& text, co
     bg->setID("background"_spr);
     container->addChild(bg);
 
-    auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
+    auto label = geode::Label::create(text.c_str(), "bigFont.fnt");
 
     label->setPosition({container->getContentWidth()/2, container->getContentHeight() / 2.f + 1.5f});
     label->setScale(0.7f);

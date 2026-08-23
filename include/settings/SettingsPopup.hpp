@@ -26,7 +26,7 @@ protected:
     std::string m_searchQuery;
     std::string m_category;
     StringMap<bool> m_categoryCollapsed;
-    CCLabelBMFont* m_titleLabel;
+    geode::Label* m_titleLabel;
     alpha::ui::AdvancedScrollLayer* m_settingScrollLayer;
     alpha::ui::AdvancedScrollLayer* m_categoryScrollLayer;
     std::vector<CCMenuItemSpriteExtra*> m_categoryButtons;

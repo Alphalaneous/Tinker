@@ -43,7 +43,7 @@ protected:
         if (!CCMenuItemSpriteExtra::init(slice, nullptr, nullptr, nullptr)) return false;
         setCascadeOpacityEnabled(true);
 
-        m_label = CCLabelBMFont::create(numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
+        m_label = geode::Label::create(numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
         m_label->setPosition(slice->getContentSize() / 2.f);
         m_label->setScale(scale);
 
@@ -84,7 +84,7 @@ protected:
     }
 
     int m_idx = 0;
-    CCLabelBMFont* m_label;
+    geode::Label* m_label;
     geode::Function<void(float)> m_callback;
     std::vector<T> m_values;
 };

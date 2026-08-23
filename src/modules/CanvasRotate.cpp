@@ -2,6 +2,7 @@
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "InputsHandler.hpp"
+#include "modules/StatusBar.hpp"
 #include "utils/Utils.hpp"
 #include "modules/JoystickNavigation.hpp"
 
@@ -24,6 +25,15 @@ bool CanvasRotate::onToggled(bool state) {
         if (m_rotationNode) {
             m_rotationNode->removeFromParent();
         }
+        if (m_statusLabel) {
+            m_statusLabel->removeFromParent();
+            m_statusLabel = nullptr;
+            if (::StatusBar::isEnabled()) {
+                ::StatusBar::get()->updateLayouts();
+            }
+        }
+
+        removeEventListener("status-bar-created");
         getEditorLayer()->unschedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
         getEditorLayer()->m_gameState.m_cameraAngle = 0.f;
 
@@ -72,6 +82,30 @@ void CanvasRotate::onEditor() {
         auto fields = static_cast<CREditorUI*>(getEditor())->m_fields.self();
         fields->m_editorLoaded = true;
     }));
+
+    addEventListener("status-bar-created", ::StatusBar::StatusBarCreatedEvent(), [this] {
+        setupStatus();
+    });
+
+    if (::StatusBar::get()) {
+        setupStatus();
+    }
+}
+
+void CanvasRotate::setupStatus() {
+    m_statusLabel = ::StatusBar::get()->addLabel("rotation-label"_spr, 10, false);
+    if (!m_statusLabel) return;
+
+    m_statusLabel->addEventListener(EditorRotationEvent(), [this] (float rotation) {
+        m_statusLabel->setText(fmt::format("Rot: {}", numToString(rotation, 2)));
+        m_statusLabel->validate();
+
+        ::StatusBar::get()->updateLayouts();
+    });
+
+    m_statusLabel->setText(fmt::format("Rot: {}", numToString(m_rotationNode->getCanvasRotation(), 2)));
+
+    ::StatusBar::get()->updateLayouts();
 }
 
 void CREditorUI::moveObject(GameObject* object, CCPoint offset) {

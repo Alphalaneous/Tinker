@@ -4,7 +4,7 @@
 #include "utils/Utils.hpp"
 
 void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
-    auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
+    auto label = geode::Label::create(text.c_str(), "bigFont.fnt");
     label->setScale(0.25f);
     label->setPosition({node->getContentWidth() / 2.f, -(label->getScaledContentHeight() / 2.f)});
 

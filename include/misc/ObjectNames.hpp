@@ -12,10 +12,10 @@ public:
     Result<std::string_view> getName(unsigned int id);
     std::string deduceFromID(ZStringView id);
     const std::unordered_map<unsigned int, std::string>& getNames();
+    void loadNames(std::string_view names);
 protected:
     int checkVersion();
     void downloadNames();
-    void loadNames(std::string_view names);
     void loadNamesFromFile();
 
     std::unordered_map<unsigned int, std::string> m_names;

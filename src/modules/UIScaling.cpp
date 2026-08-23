@@ -3,6 +3,7 @@
 #include "modules/ScrollableObjects.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "MainHooks.hpp"
+#include "modules/StatusBar.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
 
@@ -194,6 +195,8 @@ void UIScaling::setPauseScaling() {
 }
 
 void UIScaling::setScaling(bool fullReload) {
+    PreUIScaleUpdated().send(m_scale, m_scaleToolbar, fullReload);
+
     auto winSize = CCDirector::get()->getWinSize();
     auto editor = getEditor();
 
@@ -219,6 +222,11 @@ void UIScaling::setScaling(bool fullReload) {
     auto objectGroupsGotoMenu = editor->getChildByID("razoom.object_groups/goto_obj_menu");
     auto objectGroupsToggleMenu = editor->getChildByID("razoom.object_groups/toggle_menu");
     auto namedEditorLayersMenu = editor->getChildByID("razoom.named_editor_layers/menu");
+
+    float toolbarOffset = 0.f;
+    if (StatusBar::isEnabled() && m_scaleToolbar && m_scale <= 0.9f) {
+        toolbarOffset = StatusBar::get()->m_toolbarOffset;
+    }
 
     if (editor->m_positionSlider) {
         editor->m_positionSlider->setAnchorPoint({0.5f, 0.5f});
@@ -266,7 +274,7 @@ void UIScaling::setScaling(bool fullReload) {
     }
 
     auto toolbar = tinker::utils::getToolbarHeight(false);
-    float center = winSize.height / 2.f + toolbar / 2.f;
+    float center = winSize.height / 2.f + toolbar / 2.f + toolbarOffset / 2.f;
 
     if (editorButtonsMenu) {
         editorButtonsMenu->setScale(rightSideScale);
@@ -364,6 +372,7 @@ void UIScaling::setScaling(bool fullReload) {
     if (toolbarBackground) {
         toolbarBackground->setAnchorPoint({0.f, 0.f});
         toolbarBackground->setScaleY(toolbarScale);
+        toolbarBackground->setPosition({-1.f, -1.f});
     }
 
     if (editor->m_tabsMenu) {

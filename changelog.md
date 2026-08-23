@@ -1,3 +1,12 @@
+# 1.0.74
+- <c-dddddd>Object Names are now also stored in resources as a fallback</c>
+- <c-dddddd>Use geode::Label whenever possible, improving performance especially when opening the font picker</c>
+- <c-dddddd>Fix Length in Editor label not respecting safe area</c>
+- <c-dddddd>Fix the toggle overflow menu overlapping the toolbar too much when it is scrollable and preview object colors is off</c>
+- <c-dddddd>Fix Length in Editor not updating when an object is moved</c>
+- <c-dddddd>Fix toggling Length in Editor not updating the object info label position</c>
+- <c-dddddd>Add Status Bar option to show various information such as editor zoom, rotation, position, length, object count, etc.</c>
+
 # 1.0.73
 - <c-dddddd>Fix non-alt keys not working properly with the Selection Picker</c>
 - <c-dddddd>Show Tinker version on top right of editor pause for easier debugging from screenshots and video</c>

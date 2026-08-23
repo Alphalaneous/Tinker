@@ -389,7 +389,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     fields->m_previewMenu->setID("preview-menu"_spr);
     m_mainLayer->addChild(fields->m_previewMenu);
 
-    auto liveLabel = CCLabelBMFont::create("Preview", "goldFont.fnt");
+    auto liveLabel = geode::Label::create("Preview", "goldFont.fnt");
     liveLabel->setScale(0.3f);
     liveLabel->setAnchorPoint({0.5f, 0.f});
     liveLabel->setPosition({fields->m_previewMenu->getContentWidth() / 2.f, 32.f});
@@ -494,7 +494,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     }
     specialsMenu->updateLayout();
 
-    auto specialTitle = CCLabelBMFont::create("Special", "bigFont.fnt");
+    auto specialTitle = geode::Label::create("Special", "bigFont.fnt");
     specialTitle->setID("special-channels-title"_spr);
     specialTitle->setScale(0.35f);
     specialTitle->setPosition(

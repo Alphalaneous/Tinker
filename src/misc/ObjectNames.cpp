@@ -135,6 +135,14 @@ int ObjectNames::checkVersion() {
 }
 
 $on_game(Loaded) {
+    std::filesystem::path objectNames = Mod::get()->getResourcesDir() / "objects.csv";
+    if (std::filesystem::exists(objectNames)) {
+        auto namesRes = utils::file::readString(objectNames);
+        if (!namesRes) return;
+
+        ObjectNames::get()->loadNames(namesRes.unwrap());
+    }
+
     ObjectNames::get()->checkNames();
 
     ButtonSettingPressedEventV3(Mod::get(), "Debug-redownload-object-names").listen([] (auto buttonKey) {

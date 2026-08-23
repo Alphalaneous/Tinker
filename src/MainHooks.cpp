@@ -1,5 +1,6 @@
 #include "MainHooks.hpp"
 #include <Geode/ui/GeodeUI.hpp>
+#include "modules/StatusBar.hpp"
 #include "nodes/ShadowLabel.hpp"
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
@@ -107,6 +108,11 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
     editorLayer->schedule(schedule_selector(MainLevelEditorLayer::mainUpdate));
 
+    runAction(CallFuncExt::create([this, editorLayer] {
+        m_toolbarHeight = tinker::utils::getToolbarHeight(false);
+        EditorZoomEvent().send(editorLayer->m_objectLayer->getScale());
+    }));
+
     return true;
 }
 
@@ -134,6 +140,8 @@ void MainLevelEditorLayer::mainUpdate(float dt) {
     editor->checkObjectPlacement(fields);
     editor->checkPlatformerState(fields);
     editor->checkModifierState(fields);
+    editor->checkEditorPosition(fields);
+    editor->checkActiveObjectCount(fields);
 
     // hack to fix y positions of tabs being wrong for some people (???)
     editor->fixTabPositions();
@@ -161,6 +169,17 @@ void MainEditorUI::checkObjectPlacement(MainEditorUI::Fields* fields) {
     fields->m_lastObjectCount = cur;
 }
 
+void MainEditorUI::checkEditorPosition(MainEditorUI::Fields* fields) {
+    auto last = fields->m_lastPosition;
+    auto cur = m_editorLayer->m_objectLayer->getPosition();
+
+    if (last != cur) {
+        EditorMoveEvent().send(cur);
+    }
+
+    fields->m_lastPosition = cur;
+}
+
 void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
     auto dispatcher = CCKeyboardDispatcher::get();
 
@@ -173,15 +192,31 @@ void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
     if (fields->m_lastModifier != mods) {
         ModifierEvent().send(mods, fields->m_lastModifier);
     }
+
     fields->m_lastModifier = mods;
 }
 
+void MainEditorUI::checkActiveObjectCount(MainEditorUI::Fields* fields) {
+    auto last = fields->m_lastActiveObjectCount;
+    auto cur = tinker::utils::getActiveObjectCount(m_editorLayer);
+
+    if (last != cur) {
+        ActiveObjectsChangedEvent().send(cur);
+    }
+
+    fields->m_lastActiveObjectCount = cur;
+}
+
 void MainEditorUI::fixTabPositions() {
+    float toolbarOffset = 0.f;
+    if (StatusBar::isEnabled()) {
+        toolbarOffset = StatusBar::get()->m_toolbarOffset;
+    } 
     for (auto tab : alpha::editor_tabs::getAllTabs().unwrapOrDefault()) {
         if (!tab) continue;
         if (tab->getID() == "all-objects-tab-bar"_spr) continue;
 
-        float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y;
+        float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y + toolbarOffset;
         if (tab->getScaledContentHeight() == 0) {
             posY = tinker::utils::getToolbarHeight(false) / 2.f;
         }
@@ -189,7 +224,7 @@ void MainEditorUI::fixTabPositions() {
     }
 
     m_deleteMenu->setContentSize({0, 0});
-    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight(false) / 2.f);
+    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight(false) / 2.f + toolbarOffset / 2.f);
 }
 
 void MainEditorUI::updateButtons() {

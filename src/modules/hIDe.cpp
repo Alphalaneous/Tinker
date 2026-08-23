@@ -14,7 +14,8 @@ bool HDEditLevelLayer::init(GJGameLevel* level) {
     auto fields = m_fields.self();
 
     fields->m_label = typeinfo_cast<CCLabelBMFont*>(getChildByID("level-id-label"));
-    fields->m_replacementLabel = CCLabelBMFont::create("ID: Hidden (shift)", "goldFont.fnt");
+    fields->m_replacementLabel = geode::Label::create("ID: Hidden (shift)", "goldFont.fnt");
+    fields->m_replacementLabel->validate();
 
     if (std::string_view(fields->m_label->getString()) == "ID: na") {
         fields->m_shouldSetVisibility = false;

@@ -19,7 +19,7 @@ public:
     std::shared_ptr<SettingV3> getSetting();
 protected:
 
-    Ref<CCLabelBMFont> m_title;
+    Ref<geode::Label> m_title;
     Ref<geode::Button> m_infoButton;
     Ref<CCNode> m_titleContainer;
 

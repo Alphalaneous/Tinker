@@ -101,7 +101,7 @@ void CleanPause::onEditor() {
 
         pauseLayer->addChild(musicLabelContainer);
 
-        auto musicLabel = CCLabelBMFont::create("Music:", "bigFont.fnt");
+        auto musicLabel = geode::Label::create("Music:", "bigFont.fnt");
         musicLabel->setID("music-label"_spr);
         musicLabelContainer->addChild(musicLabel);
 
@@ -140,7 +140,7 @@ void CleanPause::onEditor() {
 
         pauseLayer->addChild(sfxLabelContainer);
 
-        auto sfxLabel = CCLabelBMFont::create("SFX:", "bigFont.fnt");
+        auto sfxLabel = geode::Label::create("SFX:", "bigFont.fnt");
         sfxLabel->setID("sfx-label"_spr);
 
         sfxLabelContainer->addChild(sfxLabel);

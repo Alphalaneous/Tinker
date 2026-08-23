@@ -31,7 +31,7 @@ protected:
     bool m_expanded;
     bool m_isUsed;
 
-    static constexpr float ScaleMult = 0.91f;
+    static constexpr float ScaleMult = 0.9f;
     static constexpr float Height = 90.f;
     static constexpr float LeftOffset = 21.f;
     static constexpr float RightOffset = 3.f;
@@ -42,6 +42,7 @@ protected:
 class $module(TogglerOverflow) {
     Ref<tinker::ui::ToggleContainer> m_container;
     bool m_addedCallbacks;
+    float m_scale;
 
     bool onToggled(bool state);
     void onEditor();

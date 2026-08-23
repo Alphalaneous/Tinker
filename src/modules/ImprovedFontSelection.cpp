@@ -61,7 +61,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>(2)->setVisible(false);
     m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>(3)->setVisible(false);
 
-    auto title = CCLabelBMFont::create("Select Font", "goldFont.fnt");
+    auto title = geode::Label::create("Select Font", "goldFont.fnt");
     title->setPosition({m_mainLayer->getContentWidth() / 2.f + m_mainLayer->getContentWidth() / 4.f - centerOffset / 2.f, m_mainLayer->getContentHeight() - 20.f});
     title->setScale(0.65f);
     title->setID("title"_spr);

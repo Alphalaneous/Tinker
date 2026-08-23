@@ -18,8 +18,19 @@ bool LengthInEditor::onToggled(bool state) {
 
         removeEventListener("level-type-changed-event");
         removeEventListener("object-change-event");
+        removeEventListener("object-moved-event");
         removeEventListener("ui-scale");
 
+        auto winSize = CCDirector::get()->getWinSize();
+        auto scale = 1.f;
+        if (UIScaling::isEnabled()) {
+            scale = UIScaling::get()->m_scale;
+        }
+
+        if (getEditor()->m_objectInfoLabel) {
+            getEditor()->m_objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + UIScaling::getSafeOffset());        
+        }
+        
         UpdateObjectLabel().send();
     }
     return true;
@@ -40,13 +51,13 @@ void LengthInEditor::onEditor() {
     m_lengthContainer->setAnchorPoint({0.f, 1.f});
     m_lengthContainer->setID("length-container"_spr);
 
-    auto lengthLabel = CCLabelBMFont::create("Length", "bigFont.fnt");
+    auto lengthLabel = geode::Label::create("Length", "bigFont.fnt");
     lengthLabel->setAnchorPoint({0.5f, 1.f});
     lengthLabel->setPosition({m_lengthContainer->getContentWidth() / 2, m_lengthContainer->getContentHeight() - 2.f});
     lengthLabel->setScale(0.5f);
     lengthLabel->setID("length-label"_spr);
 
-    m_timeLabel = CCLabelBMFont::create("1s", "chatFont.fnt");
+    m_timeLabel = geode::Label::create("1s", "chatFont.fnt");
     m_timeLabel->setAnchorPoint({0.5f, 0.f});
     m_timeLabel->setPosition({m_lengthContainer->getContentWidth() / 2.f, 2.f});
 
@@ -77,6 +88,10 @@ void LengthInEditor::onEditor() {
         m_timeLabel->setString(getTime(lastObjectX).c_str());
     });
 
+    addEventListener("object-moved-event", ObjectMovedEvent(), [this] () {
+        m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
+    });
+
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         getEditor()->runAction(CallFuncExt::create([this, scale] {
             updateUI(scale);
@@ -90,13 +105,13 @@ void LengthInEditor::updateUI(float scale) {
 
     if (!undoMenu || !playbackMenu) return;
     m_lengthContainer->setScale(0.5f * scale);
-    m_lengthContainer->setPositionY(undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 6.f * scale);
+    m_lengthContainer->setPositionY(undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 5.f * scale);
 
     auto available = tinker::utils::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::Axis::Vertical);
     
     float xPos = 0.f;
     if (tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
-        xPos = 5.f * scale;
+        xPos = 5.f * scale + UIScaling::getSafeOffset().x;
 
         if (getEditor()->m_objectInfoLabel) {
             auto available = tinker::utils::getAvailableSpace(m_lengthContainer, playbackMenu, tinker::utils::Axis::Vertical);
@@ -119,9 +134,10 @@ void LengthInEditor::updateUI(float scale) {
 
 std::string LengthInEditor::getTime(float x) {
     auto point = CCPoint{x + 340.f, 0.f};
+    auto editorLayer = LevelEditorLayer::get();
     
-    int seconds = LevelTools::timeForPos(point, getEditorLayer()->m_drawGridLayer->m_speedObjects, (int)getEditorLayer()->m_levelSettings->m_startSpeed, 0, 0, 0, 0, 0, 0, 0);
-    int timestamp = getEditorLayer()->m_level->m_timestamp;
+    int seconds = LevelTools::timeForPos(point, editorLayer->m_drawGridLayer->m_speedObjects, (int)editorLayer->m_levelSettings->m_startSpeed, 0, 0, 0, 0, 0, 0, 0);
+    int timestamp = editorLayer->m_level->m_timestamp;
     float time = timestamp / 240.0f;
     if (timestamp > 0 && seconds < time) {
         seconds = time;

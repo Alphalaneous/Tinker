@@ -81,10 +81,10 @@ void RITextGameObject::onImageFail(ZStringView icon, ZStringView text) {
     node->setPosition(node->getContentSize() / 2.f);
     spr->setPosition(node->getContentSize() / 2.f);
 
-    auto label = CCLabelBMFont::create(text.c_str(), "chatFont.fnt");
+    auto label = geode::Label::create(text.c_str(), "chatFont.fnt");
     label->setAnchorPoint({0.5f, 0.f});
     label->setScale(0.8f);
-    label->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
+    label->setAlignment(geode::Label::Alignment::Center);
     label->setPositionX(node->getContentWidth() / 2.f);
     label->setPositionY(node->getContentHeight() + 3.f);
 

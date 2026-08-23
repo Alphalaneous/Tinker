@@ -49,7 +49,7 @@ namespace tinker::ui {
         bool m_clickingOutside;
         Ref<CreateMenuItem> m_activeItem = nullptr;
         geode::NineSlice* m_tooltipBG;
-        CCLabelBMFont* m_tooltipLabel;
-        CCLabelBMFont* m_tooltipIDLabel;
+        geode::Label* m_tooltipLabel;
+        geode::Label* m_tooltipIDLabel;
     };
 }

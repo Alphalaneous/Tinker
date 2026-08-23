@@ -67,7 +67,7 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
 
     constexpr float centerOffset = 0.f;
 
-    auto title = CCLabelBMFont::create("Select Style", "goldFont.fnt");
+    auto title = geode::Label::create("Select Style", "goldFont.fnt");
     title->setPosition({m_size.width / 2.f + m_size.width / 4.f - centerOffset / 2.f, m_size.height - 20.f});
     title->setScale(0.65f);
     title->setID("title"_spr);
@@ -186,7 +186,7 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
     
     m_mainLayer->addChild(m_lineContainer);
 
-    auto lineLabel = CCLabelBMFont::create("Line:", "goldFont.fnt");
+    auto lineLabel = geode::Label::create("Line:", "goldFont.fnt");
     lineLabel->setID("line-label"_spr);
     lineLabel->setScale(0.5f);
 

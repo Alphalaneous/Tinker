@@ -69,7 +69,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     m_thumbSelectedSpr->setPosition(getContentSize() / 2.f);
     m_thumbContainer->addChild(m_thumbSelectedSpr);
 
-    m_durationLabel = CCLabelBMFont::create("", "bigFont.fnt");
+    m_durationLabel = geode::Label::create("", "bigFont.fnt");
     m_durationLabel->setAnchorPoint({0.5f, 1.f});
     m_labelY = getContentHeight() + 10.f;
 

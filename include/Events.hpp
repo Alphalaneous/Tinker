@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/Geode.hpp>
+#include <Geode/binding/GameObject.hpp>
 
 using namespace geode::prelude;
 
@@ -60,6 +62,10 @@ struct EditorZoomEvent final : Event<EditorZoomEvent, bool(float zoom)> {
     using Event::Event;
 };
 
+struct EditorMoveEvent final : Event<EditorMoveEvent, bool(CCPoint position)> {
+    using Event::Event;
+};
+
 struct UpdateObjectLabel final : Event<UpdateObjectLabel, bool()> {
     using Event::Event;
 };
@@ -68,7 +74,15 @@ struct ObjectMovedEvent final : Event<ObjectMovedEvent, bool()> {
     using Event::Event;
 };
 
+struct ActiveObjectsChangedEvent final : Event<ActiveObjectsChangedEvent, bool(int count)> {
+    using Event::Event;
+};
+
 struct AlertsActiveEvent final : Event<AlertsActiveEvent, bool()> {
+    using Event::Event;
+};
+
+struct PreUIScaleUpdated final : Event<PreUIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };
 

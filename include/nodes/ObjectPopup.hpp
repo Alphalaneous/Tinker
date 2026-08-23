@@ -22,7 +22,7 @@ namespace tinker::ui {
         SortOptions m_sortOptions;
         LevelEditorLayer* m_editorLayer;
         CCMenu* m_sortButtons;
-        CCLabelBMFont* m_uniqueLabel;
+        geode::Label* m_uniqueLabel;
         ObjectList* m_objectList;
     };
 }

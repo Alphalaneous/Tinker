@@ -23,10 +23,10 @@ public:
 protected:
     bool init(int colorID, bool showLabel);
 
-    cocos2d::CCLabelBMFont* m_copyLabel;
-    cocos2d::CCLabelBMFont* m_opacityLabel;
-    cocos2d::CCLabelBMFont* m_blendingLabel;
-    cocos2d::CCLabelBMFont* m_idLabel;
+    geode::Label* m_copyLabel;
+    geode::Label* m_opacityLabel;
+    geode::Label* m_blendingLabel;
+    geode::Label* m_idLabel;
     CCSprite* m_selectSpr;
 
     bool m_enabled = true;

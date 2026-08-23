@@ -6,6 +6,7 @@
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <smjs.object-collab/include/object_collab_optional.hpp>
+#include "modules/StatusBar.hpp"
 #include "third-party/ObjectIDDisplay.hpp"
 #include "utils/Constants.hpp"
 
@@ -69,6 +70,13 @@ void ObjectSearch::onEditor() {
 
             fields->m_searchBar->loadFromItems(arr, cols, rows, false);
             fields->m_initialLoaded = true;
+
+            float toolbarOffset = 0.f;
+            if (StatusBar::isEnabled()) {
+                toolbarOffset = StatusBar::get()->m_toolbarOffset;
+            }
+
+            fields->m_searchBar->setPositionY(toolbarOffset);
         }
     });
     
@@ -101,7 +109,13 @@ void ObjectSearch::onEditor() {
             if (auto node = editorUI->getChildByID("build-tabs-menu")) {
                 buildTabHeight = node->getScaledContentHeight();
             }
-            searchField->setPosition({winSize.width / 2.f, editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight});
+
+            float toolbarOffset = 0.f;
+            if (StatusBar::isEnabled()) {
+                toolbarOffset = StatusBar::get()->m_toolbarOffset;
+            }
+            
+            searchField->setPosition({winSize.width / 2.f, editorUI->m_toolbarHeight + 5.f * scale + buildTabHeight + toolbarOffset});
             searchField->setScale(0.6f * scale);
         }
     });

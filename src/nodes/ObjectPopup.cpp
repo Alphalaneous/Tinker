@@ -20,7 +20,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     m_title->limitLabelWidth(m_mainLayer->getContentSize().width - 50.f, 0.7f, 0.1f);
     m_title->setID("title"_spr);
 
-    m_uniqueLabel = CCLabelBMFont::create("0 unique objects", "bigFont.fnt");
+    m_uniqueLabel = geode::Label::create("0 unique objects", "bigFont.fnt");
     m_uniqueLabel->setScale(0.25f);
     m_uniqueLabel->setOpacity(127);
     m_uniqueLabel->setAnchorPoint({1.f, 0.5f});
@@ -94,7 +94,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
         { 24.f, 20.f }
     );
 
-    auto countHiddenLabel = CCLabelBMFont::create("Count Hidden", "bigFont.fnt");
+    auto countHiddenLabel = geode::Label::create("Count Hidden", "bigFont.fnt");
     countHiddenLabel->setScale(0.25f);
     countHiddenLabel->setID("count-hidden-label"_spr);
     countHiddenLabel->setAnchorPoint({0.f, 0.5f});

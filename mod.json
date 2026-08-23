@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.73",
+	"version": "v1.0.74",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -51,7 +51,8 @@
 			"resources/*.png"
 		],
 		"files": [
-			"resources/*.gif"
+			"resources/*.gif",
+			"resources/objects.csv"
 		]
 	},
 	"links": {
@@ -141,11 +142,18 @@
 			"name": "Enable Slope Direction Indicators",
 			"description": "Show the front and back of slopes when selected to assist with not inverting slopes."
 		},
+		"StatusBar-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Show Status Bar",
+			"description": "Show extra editor info in a status bar at the bottom. Only shows if the toolbar UI Scale is at 0.9 or below.",
+			"enable-if": "UIScaling-enabled"
+		},
 		"TogglerOverflow-enabled": {
 			"type": "bool",
 			"default": true,
 			"name": "Enable Toggler Overflow Menu",
-			"description": "If there are more than 4 togglers shown in the bottom right menu, hide them and show extras in an overflow menu instead"
+			"description": "If there are more than 4 togglers shown in the bottom right menu, hide them and show extras in an overflow menu instead."
 		},
 		"ZoomText-enabled": {
 			"type": "bool",

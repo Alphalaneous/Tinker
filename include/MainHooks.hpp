@@ -44,8 +44,10 @@ class $modify(MainEditorUI, EditorUI) {
 
     struct Fields {
         int m_lastObjectCount;
+        int m_lastActiveObjectCount;
         bool m_wasPlatformer;
         bool m_uiVisible = true;
+        CCPoint m_lastPosition;
         KeyboardModifier m_lastModifier;
 
         ~Fields();
@@ -72,6 +74,8 @@ class $modify(MainEditorUI, EditorUI) {
     void checkPlatformerState(MainEditorUI::Fields* fields);
     void checkObjectPlacement(MainEditorUI::Fields* fields);
     void checkModifierState(MainEditorUI::Fields* fields);
+    void checkEditorPosition(MainEditorUI::Fields* fields);
+    void checkActiveObjectCount(MainEditorUI::Fields* fields);
     void updateButtons();
     void deactivateScaleControl();
     void updateCreateMenu(bool selectTab);

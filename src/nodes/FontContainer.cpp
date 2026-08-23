@@ -56,15 +56,16 @@ void FontContainer::setVisible(bool visible) {
     CCNode::setVisible(visible);
 
     if (visible && !m_label) {
-        m_label = CCLabelBMFont::create(m_text.c_str(), m_fontFile.c_str());
+        m_label = geode::Label::create(m_text.c_str(), m_fontFile.c_str());
         m_label->setAnchorPoint({0.f, 0.5f});
         m_label->setScale(0.6f);
-        m_label->limitLabelWidth(getContentWidth() - 70.f, 0.6f, 0.1f);
+        m_label->setLimitLabelWidth(getContentWidth() - 70.f, 0.6f, 0.1f);
         m_label->setPosition({8.f, getContentHeight() / 2.f});
         m_label->setID("font-name-label"_spr);
+        m_label->validate();
         addChild(m_label);
 
-        auto idLabel = CCLabelBMFont::create(fmt::format("({})", m_id + 1).c_str(), "chatFont.fnt");
+        auto idLabel = geode::Label::create(fmt::format("({})", m_id + 1).c_str(), "chatFont.fnt");
         idLabel->setAnchorPoint({0.f, 0.5f});
         idLabel->setOpacity(127);
         idLabel->setScale(0.5f);

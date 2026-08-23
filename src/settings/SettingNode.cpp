@@ -22,8 +22,8 @@ bool SettingNodeBase::init(float width, std::shared_ptr<SettingV3> setting) {
         ->setMainAxisAlignment(MainAxisAlignment::Start)
     );
 
-    m_title = CCLabelBMFont::create(setting->getDisplayName().c_str(), "bigFont.fnt");
-    m_title->limitLabelWidth(width / 2.f - 20.f, 1.f, 0.01f);
+    m_title = geode::Label::create(setting->getDisplayName().c_str(), "bigFont.fnt");
+    m_title->setLimitLabelWidth(width / 2.f - 20.f, 1.f, 0.01f);
     m_titleContainer->addChild(m_title);
 
     m_infoButton = geode::Button::createWithSpriteFrameName("GJ_infoIcon_001.png", [this] (auto sender) {

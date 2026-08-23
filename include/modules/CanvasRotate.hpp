@@ -15,8 +15,10 @@ class $module(CanvasRotate) {
     bool m_dontRotate = false;
     CCPoint m_world;
     bool m_inQuickMove = false;
+    Ref<geode::Label> m_statusLabel;
 
     void onEditor();
+    void setupStatus();
     void toggleBetterEditHook(bool enabled);
     bool isLassoActive();
     bool isRotating();

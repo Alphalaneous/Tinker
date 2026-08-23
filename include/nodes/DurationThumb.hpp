@@ -47,7 +47,7 @@ namespace tinker::ui {
 		CCNode* m_parent;
 		DurationControl* m_control;
 		EffectGameObject* m_object;
-		CCLabelBMFont* m_durationLabel;
+		geode::Label* m_durationLabel;
 		Ref<CCAction> m_fadeInAction;
 		Ref<CCAction> m_fadeOutAction;
 

@@ -21,8 +21,8 @@ bool XYRotationControl::init() {
     setContentSize({0.f, 0.f});
     setZOrder(10000);
 
-    m_rotationXLabel = CCLabelBMFont::create("Rotation X:", "bigFont.fnt");
-    m_rotationYLabel = CCLabelBMFont::create("Rotation Y:", "bigFont.fnt");
+    m_rotationXLabel = geode::Label::create("Rotation X:", "bigFont.fnt");
+    m_rotationYLabel = geode::Label::create("Rotation Y:", "bigFont.fnt");
 
     m_rotationXLabel->setScale(0.5f);
     m_rotationYLabel->setScale(0.5f);

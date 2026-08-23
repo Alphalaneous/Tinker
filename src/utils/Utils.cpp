@@ -1,4 +1,5 @@
 #include "MainHooks.hpp"
+#include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
@@ -6,15 +7,15 @@
 namespace tinker::utils {
 
     bool shouldLoadTinker() {
-        if (modWillBeLoaded("d050.multiplayeredit")) {
+        /*if (modWillBeLoaded("d050.multiplayeredit")) {
             return false;
-        }
+        }*/
 
         return true;
     }
 
     bool modWillBeLoaded(ZStringView ID) {
-        auto mod = Loader::get()->getInstalledMod("d050.multiplayeredit");
+        auto mod = Loader::get()->getInstalledMod(ID);
         if (mod && mod->isOrWillBeEnabled()) return true;
         return false;
     }
@@ -38,7 +39,7 @@ namespace tinker::utils {
         return {key, value};
     }
 
-    void forEachObject(GJBaseGameLayer const* game, geode::Function<void(GameObject*)> callback) {
+    void forEachObject(const GJBaseGameLayer* game, geode::Function<void(GameObject*)> callback) {
         int count = game->m_sections.empty() ? -1 : game->m_sections.size();
         for (int i = game->m_leftSectionIndex; i <= game->m_rightSectionIndex && i < count; ++i) {
             auto leftSection = game->m_sections[i];
@@ -58,6 +59,32 @@ namespace tinker::utils {
                 }
             }
         }
+    }
+
+    int getActiveObjectCount(const GJBaseGameLayer* game) {
+        int count = game->m_sections.empty() ? -1 : game->m_sections.size();
+        int activeCount = 0;
+
+        for (int i = game->m_leftSectionIndex; i <= game->m_rightSectionIndex && i < count; ++i) {
+            auto leftSection = game->m_sections[i];
+            if (!leftSection) continue;
+
+            auto leftSectionSize = leftSection->size();
+            for (int j = game->m_bottomSectionIndex; j <= game->m_topSectionIndex && j < leftSectionSize; ++j) {
+                auto section = leftSection->at(j);
+                if (!section) continue;
+
+                auto sectionSize = game->m_sectionSizes[i]->at(j);
+                for (int k = 0; k < sectionSize; ++k) {
+                    auto obj = section->at(k);
+                    if (!obj) continue;
+
+                    ++activeCount;
+                }
+            }
+        }
+
+        return activeCount;
     }
 
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees) {
@@ -113,15 +140,22 @@ namespace tinker::utils {
     }
 
     float getToolbarHeight(bool checkVisible) {
+
         if (MainEditorUI::get() && checkVisible && !MainEditorUI::get()->isUIVisible()) {
             return 0;
         }
+        float toolbarOffset = 0.f;
         float height = tinker::constants::ToolbarHeight;
         if (UIScaling::isEnabled()) {
-            height *= UIScaling::get()->m_scaleToolbar ? UIScaling::get()->m_scale : 1.f;
+            float scale = UIScaling::get()->m_scaleToolbar ? UIScaling::get()->m_scale : 1.f;
+
+            height *= scale;
+            if (StatusBar::isEnabled() && scale <= 0.9f) {
+                toolbarOffset = StatusBar::get()->m_toolbarOffset;
+            } 
         }
 
-        return height;
+        return height + toolbarOffset;
     }
 
     bool isColorable(GameObject* object) {

@@ -38,7 +38,7 @@ bool TooltipHover::init() {
 
     addChild(m_tooltipBG);
 
-    m_tooltipLabel = CCLabelBMFont::create("", "chatFont.fnt");
+    m_tooltipLabel = geode::Label::create("", "chatFont.fnt");
     m_tooltipLabel->setScale(0.5f);
     m_tooltipLabel->setID("tooltip-label"_spr);
     m_tooltipLabel->setAnchorPoint({0.f, 1.f});
@@ -53,7 +53,7 @@ bool TooltipHover::init() {
 }
 
 void TooltipHover::addID() {
-    m_tooltipIDLabel = CCLabelBMFont::create("", "chatFont.fnt");
+    m_tooltipIDLabel = geode::Label::create("", "chatFont.fnt");
     m_tooltipIDLabel->setScale(0.4f);
     m_tooltipIDLabel->setID("tooltip-id-label"_spr);
     m_tooltipIDLabel->setColor({0, 255, 0});

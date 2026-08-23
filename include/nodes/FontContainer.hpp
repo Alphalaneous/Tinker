@@ -19,7 +19,7 @@ protected:
 
     int m_id;
     SelectFontLayer* m_fontLayer;
-    CCLabelBMFont* m_label;
+    geode::Label* m_label;
     CCMenuItemToggler* m_toggle;
     std::string m_text;
     std::string m_fontFile;

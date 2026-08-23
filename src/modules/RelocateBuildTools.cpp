@@ -42,7 +42,7 @@ void RelocateBuildTools::onEditor() {
         return createBuildTools();
     },
     [] {
-        return CCLabelBMFont::create("B", "bigFont.fnt");
+        return geode::Label::create("B", "bigFont.fnt");
     });
 
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {

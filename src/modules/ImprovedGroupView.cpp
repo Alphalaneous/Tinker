@@ -170,7 +170,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 
         float width = 46.f;
 
-        auto nameLabel = CCLabelBMFont::create(name.c_str(), "bigFont.fnt");
+        auto nameLabel = geode::Label::create(name.c_str(), "bigFont.fnt");
         nameLabel->setScale(0.5f);
 
         if (!name.empty()) {
@@ -181,7 +181,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
             auto idLabelPos = bspr->m_label->getPosition();
 
             nameLabel->setAnchorPoint({0.f, 0.5f});
-            nameLabel->limitLabelWidth(70.f, 0.5, 0.1);
+            nameLabel->setLimitLabelWidth(70.f, 0.5, 0.1);
             width = nameLabel->getScaledContentWidth() + 25.f + bspr->m_label->getScaledContentWidth();
 
             nameLabel->setPosition({bspr->m_label->getPositionX() + bspr->m_label->getScaledContentWidth() + 5.f, bspr->m_label->getPositionY()});
@@ -275,7 +275,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
 
     if (fields->m_groupCountLabel) fields->m_groupCountLabel->removeFromParent();
 
-    fields->m_groupCountLabel = CCLabelBMFont::create(fmt::format("Groups: {}", allGroups.size()).c_str(), "chatFont.fnt");
+    fields->m_groupCountLabel = geode::Label::create(fmt::format("Groups: {}", allGroups.size()).c_str(), "chatFont.fnt");
 
     if (auto zLayerLabel = m_mainLayer->getChildByID("z-layer-label")) {
         if (auto groupsBG = m_mainLayer->getChildByID("groups-bg")) {
@@ -496,7 +496,7 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     fields->m_scrollLayer->getContentLayer()->updateLayout();
     fields->m_scrollLayer->setScrollY(currentScroll, false);
 
-    fields->m_groupCountLabel = CCLabelBMFont::create(fmt::format("Remap Groups: {}", remapCounts.size()).c_str(), "chatFont.fnt");
+    fields->m_groupCountLabel = geode::Label::create(fmt::format("Remap Groups: {}", remapCounts.size()).c_str(), "chatFont.fnt");
 
     fields->m_groupCountLabel->setID("group-count-label"_spr);
     fields->m_groupCountLabel->setAnchorPoint({0.f, 1.f});
@@ -716,7 +716,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
 
     m_mainLayer->addChild(fields->m_scrollBar);
 
-    fields->m_groupCountLabel = CCLabelBMFont::create(fmt::format("Chance Groups: {}", chanceObjects.size()).c_str(), "chatFont.fnt");
+    fields->m_groupCountLabel = geode::Label::create(fmt::format("Chance Groups: {}", chanceObjects.size()).c_str(), "chatFont.fnt");
 
     fields->m_groupCountLabel->setID("group-count-label"_spr);
     fields->m_groupCountLabel->setAnchorPoint({0.f, 1.f});

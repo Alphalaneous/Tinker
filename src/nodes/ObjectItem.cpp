@@ -3,6 +3,7 @@
 #include "utils/Constants.hpp"
 
 using namespace tinker::constants::objects;
+
 namespace tinker::ui {
 
 bool ObjectItem::init(int objectID, int count) {
@@ -43,10 +44,10 @@ bool ObjectItem::init(int objectID, int count) {
     
     setAnchorPoint({0.5f, 0.5f});
 
-    auto countLabel = CCLabelBMFont::create(numToString(count).c_str(), "bigFont.fnt");
+    auto countLabel = geode::Label::create(numToString(count).c_str(), "bigFont.fnt");
     countLabel->setScale(0.3f);
     countLabel->setAnchorPoint({1.f, 0.f});
-    countLabel->limitLabelWidth(max + 6.f, 0.3f, 0.1f);
+    countLabel->setLimitLabelWidth(max + 6.f, 0.3f, 0.1f);
 
     float scaleX = max / std::max(object->getContentWidth(), 0.001f);
     float scaleY = max / std::max(object->getContentHeight(), 0.001f);

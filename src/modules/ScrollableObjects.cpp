@@ -3,6 +3,7 @@
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <razoom.object_groups/include/ObjectFoundEvent.hpp>
+#include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Utils.hpp"
@@ -231,12 +232,18 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
 
 void SOEditorUI::reloadTabsSafe() {
     runAction(CallFuncExt::create([this] {
+        float toolbarOffset = 0.f;
+        if (StatusBar::get()) {
+            toolbarOffset = StatusBar::get()->m_toolbarOffset;
+        }
+
         for (auto c : CCArrayExt<CCNode*>(getChildren())) {
             if (auto bar = typeinfo_cast<EditButtonBar*>(c)) {
                 auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
                 auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
                 bar->reloadItems(cols, rows);
+                bar->setPositionY(toolbarOffset);
             }
         }
     }));
@@ -332,12 +339,17 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), tinker::constants::ToolbarHeight};
         setContentSize(size);
 
+        float toolbarOffset = 0.f;
+        if (StatusBar::get()) {
+            toolbarOffset = StatusBar::get()->m_toolbarOffset;
+        }
+
         if (spacerLeft && spacerRight) {
             float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2.f;
-            setPosition({x, 0.f});
+            setPosition({x, toolbarOffset});
         }
         else {
-            setPosition({getContentWidth() / 2.f, 0.f});
+            setPosition({getContentWidth() / 2.f, toolbarOffset});
         }
 
         auto dots = getChildByID("alphalaneous.editortab_api/dots");

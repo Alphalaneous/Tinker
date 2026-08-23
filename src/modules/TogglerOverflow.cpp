@@ -2,6 +2,7 @@
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.editorsounds/include/API.hpp>
+#include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 
 namespace tinker::ui {
@@ -312,9 +313,13 @@ bool ToggleContainer::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
 void ToggleContainer::updateScale(float scale) {
     auto winSize = CCDirector::get()->getWinSize();
+    float toolbarOffset = 0.f;
+    if (::StatusBar::isEnabled()) {
+        toolbarOffset = ::StatusBar::get()->m_toolbarOffset;
+    }
 
     setScale(scale * ScaleMult);
-    setPosition({winSize.width + 3.f * scale - UIScaling::getSafeOffset().x, ((Height - Height * ScaleMult) / 2.f) * scale});
+    setPosition({winSize.width + 3.f * scale - UIScaling::getSafeOffset().x, ((Height - Height * ScaleMult) / 2.f) * scale + toolbarOffset});
     show(false);
 }
 
@@ -325,6 +330,7 @@ bool TogglerOverflow::onToggled(bool state) {
         auto editor = getEditor();
         removeEventListener("ui-scale");
         removeEventListener("show-ui");
+        removeEventListener("status-bar-created");
         m_container->updateContainer(false);
         m_container->removeFromParent();
         editor->m_uiItems->removeObject(m_container);
@@ -348,8 +354,13 @@ void TogglerOverflow::onEditor() {
         if (scaleToolbars) {
             realScale = scale;
         }
+        m_scale = realScale;
         m_container->updateScale(realScale);
     });
+    addEventListener("status-bar-created", ::StatusBar::StatusBarCreatedEvent(), [this] () {
+        m_container->updateScale(m_scale);
+    });
+
     addEventListener("show-ui", ShowUIEvent(), [this] (bool show) {
         m_container->updateContainer();
     });

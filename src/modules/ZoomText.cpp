@@ -17,7 +17,7 @@ bool ZoomText::onToggled(bool state) {
 void ZoomText::onEditor() {
     auto winSize = CCDirector::get()->getWinSize();
 
-    m_zoomLabel = CCLabelBMFont::create("", "bigFont.fnt");
+    m_zoomLabel = geode::Label::create("", "bigFont.fnt");
     m_zoomLabel->setScale(0.5f);
     m_zoomLabel->setPosition(winSize.width / 2.f, winSize.height - 60.f);
     m_zoomLabel->setID("zoom-text"_spr);

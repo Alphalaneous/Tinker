@@ -28,8 +28,8 @@ bool RotationNode::init(EditorUI* editor) {
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "CanvasRotate-reset-rotation-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (!down || repeat) return;
         
-        m_smoothedCameraAngle = 0;
-        m_unsnappedCameraAngle = 0;
+        m_smoothedCameraAngle = 0.f;
+        m_unsnappedCameraAngle = 0.f;
         m_isSnapped = true;
         m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = m_smoothedCameraAngle;
         m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
@@ -50,6 +50,8 @@ bool RotationNode::init(EditorUI* editor) {
             clickEnded(m_activeTouch);
         }
     });
+
+    EditorRotationEvent().send(m_rotation);
 
     return true;
 }
@@ -104,10 +106,16 @@ void RotationNode::clickEnded(alpha::dispatcher::TouchEvent* touch) {
 
 void RotationNode::realign() {
     if (m_isSnapped) {
-        float angle = std::round(m_rotation);
+        float angle = std::round(m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
+        if (angle == 360.f) {
+            angle = 0.f;
+        }
         m_smoothedCameraAngle = angle;
+        m_unsnappedCameraAngle = angle;
         m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = m_smoothedCameraAngle;
         m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
+
+        EditorRotationEvent().send(m_rotation);
     }
 }
 

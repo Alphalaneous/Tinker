@@ -121,10 +121,10 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     titleLayer->addChild(searchInput);
 
-    m_titleLabel = CCLabelBMFont::create("All Settings", "bigFont.fnt");
+    m_titleLabel = geode::Label::create("All Settings", "bigFont.fnt");
     m_titleLabel->setScale(0.5f);
     m_titleLabel->setAnchorPoint({0.f, 0.f});
-    m_titleLabel->limitLabelWidth(titleLayer->getContentWidth() - 10.f, 0.4f, 0.1f);
+    m_titleLabel->setLimitLabelWidth(titleLayer->getContentWidth() - 10.f, 0.4f, 0.1f);
     m_titleLabel->setPosition({6.f, searchInput->boundingBox().getMaxY() + 4.f});
     m_titleLabel->setID("title"_spr);
     titleLayer->addChild(m_titleLabel);
@@ -256,7 +256,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     catgeoryScrollBG->addChild(categoryScrollbar);
 
-    auto titleLabel = CCLabelBMFont::create("Tinker Settings", "goldFont.fnt");
+    auto titleLabel = geode::Label::create("Tinker Settings", "goldFont.fnt");
     titleLabel->setID("settings-title-label"_spr);
     titleLabel->setAnchorPoint({0.5f, 1.f});
     titleLabel->setScale(0.5f);

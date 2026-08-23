@@ -149,7 +149,7 @@ void StartPosTools::setupStartPosSwitcher() {
 
     getEditor()->addChild(fields->m_switcherContainer);
 
-    fields->m_switcherLabel = CCLabelBMFont::create("0 / 0", "bigFont.fnt");
+    fields->m_switcherLabel = geode::Label::create("0 / 0", "bigFont.fnt");
     fields->m_switcherLabel->setPosition(fields->m_switcherContainer->getContentSize() / 2.f);
     fields->m_switcherLabel->setScale(0.5f);
     fields->m_switcherLabel->setID("switcher-index-label"_spr);

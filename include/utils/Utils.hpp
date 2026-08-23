@@ -35,6 +35,7 @@ namespace tinker::utils {
     void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method);
     std::pair<std::string, std::string> splitIntoPair(const std::string& str);
     void forEachObject(GJBaseGameLayer const* game, geode::Function<void(GameObject*)> callback);
+    int getActiveObjectCount(const GJBaseGameLayer* game);
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees);
     std::string capitalize(std::string_view input);
     std::vector<std::string> split(const std::string& str, const std::string& delimiter, int limit = -1);

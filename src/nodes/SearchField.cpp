@@ -1,4 +1,5 @@
 #include "nodes/SearchField.hpp"
+#include "modules/StatusBar.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include <smjs.object-collab/include/object_collab_optional.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
@@ -251,10 +252,16 @@ void SearchField::textChanged(CCTextInputNode* node) {
 
         fields->m_searchBar->loadFromItems(arr, cols, rows, false);
 
+        float toolbarOffset = 0.f;
+        if (::StatusBar::isEnabled()) {
+            toolbarOffset = ::StatusBar::get()->m_toolbarOffset;
+        }
+        auto tab = m_editorUI->m_fields->m_searchBar;
+        tab->setPositionY(toolbarOffset);
+
         #ifdef GEODE_IS_MOBILE
         auto winSize = CCDirector::get()->getWinSize();
 
-        auto tab = m_editorUI->m_fields->m_searchBar;
         tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10.f);
         #endif
     }));
@@ -300,7 +307,12 @@ void SearchField::onClosed() {
 
     auto tab = m_editorUI->m_fields->m_searchBar;
 
-    tab->setPositionY(0.f);
+    float toolbarOffset = 0.f;
+    if (::StatusBar::isEnabled()) {
+        toolbarOffset = ::StatusBar::get()->m_toolbarOffset;
+    }
+
+    tab->setPositionY(toolbarOffset);
     m_tabBG->removeFromParent();
 
     tab->setZOrder(10);

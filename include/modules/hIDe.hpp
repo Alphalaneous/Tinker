@@ -13,7 +13,7 @@ class $modify(HDEditLevelLayer, EditLevelLayer){
 
     struct Fields {
         CCLabelBMFont* m_label;
-        CCLabelBMFont* m_replacementLabel;
+        geode::Label* m_replacementLabel;
         bool m_shouldSetVisibility = true;
     };
 

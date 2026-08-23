@@ -33,15 +33,15 @@ bool ColorChannelSprite::init(int colorID, bool showLabel) {
     addChild(m_selectSpr);
 
     if (showLabel) {
-        m_idLabel = CCLabelBMFont::create("", "bigFont.fnt");
-        m_idLabel->limitLabelWidth(25.f, 0.375f, 0.2f);
+        m_idLabel = geode::Label::create("", "bigFont.fnt");
+        m_idLabel->setLimitLabelWidth(25.f, 0.375f, 0.2f);
         m_idLabel->setPosition(getContentSize() / 2.f + CCPoint{0.f, 0.5f});
         m_idLabel->setID("id-label"_spr);
 
         addChild(m_idLabel);
     }
 
-    m_copyLabel = CCLabelBMFont::create("", "chatFont.fnt");
+    m_copyLabel = geode::Label::create("", "chatFont.fnt");
     m_copyLabel->setScale(0.6f);
     m_copyLabel->setAnchorPoint({1.f, 1.f});
     m_copyLabel->setPosition(getContentSize() - CCPoint{4.5f, 3.5f});
@@ -49,7 +49,7 @@ bool ColorChannelSprite::init(int colorID, bool showLabel) {
 
     addChild(m_copyLabel);
     
-    m_opacityLabel = CCLabelBMFont::create("", "bigFont.fnt");
+    m_opacityLabel = geode::Label::create("", "bigFont.fnt");
     m_opacityLabel->setScale(0.25f);
     m_opacityLabel->setAnchorPoint({0.5f, 0.f});
     m_opacityLabel->setPosition({getContentSize().width / 2.f, 3.5f});
@@ -57,7 +57,7 @@ bool ColorChannelSprite::init(int colorID, bool showLabel) {
 
     addChild(m_opacityLabel);
 
-    m_blendingLabel = CCLabelBMFont::create("•", "bigFont.fnt");
+    m_blendingLabel = geode::Label::create("•", "bigFont.fnt");
     m_blendingLabel->setScale(0.5f);
     m_blendingLabel->setAnchorPoint({0.f, 1.f});
     m_blendingLabel->setPosition({3.5f, getContentHeight() + 2.5f});

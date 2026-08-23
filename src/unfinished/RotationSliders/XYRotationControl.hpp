@@ -26,8 +26,8 @@ protected:
     void rotationXChanged(float value);
     void rotationYChanged(float value);
 
-    CCLabelBMFont* m_rotationXLabel;
-    CCLabelBMFont* m_rotationYLabel;
+    geode::Label* m_rotationXLabel;
+    geode::Label* m_rotationYLabel;
 
     CCMenuItemToggler* m_snapToggle;
     CCMenuItemToggler* m_posLockToggle;

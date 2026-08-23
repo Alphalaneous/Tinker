@@ -34,7 +34,7 @@ protected:
         setAnchorPoint({0.5f, 0.5f});
         setContentSize({40.f, 30.f});
 
-        auto label = CCLabelBMFont::create("Offset", "goldFont.fnt");
+        auto label = geode::Label::create("Offset", "goldFont.fnt");
         label->setScale(0.35f);
         addChildAtPosition(label, Anchor::Top, {0.f, -5.f});
         

@@ -27,7 +27,7 @@ class $modify(IGVSetGroupIDLayer, SetGroupIDLayer) {
     struct Fields {
         AdvancedScrollLayer* m_scrollLayer;
         AdvancedScrollBar* m_scrollBar;
-        CCLabelBMFont* m_groupCountLabel;
+        geode::Label* m_groupCountLabel;
 
         int m_lastRemoved = 0;
         std::unordered_map<std::string, short, geode::utils::StringHash, std::equal_to<>> m_namedIDs;
@@ -55,7 +55,7 @@ class $modify(IGVSetupSpawnPopup, SetupSpawnPopup) {
         int m_lastPage = 0;
         AdvancedScrollLayer* m_scrollLayer;
         AdvancedScrollBar* m_scrollBar;
-        CCLabelBMFont* m_groupCountLabel;
+        geode::Label* m_groupCountLabel;
     };
 
     static void _onModify(auto& self) {
@@ -78,7 +78,7 @@ class $modify(IGVSetupRandAdvTriggerPopup, SetupRandAdvTriggerPopup) {
     struct Fields {
         AdvancedScrollLayer* m_scrollLayer;
         AdvancedScrollBar* m_scrollBar;
-        CCLabelBMFont* m_groupCountLabel;
+        geode::Label* m_groupCountLabel;
     };
 
     void updateGroupIDButtons();

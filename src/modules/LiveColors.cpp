@@ -147,5 +147,10 @@ void LCLevelEditorLayer::checkColors(float dt) {
         heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();
     }
 
-    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 5.f * m_editorUI->m_positionSlider->getScale());
+    float scale = 1.f;
+    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
+        scale = UIScaling::get()->m_scale;
+    }
+
+    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 2.5f * scale);
 }

@@ -27,7 +27,7 @@ class $modify(SPTEditorUI, EditorUI) {
         bool m_fromStart;
         bool m_currentlyPlaying = false;
         geode::NineSlice* m_switcherContainer;
-        CCLabelBMFont* m_switcherLabel;
+        geode::Label* m_switcherLabel;
         geode::Button* m_prevButton;
         geode::Button* m_nextButton;
     };
