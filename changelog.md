@@ -1,3 +1,8 @@
+# 1.0.75
+- <c-dddddd>Fix repeated status bar labels</c>
+- <c-dddddd>Fix move event being called thousands of times per frame causing the game to lag when doing anything that moves an object</c>
+- <c-dddddd>Fix length in editor position being goofy when status bar is enabled</c>
+
 # 1.0.74
 - <c-dddddd>Object Names are now also stored in resources as a fallback</c>
 - <c-dddddd>Use geode::Label whenever possible, improving performance especially when opening the font picker</c>

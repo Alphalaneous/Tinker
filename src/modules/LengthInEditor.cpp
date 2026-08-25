@@ -48,7 +48,7 @@ void LengthInEditor::onEditor() {
 
     m_lengthContainer = CCNode::create();
     m_lengthContainer->setContentSize({80.f, 36.f});
-    m_lengthContainer->setAnchorPoint({0.f, 1.f});
+    m_lengthContainer->setAnchorPoint({0.f, 0.5f});
     m_lengthContainer->setID("length-container"_spr);
 
     auto lengthLabel = geode::Label::create("Length", "bigFont.fnt");
@@ -105,10 +105,11 @@ void LengthInEditor::updateUI(float scale) {
 
     if (!undoMenu || !playbackMenu) return;
     m_lengthContainer->setScale(0.5f * scale);
-    m_lengthContainer->setPositionY(undoMenu->getPositionY() - undoMenu->getScaledContentHeight() / 2.f - 5.f * scale);
 
     auto available = tinker::utils::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::Axis::Vertical);
     
+    m_lengthContainer->setPositionY((available.min + available.max) / 2.f);
+
     float xPos = 0.f;
     if (tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
         xPos = 5.f * scale + UIScaling::getSafeOffset().x;

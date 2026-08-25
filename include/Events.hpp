@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/Geode.hpp>
-#include <Geode/binding/GameObject.hpp>
 
 using namespace geode::prelude;
 

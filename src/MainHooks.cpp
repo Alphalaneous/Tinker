@@ -106,7 +106,7 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
         m_objectInfoLabel->setPositionX(x + offset);
     });
 
-    editorLayer->schedule(schedule_selector(MainLevelEditorLayer::mainUpdate));
+    editorLayer->schedule(schedule_selector(MainLevelEditorLayer::mainUpdate), 1.f / 60.f);
 
     runAction(CallFuncExt::create([this, editorLayer] {
         m_toolbarHeight = tinker::utils::getToolbarHeight(false);
@@ -347,7 +347,14 @@ void MainEditorUI::updateZoom(float zoom) {
 
 void MainEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
     EditorUI::moveObject(object, offset);
+    auto fields = m_fields.self();
+    if (fields->m_moveEventLocked) return;
     ObjectMovedEvent().send();
+
+    fields->m_moveEventLocked = true;
+    runAction(CallFuncExt::create([fields] {
+        fields->m_moveEventLocked = false;
+    }));
 }
 
 MainEditorUI* MainEditorUI::get() {

@@ -149,6 +149,8 @@ bool StatusBar::init() {
 
     updateLayout();
 
+    //schedule(schedule_selector(StatusBar::checkTime));
+
     return true;
 }
 
@@ -160,9 +162,16 @@ geode::Label* StatusBar::addLabel(ZStringView id, int idx, bool right) {
     label->setZOrder(idx);
 
     auto node = right ? m_rightNode : m_leftNode;
+    node->removeChildByID(id);
     node->addChild(label);
 
     return label;
+}
+
+void StatusBar::checkTime(float dt) {
+    auto editor = LevelEditorLayer::get();
+
+    log::info("time: {}", editor->m_drawGridLayer->m_musicTime);
 }
 
 void StatusBar::updateLayouts() {

@@ -47,6 +47,7 @@ class $modify(MainEditorUI, EditorUI) {
         int m_lastActiveObjectCount;
         bool m_wasPlatformer;
         bool m_uiVisible = true;
+        bool m_moveEventLocked = false;
         CCPoint m_lastPosition;
         KeyboardModifier m_lastModifier;
 

@@ -9,6 +9,7 @@ public:
     static StatusBar* create();
     geode::Label* addLabel(ZStringView id, int idx, bool right);
     void updateLayouts();
+    void checkTime(float dt);
 
 protected:
     bool init();
