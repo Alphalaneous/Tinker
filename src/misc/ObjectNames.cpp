@@ -52,7 +52,9 @@ void ObjectNames::loadNames(std::string_view names) {
 
 void ObjectNames::loadNamesFromFile() {
     std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-    if (!std::filesystem::exists(objectNames)) {
+    std::error_code err;
+
+    if (!std::filesystem::exists(objectNames, err)) {
         downloadNames();
         return;
     }
@@ -74,7 +76,9 @@ void ObjectNames::downloadNames() {
         [this] (web::WebResponse value) {
             if (value.error()) {
                 std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-                if (!std::filesystem::exists(objectNames)) return;
+                std::error_code err;
+
+                if (!std::filesystem::exists(objectNames, err)) return;
                 
                 auto namesRes = utils::file::readString(objectNames);
                 if (!namesRes) return;
@@ -136,7 +140,9 @@ int ObjectNames::checkVersion() {
 
 $on_game(Loaded) {
     std::filesystem::path objectNames = Mod::get()->getResourcesDir() / "objects.csv";
-    if (std::filesystem::exists(objectNames)) {
+    std::error_code err;
+
+    if (std::filesystem::exists(objectNames, err)) {
         auto namesRes = utils::file::readString(objectNames);
         if (!namesRes) return;
 

@@ -241,10 +241,13 @@ void OSCreateMenuItem::loadObject() {
     GameObject* obj = nullptr;
 
     if (m_objectID == objects::Text || m_objectID == objects::Counter) {
-        auto texture = CCTextureCache::get()->addImage("bigFont.png", false);
-        obj = TextGameObject::create(texture);
+        auto texture = CCTextureCache::get()->textureForKey("bigFont.png");
+        if (texture) {
+            obj = TextGameObject::create(texture);
+        }
     }
-    else {
+    
+    if (!obj) {
         obj = GameObject::createWithKey(m_objectID);
     }
 

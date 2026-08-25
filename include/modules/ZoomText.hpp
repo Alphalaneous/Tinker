@@ -8,4 +8,5 @@ class $module(ZoomText) {
     bool onToggled(bool state);
     void onEditor();
     void showZoomText();
+    int getHighestChildZ();
 };

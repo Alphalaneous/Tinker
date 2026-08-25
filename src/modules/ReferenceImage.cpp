@@ -149,8 +149,9 @@ void RITextGameObject::setupImage(const std::string& path) {
         if (!u16Res) return;
 
         std::filesystem::path decoded = u16Res.unwrap();
+        std::error_code err;
 
-        if (std::filesystem::exists(decoded) && !std::filesystem::is_directory(decoded)) {
+        if (std::filesystem::exists(decoded, err) && !std::filesystem::is_directory(decoded, err)) {
             fields->m_spr = LazySprite::create({60.f, 60.f}, true);
             fields->m_spr->setZOrder(1);
             fields->m_spr->setPosition(getContentSize() / 2.f);

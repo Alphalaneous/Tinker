@@ -14,16 +14,27 @@ bool ZoomText::onToggled(bool state) {
     return true;
 }
 
+int ZoomText::getHighestChildZ() {
+    auto highest = INT_MIN;
+    auto editor = getEditor();
+    for (auto child : editor->getChildrenExt()) {
+        if (child->getZOrder() > highest) {
+            highest = child->getZOrder();
+        }
+    }
+    return highest;
+}
+
 void ZoomText::onEditor() {
     auto winSize = CCDirector::get()->getWinSize();
+    auto editor = getEditor();
 
     m_zoomLabel = geode::Label::create("", "bigFont.fnt");
     m_zoomLabel->setScale(0.5f);
     m_zoomLabel->setPosition(winSize.width / 2.f, winSize.height - 60.f);
     m_zoomLabel->setID("zoom-text"_spr);
     m_zoomLabel->setOpacity(0);
-    m_zoomLabel->setZOrder(99999);
-    getEditor()->addChild(m_zoomLabel);
+    editor->addChild(m_zoomLabel);
 
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         auto winSize = CCDirector::get()->getWinSize();
@@ -34,6 +45,7 @@ void ZoomText::onEditor() {
     addEventListener("editor-zoom", EditorZoomEvent(), [this] (float zoom) {
         if (!m_zoomLabel) return;
 
+        m_zoomLabel->setZOrder(getHighestChildZ());
         m_zoomLabel->setString(fmt::format("Zoom: {}x", numToString(getEditorLayer()->m_objectLayer->getScale(), 2)).c_str());
         m_zoomLabel->setOpacity(255);
         m_zoomLabel->stopAllActions();
