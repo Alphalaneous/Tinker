@@ -33,8 +33,11 @@ void AMIEffectGameObject::customSetup() {
     addChildAtPosition(spr, Anchor::Center);
 
     // can end up unscheduled if ran on the object
-    MainLevelEditorLayer::get()->runAction(CallFuncExt::create([this] {
-        updateLetters();
+    MainLevelEditorLayer::get()->runAction(CallFuncExt::create([self = WeakRef(this)] {
+        auto obj = self.lock();
+        if (obj) {
+            obj->updateLetters();
+        }
     }));
 }
 

@@ -1,3 +1,6 @@
+# 1.0.77
+- <c-dddddd>Crash hotfix</c>
+
 # 1.0.76
 - <c-dddddd>Fix a bug where settings that are visible in the scroll area wouldn't get reset if you pressed reset all</c>
 - <c-dddddd>Fix a memory leak where specifically the F modifier block would leak</c>
