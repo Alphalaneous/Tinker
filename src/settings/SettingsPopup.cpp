@@ -297,12 +297,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
                     for (auto& settingNode : m_settingNodes) {
                         auto setting = settingNode->getSetting();
                         if (!setting || setting->isDefaultValue()) continue;
-                        setting->reset();
-                    }
-                    for (auto& setting : m_settingNodes) {
-                        if (setting->settingWasChanged()) {
-                            setting->commit();
-                        }
+                        settingNode->resetToDefault();
                     }
                 }
             }

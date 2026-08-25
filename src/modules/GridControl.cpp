@@ -1,6 +1,8 @@
 #include "modules/GridControl.hpp"
+#include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Utils.hpp"
+#include <alphalaneous.editorsounds/include/API.hpp>
 
 #ifndef GEODE_IS_ANDROID32
 
@@ -22,6 +24,10 @@ bool GridControl::onToggled(bool state) {
         auto editor = getEditor();
         editor->m_uiItems->removeObject(m_control);
         m_control->removeFromParent();
+        editor->m_uiItems->removeObject(m_toggler);
+        m_toggler->removeFromParent();
+        m_toggler = nullptr;
+
         m_control = nullptr;
         m_input = nullptr;
 
@@ -52,7 +58,51 @@ bool GridControl::onToggled(bool state) {
         removeEventListener("increase-keybind");
         removeEventListener("decrease-keybind");
 
-        getEditor()->updateGridNodeSize();
+        editor->updateGridNodeSize();
+
+        auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
+        if (!menu) return true;
+
+        menu->updateLayout();
+    }
+
+    if (TogglerOverflow::isEnabled()) {
+        TogglerOverflow::get()->updateContainer();
+    }
+    return true;
+}
+
+bool GridControl::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    if (key == "show-grid-scale-toggle") {
+        auto res = value.asBool();
+        if (!res) return true;
+
+        auto editor = getEditor();
+        auto show = res.unwrap();
+
+        if (!show) {
+            m_gridScaleToggled = false;
+            m_toggler->removeFromParent();
+
+            auto menu = editor->getChildByID("toolbar-toggles-menu");
+            if (!menu) return true;
+
+            menu->updateLayout();
+        }
+        else {
+            m_gridScaleToggled = Mod::get()->getSavedValue<bool>("grid-scale-toggle", false);
+            auto menu = editor->getChildByID("toolbar-toggles-menu");
+            if (!menu) return true;
+
+            menu->addChild(m_toggler);
+            m_toggler->toggle(m_gridScaleToggled);
+
+            menu->updateLayout();
+        }
+
+        if (TogglerOverflow::isEnabled()) {
+            TogglerOverflow::get()->updateContainer();
+        }
     }
     return true;
 }
@@ -151,6 +201,40 @@ void GridControl::onEditor() {
     }
 
     updateGrid();
+
+    auto menu = editor->getChildByID("toolbar-toggles-menu");
+    if (!menu) return;
+
+    auto spr = CCSprite::create("grid-scale.png"_spr);
+    spr->setID("grid-scale-sprite"_spr);
+    
+    auto sprOn = ButtonSprite::create(spr, 40, true, 40.f, "GJ_button_02.png", 1.f);
+    auto sprOff = ButtonSprite::create(spr, 40, true, 40.f, "GJ_button_01.png", 1.f);
+    
+    sprOn->setID("grid-scale-sprite-on"_spr);
+    sprOff->setID("grid-scale-sprite-off"_spr);
+
+    sprOn->setContentSize({40.f, 40.f});
+    sprOff->setContentSize({40.f, 40.f});
+
+    m_toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
+        m_gridScaleToggled = !toggler->isToggled();
+        Mod::get()->setSavedValue<bool>("grid-scale-toggle", m_gridScaleToggled);
+    });
+    m_toggler->setID("grid-scale-button"_spr);
+    alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
+
+    if (getSetting<bool, "show-grid-scale-toggle">()) {
+        bool isToggled = Mod::get()->getSavedValue<bool>("grid-scale-toggle", false);
+
+        m_toggler->toggle(isToggled);
+        m_gridScaleToggled = isToggled;
+
+        menu->addChild(m_toggler);
+        
+        menu->updateLayout();
+    }
+    editor->m_uiItems->addObject(m_toggler);
 }
 
 void GridControl::removeBE() {
@@ -197,14 +281,46 @@ void GridControl::updateGrid(float newValue, bool updateInput) {
     }
 }
 
+float GridControl::getGridMultiplier() {
+    if (!m_gridScaleToggled) return 1.f;
+
+    auto size = Mod::get()->getSavedValue<float>("grid-size");
+    if (size <= 0.f) {
+        return 1.f;
+    }
+
+    return size / 30.f;
+}
+
+GameObject* GCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
+    auto ret = EditorUI::createObject(objectID, position);
+    auto mult = GridControl::get()->getGridMultiplier();
+
+    ret->updateCustomScaleX(ret->m_pixelScaleX * mult);
+    ret->updateCustomScaleY(ret->m_pixelScaleY * mult);
+
+    return ret;
+}
+
+cocos2d::CCPoint GCEditorUI::offsetForKey(int id) {
+    auto ret = EditorUI::offsetForKey(id);
+    auto mult = GridControl::get()->getGridMultiplier();
+
+    ret *= mult;
+    return ret;
+}
+
 float GCObjectToolbox::gridNodeSizeForKey(int id) {
     auto size = Mod::get()->getSavedValue<float>("grid-size");
 
-    if (size < 1.f || std::roundf(size) == 30.f) {
+    if (size <= 0.f) {
         return ObjectToolbox::gridNodeSizeForKey(id);
     }
 
-    return size;
+    auto origSize = ObjectToolbox::gridNodeSizeForKey(id);
+    auto mult = origSize / 30.f;
+
+    return size * mult;
 }
 
 #endif

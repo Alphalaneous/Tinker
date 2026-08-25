@@ -15,6 +15,7 @@ public:
     virtual void updateState();
     virtual void commit();
     virtual void resetToDefault();
+    virtual SettingNodeV3* getNode();
 
     std::shared_ptr<SettingV3> getSetting();
 protected:

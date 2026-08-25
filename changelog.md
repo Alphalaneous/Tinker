@@ -1,3 +1,13 @@
+# 1.0.76
+- <c-dddddd>Fix a bug where settings that are visible in the scroll area wouldn't get reset if you pressed reset all</c>
+- <c-dddddd>Fix a memory leak where specifically the F modifier block would leak</c>
+- <c-dddddd>Fix a crash when pressing escape while editing multiple text objects on macOS</c>
+- <c-dddddd>Add back keybind to exit editor pause and fix a crash related to it (thanks robtop for the use after free :3)</c>
+- <c-dddddd>Add Go to Layer keybind option</c>
+- <c-dddddd>Add Cycle Color Overlay keybind option</c>
+- <c-dddddd>Custom grid sizes are now relative to the selected object and don't get overriden</c>
+- <c-dddddd>Add grid scaling toggle to scale placed objects relative to the grid size</c>
+
 # 1.0.75
 - <c-dddddd>Fix repeated status bar labels</c>
 - <c-dddddd>Fix move event being called thousands of times per frame causing the game to lag when doing anything that moves an object</c>

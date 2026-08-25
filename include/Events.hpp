@@ -91,3 +91,7 @@ struct UIScaleUpdated final : Event<UIScaleUpdated, bool(float scale, bool scale
 struct PauseUIScaleUpdated final : Event<PauseUIScaleUpdated, bool(EditorPauseLayer* pauseLayer, float scale)> {
     using Event::Event;
 };
+
+struct LostFocusEvent final : Event<LostFocusEvent, bool()> {
+    using Event::Event;
+};

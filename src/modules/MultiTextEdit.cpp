@@ -94,6 +94,20 @@ void MTECustomizeObjectLayer::onClose(CCObject* sender) {
     CustomizeObjectLayer::onClose(sender);
 }
 
+// macOS inlined onClose here instead of calling it
+#ifdef GEODE_IS_MACOS
+void MTECustomizeObjectLayer::keyBackClicked() {
+    auto fields = m_fields.self();
+    if (fields->m_textObjects) {
+        m_targetObject = static_cast<GameObject*>(m_targetObjects->objectAtIndex(0));
+        m_targetObjects = nullptr;
+
+        m_textInput->setString(fields->m_text);
+    }
+    CustomizeObjectLayer::keyBackClicked();
+}
+#endif
+
 void MTECustomizeObjectLayer::onSelectMode(cocos2d::CCObject* sender) {
     CustomizeObjectLayer::onSelectMode(sender);
     auto fields = m_fields.self();

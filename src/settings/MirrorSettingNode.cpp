@@ -33,15 +33,22 @@ public:
     }
 
     void resetToDefault() override {
-        if (!m_settingNode) return;
+        if (!m_settingNode) {
+            if (m_setting) {
+                m_setting->reset();
+            }
+            return;
+        }
         m_settingNode->resetToDefault();
+    }
+
+    SettingNodeV3* getNode() override {
+        return m_settingNode;
     }
 
     void setVisible(bool visible) override {
         CCLayerColor::setVisible(visible);
         if (!m_loaded && visible) {
-
-
             float scaleOffset = 0.8f;
             float offset = 2.f;
 

@@ -1,4 +1,5 @@
 #include "modules/AwesomeModifierIcons.hpp"
+#include "MainHooks.hpp"
 #include "utils/Constants.hpp"
 
 using namespace tinker::constants::objects;
@@ -31,12 +32,10 @@ void AMIEffectGameObject::customSetup() {
     spr->setScale(0.9f);
     addChildAtPosition(spr, Anchor::Center);
 
-    // can end up unscheduled, this is needed instead of runAction
-    queueInMainThread([self = WeakRef(this)] {
-        if (auto obj = self.lock()) {
-            obj->updateLetters();
-        }
-    });
+    // can end up unscheduled if ran on the object
+    MainLevelEditorLayer::get()->runAction(CallFuncExt::create([this] {
+        updateLetters();
+    }));
 }
 
 void AMIEffectGameObject::updateLetters() {
@@ -99,7 +98,7 @@ void AwesomeModifierIcons::onEditor() {
     }
 
     if (fItem && hIndex != -1) {
-        buttons->removeObject(fItem, false);
+        buttons->removeObject(fItem);
         if (fIndex < hIndex) hIndex--;
         buttons->insertObject(fItem, hIndex + 1);
     }

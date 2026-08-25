@@ -116,6 +116,7 @@ void InputAppDelegate::applicationDidEnterBackground() {
     }
 
     tinker::ui::TouchForward::get()->cancelAllTouches();
+    LostFocusEvent().send();
     AppDelegate::applicationDidEnterBackground();
 }
 #endif
@@ -185,6 +186,35 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         else {
             editGroup(nullptr);
         }
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-go-to-layer"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+        onGoToLayer(nullptr);
+    });
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-cycle-color-overlay"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        if (!down || repeat) return;
+
+        if (!m_selectedObject && m_selectedObjects->count() == 0) {
+            closeLiveColorSelect();
+            closeLiveHSVSelect();
+            return;
+        }
+
+        auto tag = m_editHSVBtn->getTag();
+        if (tag == 1) {
+            editHSV();
+        }
+        else {
+            if (m_hsvOverlay) {
+                closeLiveHSVSelect();
+            }
+            else {
+                editColor();
+            }
+        }
+        updateEditColorButton();
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-special"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
@@ -831,13 +861,13 @@ bool InputEditorUI::hasActiveAlerts() {
 
 void InputEditorPauseLayer::customSetup() {
     EditorPauseLayer::customSetup();
-    #ifndef GEODE_IS_MACOS
     if (!EditorUI::get() || getUserFlag("ignore"_spr)) return;
 
     InputEditorUI::get()->cancelAllTextInputs();
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-exit-pause-menu"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down && !repeat && !InputEditorUI::get()->hasActiveAlerts()) {
+            auto ref = Ref(this);
             onResume(nullptr);
         }
     });
@@ -853,7 +883,6 @@ void InputEditorPauseLayer::customSetup() {
             editor->unblockPause();
         }
     });
-    #endif
 }
 
 class $baseModify(InputCCTextInputNode, CCTextInputNode) {

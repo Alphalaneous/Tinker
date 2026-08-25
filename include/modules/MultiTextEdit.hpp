@@ -25,5 +25,8 @@ class $modify(MTECustomizeObjectLayer, CustomizeObjectLayer) {
     void textChanged(CCTextInputNode* node);
     void sliderChanged(CCObject* sender);
     void onClose(CCObject* sender);
+    #ifdef GEODE_IS_MACOS
+    void keyBackClicked();
+    #endif
     void onSelectMode(cocos2d::CCObject* sender);
 };

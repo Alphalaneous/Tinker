@@ -18,6 +18,12 @@ bool RepeatingEditorButtons::onSettingChanged(std::string_view key, const matjso
 void REBCCMenuItemSpriteExtra::setRepeatable(bool repeatable) {
     auto fields = m_fields.self();
     fields->m_repeatable = repeatable;
+
+    removeEventListener("lost-focus"_spr);
+    addEventListener("lost-focus"_spr, LostFocusEvent(), [this, fields] {
+        unschedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold));
+        fields->m_isHolding = false;
+    });
 }
 
 void REBCCMenuItemSpriteExtra::checkHold(float dt) {

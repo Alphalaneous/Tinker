@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.75",
+	"version": "v1.0.76",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -673,6 +673,12 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enabled",
+			"platforms": ["win", "mac", "ios", "android64"]
+		},
+		"GridControl-show-grid-scale-toggle": {
+			"type": "bool",
+			"default": true,
+			"name": "Show Grid Scale Toggle",
 			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"GridControl-increase-keybind": {
@@ -1428,6 +1434,18 @@
 			"default": [],
 			"category": "editor"
 		},
+		"Keybinds-go-to-layer": {
+			"name": "Go to Layer",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
+		"Keybinds-cycle-color-overlay": {
+			"name": "Cycle HSV/Color Overlay",
+			"type": "keybind",
+			"default": [],
+			"category": "editor"
+		},
 		"Keybinds-paste-color": {
 			"name": "Paste Color",
 			"type": "keybind",
@@ -1517,8 +1535,7 @@
 			"name": "Exit Pause Menu",
 			"type": "keybind",
 			"default": ["Escape"],
-			"category": "editor",
-			"platforms": ["win", "android", "ios"]
+			"category": "editor"
 		},
 		"Debug-title": {
 			"type": "title",
