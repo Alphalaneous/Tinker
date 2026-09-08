@@ -420,7 +420,8 @@ void GLevelEditorLayer::createObjectsFromSetup(gd::string& setup) {
         }
     }
 
-    auto newSetup = fmt::format("{}{}", setup, strBuffer);
+    // android sucks
+    gd::string newSetup = fmt::format("{}{}", setup, strBuffer);
     LevelEditorLayer::createObjectsFromSetup(newSetup);
 }
 
