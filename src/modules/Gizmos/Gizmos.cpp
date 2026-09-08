@@ -392,7 +392,9 @@ void GEditorPauseLayer::saveLevel() {
         auto origID = gizmo->m_objectID;
         gizmo->m_objectID = 0;
         auto save = gizmo->getSaveString(m_editorLayer);
-        arr.push_back(save.substr(4));
+        auto saveView = std::string_view(save);
+
+        arr.push_back(std::string(saveView.substr(4)));
         gizmo->m_objectID = origID;
     }
 
