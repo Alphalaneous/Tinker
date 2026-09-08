@@ -164,11 +164,13 @@ void PlacePreviewNode::update(float dt) {
             m_hoverObject->setRotation(rotationValue);
             applyOffset(m_hoverObject);
         }
+        #ifndef GEODE_IS_ANDROID32
         if (GridControl::isEnabled()) {
             auto mult = GridControl::get()->getGridMultiplier();
             m_hoverObject->updateCustomScaleX(m_hoverObject->m_pixelScaleX * mult);
             m_hoverObject->updateCustomScaleY(m_hoverObject->m_pixelScaleY * mult);
         }
+        #endif
     }
 }
 
