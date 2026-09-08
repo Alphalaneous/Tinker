@@ -27,18 +27,48 @@ float CleanPause::sliderToVolume(float n) {
     return n;
 }
 
+SliderBypassTest* SliderBypassTest::create() {
+    auto ret = new SliderBypassTest();
+    if (ret->init()) {
+        ret->autorelease();
+        return ret;
+    }
+    delete ret;
+    return nullptr;
+}
+
+bool SliderBypassTest::hasBypass() {
+    return m_hasBypass;
+}
+
+bool SliderBypassTest::init() {
+    auto slider = Slider::create(this, menu_selector(SliderBypassTest::onSlider));
+
+    auto touch = new CCTouch();
+    touch->autorelease();
+
+    slider->m_touchLogic->m_activateThumb = true;
+
+    touch->m_point = CCPoint{slider->m_touchLogic->m_length + 1.f, 0.f};
+    slider->ccTouchMoved(touch, nullptr);
+
+    return true;
+}
+
+void SliderBypassTest::onSlider(CCObject* sender) {
+    m_hasBypass = static_cast<SliderThumb*>(sender)->getValue() > 1.f;
+}
+
+bool CleanPause::isSliderBypassEnabled() {
+    return SliderBypassTest::create()->hasBypass();
+}
+
 void CleanPause::onEditor() {
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* pauseLayer) {
         pauseLayer->setScale(0.925f);
         pauseLayer->setOpacity(0);
 
-        float scale = 1.f;
-        if (UIScaling::isEnabled()) {
-            if (UIScaling::get()->m_scalePause) {
-                scale = UIScaling::get()->m_scale;
-            }
-        }
-
+        float scale = UIScaling::getScale();
         auto winSize = CCDirector::get()->getWinSize();
 
         auto bg = geode::NineSlice::create("square04_001.png");
@@ -87,6 +117,8 @@ void CleanPause::onEditor() {
             true);
         }
 
+        bool hasBypass = isSliderBypassEnabled();
+
         auto fmod = FMODAudioEngine::get();
 
         auto musicLabelContainer = CCNode::create();
@@ -124,9 +156,12 @@ void CleanPause::onEditor() {
             }
         });
         musicSlider->setID("music-slider"_spr);
+        musicSlider->setSliderBypass(hasBypass);
         musicSlider->linkTextInput(musicInput, 0);
         musicSlider->setValue(volumeToSlider(fmod->m_musicVolume) * 100.f);
         pauseLayer->addChild(musicSlider);
+
+        musicInput->setFilter("0123456789");
 
         auto sfxLabelContainer = CCNode::create();
         sfxLabelContainer->setAnchorPoint({0.5f, 0.5f});
@@ -165,18 +200,18 @@ void CleanPause::onEditor() {
             }
         });
         sfxSlider->setID("sfx-slider"_spr);
+        sfxSlider->setSliderBypass(hasBypass);
         sfxSlider->linkTextInput(sfxInput, 0);
         sfxSlider->setValue(volumeToSlider(fmod->m_sfxVolume) * 100.f);
         pauseLayer->addChild(sfxSlider);
+
+        sfxInput->setFilter("0123456789");
 
         scaleAndPosition(pauseLayer, scale);
     });
 
     addEventListener(PauseUIScaleUpdated(), [this] (EditorPauseLayer* pauseLayer, float scale) {
-        if (UIScaling::isEnabled() && !UIScaling::get()->m_scalePause) {
-            scale = 1.f;
-        }
-        scaleAndPosition(pauseLayer, scale);
+        scaleAndPosition(pauseLayer, UIScaling::getPauseScale());
     });
 }
 

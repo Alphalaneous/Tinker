@@ -23,7 +23,7 @@ namespace tinker::utils {
     void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method) {
         if (btn->getUserObject("hijack"_spr)) return;
 
-        auto hijack = HijackCallback::create(method, btn->m_pfnSelector);
+        auto hijack = HijackCallback::create(std::move(method), btn->m_pfnSelector);
         btn->setUserObject("hijack"_spr, hijack);
         btn->m_pfnSelector = menu_selector(HijackCallback::callback);
     }
@@ -59,32 +59,6 @@ namespace tinker::utils {
                 }
             }
         }
-    }
-
-    int getActiveObjectCount(const GJBaseGameLayer* game) {
-        int count = game->m_sections.empty() ? -1 : game->m_sections.size();
-        int activeCount = 0;
-
-        for (int i = game->m_leftSectionIndex; i <= game->m_rightSectionIndex && i < count; ++i) {
-            auto leftSection = game->m_sections[i];
-            if (!leftSection) continue;
-
-            auto leftSectionSize = leftSection->size();
-            for (int j = game->m_bottomSectionIndex; j <= game->m_topSectionIndex && j < leftSectionSize; ++j) {
-                auto section = leftSection->at(j);
-                if (!section) continue;
-
-                auto sectionSize = game->m_sectionSizes[i]->at(j);
-                for (int k = 0; k < sectionSize; ++k) {
-                    auto obj = section->at(k);
-                    if (!obj) continue;
-
-                    ++activeCount;
-                }
-            }
-        }
-
-        return activeCount;
     }
 
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees) {
@@ -140,21 +114,18 @@ namespace tinker::utils {
     }
 
     float getToolbarHeight(bool checkVisible) {
-
         if (MainEditorUI::get() && checkVisible && !MainEditorUI::get()->isUIVisible()) {
             return 0;
         }
         float toolbarOffset = 0.f;
         float height = tinker::constants::ToolbarHeight;
-        if (UIScaling::isEnabled()) {
-            float scale = UIScaling::get()->m_scaleToolbar ? UIScaling::get()->m_scale : 1.f;
-
-            height *= scale;
-            if (StatusBar::isEnabled() && scale <= 0.9f) {
-                toolbarOffset = StatusBar::get()->m_toolbarOffset;
-            } 
-        }
-
+        
+        float scale = UIScaling::getToolbarScale();
+        height *= scale;
+        if (StatusBar::isEnabled() && scale <= 0.9f) {
+            toolbarOffset = StatusBar::get()->m_toolbarOffset;
+        } 
+        
         return height + toolbarOffset;
     }
 
@@ -568,6 +539,24 @@ namespace tinker::utils {
         return channel->m_fromColor;
     }
 
+    void resizeNodeToRealBounds(CCNode* node, const CCSize& offset, const std::vector<CCNode*>& ignore) {
+        auto world = node->getParent()->convertToWorldSpace(node->getPosition());
+
+        std::unordered_map<CCNode*, CCPoint> worldPoints;
+        for (auto child : node->getChildrenExt()) {
+            worldPoints[child] = node->convertToWorldSpace(child->getPosition());
+            auto world = child->convertToWorldSpace(CCPointZero);
+        }
+
+        auto newSize = getRealBounds(node, ignore).size;
+        node->setContentSize(newSize + offset);
+        node->setPosition(node->getParent()->convertToNodeSpace(world));
+
+        for (auto child : node->getChildrenExt()) {
+            child->setPosition(node->convertToNodeSpace(worldPoints[child]));
+        }
+    }
+
     CCRect getRealBounds(CCNode* node, const std::vector<CCNode*>& ignore) {
         auto winSize = CCDirector::get()->getWinSize();
         if (!node->isVisible()) return {0, 0, 0, 0};
@@ -672,25 +661,12 @@ namespace tinker::utils {
     }
 
     bool nodeFits(CCNode* node, const AxisBounds& bounds, Axis axis) {
-        auto parent = node->getParent();
-        if (!parent) return false;
-
         auto realBounds = getRealBounds(node);
+        auto realSize = realBounds.size * node->getScale();
+        float check = axis == Axis::Horizontal ? realSize.width : realSize.height;
 
-        auto bottomLeft = node->convertToWorldSpace(realBounds.origin);
-        auto topRight = node->convertToWorldSpace({
-            realBounds.getMaxX(),
-            realBounds.getMaxY()
-        });
-
-        auto minPoint = parent->convertToNodeSpace(bottomLeft);
-        auto maxPoint = parent->convertToNodeSpace(topRight);
-
-        float size = axis == Axis::Horizontal ? maxPoint.x - minPoint.x : maxPoint.y - minPoint.y;
-
-        float available = bounds.max - bounds.min;
-
-        return size <= available;
+        float sizeCheck = bounds.max - bounds.min;
+        return check <= sizeCheck;
     }
 
     float getFurthestLeft(CCNode* node, float x) {

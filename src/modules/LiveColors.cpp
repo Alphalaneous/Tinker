@@ -11,11 +11,7 @@ using namespace tinker::ui;
 bool LiveColors::onToggled(bool state) {
     if (state) {
         onEditor();
-        float scale = 1.f;
-        if (UIScaling::isEnabled()) {
-            scale = UIScaling::get()->m_scale;
-        }
-        updateUI(scale);
+        updateUI(UIScaling::getScale());
     }
     else {
         m_colorsMenu->removeFromParent();
@@ -147,10 +143,5 @@ void LCLevelEditorLayer::checkColors(float dt) {
         heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();
     }
 
-    float scale = 1.f;
-    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
-        scale = UIScaling::get()->m_scale;
-    }
-
-    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 2.5f * scale);
+    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 2.5f * UIScaling::getScale());
 }

@@ -33,9 +33,14 @@ bool ColorVisualButton::init(EditorUI* editorUI) {
 void ColorVisualButton::setColorData(int id) {
     setVisible(id != -1);
     if (id == -1) return;
+    m_id = id;
 
     m_action = LevelEditorLayer::get()->m_levelSettings->m_effectManager->getColorAction(id);
     m_colorChannelSprite->setColorID(id);
+}
+
+void ColorVisualButton::updateColor() {
+    m_colorChannelSprite->setColorID(m_id);
 }
 
 void ColorVisualButton::openColorPicker(CCObject* obj) {

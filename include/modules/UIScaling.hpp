@@ -6,7 +6,6 @@
 #include <Geode/modify/HSVLiveOverlay.hpp>
 
 class $module(UIScaling) {
-    bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
     void onEditor();
     void setScaling(bool fullReload);
@@ -17,6 +16,9 @@ class $module(UIScaling) {
     void setupEvents();
 
     static CCPoint getSafeOffset();
+    static float getScale();
+    static float getToolbarScale();
+    static float getPauseScale();
 
     float m_scale = 1.f;
     float m_customSafeArea = 0.f;

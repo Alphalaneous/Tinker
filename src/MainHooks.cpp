@@ -86,21 +86,12 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
         ScrollableObjects::get()->setLoadBars();
     }
 
-    if (UIScaling::isEnabled()) {
-        UIScaling::get()->setScaling(true);
-    }
-    else {
-        UIScaleUpdated().send(1, true, true);
-    }
-
+    UIScaling::get()->setScaling(true);
     EditorEnterEvent().send(this);
     updateButtons();
 
     addEventListener(UpdateObjectLabel(), [this] () {
-        float scale = 1.f;
-        if (UIScaling::isEnabled()) {
-            scale = UIScaling::get()->m_scale;
-        }
+        float scale = UIScaling::getScale();
         float x = std::max(tinker::utils::getFurthestLeft(m_objectInfoLabel, 150.f * scale), UIScaling::getSafeOffset().x);
         float offset = 10.f * scale;
         m_objectInfoLabel->setPositionX(x + offset);
@@ -198,7 +189,7 @@ void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
 
 void MainEditorUI::checkActiveObjectCount(MainEditorUI::Fields* fields) {
     auto last = fields->m_lastActiveObjectCount;
-    auto cur = tinker::utils::getActiveObjectCount(m_editorLayer);
+    auto cur = m_editorLayer->m_activeObjectsCount;
 
     if (last != cur) {
         ActiveObjectsChangedEvent().send(cur);
@@ -420,7 +411,7 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
 
     auto winSize = CCDirector::get()->getWinSize();
 
-    versionLabel->setPosition(convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}));
+    versionLabel->setPosition(convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}) - UIScaling::getSafeOffset());
 
     addChild(versionLabel);
 

@@ -10,6 +10,15 @@
 
 using namespace geode::prelude;
 
+template <size_t S>
+constexpr bool operator==(
+    geode::utils::string::ConstexprString<S> const& a,
+    std::string_view b
+) {
+    return a.size() == b.size() &&
+           std::equal(a.begin(), a.end(), b.begin());
+}
+
 template <class T, geode::utils::string::ConstexprString Name, bool Global>
 struct ModuleCore : public ModuleBase {
 private:
@@ -68,6 +77,8 @@ public:
 
     static bool isEnabled() {
         if (!tinker::utils::shouldLoadTinker()) return false;
+        if constexpr (Name == "UIScaling") return true;
+
         static constexpr auto enabledKey =
             tinker::utils::concat<Name, "-enabled">();
 

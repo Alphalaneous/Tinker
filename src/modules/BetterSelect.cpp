@@ -18,8 +18,15 @@ bool BetterSelect::onSettingChanged(std::string_view key, const matjson::Value& 
 }
 
 void BetterSelect::onEditor() {
+    auto editor = getEditor();
+
     m_hover = tinker::ui::HoverObjectNode::create();
-    getEditor()->addChild(m_hover);
+    editor->addChild(m_hover);
+
+    m_selectPickerContainer = CCNode::create();
+    m_selectPickerContainer->setID("select-picker-container"_spr);
+    m_selectPickerContainer->setZOrder(9999);
+    editor->m_editorLayer->m_objectLayer->addChild(m_selectPickerContainer);
 }
 
 bool BetterSelect::hoveringObjects() {
@@ -72,7 +79,7 @@ void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
 
     auto hover = BetterSelect::get()->m_hover;
     if (hover && hover->hoveringObjects()) {
-        if (key == enumKeyCodes::KEY_Left || key == enumKeyCodes::KEY_Right) {
+        if (key == enumKeyCodes::KEY_Left || key == enumKeyCodes::KEY_Right || key == enumKeyCodes::KEY_Up) {
             return;
         }
         else if (!validKeys.contains(key)){
@@ -96,8 +103,6 @@ ObjectSelectContainer* ObjectSelectContainer::create(CCArray* objects) {
 }
 
 void ObjectSelectContainer::shiftObject(bool forward) {
-    auto editorUI = EditorUI::get();
-
     if (forward) {
         m_index++;
         if (m_index >= m_objects->count()) {
@@ -111,6 +116,27 @@ void ObjectSelectContainer::shiftObject(bool forward) {
         }
     }
     
+    refreshSelectedObjects();
+
+    if (m_index >= m_objectSprites.size()) return;
+
+    auto spr = m_objectSprites[m_objects->asExt<GameObject>()[m_index]];
+
+    m_scrollLayer->setScrollX(0);
+    m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
+    m_scrollLayer->setScrollX(spr->getPositionX() - m_scrollLayer->getContentWidth() / 2.f);
+
+    auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
+    auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
+
+    m_selectDot->setPositionX(sprBg.x);
+
+    showInfo();
+}
+
+void ObjectSelectContainer::refreshSelectedObjects() {
+    auto editorUI = EditorUI::get();
+
     int idx = 0;
     for (auto obj : m_objects->asExt<GameObject>()) {
         if (!obj) {
@@ -119,8 +145,10 @@ void ObjectSelectContainer::shiftObject(bool forward) {
         }
 
         auto spr = m_objectSprites[obj];
-        if (idx == m_index) {
-            obj->selectObject({0, 255, 0});
+        if (editorUI->m_selectedObjects->containsObject(obj) || editorUI->m_selectedObject == obj) {
+            if (idx == m_index) {
+                obj->selectObject({255, 155, 50});
+            }
 
             auto gameObject = spr->getChildByType<GameObject>(0);
             if (gameObject) {
@@ -142,22 +170,63 @@ void ObjectSelectContainer::shiftObject(bool forward) {
                 spr->setColor({255, 255, 255});
             }
         }
-
         idx++;
     }
+}
 
-    if (m_index >= m_objectSprites.size()) return;
+void ObjectSelectContainer::showInfo() {
+    if (m_infoBG) {
+        m_infoBG->removeFromParent();
+    }
+    if (!BetterSelect::getSetting<bool, "show-object-info">()) return;
 
-    auto spr = m_objectSprites[m_objects->asExt<GameObject>()[m_index]];
+    float offset = 3.f;
+    if (m_objectsBG->isVisible()) {
+        offset += m_objectsBG->boundingBox().getMaxY();
+    }
 
-    m_scrollLayer->setScrollX(0);
-    m_scrollLayer->setScrollX(m_scrollLayer->getHorizontalMax());
-    m_scrollLayer->setScrollX(spr->getPositionX() - m_scrollLayer->getContentWidth() / 2.f);
+    m_infoBG = NineSlice::create("simple-popup-square.png"_spr);
+    m_infoBG->setAnchorPoint({0.5f, 0.f});
+    m_infoBG->setOpacity(180);
+    m_infoBG->setPosition({getContentWidth() / 2.f, offset});
+    m_infoBG->setID("object-info-bg"_spr);
+    m_infoBG->setLayout(SimpleRowLayout::create()
+        ->setMainAxisScaling(AxisScaling::Fit)
+        ->setCrossAxisScaling(AxisScaling::Fit)
+        ->setPadding({10.f, 10.f, 10.f, 10.f})
+    );
 
-    auto sprWorld = spr->getParent()->convertToWorldSpace(spr->getPosition());
-    auto sprBg = m_objectsBG->convertToNodeSpace(sprWorld);
+    auto editor = EditorUI::get();
+    Ref<CCArray> objs = editor->m_selectedObjects;
 
-    m_selectDot->setPositionX(sprBg.x);
+    editor->m_selectedObjects = CCArray::create();
+
+    auto obj = editor->m_selectedObject;
+    editor->m_selectedObject = m_objects->asExt<GameObject>()[m_index];
+
+    auto gameManager = GameManager::get();
+    bool show = gameManager->getGameVariable(GameVar::ShowObjectInfo);
+    gameManager->setGameVariable(GameVar::ShowObjectInfo, true);
+
+    editor->updateObjectInfoLabel();
+
+    std::string objectInfo = editor->m_objectInfoLabel->getString();
+    geode::utils::string::trimIP(objectInfo);
+
+    auto infoLabel = geode::Label::create(objectInfo, "chatFont.fnt");
+    infoLabel->setScale(0.4f);
+
+    editor->m_selectedObjects = objs;
+    editor->m_selectedObject = obj;
+
+    gameManager->setGameVariable(GameVar::ShowObjectInfo, show);
+
+    editor->updateObjectInfoLabel();
+
+    m_infoBG->addChild(infoLabel);
+    m_infoBG->updateLayout();
+
+    addChild(m_infoBG);
 }
 
 bool ObjectSelectContainer::init(CCArray* objects) {
@@ -170,9 +239,13 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     m_objectsBG = geode::NineSlice::create("simple-popup-square.png"_spr);
     m_objectsBG->setAnchorPoint({0.f, 0.f});
-    m_objectsBG->setOpacity(160);
+    m_objectsBG->setOpacity(180);
     m_objectsBG->setContentSize({30.f, 40.f});
     m_objectsBG->setID("selected-objects-bg"_spr);
+
+    if (objects->count() == 1) {
+        m_objectsBG->setVisible(false);
+    }
 
     addChild(m_objectsBG);
 
@@ -201,15 +274,28 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     auto editorUI = EditorUI::get();
 
-    for (const auto& [obj, spr] : m_objectSprites) {
-        spr->removeFromParent();
+    GameObject* firstObject = nullptr;
+
+    if (editorUI->m_selectedObject) {
+        firstObject = editorUI->m_selectedObject;
     }
-    m_objectSprites.clear();
+    else if (editorUI->m_selectedObjects->count() > 0) {
+        std::vector<GameObject*> shared;
+        for (auto obj : editorUI->m_selectedObjects->asExt<GameObject>()) {
+            if (objects->containsObject(obj)) {
+                shared.push_back(obj);
+            }
+        }
+
+        if (!shared.empty()) {
+            firstObject = shared[shared.size() - 1];
+        }
+    }
 
     m_index = 0;
-    if (objects->containsObject(editorUI->m_selectedObject)) {
+    if (objects->containsObject(firstObject)) {
         for (auto obj : objects->asExt<GameObject>()) {
-            if (obj && editorUI->m_selectedObject == obj) {
+            if (obj && firstObject == obj) {
                 break;
             }
             m_index++;
@@ -254,8 +340,10 @@ bool ObjectSelectContainer::init(CCArray* objects) {
                 spr->setScale(scaleMultiplier);
             }
 
-            if (idx == m_index) {
-                obj->selectObject({0, 255, 0});
+            if (editorUI->m_selectedObjects->containsObject(obj) || editorUI->m_selectedObject == obj) {
+                if (idx == m_index) {
+                    obj->selectObject({255, 155, 50});
+                }
 
                 auto child = spr->getChildByType<GameObject>(0);
                 if (child) {
@@ -265,7 +353,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
                     spr->setColor({0, 255, 0});
                 }
             }
-
+            
             m_scrollLayer->getContentLayer()->addChild(spr);
         }
         idx++;
@@ -289,6 +377,13 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     m_selectDot->setPosition({sprBg.x, 7.f});
 
+    showInfo();
+
+    addOnExitCallback([this] {
+        // for some reason removal is delayed by a frame normally
+        m_scrollLayer->removeFromParent();
+    });
+    
     return true;
 }
 
@@ -331,16 +426,20 @@ bool HoverObjectNode::init() {
                     return;
                 }
 
-                if (m_active && (m_activeSelectContainer || m_lastObjects->count() == 1)) {
-                    GameObject* obj;
-                    if (m_activeSelectContainer) {
-                        obj = m_activeSelectContainer->getCurrentObject();
-                    }
-                    else if (m_lastObjects->count() == 1) {
-                        obj = m_lastObjects->asExt<GameObject>()[0];
-                    }
+                if (m_active && m_activeSelectContainer) {
+                    if (BetterSelect::getSetting<bool, "release-modifier-to-select">()) {
+                        GameObject* obj;
+                        if (m_lastObjects->count() == 1) {
+                            obj = m_lastObjects->asExt<GameObject>()[0];
+                        }
+                        else if (m_activeSelectContainer) {
+                            obj = m_activeSelectContainer->getCurrentObject();
+                        }
 
-                    selectObject(obj);
+                        if (obj) {
+                            selectObject(obj);
+                        }
+                    }
 
                     for (const auto& obj : m_lastObjects->asExt<GameObject>()) {
                         obj->deselectObject();
@@ -348,6 +447,7 @@ bool HoverObjectNode::init() {
 
                     editorUI->resetSelectedObjectsColor();
                 }
+            
                 removeObjectList();
             }
         }
@@ -356,6 +456,12 @@ bool HoverObjectNode::init() {
     addEventListener(ScrollWheelEvent(), [this] (double x, double y) {
         if (y == 0 || !m_active) return;
         shiftObject(y < 0);
+    });
+
+    addEventListener(MouseInputEvent(), [this] (MouseInputData& data) {
+        if (data.button == MouseInputData::Button::Middle && data.action == MouseInputData::Action::Press) {
+            quickSelect();
+        }
     });
 
     addEventListener(KeyboardInputEvent(), [this] (KeyboardInputData& data) {
@@ -367,15 +473,42 @@ bool HoverObjectNode::init() {
             if (data.key == enumKeyCodes::KEY_Right) {
                 shiftObject(true);
             }
+            if (data.key == enumKeyCodes::KEY_Up) {
+                quickSelect();
+            }
         }
     });
 
     return true;
 }
 
+void HoverObjectNode::quickSelect() {
+    if (m_active && m_activeSelectContainer) {
+        GameObject* obj;
+        if (m_lastObjects->count() == 1) {
+            obj = m_lastObjects->asExt<GameObject>()[0];
+        }
+        else if (m_activeSelectContainer) {
+            obj = m_activeSelectContainer->getCurrentObject();
+        }
+
+        if (obj) {
+            m_skipStop = true;
+            selectObject(obj, true);
+            m_skipStop = false;
+        }
+
+        for (const auto& obj : m_lastObjects->asExt<GameObject>()) {
+            obj->deselectObject();
+        }
+
+        m_activeSelectContainer->refreshSelectedObjects();
+    }
+}
+
 void HoverObjectNode::stopHover() {
     auto editorUI = EditorUI::get();
-    if (!editorUI) return;
+    if (!editorUI || m_skipStop) return;
     
     m_stopped = true;
     for (const auto& obj : m_lastObjects->asExt<GameObject>()) {
@@ -386,7 +519,7 @@ void HoverObjectNode::stopHover() {
     removeObjectList();
 }
 
-void HoverObjectNode::selectObject(GameObject* object) {
+void HoverObjectNode::selectObject(GameObject* object, bool toggleSelect) {
     auto editorUI = EditorUI::get();
 
     bool alreadySelected1 = editorUI->m_selectedObject && editorUI->m_selectedObject == object;
@@ -398,7 +531,7 @@ void HoverObjectNode::selectObject(GameObject* object) {
         auto link = editorUI->m_linkControlsDisabled;
         editorUI->m_linkControlsDisabled = true;
 
-        if (!editorUI->m_spaceSwiping && (editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed())) {
+        if (toggleSelect || (!editorUI->m_spaceSwiping && (editorUI->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed()))) {
             editorUI->selectObjects(CCArray::createWithObject(object), false);
         }
         else {
@@ -407,6 +540,14 @@ void HoverObjectNode::selectObject(GameObject* object) {
 
         editorUI->m_linkControlsDisabled = link;
         editorUI->updateButtons();
+        editorUI->updateObjectInfoLabel();
+    }
+    else if (toggleSelect) {
+        editorUI->createUndoSelectObject(false);
+        editorUI->deselectObject(object);
+    
+        editorUI->updateButtons();
+        editorUI->updateObjectInfoLabel();
     }
 }
 
@@ -419,33 +560,23 @@ void HoverObjectNode::shiftObject(bool forward) {
 void HoverObjectNode::showObjectList() {
     if (m_stopped) return;
 
-    runAction(CallFuncExt::create([container = Ref(m_activeSelectContainer)] {
-        if (container) {
-            container->removeFromParent();
-        }
-    }));
-
     if (m_activeSelectContainer) {
         if (m_activeSelectContainer->getCurrentObject()) {
             m_activeSelectContainer->getCurrentObject()->deselectObject();
         }
-        m_activeSelectContainer->setVisible(false);
+        m_activeSelectContainer->removeFromParent();
     }
     m_activeSelectContainer = nullptr;
     m_active = true;
 
     auto editorUI = EditorUI::get();
 
-    if (m_lastObjects->count() == 1) {
-        return;
-    }
-
     m_activeSelectContainer = ObjectSelectContainer::create(m_lastObjects);
 
     m_activeSelectContainer->setPosition(m_lastPos + CCPoint{0.f, 5.f});
     m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
 
-    editorUI->m_editorLayer->m_objectLayer->addChild(m_activeSelectContainer);
+    BetterSelect::get()->m_selectPickerContainer->addChild(m_activeSelectContainer);
 }
 
 void HoverObjectNode::removeObjectList() {
@@ -516,10 +647,15 @@ void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
         m_lastObjects->addObjectsFromArray(allowedObjects);
 
         for (auto obj : allowedObjects->asExt<GameObject>()) {
+            if (editorUI->m_selectedObject && editorUI->m_selectedObject == obj) continue;
+            if (editorUI->m_selectedObjects->containsObject(obj)) continue;
+            
             obj->selectObject({245, 245, 66});
         }
         if (m_activeSelectContainer && m_activeSelectContainer->getCurrentObject()) {
-            m_activeSelectContainer->getCurrentObject()->selectObject({0, 255, 0});
+            auto obj = m_activeSelectContainer->getCurrentObject();
+            bool isOne = m_lastObjects->count() == 1 && editorUI->m_selectedObject && editorUI->m_selectedObject == obj;
+            obj->selectObject(isOne ? ccColor3B{0, 255, 0} : ccColor3B{255, 155, 50});
         }
 
         if (m_lastObjects->count() > 0) {

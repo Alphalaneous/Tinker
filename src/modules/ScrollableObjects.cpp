@@ -311,11 +311,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         fields->m_separator->removeFromParent();
     }
 
-    float uiScale = 1.f;
-    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
-        uiScale = UIScaling::get()->m_scale;
-    }
-    setScale(uiScale);
+    setScale(UIScaling::getToolbarScale());
 
     runAction(CallFuncExt::create([this, fields, editorUI, rows, objects, currentX] {
         fields->m_widthOffset = 0.f;
@@ -369,8 +365,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
 
         float scale = (newSize.height) / height;
         fields->m_rows = rows;
-
-
+        
         fields->m_objectsMenu = CCMenu::create();
         fields->m_objectsMenu->setContentSize({newSize.width, height});
         fields->m_objectsMenu->setScale(scale);
@@ -426,12 +421,14 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         width -= gap;
 
         fields->m_objectsMenu->setContentSize({width, height});
+        float heightOffset = 10.f;
 
-        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize);
-        fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight});
+        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize + CCSize{0.f, heightOffset});
+        fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight - heightOffset / 2.f});
         fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
         fields->m_scrollLayer->setHorizontalScroll(true);
-        fields->m_scrollLayer->setHorizontalScrollWheel(true);
+        fields->m_scrollLayer->setVerticalScrollWheel(false);
+        fields->m_scrollLayer->setHorizontalScrollWheel(false);
         fields->m_scrollLayer->setVerticalScroll(false);
         fields->m_scrollLayer->setTouchPriority(-130);
         fields->m_scrollLayer->setID("buttons-scroll-layer"_spr);
@@ -451,7 +448,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         fields->m_scrollLayout->ignoreInvisibleChildren(false);
         fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Start);
         fields->m_scrollLayout->setCrossAxisLineAlignment(AxisAlignment::End);
-        fields->m_scrollLayout->setPadding({10.f, 0.f, 10.f, 0.f});
+        fields->m_scrollLayout->setPadding({10.f, heightOffset / 2.f, 10.f, heightOffset / 2.f});
 
         fields->m_scrollLayout->setGap(0);
         fields->m_scrollLayer->setLayout(fields->m_scrollLayout);
@@ -629,10 +626,10 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
     for (auto child : fields->m_objectsMenu->getChildrenExt()) {
         bool visible;
 
-        if (visibleUntilX == -1.0f && idx % fields->m_rows == 0) {
+        if (visibleUntilX == -1.f && idx % fields->m_rows == 0) {
             visible = child->getPositionX() + child->getContentWidth() > scaledX;
 
-            if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.0f) + child->getContentWidth() / 2.f;
+            if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.f) + child->getContentWidth() / 2.f;
 
         } else {
             visible = child->getPositionX() < visibleUntilX;

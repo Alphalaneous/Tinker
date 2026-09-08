@@ -57,10 +57,11 @@ void AlternateLassoLocation::onEditor() {
     auto sprOn = ButtonSprite::create(sprite, 40, true, 40.f, "GJ_button_01.png", 1.f);
     auto sprOff = ButtonSprite::create(sprite, 40, true, 40.f, "GJ_button_02.png", 1.f);
     
-    sprite->setPositionY(sprite->getPositionY() - 2.f);
-
     sprOn->setContentSize({40.f, 40.f});
     sprOff->setContentSize({40.f, 40.f});
+
+    sprOn->updateSpriteOffset({0.f, -1.5f});
+    sprOff->updateSpriteOffset({0.f, -1.5f});
 
     m_newToggler = CCMenuItemToggler::create(sprOn, sprOff, getEditor(), menu_selector(AlternateLassoLocation::onLasso));
     m_newToggler->setID("undefined0.lasso-select/lasso-button-toggler");

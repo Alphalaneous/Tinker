@@ -2,6 +2,7 @@
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include "InputsHandler.hpp"
+#include "modules/Gizmos/Gizmos.hpp"
 #include "modules/StatusBar.hpp"
 #include "utils/Utils.hpp"
 #include "modules/JoystickNavigation.hpp"
@@ -20,10 +21,12 @@ bool CanvasRotate::onToggled(bool state) {
         if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
             getEditor()->m_positionSlider->getThumb()->setRotation(getEditorLayer()->m_gameState.m_cameraAngle);
         }
+        EditorRotationEvent().send(getEditorLayer()->m_gameState.m_cameraAngle);
     }
     else {
         if (m_rotationNode) {
             m_rotationNode->removeFromParent();
+            m_rotationNode = nullptr;
         }
         if (m_statusLabel) {
             m_statusLabel->removeFromParent();
@@ -40,6 +43,8 @@ bool CanvasRotate::onToggled(bool state) {
         if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
             getEditor()->m_positionSlider->getThumb()->setRotation(0.f);
         }
+
+        EditorRotationEvent().send(0.f);
     }
     if (JoystickNavigation::isEnabled()) {
         JoystickNavigation::get()->updateController(state);
@@ -244,6 +249,13 @@ bool CanvasRotate::isEditorUITouch(CCTouch* touch) {
 
     for (auto handler : CCTouchDispatcher::get()->m_pTargetedHandlers->asExt<CCTargetedTouchHandler>()) {
         if (handler->getDelegate() == getEditor() || typeinfo_cast<TouchForward*>(handler->getDelegate())) continue;
+        
+        auto node = typeinfo_cast<CCNode*>(handler->getDelegate());
+        if (node) {
+            auto gizmo = node->getParentByType<Gizmo>();
+            if (gizmo) continue;
+        }
+
         if (handler->isSwallowsTouches()) {
             if (handler->m_pClaimedTouches->count() > 0) {
                 return false;
@@ -357,7 +369,9 @@ void CanvasRotate::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* to
     m_rotationNode->translate(touch);
 
     next(touch);
-    getEditor()->m_swipeEnd = preTransform;
+    if (!getEditor()->m_snapObjectExists) {
+        getEditor()->m_swipeEnd = preTransform;
+    }
 }
 
 void CanvasRotate::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {

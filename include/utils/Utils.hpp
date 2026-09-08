@@ -24,6 +24,20 @@ namespace tinker::utils {
         Horizontal
     };
 
+    // yoinked straight from from BetterEdit
+    struct FakeEditorPauseLayer final {
+        char m_alloc[sizeof(EditorPauseLayer)];
+        EditorPauseLayer* operator->() {
+            return reinterpret_cast<EditorPauseLayer*>(&m_alloc);
+        }
+    };
+
+    static FakeEditorPauseLayer fakeEditorPauseLayer() {
+        auto epl = FakeEditorPauseLayer();
+        epl->m_editorLayer = LevelEditorLayer::get();
+        return epl;
+    }
+
     bool shouldLoadTinker();
     bool modWillBeLoaded(ZStringView ID);
 
@@ -35,12 +49,12 @@ namespace tinker::utils {
     void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method);
     std::pair<std::string, std::string> splitIntoPair(const std::string& str);
     void forEachObject(GJBaseGameLayer const* game, geode::Function<void(GameObject*)> callback);
-    int getActiveObjectCount(const GJBaseGameLayer* game);
     CCPoint rotatePointAroundPivot(CCPoint point, CCPoint pivot, float angleDegrees);
     std::string capitalize(std::string_view input);
     std::vector<std::string> split(const std::string& str, const std::string& delimiter, int limit = -1);
+    void resizeNodeToRealBounds(CCNode* node, const CCSize& offset = {0.f, 0.f}, const std::vector<CCNode*>& ignore = {});
     CCRect getRealBounds(CCNode* node, const std::vector<CCNode*>& ignore = {});
-    AxisBounds getAvailableSpace(CCNode* a, CCNode* b, Axis axis, AxisBounds offset = {0, 0}, const std::vector<CCNode*>& ignore = {});
+    AxisBounds getAvailableSpace(CCNode* a, CCNode* b, Axis axis, AxisBounds offset = {0.f, 0.f}, const std::vector<CCNode*>& ignore = {});
     bool nodeFits(CCNode* node, const AxisBounds& bounds, Axis axis);
     float getFurthestLeft(CCNode* node, float x);
     ccColor3B getRealizedColor(int channelID, unsigned int depth = 0);
@@ -53,6 +67,12 @@ namespace tinker::utils {
     template<geode::utils::string::ConstexprString ID>
     inline Mod* getMod() {
         static auto mod = Loader::get()->getLoadedMod(ID.data());
+        return mod;
+    }
+
+    template<geode::utils::string::ConstexprString ID>
+    inline Mod* getInstalledMod() {
+        static auto mod = Loader::get()->getInstalledMod(ID.data());
         return mod;
     }
 

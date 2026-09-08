@@ -10,9 +10,8 @@ public:
     geode::Label* addLabel(ZStringView id, int idx, bool right);
     void updateLayouts();
     void checkTime(float dt);
-
 protected:
-    bool init();
+    bool init() override;
 
     CCNode* m_leftNode;
     CCNode* m_rightNode;
@@ -28,7 +27,7 @@ class $module(StatusBar) {
 
     bool onToggled(bool state);
     void onEditor();
-    void updateUI(float scale, bool scaleToolbar);
+    void updateUI(float scale);
     void adjustPositions();
 
     geode::Label* addLabel(ZStringView id, int idx, bool right);

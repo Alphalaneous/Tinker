@@ -1,16 +1,21 @@
 #include "modules/ReferenceImage.hpp"
+#include "modules/RepeatingEditorButtons.hpp"
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
 
 void ReferenceImage::onEditor() {
+    auto editor = getEditor();
+
     auto btn = getEditor()->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
     btn->setID("reference-import"_spr);
-    getEditor()->m_editButtonBar->m_buttonArray->addObject(btn);
+    RepeatingEditorButtons::forceNoRepeat(btn, true);
+
+    editor->m_editButtonBar->m_buttonArray->addObject(btn);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    getEditor()->m_editButtonBar->reloadItems(cols, rows);
+    editor->m_editButtonBar->reloadItems(cols, rows);
 }
 
 bool RICustomizeObjectLayer::init(GameObject* object, CCArray* objectArray) {

@@ -15,6 +15,16 @@ bool RepeatingEditorButtons::onSettingChanged(std::string_view key, const matjso
     return true;
 }
 
+void RepeatingEditorButtons::setRepeatable(CCMenuItemSpriteExtra* item, bool repeatable) {
+    if (!item) return;
+    static_cast<REBCCMenuItemSpriteExtra*>(item)->setRepeatable(repeatable);
+}
+
+void RepeatingEditorButtons::forceNoRepeat(CCMenuItemSpriteExtra* item, bool force) {
+    if (!item) return;
+    static_cast<REBCCMenuItemSpriteExtra*>(item)->forceNoRepeat(force);
+}
+
 void REBCCMenuItemSpriteExtra::setRepeatable(bool repeatable) {
     auto fields = m_fields.self();
     fields->m_repeatable = repeatable;
@@ -24,6 +34,11 @@ void REBCCMenuItemSpriteExtra::setRepeatable(bool repeatable) {
         unschedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold));
         fields->m_isHolding = false;
     });
+}
+
+void REBCCMenuItemSpriteExtra::forceNoRepeat(bool force) {
+    auto fields = m_fields.self();
+    fields->m_forceNoRepeat = force;
 }
 
 void REBCCMenuItemSpriteExtra::checkHold(float dt) {
@@ -38,7 +53,7 @@ void REBCCMenuItemSpriteExtra::checkHold(float dt) {
 void REBCCMenuItemSpriteExtra::activate() {
     auto fields = m_fields.self();
 
-    if (!fields->m_repeatable) return CCMenuItemSpriteExtra::activate();
+    if (!fields->m_repeatable || fields->m_forceNoRepeat) return CCMenuItemSpriteExtra::activate();
     if (!fields->m_isHolding) {
         CCMenuItemSpriteExtra::activate();
     }
@@ -48,8 +63,11 @@ void REBCCMenuItemSpriteExtra::selected() {
     CCMenuItemSpriteExtra::selected();
 
     auto fields = m_fields.self();
-    if (fields->m_repeatable) {
-        schedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold), RepeatingEditorButtons::getSetting<int, "repeat-rate">() / 1000.f, kCCRepeatForever, RepeatingEditorButtons::getSetting<int, "repeat-delay">() / 1000.f);
+    if (fields->m_repeatable && !fields->m_forceNoRepeat) {
+        auto repeatRate = RepeatingEditorButtons::getSetting<int, "repeat-rate">() / 1000.f;
+        auto repeatDelay = RepeatingEditorButtons::getSetting<int, "repeat-delay">() / 1000.f;
+
+        schedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold), repeatRate, kCCRepeatForever, repeatDelay);
     }
 }
 
@@ -57,7 +75,7 @@ void REBCCMenuItemSpriteExtra::unselected() {
     CCMenuItemSpriteExtra::unselected();
 
     auto fields = m_fields.self();
-    if (fields->m_repeatable) {
+    if (fields->m_repeatable && !fields->m_forceNoRepeat) {
         unschedule(schedule_selector(REBCCMenuItemSpriteExtra::checkHold));
         runAction(CallFuncExt::create([fields] {
             fields->m_isHolding = false;
@@ -66,38 +84,48 @@ void REBCCMenuItemSpriteExtra::unselected() {
 }
 
 void RepeatingEditorButtons::onEditor() {
-    getEditor()->runAction(CallFuncExt::create([this] {
-        for (auto btn : CCArrayExt<REBCCMenuItemSpriteExtra*>(getEditor()->m_editButtonBar->m_buttonArray)) {
-            if (btn->getID() == "alphalaneous.tinker/reference-import") continue;
-            btn->setRepeatable(true);
+    auto editor = getEditor();
+
+    editor->runAction(CallFuncExt::create([this, editor] {
+        for (auto node : editor->m_editButtonBar->m_buttonArray->asExt()) {
+            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+            if (!btn) continue;
+
+            RepeatingEditorButtons::setRepeatable(btn, true);
+        }
+
+        auto editorTabNavMenu = editor->getChildByID("alphalaneous.editortab_api/tabs-navigation-menu");
+        if (editorTabNavMenu) {
+            recursivelySetRepeat(editorTabNavMenu);
+        }
+
+        auto customEditMenu = editor->getChildByID("hjfod.betteredit/custom-move-menu");
+        if (customEditMenu) {
+            recursivelySetRepeat(customEditMenu);
         }
     }));
 
-    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_undoBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_redoBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_layerNextBtn)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(getEditor()->m_layerPrevBtn)->setRepeatable(true);
+    RepeatingEditorButtons::setRepeatable(editor->m_undoBtn, true);
+    RepeatingEditorButtons::setRepeatable(editor->m_redoBtn, true);
+    RepeatingEditorButtons::setRepeatable(editor->m_layerNextBtn, true);
+    RepeatingEditorButtons::setRepeatable(editor->m_layerPrevBtn, true);
 
-    if (auto zoomMenu = getEditor()->getChildByID("zoom-menu")) {
-        for (auto btn : zoomMenu->getChildrenExt<REBCCMenuItemSpriteExtra*>()) {
-            btn->setRepeatable(true);
-        }
+    auto zoomMenu = editor->getChildByID("zoom-menu");
+    if (zoomMenu) {
+        recursivelySetRepeat(zoomMenu);
     }
 
-    if (auto customEditMenu = getEditor()->getChildByID("hjfod.betteredit/custom-move-menu")) {
-        recursivelySetRepeat(customEditMenu);
-    }
-
-    for (auto child : getEditor()->getChildrenExt()) {
+    for (auto child : editor->getChildrenExt()) {
         auto bar = typeinfo_cast<EditButtonBar*>(child);
         if (!bar) continue;
+
         auto menu = bar->getChildByType<CCMenu>(0);
         if (menu) {
             auto leftBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(0);
             auto rightBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(1);
 
-            static_cast<REBCCMenuItemSpriteExtra*>(leftBtn)->setRepeatable(true);
-            static_cast<REBCCMenuItemSpriteExtra*>(rightBtn)->setRepeatable(true);
+            RepeatingEditorButtons::setRepeatable(leftBtn, true);
+            RepeatingEditorButtons::setRepeatable(rightBtn, true);
         }
     }
 
@@ -118,20 +146,21 @@ void RepeatingEditorButtons::onEditor() {
 }
 
 void RepeatingEditorButtons::applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, ZStringView id) {
-    if (auto node = setGroupIDLayer->getChildByIDRecursive(id)) {
-        if (typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-            static_cast<REBCCMenuItemSpriteExtra*>(node)->setRepeatable(true);
-        }
-    }
+    auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(setGroupIDLayer->getChildByIDRecursive(id));
+    if (!btn) return;
+
+    RepeatingEditorButtons::setRepeatable(btn, true);
 }
 
 void RepeatingEditorButtons::recursivelySetRepeat(CCNode* node) {
     for (auto node : node->getChildrenExt()) {
-        if (CCMenuItemSpriteExtra* btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-            static_cast<REBCCMenuItemSpriteExtra*>(btn)->setRepeatable(true);
+        auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+        if (!btn) {
+            recursivelySetRepeat(node);
             continue;
         }
-        recursivelySetRepeat(node);
+
+        RepeatingEditorButtons::setRepeatable(btn, true);
     }
 }
 
@@ -144,30 +173,108 @@ void REBEditButtonBar::loadFromItems(CCArray* objects, int rows, int columns, bo
             auto leftBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(0);
             auto rightBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(1);
 
-            static_cast<REBCCMenuItemSpriteExtra*>(leftBtn)->setRepeatable(true);
-            static_cast<REBCCMenuItemSpriteExtra*>(rightBtn)->setRepeatable(true);
+            RepeatingEditorButtons::setRepeatable(leftBtn, true);
+            RepeatingEditorButtons::setRepeatable(rightBtn, true);
         }
     }));
+}
+
+bool REBConfigureValuePopup::init(ConfigureValuePopupDelegate* delegate, float value, float minimum, float maximum, gd::string title, gd::string description, int type) {
+    if (!ConfigureValuePopup::init(delegate, value, minimum, maximum, title, description, type)) return false;
+
+    auto leftBtn = typeinfo_cast<CCMenuItemSpriteExtra*>(m_buttonMenu->getChildByTag(0));
+    auto rightBtn = typeinfo_cast<CCMenuItemSpriteExtra*>(m_buttonMenu->getChildByTag(1));
+
+    RepeatingEditorButtons::setRepeatable(leftBtn, true);
+    RepeatingEditorButtons::setRepeatable(rightBtn, true);
+
+    return true;
 }
 
 bool REBCustomizeObjectLayer::init(GameObject* object, cocos2d::CCArray* objects) {
     if (!CustomizeObjectLayer::init(object, objects)) return false;
 
-    static_cast<REBCCMenuItemSpriteExtra*>(m_arrowUp)->setRepeatable(true);
-    static_cast<REBCCMenuItemSpriteExtra*>(m_arrowDown)->setRepeatable(true);
+    RepeatingEditorButtons::setRepeatable(m_arrowUp, true);
+    RepeatingEditorButtons::setRepeatable(m_arrowDown, true);
 
     return true;
+}
+
+bool REBLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* layer) {
+    if (!LevelSettingsLayer::init(object, layer)) return false;
+
+    for (auto node : m_songSelectNode->m_normalSongObjects->asExt()) {
+        auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+        if (!btn) continue;
+
+        RepeatingEditorButtons::setRepeatable(btn, true);
+    }
+
+    return true;
+}
+
+bool REBSetupTriggerPopup::init(EffectGameObject* trigger, cocos2d::CCArray* triggers, float width, float height, int background) {
+    if (!SetupTriggerPopup::init(trigger, triggers, width, height, background)) return false;
+
+    addOnEnterCallback([this] {
+        RepeatingEditorButtons::setRepeatable(m_prevButton, true);
+        RepeatingEditorButtons::setRepeatable(m_nextButton, true);
+    });
+
+    return true;
+}
+
+void REBSetupTriggerPopup::createEasingControls(cocos2d::CCPoint position, float scale, int page, int group) {
+    auto before = m_buttonMenu->getChildren()->shallowCopy();
+    SetupTriggerPopup::createEasingControls(position, scale, page, group);
+    auto after = m_buttonMenu->getChildren()->shallowCopy();
+    after->removeObjectsInArray(before);
+
+    for (auto node : after->asExt()) {
+        auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+        if (!btn) continue;
+
+        RepeatingEditorButtons::setRepeatable(btn, true);
+    }
+}
+
+void REBSetupTriggerPopup::createCustomEasingControls(gd::string text, cocos2d::CCPoint position, float scale, int typeProperty, int rateProperty, int page, int group) {
+    auto before = m_buttonMenu->getChildren()->shallowCopy();
+    SetupTriggerPopup::createCustomEasingControls(text, position, scale, typeProperty, rateProperty, page, group);
+    auto after = m_buttonMenu->getChildren()->shallowCopy();
+    after->removeObjectsInArray(before);
+
+    for (auto node : after->asExt()) {
+        auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+        if (!btn) continue;
+
+        RepeatingEditorButtons::setRepeatable(btn, true);
+    }
+}
+
+cocos2d::CCArray* REBSetupTriggerPopup::createValueControlAdvanced(int property, gd::string label, cocos2d::CCPoint position, float scale, bool noSlider, InputValueType valueType, int length, bool arrows, float sliderMin, float sliderMax, int page, int group, GJInputStyle inputStyle, int decimalPlaces, bool allowDisable) {
+    auto ret = SetupTriggerPopup::createValueControlAdvanced(property, label, position, scale, noSlider, valueType, length, arrows, sliderMin, sliderMax, page, group, inputStyle, decimalPlaces, allowDisable);
+
+    if (arrows) {
+        for (auto node : ret->asExt()) {
+            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+            if (!btn) continue;
+
+            RepeatingEditorButtons::setRepeatable(btn, true);
+        }
+    }
+
+    return ret;
 }
 
 class $nodeModify(REBMoveGroup, MoveGroup) {
 
     void modify() {
-        if (!RepeatingEditorButtons::isEnabled()) return;
-
         for (auto node : getChildrenExt()) {
-            if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-                static_cast<REBCCMenuItemSpriteExtra*>(btn)->setRepeatable(true);
-            }
+            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+            if (!btn) continue;
+
+            RepeatingEditorButtons::setRepeatable(btn, true);
         }
     }
 };

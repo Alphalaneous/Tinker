@@ -144,8 +144,8 @@ class $modify(InputEditorUI, EditorUI) {
         bool m_tabModifierHeld;
         bool m_blockPause;
 
+        float m_scrollFromEditor;
         float m_targetScale;
-
         float m_speedScale;
 
         Ref<CCTouch> m_touch1;
@@ -158,6 +158,10 @@ class $modify(InputEditorUI, EditorUI) {
         bool m_blockPinching = false;
         bool m_isPinching = false;
         float m_lastAngle;
+
+        bool m_inGizmo = false;
+        CCTargetedTouchDelegate* m_touchedGizmoChild;
+        GameObject* m_activeGizmoTouch;
 
         tinker::ui::TouchForward* m_forward;
     };
@@ -182,7 +186,9 @@ class $modify(InputEditorUI, EditorUI) {
 
     bool isNaturalScrollEnabled();
 
-    CCPoint getTouchLocation(CCTouch* touch);
+    static CCPoint getTouchLocation(CCTouch* touch);
+
+    bool tryCancelGizmo(CCTouch* touch);
 
     bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
     void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
@@ -192,6 +198,7 @@ class $modify(InputEditorUI, EditorUI) {
     void blockPause();
     void unblockPause();
     CCPoint getRealMousePos();
+    bool isInDevtools();
 
     void blockPinch(bool block);
 

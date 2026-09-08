@@ -15,6 +15,9 @@ public:
 
     void shiftObject(bool forward);
     GameObject* getCurrentObject();
+
+    void refreshSelectedObjects();
+    void showInfo();
 protected:
 
     bool init(CCArray* objects);
@@ -23,9 +26,11 @@ protected:
 
     Ref<CCArray> m_objects;
 
-    Ref<geode::NineSlice> m_objectsBG;
-    Ref<AdvancedScrollLayer> m_scrollLayer;
+    geode::NineSlice* m_objectsBG;
+    AdvancedScrollLayer* m_scrollLayer;
     std::unordered_map<Ref<GameObject>, Ref<CCSprite>> m_objectSprites;
+
+    geode::NineSlice* m_infoBG;
 
     CCSprite* m_selectDot;
 };
@@ -45,7 +50,8 @@ protected:
     void onEnter() override;
     void onExit() override;
 
-    void selectObject(GameObject* object);
+    void quickSelect();
+    void selectObject(GameObject* object, bool toggleSelect = false);
 
     void onHoverObjects(const CCPoint& pos);
 
@@ -59,6 +65,7 @@ protected:
     bool m_active;
     bool m_modifierPressed;
     bool m_stopped;
+    bool m_skipStop;
 };
 
 }
@@ -73,6 +80,7 @@ class $module(BetterSelect) {
     void stopHover();
 
     tinker::ui::HoverObjectNode* m_hover;
+    CCNode* m_selectPickerContainer;
 };
 
 class $modify(BSEditorUI, EditorUI) {

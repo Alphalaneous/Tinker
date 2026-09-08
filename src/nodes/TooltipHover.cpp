@@ -26,12 +26,11 @@ bool TooltipHover::init() {
     setZOrder(1000);
     setContentSize(CCDirector::get()->getWinSize());
 
-    m_tooltipBG = NineSlice::create("square02_001.png");
-    m_tooltipBG->setColor({0, 0, 0});
+    m_tooltipBG = NineSlice::create("simple-popup-square.png"_spr);
     m_tooltipBG->setAnchorPoint({0.5f, 0.f});
-    m_tooltipBG->setScaleMultiplier(0.4f);
+    m_tooltipBG->setScaleMultiplier(0.6f);
+    m_tooltipBG->setOpacity(230);
     m_tooltipBG->setVisible(false);
-    m_tooltipBG->setOpacity(220);
     m_tooltipBG->setID("tooltip-background"_spr);
     m_tooltipBG->setScale(ObjectTooltips::getSetting<float, "scale">());
     m_tooltipBG->setCascadeOpacityEnabled(true);
@@ -132,6 +131,12 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         }
     }
 
+    if (InputEditorUI::get()->isInDevtools()) {
+        shouldSkip = true;
+        hideTooltip();
+        m_activeItem = nullptr;
+    }
+
     for (auto& [node, items] : ObjectTooltips::get()->getObjectGroups()) {
         if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
             shouldSkip = true;
@@ -222,6 +227,12 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         #endif
     }
 
+    #ifdef GEODE_IS_DESKTOP
+    if (origItem && m_activeItem != origItem) {
+        scaleItem(origItem, true);
+    }
+    #endif
+
     if (m_activeItem && m_activeItem != origItem) {
         showTooltip(m_activeItem);
     }
@@ -261,6 +272,33 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
         auto spr = buttonSprite->getChildByType<CCSprite>(0);
         if (spr) {
             spr->setOpacity(opacity);
+        }
+    }
+}
+
+void TooltipHover::resetScale(CreateMenuItem* item) {
+    auto buttonSprite = item->getChildByType<ButtonSprite>(0);
+    if (buttonSprite) {
+        buttonSprite->stopAllActions();
+        buttonSprite->setScale(1.f);
+    }
+    item->setUserFlag("scaled"_spr, false);
+}
+
+void TooltipHover::scaleItem(CreateMenuItem* item, bool down) {
+    if (!ObjectTooltips::getSetting<bool, "hover-scale-enabled">()) {
+        resetScale(item);
+        return;
+    }
+
+    auto scaled = item->getUserFlag("scaled"_spr);
+
+    if (scaled == down) {
+        auto buttonSprite = item->getChildByType<ButtonSprite>(0);
+        if (buttonSprite) {
+            buttonSprite->stopAllActions();
+            buttonSprite->runAction(CCScaleTo::create(down ? 0.04f : 0.05f, down ? 1.f : 1.1f));
+            item->setUserFlag("scaled"_spr, !down);
         }
     }
 }
@@ -333,25 +371,22 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         tooltipIDWidth = m_tooltipIDLabel->getScaledContentWidth();
     }
     
-    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), tooltipIDWidth) + 5.f, m_tooltipLabel->getScaledContentHeight() + 5.f + heightOffset});
+    float padding = 5.f;
 
-    float scale = ObjectTooltips::getSetting<float, "scale">();
-    if (UIScaling::isEnabled()) {
-        scale *= UIScaling::get()->m_scale;
-    }
+    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), tooltipIDWidth) + padding * 2.f, m_tooltipLabel->getScaledContentHeight() + padding * 2.f + heightOffset});
+    m_tooltipBG->setScale(UIScaling::getScale());
 
-    m_tooltipBG->setScale(scale);
-
-    m_tooltipLabel->setPosition({2.5f, m_tooltipBG->getContentHeight() - 2.5f});
+    m_tooltipLabel->setPosition({padding, m_tooltipBG->getContentHeight() - padding});
 
     if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
-        m_tooltipIDLabel->setPosition({2.5f, 2.5f});
+        m_tooltipIDLabel->setPosition({padding, padding});
     }
 
     #ifdef GEODE_IS_DESKTOP
     if (!m_clicking) {
         m_tooltipBG->setVisible(true);
     }
+    scaleItem(item, false);
     #else
     m_tooltipBG->stopAllActions();
     m_tooltipBG->setOpacity(220);
@@ -364,6 +399,9 @@ void TooltipHover::hideTooltip() {
     if (!m_clicking) {
         m_tooltipBG->setVisible(false);
     }
+    if (!m_activeItem) return;
+
+    scaleItem(m_activeItem, true);
     #else
     if (m_activeItem) setButtonOpacity(m_activeItem, 255);
     m_tooltipBG->runAction(CCSequence::createWithTwoActions(CCFadeOut::create(0.2f), CallFuncExt::create([this] {

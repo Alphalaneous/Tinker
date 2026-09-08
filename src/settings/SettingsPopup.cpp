@@ -106,37 +106,37 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     float searchPadding = 5.f;
     float searchScale = 0.55f;
 
-    auto searchInput = geode::TextInput::create(titleLayer->getContentWidth() / searchScale - searchPadding * 2.f - 55.f, "Search");
-    searchInput->setID("search-input"_spr);
-    searchInput->setAnchorPoint({0.f, 0.f});
-    searchInput->setScale(searchScale);
-    searchInput->setTextAlign(TextInputAlign::Left);
-    searchInput->setPosition({searchPadding, searchPadding});
-    searchInput->getBGSprite()->setOpacity(45);
-    searchInput->getBGSprite()->setColor(searchBGColor);
-    searchInput->setCallback([this] (const std::string& str) {
+    m_searchInput = geode::TextInput::create(titleLayer->getContentWidth() / searchScale - searchPadding * 2.f - 55.f, "Search");
+    m_searchInput->setID("search-input"_spr);
+    m_searchInput->setAnchorPoint({0.f, 0.f});
+    m_searchInput->setScale(searchScale);
+    m_searchInput->setTextAlign(TextInputAlign::Left);
+    m_searchInput->setPosition({searchPadding, searchPadding});
+    m_searchInput->getBGSprite()->setOpacity(45);
+    m_searchInput->getBGSprite()->setColor(searchBGColor);
+    m_searchInput->setCallback([this] (const std::string& str) {
         m_searchQuery = geode::utils::string::trim(str);
         loadSettingNodes(false);
     });
 
-    titleLayer->addChild(searchInput);
+    titleLayer->addChild(m_searchInput);
 
     m_titleLabel = geode::Label::create("All Settings", "bigFont.fnt");
     m_titleLabel->setScale(0.5f);
     m_titleLabel->setAnchorPoint({0.f, 0.f});
     m_titleLabel->setLimitLabelWidth(titleLayer->getContentWidth() - 10.f, 0.4f, 0.1f);
-    m_titleLabel->setPosition({6.f, searchInput->boundingBox().getMaxY() + 4.f});
+    m_titleLabel->setPosition({6.f, m_searchInput->boundingBox().getMaxY() + 4.f});
     m_titleLabel->setID("title"_spr);
     titleLayer->addChild(m_titleLabel);
 
-    auto clearBtn = geode::Button::createWithSpriteFrameName("GJ_longBtn07_001.png", [this, searchInput] (auto sender) {
-        searchInput->setString("");
-        searchInput->defocus();
+    auto clearBtn = geode::Button::createWithSpriteFrameName("GJ_longBtn07_001.png", [this] (auto sender) {
+        m_searchInput->setString("");
+        m_searchInput->defocus();
         m_searchQuery = "";
         loadSettingNodes(false);
     });
     clearBtn->setScale(0.55f);
-    clearBtn->setPosition({searchInput->boundingBox().getMaxX() + searchPadding + clearBtn->getScaledContentWidth() / 2.f, searchInput->boundingBox().getMidY()});
+    clearBtn->setPosition({m_searchInput->boundingBox().getMaxX() + searchPadding + clearBtn->getScaledContentWidth() / 2.f, m_searchInput->boundingBox().getMidY()});
     clearBtn->setID("clear-button"_spr);
     
     titleLayer->addChild(clearBtn);
@@ -421,10 +421,14 @@ CCMenu* SettingsPopup::createCategoryButton(ZStringView name, ZStringView id) {
 }
 
 void SettingsPopup::switchCategory() {
+    m_searchInput->setString("");
+    m_searchInput->defocus();
+    m_searchQuery = "";
+    
     for (auto btn : m_categoryButtons) {
         btn->setColor({255, 255, 255});
     }
-    loadSettingNodes();
+    loadSettingNodes(false);
 }
 
 void SettingsPopup::applyUncommitted() {
@@ -462,6 +466,10 @@ void SettingsPopup::loadSettings() {
 void SettingsPopup::loadSettingNodes(bool retainPosition) {
     auto scroll = m_settingScrollLayer->getScrollPoint().y;
     m_settingScrollLayer->getContentLayer()->removeAllChildren();
+
+    if (m_loadingSettings) return;
+    m_loadingSettings = true;
+
     runAction(CallFuncExt::create([this, retainPosition, scroll] {
         bool even = false;
 
@@ -491,6 +499,7 @@ void SettingsPopup::loadSettingNodes(bool retainPosition) {
             m_settingScrollLayer->setScrollY(scroll);
         }
         m_settingScrollLayer->forceCull();
+        m_loadingSettings = false;
     }));
 }
 

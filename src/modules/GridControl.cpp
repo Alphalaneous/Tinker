@@ -1,4 +1,5 @@
 #include "modules/GridControl.hpp"
+#include "modules/RepeatingEditorButtons.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Utils.hpp"
@@ -9,10 +10,7 @@
 #include "InputsHandler.hpp"
 
 bool GridControl::onToggled(bool state) {
-    float scale = 1.f;
-    if (UIScaling::isEnabled()) {
-        scale = UIScaling::get()->m_scale;
-    }
+    float scale = UIScaling::getScale();
 
     if (state) {
         onEditor();
@@ -53,6 +51,8 @@ bool GridControl::onToggled(bool state) {
         m_oldBEControl = nullptr;
 
         removeEventListener("ui-scale");
+        removeEventListener("pre-ui-scale");
+        removeEventListener("show-ui");
         removeEventListener("betteredit-increase-keybind");
         removeEventListener("betteredit-decrease-keybind");
         removeEventListener("increase-keybind");
@@ -133,6 +133,8 @@ void GridControl::onEditor() {
         updateGrid(value);
     });
     decBtn->setID("decrement-grid-size-button"_spr);
+    RepeatingEditorButtons::setRepeatable(decBtn, true);
+
     m_control->addChild(decBtn);
 
     m_input = TextInput::create(60.f, "Grid");
@@ -144,7 +146,7 @@ void GridControl::onEditor() {
     });
     m_input->setScale(0.55f);
     m_input->setID("grid-size-input"_spr);
-    m_input->getBGSprite()->setScaleMultiplier(2.f);
+    m_input->getBGSprite()->setScaleMultiplier(2.3f);
     InputEditorUI::addTextInput(m_input);
 
     m_control->addChild(m_input);
@@ -159,6 +161,8 @@ void GridControl::onEditor() {
         updateGrid(value);
     });
     incBtn->setID("increment-grid-size-button"_spr);
+    RepeatingEditorButtons::setRepeatable(incBtn, true);
+
     m_control->addChild(incBtn);
 
     m_control->updateLayout();
@@ -167,6 +171,14 @@ void GridControl::onEditor() {
     
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         updateUI(scale);
+    });
+
+    addEventListener("show-ui", ShowUIEvent(), [this, editor] (bool show) {
+        if (show) {
+            editor->runAction(CallFuncExt::create([this] {
+                updateUI(UIScaling::getScale());
+            }));
+        }
     });
 
     auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
@@ -191,7 +203,6 @@ void GridControl::onEditor() {
     });
 
     editor->m_uiItems->addObject(m_control);
-    editor->addChild(m_control);
 
     if (!m_addedCallbacks) {
         m_addedCallbacks = true;
@@ -216,6 +227,9 @@ void GridControl::onEditor() {
 
     sprOn->setContentSize({40.f, 40.f});
     sprOff->setContentSize({40.f, 40.f});
+    
+    sprOn->updateSpriteOffset({0.f, -1.5f});
+    sprOff->updateSpriteOffset({0.f, -1.5f});
 
     m_toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
         m_gridScaleToggled = !toggler->isToggled();
@@ -248,18 +262,25 @@ void GridControl::removeBE() {
 }
 
 void GridControl::updateUI(float scale) {
-    m_control->setScale(std::min(0.85f, scale));
-    auto settingsMenu = getEditor()->getChildByID("settings-menu");
+    auto editorUI = getEditor();
 
-    auto available = tinker::utils::getAvailableSpace(settingsMenu, getEditor()->m_positionSlider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f});
-    
+    m_control->removeFromParent();
+    m_control->setScale(std::min(0.85f, scale));
+    auto settingsMenu = editorUI->getChildByID("settings-menu");
+    settingsMenu->updateLayout();
+
+    auto slider = editorUI->m_positionSlider;
+    auto available = tinker::utils::getAvailableSpace(settingsMenu, slider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f}, {slider->m_touchLogic->m_thumb});
+
     if (tinker::utils::nodeFits(m_control, available, tinker::utils::Axis::Horizontal)) {
-        m_control->setAnchorPoint({1.f, 0.5f});
-        m_control->setPosition({available.max - 6.f * scale, settingsMenu->getPositionY()});
+        m_control->setZOrder(100);
+        settingsMenu->addChild(m_control);
+        settingsMenu->updateLayout();
     }
     else {
-        m_control->setAnchorPoint({0.5f, 0.5f});
-        m_control->setPosition({getEditor()->m_positionSlider->getPositionX(), getSliderMinY(getEditor()) - 12.f});
+        m_control->setZOrder(0);
+        m_control->setPosition({editorUI->m_positionSlider->getPositionX(), getSliderMinY(editorUI) - 12.f * scale});
+        editorUI->addChild(m_control);
     }
 }
 

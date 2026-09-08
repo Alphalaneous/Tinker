@@ -71,16 +71,6 @@ void StartPosTools::onEditor() {
 	fields->m_overlay->setID("start-pos-controls"_spr);
 	getEditorLayer()->m_objectLayer->addChild(fields->m_overlay);
 
-    auto playtestMenu = getEditor()->getChildByID("playtest-menu");
-    if (playtestMenu) {
-        auto layout = static_cast<AxisLayout*>(playtestMenu->getLayout());
-        if (layout) {
-            layout->ignoreInvisibleChildren(true);
-            layout->setAutoScale(false);
-            layout->setAutoGrowAxis(0.f);
-        }
-    }
-
     if (!StartPosTools::getSetting<bool, "hide-no-start-pos-button">()) {
         setupNoStartPosButton();
     }
@@ -286,12 +276,7 @@ void SPTEditorUI::updatePlaytestMenu() {
     runAction(CallFuncExt::create([this] {
         auto playtestMenu = getChildByID("playtest-menu");
         if (playtestMenu) {
-            playtestMenu->setAnchorPoint({0.f, 0.5f});
             playtestMenu->updateLayout();
-            auto playbackMenu = getChildByID("playback-menu");
-            if (playbackMenu) {
-                playtestMenu->setPositionX(playbackMenu->boundingBox().getMinX());
-            }
             UpdateObjectLabel().send();
         }
         updateSwitcherLabel();

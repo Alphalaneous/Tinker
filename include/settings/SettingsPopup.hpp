@@ -25,8 +25,10 @@ protected:
 
     std::string m_searchQuery;
     std::string m_category;
+    bool m_loadingSettings;
     StringMap<bool> m_categoryCollapsed;
     geode::Label* m_titleLabel;
+    geode::TextInput* m_searchInput;
     alpha::ui::AdvancedScrollLayer* m_settingScrollLayer;
     alpha::ui::AdvancedScrollLayer* m_categoryScrollLayer;
     std::vector<CCMenuItemSpriteExtra*> m_categoryButtons;

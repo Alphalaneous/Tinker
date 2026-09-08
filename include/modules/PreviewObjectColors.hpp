@@ -17,6 +17,9 @@ class $module(PreviewObjectColors) {
     void editColor();
     void setupButton(bool scrollable);
 
+    GJSpriteColor* getBaseColor();
+    GJSpriteColor* getDetailColor();
+
     void setButtonVisible(geode::Button* button);
 };
 

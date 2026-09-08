@@ -2,7 +2,7 @@
 
 HijackCallback* HijackCallback::create(Hijack method, SEL_MenuHandler originalSelector) {
     auto ret = new HijackCallback();
-    if (ret->init(method, originalSelector)) {
+    if (ret->init(std::move(method), originalSelector)) {
         ret->autorelease();
         return ret;
     }
@@ -11,7 +11,7 @@ HijackCallback* HijackCallback::create(Hijack method, SEL_MenuHandler originalSe
 }
 
 bool HijackCallback::init(Hijack method, SEL_MenuHandler originalSelector) {
-    m_method = method;
+    m_method = std::move(method);
     m_selector = originalSelector;
     return true;
 }

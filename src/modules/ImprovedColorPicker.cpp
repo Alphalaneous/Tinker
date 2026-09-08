@@ -287,7 +287,7 @@ CCMenuItemSpriteExtra* ICPCustomizeObjectLayer::createChannelButton(int channel,
     });
 
     btn->setTag(channel);
-    btn->setID(fmt::format("channel-{}-button", channel));
+    btn->setID(fmt::format("channel-{}-button"_spr, channel));
     btn->setScale(compactUI ? 0.746f : 1.f);
     btn->m_baseScale = btn->getScale();
 
@@ -554,6 +554,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
             currentRow->setContentSize({0.f, singleHeight});
             currentRow->setAnchorPoint({0.5f, 1.f});
             currentRow->setPosition({fields->m_colorList->getContentLayer()->getContentWidth() / 2.f, fields->m_colorList->getContentLayer()->getContentHeight() - (singleHeight + gap) * yIdx - padding});
+            currentRow->setID(fmt::format("color-row-{}"_spr, yIdx));
 
             fields->m_colorList->getContentLayer()->addChild(currentRow);
 

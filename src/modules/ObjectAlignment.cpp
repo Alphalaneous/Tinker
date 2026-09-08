@@ -39,6 +39,7 @@ bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Valu
 
         if (!show) {
             m_alignToggled = false;
+            if (!m_toggler) return true;
             m_toggler->removeFromParent();
 
             auto menu = editor->getChildByID("toolbar-toggles-menu");
@@ -48,6 +49,8 @@ bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Valu
         }
         else {
             m_alignToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
+            if (!m_toggler) return true;
+            
             auto menu = editor->getChildByID("toolbar-toggles-menu");
             if (!menu) return true;
 
@@ -260,6 +263,9 @@ void ObjectAlignment::onEditor() {
 
     sprOn->setContentSize({40.f, 40.f});
     sprOff->setContentSize({40.f, 40.f});
+    
+    sprOn->updateSpriteOffset({0.f, -1.5f});
+    sprOff->updateSpriteOffset({0.f, -1.5f});
 
     m_toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
         m_alignToggled = !toggler->isToggled();

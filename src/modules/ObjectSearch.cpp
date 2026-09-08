@@ -19,14 +19,16 @@ void ObjectSearch::onEditor() {
         control->m_tabIndex = 13;
     }
 
-    auto objectSearch = ObjectSearch::get();
-    auto fields = static_cast<OSEditorUI*>(getEditor())->m_fields.self();
+    auto editor = getEditor();
 
-    fields->m_searchField = tinker::ui::SearchField::create(static_cast<OSEditorUI*>(getEditor()));
+    auto objectSearch = ObjectSearch::get();
+    auto fields = static_cast<OSEditorUI*>(editor)->m_fields.self();
+
+    fields->m_searchField = tinker::ui::SearchField::create(static_cast<OSEditorUI*>(editor));
     fields->m_searchField->defocus();
     fields->m_searchField->setID("search-field"_spr);
     
-    getEditor()->m_uiItems->addObject(fields->m_searchField);
+    editor->m_uiItems->addObject(fields->m_searchField);
 
     auto winSize = CCDirector::get()->getWinSize();
 
@@ -41,13 +43,13 @@ void ObjectSearch::onEditor() {
         return fields->m_searchBar;
     }, [] () {
         return CCSprite::create("search.png"_spr);
-    }, [this, fields] (bool state, cocos2d::CCNode*) {
+    }, [this, fields, editor] (bool state, cocos2d::CCNode*) {
         if (!fields->m_searchField) return;
         if (state && !fields->m_searchField->getParent()) {
             #ifndef GEODE_IS_MOBILE
             fields->m_searchField->focus();
             #endif
-            getEditor()->addChild(fields->m_searchField);
+            editor->addChild(fields->m_searchField);
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(false);
@@ -80,28 +82,30 @@ void ObjectSearch::onEditor() {
         }
     });
     
-    getEditor()->runAction(CallFuncExt::create([this, fields, objectSearch] {
+    editor->runAction(CallFuncExt::create([this, fields, objectSearch, editor] {
         float buildTabHeight = 0.f;
         float scale = 1.f;
-        if (auto node = getEditor()->getChildByID("build-tabs-menu")) {
+        if (auto node = editor->getChildByID("build-tabs-menu")) {
             buildTabHeight = node->getScaledContentHeight();
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({getEditor()->getContentWidth() / 2.f, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
+        fields->m_searchField->setPosition({editor->getContentWidth() / 2.f, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
     }));
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "ObjectSearch-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "ObjectSearch-keybind"), [this, editor] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (!down || repeat) return;
+        if (editor->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
+
         alpha::editor_tabs::switchTab("all-objects"_spr);
     });
 
-    addEventListener(UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener(UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
         if (!fullReload) return;
         auto winSize = CCDirector::get()->getWinSize();
 
-        auto editorUI = static_cast<OSEditorUI*>(getEditor());
+        auto editorUI = static_cast<OSEditorUI*>(editor);
         auto searchField = editorUI->m_fields->m_searchField;
 
         if (searchField) {

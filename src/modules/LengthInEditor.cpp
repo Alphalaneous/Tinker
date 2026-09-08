@@ -2,17 +2,14 @@
 #include "modules/UIScaling.hpp"
 
 bool LengthInEditor::onToggled(bool state) {
+    auto editor = getEditor();
     if (state) {
         onEditor();
         m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
-        float scale = 1.f;
-        if (UIScaling::isEnabled()) {
-            scale = UIScaling::get()->m_scale;
-        }
-        updateUI(scale);
+        updateUI(UIScaling::getScale());
     }
     else {
-        getEditor()->m_uiItems->removeObject(m_lengthContainer);
+        editor->m_uiItems->removeObject(m_lengthContainer);
         m_lengthContainer->removeFromParent();
         m_lengthContainer = nullptr;
 
@@ -22,13 +19,10 @@ bool LengthInEditor::onToggled(bool state) {
         removeEventListener("ui-scale");
 
         auto winSize = CCDirector::get()->getWinSize();
-        auto scale = 1.f;
-        if (UIScaling::isEnabled()) {
-            scale = UIScaling::get()->m_scale;
-        }
+        auto scale = UIScaling::getScale();
 
-        if (getEditor()->m_objectInfoLabel) {
-            getEditor()->m_objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + UIScaling::getSafeOffset());        
+        if (editor->m_objectInfoLabel) {
+            editor->m_objectInfoLabel->setPosition(CCPoint{52.f * scale, winSize.height - 50.f * scale} + UIScaling::getSafeOffset());        
         }
         
         UpdateObjectLabel().send();
@@ -38,9 +32,10 @@ bool LengthInEditor::onToggled(bool state) {
 
 void LengthInEditor::onEditor() {
     auto winSize = CCDirector::get()->getWinSize();
+    auto editor = getEditor();
 
-    auto undoMenu = getEditor()->getChildByID("undo-menu");
-    auto playbackMenu = getEditor()->getChildByID("playback-menu");
+    auto undoMenu = editor->getChildByID("undo-menu");
+    auto playbackMenu = editor->getChildByID("playback-menu");
 
     if (!undoMenu || !playbackMenu) return;
 
@@ -67,19 +62,19 @@ void LengthInEditor::onEditor() {
     m_lengthContainer->addChild(m_timeLabel);
 
     if (!getEditorLayer()->m_levelSettings->m_platformerMode) {
-        getEditor()->addChild(m_lengthContainer);
-        getEditor()->m_uiItems->addObject(m_lengthContainer);
+        editor->addChild(m_lengthContainer);
+        editor->m_uiItems->addObject(m_lengthContainer);
     }
 
-    addEventListener("level-type-changed-event", LevelTypeChangedEvent(), [this] (bool isPlatformer) {
+    addEventListener("level-type-changed-event", LevelTypeChangedEvent(), [this, editor] (bool isPlatformer) {
         if (isPlatformer) {
-            getEditor()->removeChild(m_lengthContainer);
-            getEditor()->m_uiItems->removeObject(m_lengthContainer);
+            editor->removeChild(m_lengthContainer);
+            editor->m_uiItems->removeObject(m_lengthContainer);
         }
         else {
             if (!m_lengthContainer->getParent()) {
-                getEditor()->addChild(m_lengthContainer);
-                getEditor()->m_uiItems->addObject(m_lengthContainer);
+                editor->addChild(m_lengthContainer);
+                editor->m_uiItems->addObject(m_lengthContainer);
             }
         }
     });
@@ -92,43 +87,39 @@ void LengthInEditor::onEditor() {
         m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
     });
 
-    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
-        getEditor()->runAction(CallFuncExt::create([this, scale] {
+    addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
+        editor->runAction(CallFuncExt::create([this, scale] {
             updateUI(scale);
         }));
     });
 }
 
 void LengthInEditor::updateUI(float scale) {
-    auto undoMenu = getEditor()->getChildByID("undo-menu");
-    auto playbackMenu = getEditor()->getChildByID("playback-menu");
+    auto editor = getEditor();
+
+    auto undoMenu = editor->getChildByID("undo-menu");
+    auto playbackMenu = editor->getChildByID("playback-menu");
 
     if (!undoMenu || !playbackMenu) return;
     m_lengthContainer->setScale(0.5f * scale);
 
     auto available = tinker::utils::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::Axis::Vertical);
-    
-    m_lengthContainer->setPositionY((available.min + available.max) / 2.f);
 
-    float xPos = 0.f;
-    if (tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
-        xPos = 5.f * scale + UIScaling::getSafeOffset().x;
+    float y = (available.min + available.max) / 2.f;
+    m_lengthContainer->setPositionY(y);
 
-        if (getEditor()->m_objectInfoLabel) {
-            auto available = tinker::utils::getAvailableSpace(m_lengthContainer, playbackMenu, tinker::utils::Axis::Vertical);
-            if (tinker::utils::nodeFits(getEditor()->m_objectInfoLabel, available, tinker::utils::Axis::Vertical)) {
-                getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 5.f * scale);
-            }
+    if (!tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
+        m_lengthContainer->setPositionY(available.max - m_lengthContainer->getScaledContentHeight() / 2.f - 6.f * scale);
+        float x = std::max(tinker::utils::getFurthestLeft(m_lengthContainer, 150.f * scale), UIScaling::getSafeOffset().x);
+        m_lengthContainer->setPositionX(x + 5.f * scale);
+
+        if (editor->m_objectInfoLabel) {
+            editor->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() / 2.f - 5.f * scale);
         }
     }
     else {
-        xPos = playbackMenu->getPositionX() - 2.f * scale;
-        if (getEditor()->m_objectInfoLabel) {
-            getEditor()->m_objectInfoLabel->setPositionY(m_lengthContainer->getPositionY() - m_lengthContainer->getScaledContentHeight() - 5.f * scale);
-        }
+        m_lengthContainer->setPositionX(UIScaling::getSafeOffset().x + 5.f * scale);
     }
-
-    m_lengthContainer->setPositionX(xPos);
 
     UpdateObjectLabel().send();
 }

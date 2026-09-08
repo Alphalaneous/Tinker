@@ -32,6 +32,14 @@ bool NegateInput::onSettingChanged(std::string_view key, const matjson::Value& v
 
 bool NECCTextInputNode::allowedInput() {
     if (!LevelEditorLayer::get()) return false;
+    
+    auto parent = getParent();
+    if (parent) {
+        if (parent->getID() == "editor-layer-input") return false;
+        if (parent->getID() == "editor-layer-2-input") return false;
+        if (parent->getID() == "channel-order-input") return false;
+        if (parent->getID() == "channel-input") return false;
+    }
 
     bool hadMinus = false;
     for (const char& c : std::string_view(m_allowedChars)) {
@@ -42,19 +50,17 @@ bool NECCTextInputNode::allowedInput() {
             return false;
         }
     }
-    if (!hadMinus) return false;
-    return true;
+    
+    return hadMinus;
 }
 
 bool NECCTextInputNode::init(float width, float height, char const* placeholder, char const* textFont, int fontSize, char const* labelFont) {
     if (!CCTextInputNode::init(width, height, placeholder, textFont, fontSize, labelFont)) return false;
 
-    runAction(CallFuncExt::create([this] {
-        if (!NegateInput::getSetting<bool, "show-negate-button">()) return;
-        toggleOn();
-    }));
-
     addOnEnterCallback([this] {
+        if (NegateInput::getSetting<bool, "show-negate-button">()) {
+            toggleOn();
+        }
         if (NegateInput::get()) {
             NegateInput::get()->m_activeNodes.insert(this);
         }
@@ -82,7 +88,7 @@ void NECCTextInputNode::toggleOn() {
 
     auto spr = CCSprite::createWithSpriteFrameName("edit_delCBtn_001.png");
 
-    auto btnSpr = ButtonSprite::create(spr, 30, 1, 30.f, 1.f, false, "GJ_button_06.png", false);
+    auto btnSpr = CircleButtonSprite::create(spr, geode::CircleBaseColor::Red);
     btnSpr->setScale(0.3f);
 
     fields->m_button = geode::Button::createWithNode(btnSpr, [this] (auto sender) {
@@ -90,7 +96,7 @@ void NECCTextInputNode::toggleOn() {
     });
 
     fields->m_button->setID("negate-button"_spr);
-    fields->m_button->setPosition(getContentSize() / 2.f + CCPoint{1.f, -3.f});
+    fields->m_button->setPosition(getContentSize() / 2.f + CCPoint{2.f, -4.f});
     fields->m_button->setVisible(false);
 
     schedule(schedule_selector(NECCTextInputNode::showOnFocus));

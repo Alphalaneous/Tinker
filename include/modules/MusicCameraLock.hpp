@@ -15,6 +15,8 @@ class $module(MusicCameraLock) {
 class $modify(MCLEditorUI, EditorUI) {
     $registerHooks(MusicCameraLock)
 
+    void showLayoutGenerator(CCNode* menu, bool show);
+
     void onPlayback(CCObject* sender);
     void onPlaytest(CCObject* sender);
 

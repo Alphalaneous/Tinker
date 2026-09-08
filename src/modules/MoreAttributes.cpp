@@ -9,8 +9,13 @@ bool MASetupKeyframePopup::init(KeyframeGameObject* object, cocos2d::CCArray* ob
 
     auto winSize = CCDirector::get()->getWinSize();
 
+    auto oldMenuPos = m_buttonMenu->getPosition();
+    m_buttonMenu->setPosition(m_buttonMenu->getPosition() - m_mainLayer->getPosition());
+
     auto point = CCPoint{winSize.width / 2.f - 110.f, winSize.height / 2.f - 90.f};
     auto arr = createValueControlAdvanced(373, "KeyframeID", point, 0.7f, true, InputValueType::Uint, 6, true, 0, 100, 1, 0, GJInputStyle::GoldLabel, 2, false);
+
+    m_buttonMenu->setPosition(oldMenuPos);
 
     bool shared = true;
     int keyframeID = 0;
@@ -35,7 +40,6 @@ bool MASetupKeyframePopup::init(KeyframeGameObject* object, cocos2d::CCArray* ob
             }
         }
     }
-
     return true;
 }
 
@@ -111,8 +115,13 @@ bool MASetupAdvFollowPopup::init(AdvancedFollowTriggerObject* object, cocos2d::C
     auto winSize = CCDirector::get()->getWinSize();
     auto point = CCPoint{winSize.width / 2.f + m_width / 2.f - 170.f, winSize.height / 2.f - m_height / 2.f + 20.f};
 
+    auto oldMenuPos = m_buttonMenu->getPosition();
+    m_buttonMenu->setPosition(m_buttonMenu->getPosition() - m_mainLayer->getPosition());
+
     createCustomToggleValueControl(280, ignoreGroupParent, false, "Ignore\nGParent", point, false, 0, 0);
     createCustomToggleValueControl(281, ignoreLinked, false, "Ignore\nLinked", point + CCPoint{100.f, 0.f}, false, 0, 0);
+
+    m_buttonMenu->setPosition(oldMenuPos);
 
     return true;
 }
@@ -166,7 +175,12 @@ bool MASetupInstantCollisionTriggerPopup::init(EffectGameObject* object, cocos2d
     auto winSize = CCDirector::get()->getWinSize();
     auto point = CCPoint{winSize.width / 2.f + m_width / 2.f - 72.f, winSize.height / 2.f - m_height / 2.f + 50.f};
 
+    auto oldMenuPos = m_buttonMenu->getPosition();
+    m_buttonMenu->setPosition(m_buttonMenu->getPosition() - m_mainLayer->getPosition());
+
     createToggleButton("Remap\nFix", menu_selector(MASetupInstantCollisionTriggerPopup::onRemapFix), remapFix, point);
+
+    m_buttonMenu->setPosition(oldMenuPos);
 
     return true;
 }
@@ -192,7 +206,12 @@ bool MASetupObjectOptions2Popup::init(GameObject* object, cocos2d::CCArray* obje
     auto winSize = CCDirector::get()->getWinSize();
     auto point = CCPoint{winSize.width / 2.f - 80.f, winSize.height / 2.f - 25.f};
 
+    auto oldMenuPos = m_buttonMenu->getPosition();
+    m_buttonMenu->setPosition(m_buttonMenu->getPosition() - m_mainLayer->getPosition());
+
     auto arr = createValueControlAdvanced(108, "LinkedID:", point, 0.7f, true, InputValueType::Uint, 6, true, 0, 100, 0, 0, GJInputStyle::GoldLabel, 2, false);
+
+    m_buttonMenu->setPosition(oldMenuPos);
 
     bool shared = true;
     int linkedID = 0;

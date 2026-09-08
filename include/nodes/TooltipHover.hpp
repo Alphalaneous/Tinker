@@ -43,6 +43,10 @@ namespace tinker::ui {
         void showTooltip(CreateMenuItem* item);
         void hideTooltip();
 
+        void resetScale(CreateMenuItem* item);
+
+        void scaleItem(CreateMenuItem* item, bool down);
+
         void setButtonOpacity(CreateMenuItem* item, GLubyte opacity);
 
         bool m_clicking;

@@ -18,7 +18,7 @@ public:
     }
 
     virtual int getMax() override {
-        return std::numeric_limits<short>().max();
+        return 9999;
     }
 
     virtual int getOffset() override {

@@ -13,6 +13,8 @@ public:
     void setEnabled(bool enabled);
     void updateSprite();
 
+    bool isSelected();
+
     int getColorID();
     void setColorID(int colorID);
 
@@ -30,6 +32,7 @@ protected:
     CCSprite* m_selectSpr;
 
     bool m_enabled = true;
+    bool m_selected;
     bool m_live;
     GLubyte m_realOpacity;
 

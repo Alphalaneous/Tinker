@@ -208,6 +208,11 @@ void ColorChannelSprite::updateSprite() {
 
 void ColorChannelSprite::setSelected(bool selected) {
     m_selectSpr->setVisible(selected);
+    m_selected = selected;
+}
+
+bool ColorChannelSprite::isSelected() {
+    return m_selected;
 }
 
 void ColorChannelSprite::setEnabled(bool enabled) {

@@ -78,21 +78,22 @@ void AutoBuildHelper::showOnEditorUI() {
     auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
     if (!menu) return;
 
-    auto autoBuildHelperSpr = CCSprite::create("build_helper.png"_spr);
-    autoBuildHelperSpr->setID("auto-build-helper-sprite"_spr);
+    auto spr = CCSprite::create("build_helper.png"_spr);
+    spr->setID("auto-build-helper-sprite"_spr);
     
-    auto autoBuildHelperSprOn = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40.f, "GJ_button_02.png", 1.f);
-    auto autoBuildHelperSprOff = ButtonSprite::create(autoBuildHelperSpr, 40, true, 40.f, "GJ_button_01.png", 1.f);
+    auto sprOn = ButtonSprite::create(spr, 40, true, 40.f, "GJ_button_02.png", 1.f);
+    auto sprOff = ButtonSprite::create(spr, 40, true, 40.f, "GJ_button_01.png", 1.f);
     
-    autoBuildHelperSprOn->setID("auto-build-helper-sprite-on"_spr);
-    autoBuildHelperSprOff->setID("auto-build-helper-sprite-off"_spr);
+    sprOn->setID("auto-build-helper-sprite-on"_spr);
+    sprOff->setID("auto-build-helper-sprite-off"_spr);
 
-    autoBuildHelperSpr->setPositionY(autoBuildHelperSpr->getPositionY() - 2.f);
+    sprOn->setContentSize({40.f, 40.f});
+    sprOff->setContentSize({40.f, 40.f});
 
-    autoBuildHelperSprOn->setContentSize({40.f, 40.f});
-    autoBuildHelperSprOff->setContentSize({40.f, 40.f});
+    sprOn->updateSpriteOffset({0.f, -1.5f});
+    sprOff->updateSpriteOffset({0.f, -1.5f});
 
-    m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, getEditor(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
+    m_bhToggler = CCMenuItemToggler::create(sprOff, sprOn, getEditor(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
     alpha::editor_sounds::assignToMenuItem(m_bhToggler, "toolbar-toggles");
 

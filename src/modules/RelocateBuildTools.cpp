@@ -26,16 +26,8 @@ void RelocateBuildTools::onEditor() {
     m_pauseLayer->setKeyboardEnabled(false);
     m_pauseLayer->setKeypadEnabled(false);
     m_pauseLayer->setUserFlag("ignore"_spr);
-    static_cast<RBTEditorPauseLayer*>(m_pauseLayer.data())->m_fields->m_noResume = true;
-
-    // lol
     CCTouchDispatcher::get()->unregisterForcePrio(m_pauseLayer);
-    CCTouchDispatcher::get()->removeDelegate(m_pauseLayer);
-    CCKeyboardDispatcher::get()->removeDelegate(m_pauseLayer);
-    CCScheduler::get()->unscheduleAllForTarget(m_pauseLayer);
-    CCDirector::get()->m_pKeypadDispatcher->removeDelegate(m_pauseLayer);
-    CCDirector::get()->m_pMouseDispatcher->removeDelegate(m_pauseLayer);
-    CCDirector::get()->m_pActionManager->removeAllActionsFromTarget(m_pauseLayer);
+    static_cast<RBTEditorPauseLayer*>(m_pauseLayer.data())->m_fields->m_noResume = true;
 
     alpha::editor_tabs::addTab("build-tools"_spr, alpha::editor_tabs::EDIT, 
     [this] {

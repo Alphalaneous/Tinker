@@ -1,3 +1,61 @@
+# 1.1.0
+- <c-dddddd>Fix status bar not respecting safe areas</c>
+- <c-dddddd>Status bar will now blur alongside toolbar if toolbar blur is enabled</c>
+- <c-dddddd>Fix object info label being offset when it doesn't need to be</c>
+- <c-dddddd>Fix free moving an object while swipe is enabled visually showing the selection box</c>
+- <c-dddddd>Fix Prevter's Smooth Scroll mod not working with Scrollable Toolbars</c>
+- <c-dddddd>Tooltips should no longer show while in DevTools</c>
+- <c-dddddd>Fix button offsets being wrong with More Attributes enabled and NinKaz's Editor Utils installed and you weren't using a wide aspect ratio</c>
+- <c-dddddd>Repeating Editor Buttons now properly toggles on for all buttons it allows if it was off when opening the editor</c>
+- <c-dddddd>Repeating Editor Buttons now works for the following:</c>
+  - <c-dddddd>Tinker's Grid Controls</c>
+  - <c-dddddd>Editor tab navigation buttons</c>
+  - <c-dddddd>BetterEdit custom move menu navigation buttons</c>
+  - <c-dddddd>Main Select Song Arrows</c>
+  - <c-dddddd>All arrow buttons in triggers</c>
+  - <c-dddddd>Extra2 Menu</c>
+  - <c-dddddd>Group ID Offset Popup</c>
+- <c-dddddd>Make Negate Input button look nicer</c>
+- <c-dddddd>Negate Input button no longer shows for Editor Layer 1 and 2, Order, and Channel inputs in the Edit Group popup</c>
+- <c-dddddd>Fix Negate Input showing on volume inputs in pause</c>
+- <c-dddddd>Add Selection Fix, allowing very large objects to be selected outside their normal range</c>
+- <c-dddddd>Fix selecting objects with the selection picker not updating object info</c>
+- <c-dddddd>Add object info above selection picker</c>
+- <c-dddddd>Fix selection picker showing behind objects when shaders are active</c>
+- <c-dddddd>Tweak selection picker functionality</c>
+  - <c-dddddd>By default, releasing the modifier no longer selects the object, this can be changed in settings</c>
+  - <c-dddddd>Now to select an object, you can middle mouse click or use the up arrow. This will toggle the selection</c>
+- <c-dddddd>Added Object Placement Preview option, shows the object where it will be placed at the mouse position</c>
+- <c-dddddd>Added subtle scale to object buttons in object tooltips</c>
+- <c-dddddd>Adjust size of Scroll Layer in scrollable toolbar so buttons do not get cut off when held</c>
+- <c-dddddd>Fix jumpy scrolling and zooming</c>
+- <c-dddddd>Tweak link controls size to not overlap with tabs slightly at 1.0x UI Scale</c>
+- <c-dddddd>Fix link controls position not respecting different aspect ratios</c>
+- <c-dddddd>Fix some UI Scaling bugs</c>
+- <c-dddddd>You can no longer disable the UI scaling module, as it is core to certain functionality of the mod</c>
+  - <c-dddddd>The module is core for handling positioning of other nodes in other modules and handling their scale, as well as compatibility fixes for positioning with other mods, so this decision had to be made. It is mostly accurate to vanilla at 1.0x scale, so set it to that if you wish to "disable" it.</c>
+- <c-dddddd>Switching tabs in Tinker settings now resets the search bar</c>
+- <c-dddddd>Fixed a bug where typing multiple characters in search on the same frame would duplicate settings</c>
+- <c-dddddd>Tweaked editor position slider position to be closer to the center</c>
+- <c-dddddd>Fix length in editor positioning at 1.0x UI Scale</c>
+- <c-dddddd>Increase Slider fix distance from 300 to 800 units to the right</c>
+- <c-dddddd>Slider fix will no longer reset your position if the value doesn't change when dragging</c>
+- <c-dddddd>Clean up redundant active objects check for Status Bar</c>
+- <c-dddddd>Tooltips now follow the rest of the mod's design language</c>
+- <c-dddddd>Add Improved Editor Layer Controls</c>
+- <c-dddddd>Lower Preview Object Color button container Z Order to prevent conflict with Object Groups when Scrollable Toolbar is disabled</c>
+- <c-dddddd>Fix a crash when disabling object alignment toggler while object alignment is already off</c>
+- <c-dddddd>Fix object search being openable via keybind while in playtest</c>
+- <c-dddddd>Volume sliders in editor pause now respect slider bypass hacks</c>
+- <c-dddddd>Properly center the sprite on any toggles added by Tinker</c>
+- <c-dddddd>Add Centered Toggles option to center the sprites on vanilla toggles</c>
+- <c-dddddd>Fix scale and rotate control rotations not being reset when disabling Editor Rotation while the editor is rotated</c>
+- <c-dddddd>Fix Tinker version label in pause not accounting for safe areas</c>
+- <c-dddddd>Fix playtest and playback menus shrinking when there is available space at smaller UI scales</c>
+- <c-dddddd>Auto hide layout generator mod buttons when music playback is active and music camera lock is enabled</c>
+- <c-dddddd>Add Quick Save</c>
+- <c-dddddd>Add Auto Save</c>
+
 # 1.0.77
 - <c-dddddd>Crash hotfix</c>
 

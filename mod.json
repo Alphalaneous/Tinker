@@ -8,18 +8,20 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.0.77",
+	"version": "v1.1.0",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
 		"geode.node-ids": "v1.23.3",
 		"alphalaneous.good_grid": "v1.2.0",
 		"alphalaneous.alphas_geode_utils": "v1.2.4",
-		"alphalaneous.alphas-ui-pack": "v1.2.0",
+		"alphalaneous.alphas-ui-pack": "v1.3.0",
 		"alphalaneous.editortab_api": "v2.1.11",
 		"alphalaneous.level-storage-api": "v1.0.0",
 		"alk.better-touch-prio": "v1.0.16",
 		"prevter.imageplus": "v1.1.1",
+		"hjfod.gmd-api": "v1.5.0",
+		"cvolton.level-id-api": "v2.0.0",
 		"spaghettdev.named-editor-groups": {
 			"version": "v2.4.1",
             "required": false
@@ -92,6 +94,12 @@
 			"name": "Enable Improved Font Selection",
 			"description": "Show fonts in a scrollable view and preview text with them."
 		},
+		"ImprovedLayers-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Improved Editor Layer Controls",
+			"description": "Add an editor layer text input, redesign layer locking, and add a next free layer arrow."
+		},
 		"ImprovedArtPicker-enabled": {
 			"type": "bool",
 			"default": true,
@@ -146,8 +154,7 @@
 			"type": "bool",
 			"default": false,
 			"name": "Show Status Bar",
-			"description": "Show extra editor info in a status bar at the bottom. Only shows if the toolbar UI Scale is at 0.9 or below.",
-			"enable-if": "UIScaling-enabled"
+			"description": "Show extra editor info in a status bar at the bottom. Only shows if the toolbar UI Scale is at 0.9 or below."
 		},
 		"TogglerOverflow-enabled": {
 			"type": "bool",
@@ -206,12 +213,6 @@
 			"name": "Pinch to Zoom",
 			"description": "Allow pinching 2 fingers to zoom.",
 			"platforms": ["android", "ios"]
-		},
-		"scroll-delegate-to-vanilla": {
-			"type": "bool",
-			"default": false,
-			"name": "Delegate Custom Scroll to Vanilla",
-			"description": "Pass the scroll parameters to the vanilla EditorUI::scrollWheel method. This can help with compatibility with DevTools, but will yield issues with other mods that change scroll."
 		},
 		"ignore-natural-scrolling": {
 			"type": "bool",
@@ -322,6 +323,12 @@
 			"name": "Centered Object Buttons",
 			"description": "Make the object sprites on the buttons in the build tab actually centered."
 		},
+		"CenteredToggles-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Centered Toggles",
+			"description": "Make the sprites on the bottom right toggles actually centered."
+		},
 		"EditorSliderFix-enabled": {
 			"type": "bool",
 			"default": true,
@@ -369,6 +376,12 @@
 			"default": true,
 			"name": "No Touch Paste State Fix",
 			"description": "Fix No Touch not working when pasting state until reopening the editor."
+		},
+		"SelectionFix-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Selection Fix",
+			"description": "Fix very large objects not being selectable past a certain point."
 		},
 		"ShakeTriggerFix-enabled": {
 			"type": "bool",
@@ -430,6 +443,14 @@
 			"description": "Copy object string to clipboard when copying in the editor.",
 			"enable-if": "!loaded:hjfod.betteredit",
 			"enable-if-description": "This feature is not compatible with BetterEdit."
+		},
+		"Gizmos-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Editor Gizmos",
+			"description": "Add special interactive editor only objects.",
+			"enable-if": "saved:wip-features",
+			"enable-if-description": "This feature is not complete yet and is coming in a future update."
 		},
 		"hIDe-enabled": {
 			"type": "bool",
@@ -998,11 +1019,42 @@
 			"min": 0.5,
 			"max": 2
 		},
+		"ObjectTooltips-hover-scale-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Hover Scale",
+			"description": "Scale object buttons while hovering over them."
+		},
 		"ObjectTooltips-show-object-id": {
 			"type": "bool",
 			"default": false,
 			"name": "Show Object IDs",
 			"description": "Show object IDs on the tooltips under the name."
+		},
+		"PlacePreview-title": {
+			"type": "title",
+			"name": "Object Placement Preview",
+			"platforms": ["desktop"]
+		},
+		"PlacePreview-description": {
+			"type": "info",
+			"description": "Hovering on the grid while in the create tab with an object will show a placement preview where the mouse is.",
+			"color": "#000000",
+			"platforms": ["desktop"]
+		},
+		"PlacePreview-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Enabled",
+			"platforms": ["desktop"]
+		},
+		"PlacePreview-opacity": {
+			"type": "float",
+			"default": 0.5,
+			"min": 0.05,
+			"max": 1,
+			"name": "Preview Opacity",
+			"platforms": ["desktop"]
 		},
 		"RelocateBuildTools-title": {
 			"type": "title",
@@ -1130,6 +1182,52 @@
 			"default": ["Alt+LeftMenu"],
 			"category": "editor"
 		},
+		"BetterSelect-release-modifier-to-select": {
+			"type": "bool",
+			"default": false,
+			"name": "Release Modifier To Select",
+			"description": "Releasing the modifier key will select the object you are current't at in the picker."
+		},
+		"BetterSelect-show-object-info": {
+			"type": "bool",
+			"default": true,
+			"name": "Show Object Info",
+			"description": "Show object info above the select picker."
+		},
+		"SaveTools-title": {
+			"type": "title",
+			"name": "Save Tools"
+		},
+		"SaveTools-description": {
+			"type": "info",
+			"description": "Auto saving and quick saving. (This module will override BetterEdit fully, if you wish to use the BetterEdit versions of these, you must disable Save Tools fully.)",
+			"color": "#000000"
+		},
+		"SaveTools-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"SaveTools-quick-save": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Quick Save",
+			"description": "Save levels to a file when saving in level to speed up saving. The level will still be normally saved when the game closes."
+		},
+		"SaveTools-auto-save-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Auto Save",
+			"description": "Automatically save your level at an interval."
+		},
+		"SaveTools-auto-save-interval": {
+			"type": "int",
+			"default": 10,
+			"min": 1,
+			"max": 60,
+			"name": "Auto Save Interval (minutes)",
+			"description": "Time between each auto save."
+		},
 		"SingleDeselect-title": {
 			"type": "title",
 			"name": "Single Deselect"
@@ -1256,11 +1354,6 @@
 			"type": "info",
 			"description": "How large elements in the UI are. BetterEdit's scale factor will override this if being used.",
 			"color": "#000000"
-		},
-		"UIScaling-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled"
 		},
 		"UIScaling-scale": {
 			"type": "float",

@@ -1,4 +1,7 @@
 #include "modules/MusicCameraLock.hpp"
+#include "MainHooks.hpp"
+#include "modules/LengthInEditor.hpp"
+#include "modules/UIScaling.hpp"
 
 bool MusicCameraLock::onToggled(bool state) {
     if (!state) {
@@ -28,6 +31,20 @@ void MusicCameraLock::onEditor() {
     getEditor()->m_uiItems->addObject(m_toggler);
 }
 
+void MCLEditorUI::showLayoutGenerator(CCNode* menu, bool show) {
+    show = show && MainEditorUI::get()->isUIVisible();
+
+    auto buildBtn = menu->getChildByID("profdragon.layoutgenerator/build-button");
+    if (buildBtn) {
+        buildBtn->setVisible(show);
+    }
+
+    auto settingsBtn = menu->getChildByID("profdragon.layoutgenerator/settings-button");
+    if (settingsBtn) {
+        settingsBtn->setVisible(show);
+    }
+}
+
 void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
     EditorUI::onPlayback(sender);
     auto playbackMenu = getChildByID("playback-menu");
@@ -38,13 +55,21 @@ void MCLEditorUI::onPlayback(cocos2d::CCObject* sender) {
         if (playbackMenu && toggler) {
             toggler->removeFromParent();
             playbackMenu->addChild(toggler);
+            showLayoutGenerator(playbackMenu, false);
             playbackMenu->updateLayout();
         }
     }
     else {
         m_editorLayer->unschedule(schedule_selector(MCLLevelEditorLayer::lockCamera));
         if (toggler) toggler->removeFromParent();
-        if (playbackMenu) playbackMenu->updateLayout();
+        if (playbackMenu) {
+            showLayoutGenerator(playbackMenu, true);
+            playbackMenu->updateLayout();
+        }
+    }
+
+    if (LengthInEditor::isEnabled()) {
+        LengthInEditor::get()->updateUI(UIScaling::getScale());
     }
 
     UpdateObjectLabel().send();

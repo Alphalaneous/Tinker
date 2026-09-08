@@ -109,13 +109,7 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     m_expandButton->setPosition({m_separator->getPositionX(), getContentHeight() / 2.f});
     addChild(m_expandButton);
 
-    float uiScale = 1.f;
-    
-    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
-        uiScale = UIScaling::get()->m_scale;
-    }
-
-    updateScale(uiScale);
+    updateScale(UIScaling::getScale());
 
     return true;
 }
@@ -264,12 +258,8 @@ void ToggleContainer::show(bool show) {
     m_expandOn->setVisible(show);
     m_expandOff->setVisible(!show);
     auto winSize = CCDirector::get()->getWinSize();
-    float uiScale = 1.f;
     
-    if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
-        uiScale = UIScaling::get()->m_scale;
-    }
-
+    float uiScale = UIScaling::getScale();
     float startingX = winSize.width + RightOffset * uiScale - UIScaling::getSafeOffset().x;
 
     stopAllActions();

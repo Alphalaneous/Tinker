@@ -1,6 +1,8 @@
 #include "modules/StatusBar.hpp"
+#include "modules/CustomToolbarBackground.hpp"
 #include "modules/LengthInEditor.hpp"
 #include "modules/UIScaling.hpp"
+#include "third-party/BlurAPI.hpp"
 #include "utils/Utils.hpp"
 
 namespace tinker::ui {
@@ -20,7 +22,7 @@ bool StatusBar::init() {
 
     auto winSize = CCDirector::get()->getWinSize();
 
-    float horizPadding = 2.f;
+    float horizPadding = 2.f + UIScaling::getSafeOffset().x;
     float vertPadding = 1.f;
 
     setContentSize({winSize.width, 8.f});
@@ -122,7 +124,7 @@ bool StatusBar::init() {
 
         updateLayouts();
     });
-    activeLabel->setText(fmt::format("Active: {}", tinker::utils::getActiveObjectCount(LevelEditorLayer::get())));
+    activeLabel->setText(fmt::format("Active: {}", LevelEditorLayer::get()->m_activeObjectsCount));
     activeLabel->validate();
 
     auto lengthLabel = addLabel("length-label"_spr, 200, true);
@@ -197,9 +199,7 @@ bool StatusBar::onToggled(bool state) {
     }
 
     getEditor()->runAction(CallFuncExt::create([this] {
-        if (UIScaling::isEnabled()) {
-            UIScaling::get()->setScaling(false);
-        }
+        UIScaling::get()->setScaling(false);
     }));
 
     return true;
@@ -209,21 +209,21 @@ void StatusBar::onEditor() {
     auto editor = getEditor();
 
     addEventListener("ui-scale", PreUIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
-        updateUI(scale, scaleToolbars);
+        updateUI(scale);
     });
 
     m_statusBar = tinker::ui::StatusBar::create();
 
     editor->m_uiItems->addObject(m_statusBar);
 
-    float scale = 1.f;
-    bool scaleToolbar = true;
-    if (UIScaling::isEnabled()) {
-        scale = UIScaling::get()->m_scale;
-        scaleToolbar = UIScaling::get()->m_scaleToolbar;
+    if (CustomToolbarBackground::isEnabled()) {
+        auto blur = CustomToolbarBackground::getSetting<bool, "blur-behind">();
+        if (blur) {
+	        BlurAPI::addBlur(m_statusBar);
+        }   
     }
 
-    updateUI(scale, scaleToolbar);
+    updateUI(UIScaling::getToolbarScale());
 
     StatusBarCreatedEvent().send();
 }
@@ -237,13 +237,21 @@ void StatusBar::updateLayouts() {
     m_statusBar->updateLayouts();
 }
 
-void StatusBar::updateUI(float scale, bool scaleToolbar) {
+void StatusBar::updateUI(float scale) {
     auto editor = getEditor();
-    if (scale > 0.9f || !scaleToolbar) {
+    if (scale > 0.9f) {
         m_toolbarOffset = 0.f;
         m_statusBar->removeFromParent();
         return;
     }
+
+    float horizPadding = 2.f + UIScaling::getSafeOffset().x;
+    float vertPadding = 1.f;
+    
+    m_statusBar->setLayout(SimpleRowLayout::create()
+        ->setMainAxisAlignment(MainAxisAlignment::Between)
+        ->setPadding({horizPadding, 0.f, horizPadding, 1.f})
+    );
 
     m_toolbarOffset = m_statusBar->getContentHeight();
 
@@ -251,6 +259,8 @@ void StatusBar::updateUI(float scale, bool scaleToolbar) {
         editor->addChild(m_statusBar);
         StatusBarCreatedEvent().send();
     }
+
+    m_statusBar->updateLayouts();
 
     if (m_updatingUI) return;
 

@@ -77,8 +77,10 @@ void PreviewObjectColors::onEditor() {
 }
 
 void PreviewObjectColors::setupButton(bool scrollable) {
+    auto editor = getEditor();
+
     if (m_buttonContainer) {
-        getEditor()->m_uiItems->removeObject(m_buttonContainer);
+        editor->m_uiItems->removeObject(m_buttonContainer);
         m_buttonContainer->removeFromParent();
         m_buttonContainer = nullptr;
     }
@@ -86,8 +88,8 @@ void PreviewObjectColors::setupButton(bool scrollable) {
     removeEventListener("ui-scale");
 
     if (scrollable) {
-        getEditor()->runAction(CallFuncExt::create([this] {
-            for (auto child : getEditor()->getChildrenExt()) {
+        editor->runAction(CallFuncExt::create([this, editor] {
+            for (auto child : editor->getChildrenExt()) {
                 if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
                     if (!bar->m_hasCreateItems) continue;
                     auto soBar = static_cast<SOEditButtonBar*>(bar);
@@ -104,17 +106,13 @@ void PreviewObjectColors::setupButton(bool scrollable) {
     else {
         m_buttonContainer = CCNode::create();
         m_buttonContainer->setID("color-preview-container"_spr);
-        m_buttonContainer->setZOrder(100);
+        m_buttonContainer->setZOrder(12);
         m_buttonContainer->setAnchorPoint({1.f, 1.f});
-        getEditor()->addChild(m_buttonContainer);
-        getEditor()->m_uiItems->addObject(m_buttonContainer);
+        editor->addChild(m_buttonContainer);
+        editor->m_uiItems->addObject(m_buttonContainer);
 
         m_buttonForScroll = geode::Button::createWithSpriteFrameName("GJ_editHSVBtn2_001.png", [this] (auto sender) {
             editColor();
-            float scale = 1.f;
-            if (UIScaling::isEnabled()) {
-                scale = UIScaling::get()->m_scale;
-            }
         });
         m_buttonForScroll->setID("color-preview"_spr);
         m_buttonContainer->setContentSize(m_buttonForScroll->getScaledContentSize());
@@ -145,11 +143,7 @@ void PreviewObjectColors::setupButton(bool scrollable) {
             uiScale(trueScale);
         });
 
-        float scale = 1.f;
-        if (UIScaling::isEnabled() && UIScaling::get()->m_scaleToolbar) {
-            scale = UIScaling::get()->m_scale;
-        }
-        uiScale(scale);
+        uiScale(UIScaling::getScale());
 
         if (!m_callbacksAdded) {
             m_callbacksAdded = true;
@@ -163,6 +157,20 @@ void PreviewObjectColors::setupButton(bool scrollable) {
             });
         }
     }
+}
+
+GJSpriteColor* PreviewObjectColors::getBaseColor() {
+    auto editorUI = static_cast<POCEditorUI*>(getEditor());
+    auto fields = editorUI->m_fields.self();
+
+    return fields->m_defaultObject->m_baseColor;
+}
+
+GJSpriteColor* PreviewObjectColors::getDetailColor() {
+    auto editorUI = static_cast<POCEditorUI*>(getEditor());
+    auto fields = editorUI->m_fields.self();
+
+    return fields->m_defaultObject->m_detailColor;
 }
 
 void PreviewObjectColors::setButtonVisible(geode::Button* button) {

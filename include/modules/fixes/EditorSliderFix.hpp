@@ -5,6 +5,7 @@
 
 class $module(EditorSliderFix) {
     float m_lastObjectX = 0.f;
+    float m_lastSliderValue;
 
     void onEditor();
     bool onToggled(bool state);

@@ -1,4 +1,5 @@
 #include "modules/QuickExtras.hpp"
+#include "modules/Gizmos/Gizmos.hpp"
 #include "utils/Constants.hpp"
 #include <smjs.object-collab/include/object_collab_optional.hpp>
 
@@ -113,6 +114,10 @@ void QEEditorUI::editObjectSpecial(int type) {
 
 bool QEEditorUI::_isAllowedObjectID(int id) {
     using namespace tinker::constants::objects;
+
+    if (Gizmos::isEnabled()) {
+        return id == Gizmos::get()->getUnusedID();
+    }
 
     return id == PlayerTouchToggle
         || id == LinkedOrangeTeleportPortal

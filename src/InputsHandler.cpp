@@ -5,6 +5,7 @@
 #include "utils/Utils.hpp"
 #include "modules/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
+#include "modules/Gizmos/Gizmos.hpp"
 #include "actions/CCCallbackAction.hpp"
 #include "actions/CCValueTo.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
@@ -147,9 +148,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
     addEventListener(ScrollWheelEvent(), [this, fields](double x, double y) {
         fields->m_scroll = CCPoint{static_cast<float>(x), static_cast<float>(y)};
-        if (!tinker::utils::getSetting<bool, "scroll-delegate-to-vanilla">()) {
-            onScroll();
-        }
+        onScroll();
     });
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "ScrollableObjects-speed-modifier-key"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         fields->m_tabModifierHeld = down;
@@ -424,6 +423,10 @@ CCPoint InputEditorUI::getRealMousePos() {
     #endif
 }
 
+bool InputEditorUI::isInDevtools() {
+    return getMousePos() == getRealMousePos() && devtools::isOpen();
+}
+
 void InputEditorUI::onScroll() {
     auto quickVolume = CCScene::get()->getChildByID("hjfod.quick-volume-controls/overlay");
     if (quickVolume) {
@@ -460,8 +463,7 @@ void InputEditorUI::onScroll() {
     if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
     auto mousePos = getMousePos();
-
-    if (mousePos == getRealMousePos() && devtools::isOpen()) return;
+    if (isInDevtools()) return;
     
     if (mousePos.y < getToolbarHeight()) {
         auto currentTabIDRes = alpha::editor_tabs::getCurrentTab();
@@ -478,17 +480,6 @@ void InputEditorUI::onScroll() {
     }
 
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll()) {
-        for (auto child : getChildrenExt()) {
-            if (!nodeIsVisible(child)) continue;
-
-            bool invertScroll = ScrollableObjects::getSetting<bool, "invert-scroll">();
-
-            if (auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(child))) {
-                auto barFields = bar->m_fields.self();
-                float multiplier = fields->m_tabModifierHeld ? 12 * getSetting<float, "ScrollableObjects-speed-modifier">() : 12;
-                barFields->m_scrollBar->scroll((x * multiplier) * xMult * (invertScroll ? -1 : 1), (y * multiplier) * yMult * (invertScroll ? -1 : 1));
-            }
-        }
         return;
     }
 
@@ -503,6 +494,10 @@ void InputEditorUI::onScroll() {
     auto layer = m_editorLayer->m_objectLayer;
 
     if (CCKeyboardDispatcher::get()->getControlKeyPressed()) {
+        if (fields->m_moveX) layer->stopAction(fields->m_moveX);
+        if (fields->m_moveY) layer->stopAction(fields->m_moveY);
+        fields->m_activeScroll = false;
+
         if (!fields->m_activeZoom) {
             fields->m_targetScale = layer->getScale();
             fields->m_startSwipe = layer->convertToNodeSpace(m_swipeStart);
@@ -581,6 +576,8 @@ void InputEditorUI::onScroll() {
         }
         return;
     }
+    if (fields->m_scale) layer->stopAction(fields->m_scale);
+    fields->m_activeZoom = false;
 
     if (!fields->m_activeScroll) {
         fields->m_targetPos = layer->getPosition();
@@ -688,8 +685,54 @@ void InputEditorUI::removeActiveInput(CCTextInputNode* input) {
 }
 
 void InputEditorUI::scrollWheel(float y, float x) {
-    if (!tinker::utils::getSetting<bool, "scroll-delegate-to-vanilla">()) return;
-    onScroll();
+    auto fields = m_fields.self();
+
+    bool stillEditorScroll = false;
+    auto smoothScroll = tinker::utils::getMod<"prevter.smooth-scroll">();
+    bool hasSmoothScroll = false;
+    if (smoothScroll) {
+        hasSmoothScroll = smoothScroll->getSettingValue<bool>("scroll-enable-in-editor");
+    }
+
+    if (hasSmoothScroll) {
+        stillEditorScroll = std::abs(fields->m_scrollFromEditor) > 0.1 || std::abs(fields->m_scrollFromEditor) > std::abs(y);
+    }
+
+    for (auto alert : fields->m_activeAlerts) {
+        if (alert && alert->getParentByType<CCScene>() && nodeIsVisible(alert)) {
+            return;
+        }
+    }
+
+    if (isInDevtools()) {
+        return;
+    }
+
+    auto editorPause = m_editorLayer->getChildByType<EditorPauseLayer>(0);
+    if (editorPause) {
+        return;
+    }
+
+    if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll() && !stillEditorScroll) {
+        for (auto child : getChildrenExt()) {
+            if (!nodeIsVisible(child)) continue;
+
+            bool invertScroll = ScrollableObjects::getSetting<bool, "invert-scroll">();
+
+            if (auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(child))) {
+                auto barFields = bar->m_fields.self();
+                float multiplier = fields->m_tabModifierHeld ? ScrollableObjects::getSetting<float, "speed-modifier">() : 1;
+
+                // only allow scroll to propagate through the editor, not itself
+                barFields->m_scrollLayer->setVerticalScrollWheel(true);
+                barFields->m_scrollLayer->scroll(0.f, y * multiplier * (invertScroll ? -1 : 1));
+                barFields->m_scrollLayer->setVerticalScrollWheel(false);
+            }
+        }
+        fields->m_scrollFromEditor = 0.f;
+        return;
+    }
+    fields->m_scrollFromEditor = y;
 }
 
 CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
@@ -711,17 +754,79 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
             return false;
         }
     }
-    
+
+    if (m_rotationTouchID == -1 && m_rotationControl && m_rotationControl->isVisible() && m_rotationControl->ccTouchBegan(touch, nullptr)) {
+        m_rotationTouchID = touch->m_nId;
+        return true;
+    }
+
+    if (m_scaleTouchID == -1 && m_scaleControl && m_scaleControl->isVisible() && m_scaleControl->ccTouchBegan(touch, nullptr)) {
+        m_scaleTouchID = touch->m_nId;
+        return true;
+    }
+
+    if (m_transformTouchID == -1 && m_transformControl && m_transformControl->isVisible() && m_transformControl->ccTouchBegan(touch, nullptr)) {
+        m_transformTouchID = touch->m_nId;
+        return true;
+    }
+
+    auto mainPos = getTouchLocation(touch);
+    bool aboveToolbar = mainPos.y > tinker::utils::getToolbarHeight();
+    bool playing = m_editorLayer->m_playbackMode == PlaybackMode::Playing;
+
+    if (aboveToolbar) {
+        std::unordered_map<Gizmo*, std::set<CCTargetedTouchHandler*>> gizmoToHandlers;
+        std::map<ZLayer, std::vector<Gizmo*>> zLayerGizmos;
+
+        auto handlers = CCTouchDispatcher::get()->m_pTargetedHandlers->asExt<CCTargetedTouchHandler>();
+        for (int i = handlers.size() - 1; i >= 0; i--) {
+            auto node = typeinfo_cast<CCNode*>(handlers[i]->getDelegate());
+            if (!node) continue;
+
+            auto gizmo = node->getParentByType<Gizmo>();
+            if (!gizmo) continue;
+
+            if (gizmo->getOpacity() == 0) continue;
+            if (playing && !gizmo->isInteractiveDuringPlaytest()) continue;
+
+            gizmoToHandlers[gizmo].insert(handlers[i]);
+            zLayerGizmos[gizmo->getObjectZLayer()].push_back(gizmo);
+        }
+
+        for (auto& [k, v] : zLayerGizmos) {
+            std::sort(v.begin(), v.end(), [](Gizmo* a, Gizmo* b) {
+                return a->getObjectZOrder() > b->getObjectZOrder(); 
+            });
+        }
+
+        for (auto it = zLayerGizmos.rbegin(); it != zLayerGizmos.rend(); ++it) {
+            for (auto gizmo : it->second) {
+                if (m_editorLayer->validGroup(gizmo, false)) {
+                    auto& handlers = gizmoToHandlers[gizmo];
+                    for (auto handler : handlers) {
+                        bool began = handler->getDelegate()->ccTouchBegan(touch, nullptr);
+                        if (!began) continue;
+
+                        handler->m_pClaimedTouches->addObject(touch);
+                        fields->m_inGizmo = true;
+                        fields->m_activeGizmoTouch = gizmo;
+                        fields->m_touchedGizmoChild = static_cast<CCTargetedTouchDelegate*>(handler->getDelegate());
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
     if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        auto mainPos = getTouchLocation(touch);
         if (mainPos.y <= tinker::utils::getToolbarHeight()) {
-            if (m_editorLayer->m_playbackMode != PlaybackMode::Playing || m_playbackBtn->isVisible()) return false;
+            if (!playing || m_playbackBtn->isVisible()) return false;
 
             m_editorLayer->m_uiLayer->ccTouchBegan(touch, nullptr);
             return true;
         }
         
-        if (m_editorLayer->m_playbackMode != PlaybackMode::Playing && fields->m_touch1 && !fields->m_touch2) {
+        if (!playing && fields->m_touch1 && !fields->m_touch2) {
             stopActionByTag(123);
             
             auto firstPos = getTouchLocation(fields->m_touch1);
@@ -754,8 +859,26 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     return next(touch);
 }
 
+bool InputEditorUI::tryCancelGizmo(CCTouch* touch) {
+    auto fields = m_fields.self();
+    if (!m_editorLayer->validGroup(fields->m_activeGizmoTouch, false)) {
+        fields->m_touchedGizmoChild->ccTouchCancelled(touch, nullptr);
+        fields->m_touchedGizmoChild = nullptr;
+        fields->m_activeGizmoTouch = nullptr;
+        fields->m_inGizmo = false;
+        return true;
+    }
+    return false;
+}
+
 void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
+
+    if (fields->m_inGizmo) {
+        if (tryCancelGizmo(touch)) return;
+        fields->m_touchedGizmoChild->ccTouchMoved(touch, nullptr);
+        return;
+    }
 
     if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -818,6 +941,14 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
 void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
 
+    if (fields->m_inGizmo) {
+        fields->m_touchedGizmoChild->ccTouchEnded(touch, nullptr);
+        fields->m_inGizmo = false;
+        fields->m_touchedGizmoChild = nullptr;
+        fields->m_activeGizmoTouch = nullptr;
+        return;
+    }
+
     if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
         if (fields->m_touch1 == touch) {
             fields->m_touch1 = fields->m_touch2;
@@ -836,6 +967,16 @@ void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* t
 }
 
 void InputEditorUI::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
+    auto fields = m_fields.self();
+
+    if (fields->m_inGizmo) {
+        fields->m_touchedGizmoChild->ccTouchCancelled(touch, nullptr);
+        fields->m_inGizmo = false;
+        fields->m_touchedGizmoChild = nullptr;
+        fields->m_activeGizmoTouch = nullptr;
+        return;
+    }
+
     onTouchEnded(touch, std::move(next));
 }
 

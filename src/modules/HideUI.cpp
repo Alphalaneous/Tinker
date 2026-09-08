@@ -64,7 +64,6 @@ void HideUI::onEditor() {
     hideEye->setPosition(m_hideButton->m_onButton->getContentSize() / 2.f);
 
     undoMenu->addChild(m_hideButton);
-
     undoMenu->updateLayout();
 
     if (!m_addedCallbacks) {
@@ -74,6 +73,7 @@ void HideUI::onEditor() {
             if (m_oldBEButton) {
                 m_oldBEButton->removeFromParent();
             }
+            undoMenu->updateLayout();
         });
     }
 
