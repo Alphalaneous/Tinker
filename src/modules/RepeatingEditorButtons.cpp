@@ -203,6 +203,7 @@ bool REBCustomizeObjectLayer::init(GameObject* object, cocos2d::CCArray* objects
 bool REBLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* layer) {
     if (!LevelSettingsLayer::init(object, layer)) return false;
 
+    if (!m_songSelectNode || !m_songSelectNode->m_normalSongObjects) return true;
     for (auto node : m_songSelectNode->m_normalSongObjects->asExt()) {
         auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
         if (!btn) continue;
