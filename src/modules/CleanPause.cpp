@@ -68,7 +68,7 @@ void CleanPause::onEditor() {
         pauseLayer->setScale(0.925f);
         pauseLayer->setOpacity(0);
 
-        float scale = UIScaling::getScale();
+        float scale = UIScaling::getPauseScale();
         auto winSize = CCDirector::get()->getWinSize();
 
         auto bg = geode::NineSlice::create("square04_001.png");
@@ -235,7 +235,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     if (actionsMenu) {
         actionsMenu->setScale(scale);
         actionsMenu->setAnchorPoint({0.5f, 0.f});
-        actionsMenu->setPosition(CCPoint{winSize.width - 10.f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - UIScaling::getSafeOffset());
+        actionsMenu->setPosition(CCPoint{winSize.width - 10.f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - UIScaling::getSafeOffsetPause());
         
         if (auto smallActionsMenu = pauseLayer->getChildByID("small-actions-menu")) {
             smallActionsMenu->setScale(scale);
@@ -253,7 +253,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
             optionsMenu->setScale(scale);
         }
         optionsMenu->setAnchorPoint({0.f, 0.f});
-        optionsMenu->setPosition(CCPoint{8.5f * scale, 14.5f * scale} + UIScaling::getSafeOffset());
+        optionsMenu->setPosition(CCPoint{8.5f * scale, 14.5f * scale} + UIScaling::getSafeOffsetPause());
         if (isNewNodeIDs) {
             optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / scale});
             optionsMenu->updateLayout();
@@ -264,24 +264,20 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     if (settingsMenu) {
         settingsMenu->setScale(scale);
 
-        if (isNewNodeIDs) {
-            if (actionsMenu) {
-                settingsMenu->setAnchorPoint({0.5f, 1.f});
-                settingsMenu->setPosition({actionsMenu->getPositionX(), winSize.height - 5.f * scale});
-            }
-            else {
-                settingsMenu->setAnchorPoint({0.5f, 0.5f});
-                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f});
-            }
-        }
-        else {
-            settingsMenu->setAnchorPoint({0.5f, 0.5f});
-            if (actionsMenu) {
-                settingsMenu->setPosition(CCPoint{actionsMenu->getPositionX(), winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f});
-            }
-            else {
-                settingsMenu->setPosition(CCPoint{winSize.width - 2.f * scale - settingsMenu->getScaledContentWidth() / 2.f, winSize.height - 34.f * scale - settingsMenu->getScaledContentHeight() / 2.f} - UIScaling::getSafeOffset());
-            }
+        if (actionsMenu) {
+            actionsMenu->removeEventListener("entered-event"_spr);
+            actionsMenu->addEventListener("entered-event"_spr, NodeEvent(actionsMenu, NodeEventType::OnEnter), [this, actionsMenu, settingsMenu] {
+                auto bounds = tinker::utils::getRealBounds(actionsMenu);
+                auto y = actionsMenu->boundingBox().getMinY() + bounds.size.height;
+
+                settingsMenu->setAnchorPoint({0.5f, 0.f});
+                settingsMenu->setPosition({actionsMenu->getPositionX(), y});
+            });
+            auto bounds = tinker::utils::getRealBounds(actionsMenu);
+            auto y = actionsMenu->boundingBox().getMinY() + bounds.size.height;
+
+            settingsMenu->setAnchorPoint({0.5f, 0.f});
+            settingsMenu->setPosition({actionsMenu->getPositionX(), y});
         }
     }
 
@@ -294,7 +290,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
     auto bg = pauseLayer->getChildByID("background"_spr);
     if (bg) {
         auto bgSprite = bg->getChildByID("background-sprite"_spr);
-        bgSprite->setContentSize(winSize + CCSize{24.f, 4.f} - UIScaling::getSafeOffset() * 2.f);
+        bgSprite->setContentSize(winSize + CCSize{24.f, 4.f} - UIScaling::getSafeOffsetPause() * 2.f);
     }
 
     auto musicSlider = pauseLayer->getChildByID("music-slider"_spr);

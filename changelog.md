@@ -1,5 +1,7 @@
 # 1.1.1
 - <c-dddddd>Fix UI Scaling not being disabled for pause when scale pause menu is disabled</c>
+- <c-dddddd>Fix position of settings menu when adjusting UI scale with clean pause enabled</c>
+- <c-dddddd>Add option to not use safe areas in pause menu</c>
 
 # 1.1.0
 - <c-dddddd>Fix status bar not respecting safe areas</c>

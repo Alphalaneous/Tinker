@@ -16,6 +16,7 @@ class $module(UIScaling) {
     void setupEvents();
 
     static CCPoint getSafeOffset();
+    static CCPoint getSafeOffsetPause();
     static float getScale();
     static float getToolbarScale();
     static float getPauseScale();
@@ -25,6 +26,7 @@ class $module(UIScaling) {
     bool m_scaleToolbar = true;
     bool m_scalePause = true;
     bool m_usesSafeArea = true;
+    bool m_usesSafeAreaPause = true;
     bool m_usesCustomSafeArea = false;
 };
 

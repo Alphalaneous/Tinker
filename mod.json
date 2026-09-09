@@ -1383,6 +1383,11 @@
 			"name": "Use Safe Area",
 			"description": "Use the devices safe area when positioning to prevent camera cutouts and notches from overlapping UI elements."
 		},
+		"UIScaling-safe-area-in-pause": {
+			"type": "bool",
+			"default": true,
+			"name": "Safe Area in Pause Menu"
+		},
 		"UIScaling-use-custom-safe-area": {
 			"type": "bool",
 			"default": false,

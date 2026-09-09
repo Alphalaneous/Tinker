@@ -20,6 +20,9 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
     if (key == "use-safe-area") {
         m_usesSafeArea = value.asBool().unwrapOr(false);
     }
+    if (key == "safe-area-in-pause") {
+        m_usesSafeAreaPause = value.asBool().unwrapOr(false);
+    }
     if (key == "use-custom-safe-area") {
         m_usesCustomSafeArea = value.asBool().unwrapOr(false);
     }
@@ -44,6 +47,7 @@ void UIScaling::resetSettings() {
     m_scaleToolbar = true;
     m_scalePause = true;
     m_usesSafeArea = true;
+    m_usesSafeAreaPause = true;
     m_usesCustomSafeArea = false;
     m_customSafeArea = 0.f;
 }
@@ -53,6 +57,7 @@ void UIScaling::setupSettings() {
     m_scaleToolbar = getSetting<bool, "scale-toolbar">();
     m_scalePause = getSetting<bool, "scale-pause">();
     m_usesSafeArea = getSetting<bool, "use-safe-area">();
+    m_usesSafeAreaPause = getSetting<bool, "safe-area-in-pause">();
     m_usesCustomSafeArea = getSetting<bool, "use-custom-safe-area">();
     m_customSafeArea = getSetting<float, "custom-safe-area">();
 }
@@ -85,6 +90,13 @@ CCPoint UIScaling::getSafeOffset() {
     return {0.f, 0.f};
 }
 
+CCPoint UIScaling::getSafeOffsetPause() {
+    auto uiScaling = UIScaling::get();
+    if (!uiScaling || !uiScaling->m_usesSafeAreaPause) return {0.f, 0.f};
+
+    return getSafeOffset();
+}
+
 float UIScaling::getScale() {
     auto uiScaling = UIScaling::get();
     if (!uiScaling) return 1.f;
@@ -111,7 +123,7 @@ void UIScaling::setPauseScaling() {
     auto pauseLayer = MainEditorPauseLayer::get();
     if (!pauseLayer) return;
 
-    float scale = m_scalePause ? m_scale : 1.f;
+    float scale = getPauseScale();
 
     auto resumeMenu = pauseLayer->getChildByID("resume-menu");
     auto infoMenu = pauseLayer->getChildByID("info-menu");
@@ -127,7 +139,7 @@ void UIScaling::setPauseScaling() {
     bool isNewNodeIDs = Loader::get()->getInstalledMod("geode.node-ids")->getVersion() > VersionInfo{1, 23, 3};
 
     if (versionLabel) {
-        versionLabel->setPosition(pauseLayer->convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}) - UIScaling::getSafeOffset());
+        versionLabel->setPosition(pauseLayer->convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}) - UIScaling::getSafeOffsetPause());
     }
 
     if (resumeMenu) {
@@ -138,13 +150,13 @@ void UIScaling::setPauseScaling() {
     if (infoMenu) {
         infoMenu->setScale(scale * 0.927f);
         infoMenu->setAnchorPoint({0.f, 1.f});
-        infoMenu->setPosition(CCPoint{10.f * scale, winSize.height - 6.f * scale} + getSafeOffset());
+        infoMenu->setPosition(CCPoint{10.f * scale, winSize.height - 6.f * scale} + getSafeOffsetPause());
     }
 
     if (actionsMenu) {
         actionsMenu->setScale(scale);
         actionsMenu->setAnchorPoint({0.5f, 0.f});
-        actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - getSafeOffset());
+        actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - getSafeOffsetPause());
         
         if (smallActionsMenu) {
             smallActionsMenu->setScale(scale);
@@ -161,7 +173,7 @@ void UIScaling::setPauseScaling() {
             optionsMenu->setScale(scale);
         }
         optionsMenu->setAnchorPoint({0.f, 0.f});
-        optionsMenu->setPosition(CCPoint{15.5f * scale, 14.5f * scale} + getSafeOffset());
+        optionsMenu->setPosition(CCPoint{15.5f * scale, 14.5f * scale} + getSafeOffsetPause());
         if (isNewNodeIDs) {
             optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / scale});
             optionsMenu->updateLayout();
