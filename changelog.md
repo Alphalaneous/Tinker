@@ -1,3 +1,6 @@
+# 1.1.1
+- <c-dddddd>Fix UI Scaling not being disabled for pause when scale pause menu is disabled</c>
+
 # 1.1.0
 - <c-dddddd>Fix status bar not respecting safe areas</c>
 - <c-dddddd>Status bar will now blur alongside toolbar if toolbar blur is enabled</c>

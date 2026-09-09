@@ -111,6 +111,8 @@ void UIScaling::setPauseScaling() {
     auto pauseLayer = MainEditorPauseLayer::get();
     if (!pauseLayer) return;
 
+    float scale = m_scalePause ? m_scale : 1.f;
+
     auto resumeMenu = pauseLayer->getChildByID("resume-menu");
     auto infoMenu = pauseLayer->getChildByID("info-menu");
     auto actionsMenu = pauseLayer->getChildByID("actions-menu");
@@ -129,45 +131,45 @@ void UIScaling::setPauseScaling() {
     }
 
     if (resumeMenu) {
-        resumeMenu->setScale(m_scale);
+        resumeMenu->setScale(scale);
         resumeMenu->setPosition(winSize / 2.f);
     }
 
     if (infoMenu) {
-        infoMenu->setScale(m_scale * 0.927f);
+        infoMenu->setScale(scale * 0.927f);
         infoMenu->setAnchorPoint({0.f, 1.f});
-        infoMenu->setPosition(CCPoint{10.f * m_scale, winSize.height - 6.f * m_scale} + getSafeOffset());
+        infoMenu->setPosition(CCPoint{10.f * scale, winSize.height - 6.f * scale} + getSafeOffset());
     }
 
     if (actionsMenu) {
-        actionsMenu->setScale(m_scale);
+        actionsMenu->setScale(scale);
         actionsMenu->setAnchorPoint({0.5f, 0.f});
-        actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * m_scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * m_scale} - getSafeOffset());
+        actionsMenu->setPosition(CCPoint{winSize.width - 23.6f * scale - actionsMenu->getScaledContentWidth() / 2.f, 10.f * scale} - getSafeOffset());
         
         if (smallActionsMenu) {
-            smallActionsMenu->setScale(m_scale);
+            smallActionsMenu->setScale(scale);
             smallActionsMenu->setAnchorPoint({0.5f, 0.f});
-            smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6.f * m_scale - smallActionsMenu->getScaledContentWidth() / 2, 10.f * m_scale});
+            smallActionsMenu->setPosition(CCPoint{actionsMenu->getPositionX() - actionsMenu->getScaledContentWidth() / 2 - 6.f * scale - smallActionsMenu->getScaledContentWidth() / 2, 10.f * scale});
         }
     }
 
     if (optionsMenu) {
         if (tinker::utils::getMod<"razoom.improved_playtest">() && !isNewNodeIDs) {
-            optionsMenu->setScale(m_scale * 0.925f);
+            optionsMenu->setScale(scale * 0.925f);
         }
         else {
-            optionsMenu->setScale(m_scale);
+            optionsMenu->setScale(scale);
         }
         optionsMenu->setAnchorPoint({0.f, 0.f});
-        optionsMenu->setPosition(CCPoint{15.5f * m_scale, 14.5f * m_scale} + getSafeOffset());
+        optionsMenu->setPosition(CCPoint{15.5f * scale, 14.5f * scale} + getSafeOffset());
         if (isNewNodeIDs) {
-            optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / m_scale});
+            optionsMenu->setContentSize({ 120.f, (winSize.height - 62.f) / scale});
             optionsMenu->updateLayout();
         }
     }
 
     if (settingsMenu) {
-        settingsMenu->setScale(m_scale);
+        settingsMenu->setScale(scale);
 
         if (actionsMenu) {
             actionsMenu->removeEventListener("entered-event"_spr);
@@ -187,22 +189,22 @@ void UIScaling::setPauseScaling() {
     }
 
     if (guidelinesMenu) {
-        guidelinesMenu->setScale(m_scale);
-        guidelinesMenu->setPosition({winSize.width / 2.f, 28.f * m_scale});
+        guidelinesMenu->setScale(scale);
+        guidelinesMenu->setPosition({winSize.width / 2.f, 28.f * scale});
     }
 
     if (topMenu) {
-        topMenu->setScale(m_scale);
-        topMenu->setPosition({winSize.width / 2.f, winSize.height - 30.f * m_scale});
+        topMenu->setScale(scale);
+        topMenu->setPosition({winSize.width / 2.f, winSize.height - 30.f * scale});
     }
 
     if (currentSongLayer) {
         auto currentSongNode = currentSongLayer->getChildByID("undefined0.editormusic/CurrentSongNode");
         if (currentSongNode) {
-            currentSongNode->setScale(m_scale);
+            currentSongNode->setScale(scale);
         }
     }
-    PauseUIScaleUpdated().send(pauseLayer, m_scale);
+    PauseUIScaleUpdated().send(pauseLayer, scale);
 }
 
 void UIScaling::setScaling(bool fullReload) {
