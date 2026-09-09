@@ -5,6 +5,7 @@
 #include "module/Module.hpp"
 #include <Geode/modify/ObjectToolbox.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 
 class $module(GridControl) {
     TextInput* m_input;
@@ -20,6 +21,7 @@ class $module(GridControl) {
     void onEditor();
     void updateUI(float scale);
     void removeBE();
+    void moveBE();
     void updateGrid(float newValue = 0, bool updateInput = true);
     float getGridMultiplier();
 
@@ -41,6 +43,12 @@ class $modify(GCEditorUI, EditorUI) {
 
     cocos2d::CCPoint offsetForKey(int id);
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
+};
+
+class $modify(GCLevelEditorLayer, LevelEditorLayer) {
+    $registerHooks(GridControl)
+
+    void forceBetterEditAway(float dt);
 };
 
 #endif

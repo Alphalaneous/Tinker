@@ -310,6 +310,7 @@ void LayerInput::updateDisplay() {
     m_lockSprContainer->addChild(spr);
     m_lockBtn->setContentSize({17.f, 18.5f});
 
+    float xOffset = 0.f;
     float yOffset = 0.65f;
 
     m_lockSprContainer->setPosition(m_lockBtn->getContentSize() / 2.f - CCPoint{0.f, yOffset});
@@ -321,14 +322,16 @@ void LayerInput::updateDisplay() {
     m_input->getInputNode()->m_textColor = isLocked ? ccColor3B{255, 200, 90} : ccColor3B{255, 255, 255};
     m_input->getInputNode()->refreshLabel();
 
-    float xOffset = 0.f;
-
     if (layerLocking) {
         xOffset = 1.5f;
-        setContentSize(m_input->getScaledContentSize() + CCPoint{m_lockBtn->getContentWidth() + xOffset * 2.f, 0.f});
+        setContentSize(m_input->getScaledContentSize() + CCSize{m_lockBtn->getContentWidth() + xOffset * 2.f, 0.f});
+        m_input->setAnchorPoint({0.f, 0.5f});
+        m_input->setPosition({xOffset, getContentHeight() / 2.f});
     }
     else {
-        setContentSize(m_input->getScaledContentSize());
+        setContentSize(m_input->getScaledContentSize() + CCSize{5.f, 0.f});
+        m_input->setAnchorPoint({0.5f, 0.5f});
+        m_input->setPosition({getContentWidth() / 2.f, getContentHeight() / 2.f});
     }
 
     m_background->setContentSize(getContentSize());
@@ -338,7 +341,6 @@ void LayerInput::updateDisplay() {
     m_lockBorder->setPosition(getContentSize() / 2.f - CCPoint{0.f, yOffset});
     m_lockBorder->setVisible(layerLocking && isLocked);
 
-    m_input->setPosition({xOffset, getContentHeight() / 2.f});
     m_lockBtn->setPosition({getContentWidth() - m_lockBtn->getContentWidth() / 2.f - xOffset, getContentHeight() / 2.f});
 
     if (m_lastLayerLockState != layerLocking) {
@@ -376,7 +378,6 @@ bool LayerInput::init() {
     m_input->getBGSprite()->setVisible(false);
     m_input->setID("layer-text-input"_spr);
     m_input->getInputNode()->setMaxLabelWidth(26.f);
-    m_input->setAnchorPoint({0.f, 0.5f});
 
     addChild(m_input);
 

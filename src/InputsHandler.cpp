@@ -33,7 +33,7 @@ TouchForward* TouchForward::get() {
 
 bool TouchForward::init(EditorUI* editorUI) {
     m_editorUI = editorUI;
-    setZOrder(100);
+    setZOrder(50);
     setTouchEnabled(true);
     setID("touch-forward"_spr);
 

@@ -4,6 +4,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/ColorSelectLiveOverlay.hpp>
 #include <Geode/modify/HSVLiveOverlay.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 
 class $module(UIScaling) {
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
@@ -48,11 +49,17 @@ class $modify(UISHSVLiveOverlay, HSVLiveOverlay) {
     static void scaleActive();
 };
 
-// evil global hook for BE compat
 class $modify(UISEditorUI, EditorUI) {
+
+    // evil global hook for BE compat
     bool init(LevelEditorLayer* editorLayer);
+
 
     static void onModify(auto& self) {
         (void) self.setHookPriorityPost("EditorUI::init", Priority::VeryLate);
     }
+};
+
+class $modify(UISLevelEditorLayer, LevelEditorLayer) {
+    void forceChanges(float dt);
 };

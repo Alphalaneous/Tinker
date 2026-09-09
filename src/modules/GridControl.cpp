@@ -48,6 +48,9 @@ bool GridControl::onToggled(bool state) {
                 }
             }
         }
+
+        getEditorLayer()->unschedule(schedule_selector(GCLevelEditorLayer::forceBetterEditAway));
+
         m_oldBEControl = nullptr;
 
         removeEventListener("ui-scale");
@@ -249,11 +252,19 @@ void GridControl::onEditor() {
         menu->updateLayout();
     }
     editor->m_uiItems->addObject(m_toggler);
+
+    getEditorLayer()->schedule(schedule_selector(GCLevelEditorLayer::forceBetterEditAway));
 }
 
 void GridControl::removeBE() {
     auto editor = getEditor();
     m_oldBEControl = editor->getChildByID("hjfod.betteredit/grid-size-controls");
+    moveBE();
+}
+
+void GridControl::moveBE() {
+    auto editor = getEditor();
+
     if (m_oldBEControl) {
         // hacky hide so BE doesn't crash when changing grid with its keybinds
         m_oldBEControl->setVisible(false);
@@ -329,6 +340,10 @@ cocos2d::CCPoint GCEditorUI::offsetForKey(int id) {
 
     ret *= mult;
     return ret;
+}
+
+void GCLevelEditorLayer::forceBetterEditAway(float dt) {
+    GridControl::get()->moveBE();
 }
 
 float GCObjectToolbox::gridNodeSizeForKey(int id) {

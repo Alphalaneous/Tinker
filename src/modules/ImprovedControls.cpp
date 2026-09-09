@@ -409,6 +409,7 @@ bool ICGJScaleControl::init() {
     fields->m_inputX->setScale(0.8f);
     fields->m_inputX->setID("scale-x-input"_spr);
     fields->m_inputX->setPosition(40.f, m_scaleXLabel->getPositionY());
+    fields->m_inputX->getBGSprite()->setScaleMultiplier(2.3f);
     fields->m_inputX->setCommonFilter(CommonFilter::Float);
     fields->m_inputX->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
@@ -425,6 +426,7 @@ bool ICGJScaleControl::init() {
     fields->m_inputY->setScale(0.8f);
     fields->m_inputY->setID("scale-y-input"_spr);
     fields->m_inputY->setPosition(40.f, m_scaleYLabel->getPositionY());
+    fields->m_inputY->getBGSprite()->setScaleMultiplier(2.3f);
     fields->m_inputY->setCommonFilter(CommonFilter::Float);
     fields->m_inputY->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
@@ -441,6 +443,7 @@ bool ICGJScaleControl::init() {
     fields->m_inputXY->setScale(0.8f);
     fields->m_inputXY->setID("scale-input"_spr);
     fields->m_inputXY->setPosition(28.f, m_scaleLabel->getPositionY());
+    fields->m_inputXY->getBGSprite()->setScaleMultiplier(2.3f);
     fields->m_inputXY->setCommonFilter(CommonFilter::Float);
     fields->m_inputXY->setCallback([this, fields] (auto const& str) {
         auto scaleRes = numFromString<float>(str);
@@ -712,6 +715,7 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
 
     for (auto input : fields->m_inputs) {
         if (nodeIsVisible(input) && alpha::utils::isPointInsideNode(input, touch->getLocation())) {
+            input->getInputNode()->ccTouchBegan(touch, event);
             return true;
         }
         else {
@@ -850,6 +854,7 @@ bool ICGJRotationControl::init() {
     fields->m_input->setScale(0.8f);
     fields->m_input->setID("angle-input"_spr);
     fields->m_input->setPosition(menu->getPositionX() + menu->getScaledContentWidth() / 2.f, 0.f);
+    fields->m_input->getBGSprite()->setScaleMultiplier(2.3f);
     fields->m_input->setCommonFilter(CommonFilter::Float);
     fields->m_input->setCallback([this] (auto const& str) {
         auto angleRes = numFromString<float>(str);
@@ -881,6 +886,7 @@ bool ICGJRotationControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent
     auto fields = m_fields.self();
 
     if (nodeIsVisible(fields->m_input) && alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
+        fields->m_input->getInputNode()->ccTouchBegan(touch, event);
         return true;
     }
     else {

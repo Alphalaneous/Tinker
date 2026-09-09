@@ -18,7 +18,7 @@ protected:
     bool init() override;
     void update(float dt) override;
 
-    void showAtPos(const CCPoint& pos);
+    void showAtPos(const CCPoint& pos, const CCPoint& world);
     void updateObjectColor();
 
     bool mouseEntered(TouchEvent* touch) override;
@@ -55,5 +55,6 @@ class $module(PlacePreview) {
 class $modify(PPEditorUI, EditorUI) {
     $registerHooks(PlacePreview)
 
+    void updateCreateMenu(bool selectTab);
     void onCreateButton(cocos2d::CCObject* sender);
 };

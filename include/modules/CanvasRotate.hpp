@@ -4,6 +4,7 @@
 #include "nodes/RotationNode.hpp"
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
+#include <Geode/modify/CCTextInputNode.hpp>
 
 namespace tinker::ui {
     class RotationNode;
@@ -65,4 +66,10 @@ class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     CCArray* objectsInRect(CCRect rect, bool ignoreLayerCheck);
 	OBB2D* rotatedOBB2D(GameObject* object, CCPoint pivot, float degrees);
     void updateSliderRotation(float dt);
+};
+
+class $modify(CRCCTextInputNode, CCTextInputNode) {
+    $registerHooks(CanvasRotate);
+
+    void updateCursorPosition(cocos2d::CCPoint position, cocos2d::CCRect rect);
 };

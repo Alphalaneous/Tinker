@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.1.2",
+	"version": "v1.1.3",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -369,7 +369,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Head hitting (breakable blocks) fix",
-			"description": "Fixes a vanilla bug where you can hit your head on `anything after changing gravity in a session, this also broke breakable blocks."
+			"description": "Fixes a vanilla bug where you can hit your head on anything after changing gravity in a session, this also broke breakable blocks."
 		},
 		"NoTouchPasteStateFix-enabled": {
 			"type": "bool",
@@ -398,8 +398,8 @@
 		"TransformFix-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Transform Control Fix",
-			"description": "Fix the touch issues with Transform and Scale controls."
+			"name": "Warp Control Fix",
+			"description": "Fix the button scale issue with Warp controls."
 		},
 		"FixIgnoreDamage-enabled": {
 			"type": "bool",
@@ -1050,7 +1050,7 @@
 		},
 		"PlacePreview-opacity": {
 			"type": "float",
-			"default": 0.5,
+			"default": 0.3,
 			"min": 0.05,
 			"max": 1,
 			"name": "Preview Opacity",

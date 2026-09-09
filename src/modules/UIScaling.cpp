@@ -74,7 +74,38 @@ bool UISEditorUI::init(LevelEditorLayer* editorLayer) {
         UIScaling::get()->setScaling(false);
     });
 
+    editorLayer->schedule(schedule_selector(UISLevelEditorLayer::forceChanges));
+
     return true;
+}
+
+void UISLevelEditorLayer::forceChanges(float dt) {
+    auto winSize = CCDirector::get()->getWinSize();
+    auto scale = UIScaling::getScale();
+
+    if (m_editorUI->m_positionSlider) {
+        m_editorUI->m_positionSlider->setContentSize({213.f, 36.f});
+        m_editorUI->m_positionSlider->m_touchLogic->setPosition(m_editorUI->m_positionSlider->getContentSize() / 2.f);
+        m_editorUI->m_positionSlider->m_groove->setPosition(m_editorUI->m_positionSlider->getContentSize() / 2.f);
+
+        m_editorUI->m_positionSlider->setAnchorPoint({0.5f, 0.5f});
+        m_editorUI->m_positionSlider->ignoreAnchorPointForPosition(false);
+        m_editorUI->m_positionSlider->setPosition({winSize.width / 2.f + 10.f * scale, winSize.height - 20.f * scale});
+        m_editorUI->m_positionSlider->setScale(scale);
+    }
+
+    auto zoomMenu = m_editorUI->getChildByID("zoom-menu");
+    auto linkMenu = m_editorUI->getChildByID("link-menu");
+
+    if (linkMenu) {
+        linkMenu->setAnchorPoint({0.f, 0.5f});
+        linkMenu->setScale(scale * 0.775f);
+        linkMenu->setContentSize({ 30.f, 96.f});
+
+        if (zoomMenu) {
+            linkMenu->setPosition({zoomMenu->boundingBox().getMaxX() + 5.f * scale, zoomMenu->getPositionY() + 0.75f * scale});
+        }
+    }
 }
 
 CCPoint UIScaling::getSafeOffset() {

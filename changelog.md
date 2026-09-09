@@ -1,3 +1,19 @@
+# 1.1.3
+- <c-dddddd>Change Touch Forward Z Order to 50</c>
+- <c-dddddd>Force Position Slider position and size in an update method</c>
+- <c-dddddd>Force Link Controls position and size in an update method</c>
+- <c-dddddd>Force BetterEdit Grid Controls position and visibility in an update method</c>
+- <c-dddddd>Fix Object Placement Preview being hidden if the position was below the toolbar height in node space instead of world space</c>
+- <c-dddddd>Fix Object Placement Preview not properly toggling on until you open another popup</c>
+- <c-dddddd>Fix Object Placement Preview not updating when clicking an object in the editor to jump to it in the create tab</c>
+- <c-dddddd>Change default Object Placement Preview opacity to 0.3</c>
+- <c-dddddd>Fix a typo in the "Head hitting (breakable blocks) fix" setting description</c>
+- <c-dddddd>Fix number inputs for scale and rotate controls not working</c>
+- <c-dddddd>Adjust corner radii of number inputs for scale and rotate controls</c>
+- <c-dddddd>Fix rotated text inputs not properly rotating touch for updating cursor position when the editor is rotated</c>
+- <c-dddddd>Adjust size of layer input if layer locking is disabled</c>
+- <c-dddddd>Clean Pause volume sliders now don't reset if the volume is > 100% and slider bypass is disabled</c>
+
 # 1.1.2
 - <c-dddddd>Fix a crash when editing a start pos</c>
 

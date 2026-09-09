@@ -8,7 +8,11 @@
 
 bool PlacePreview::onToggled(bool state) {
     if (state) {
-        onEditor();
+        addEventListener("unpaused-event", EditorUnpausedEvent(), [this] () {
+            onEditor();
+            m_hover->setObject(getEditor()->m_selectedObjectIndex);
+            removeEventListener("unpaused-event");
+        });
     }
     else {
         m_hover->removeFromParent();
@@ -37,13 +41,14 @@ bool PlacePreview::onSettingChanged(std::string_view key, const matjson::Value& 
 void PlacePreview::onEditor() {
     auto editor = getEditor();
 
-    m_hover = tinker::ui::PlacePreviewNode::create();
-    editor->addChild(m_hover);
-
     m_feedbackContainer = CCNode::create();
     m_feedbackContainer->setID("place-preview-container"_spr);
     m_feedbackContainer->setZOrder(9999);
+    m_feedbackContainer->setVisible(inValidTab());
     editor->m_editorLayer->m_objectLayer->addChild(m_feedbackContainer);
+
+    m_hover = tinker::ui::PlacePreviewNode::create();
+    editor->addChild(m_hover);
 
     if (!m_callbacksSet) {
         alpha::editor_tabs::addModeSwitchCallback([this] (ZStringView ID) {
@@ -174,7 +179,7 @@ void PlacePreviewNode::update(float dt) {
     }
 }
 
-void PlacePreviewNode::showAtPos(const CCPoint& pos) {
+void PlacePreviewNode::showAtPos(const CCPoint& pos, const CCPoint& world) {
     auto editor = EditorUI::get();
 
     auto basePos = editor->getGridSnappedPos(pos);
@@ -194,7 +199,7 @@ void PlacePreviewNode::showAtPos(const CCPoint& pos) {
     }
 
     bool exists = editor->m_editorLayer->typeExistsAtPosition(m_hoverObject->m_objectID, checkPos, isFlipX, isFlipY, rot);
-    bool canBeShown = !exists && pos.y > utils::getToolbarHeight();
+    bool canBeShown = !exists && world.y > utils::getToolbarHeight();
 
     m_objectVisible = canBeShown;
     m_objectPos = objectPos;
@@ -211,7 +216,7 @@ void PlacePreviewNode::mouseMoved(TouchEvent* touch) {
 
     auto objectSpace = editor->m_editorLayer->m_objectLayer->convertToNodeSpace(mousePos);
 
-    showAtPos(objectSpace);
+    showAtPos(objectSpace, mousePos);
 }
 
 void PlacePreviewNode::updateObjectColor() {
@@ -299,7 +304,7 @@ void PlacePreviewNode::setObject(int id) {
 
     m_objectRender->setOpacity(255 * PlacePreview::getSetting<float, "opacity">());
 
-    showAtPos(objectSpace);
+    showAtPos(objectSpace, mousePos);
 
     PlacePreview::get()->m_feedbackContainer->addChild(m_objectRender);
 }
@@ -318,5 +323,16 @@ void PlacePreviewNode::onExit() {
 
 void PPEditorUI::onCreateButton(cocos2d::CCObject* sender) {
     EditorUI::onCreateButton(sender);
-    PlacePreview::get()->m_hover->setObject(m_selectedObjectIndex);
+    auto hover = PlacePreview::get()->m_hover;
+    if (hover) {
+        hover->setObject(m_selectedObjectIndex);
+    }
+}
+
+void PPEditorUI::updateCreateMenu(bool selectTab) {
+    EditorUI::updateCreateMenu(selectTab);
+    auto hover = PlacePreview::get()->m_hover;
+    if (hover) {
+        hover->setObject(m_selectedObjectIndex);
+    }
 }

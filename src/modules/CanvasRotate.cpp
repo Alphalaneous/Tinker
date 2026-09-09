@@ -473,3 +473,17 @@ OBB2D* CRLevelEditorLayer::rotatedOBB2D(GameObject* object, CCPoint pivot, float
 
     return OBB2D::create(rotatedCenter, width, height, radians);
 }
+
+void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d::CCRect rect) {
+    auto transform = nodeToWorldTransform();
+
+    auto rot = CC_RADIANS_TO_DEGREES(std::atan2(
+        transform.b,
+        transform.a
+    ));
+
+    auto worldMid = convertToWorldSpace({0, 0});
+    position = tinker::utils::rotatePointAroundPivot(position, worldMid, -rot);
+
+    CCTextInputNode::updateCursorPosition(position, rect);
+}

@@ -143,7 +143,7 @@ void CleanPause::onEditor() {
 
         musicLabelContainer->updateLayout();
 
-        auto musicSlider = SliderNode::create([fmod] (SliderNode* sender, float value) {
+        auto musicSlider = SliderNode::create([this, fmod] (SliderNode* sender, float value) {
             if (fmod->m_backgroundMusicChannel) {
                 fmod->m_backgroundMusicChannel->setVolume(sliderToVolume(value / 100.f));
             }
@@ -154,9 +154,13 @@ void CleanPause::onEditor() {
             else {
                 fmod->m_musicVolume = sliderToVolume(value / 100.f);
             }
+
+            sender->setSliderBypass(isSliderBypassEnabled());
         });
+
+        auto musicVolume = volumeToSlider(fmod->m_musicVolume) * 100.f;
         musicSlider->setID("music-slider"_spr);
-        musicSlider->setSliderBypass(hasBypass);
+        musicSlider->setSliderBypass(hasBypass || musicVolume > 100.f);
         musicSlider->linkTextInput(musicInput, 0);
         musicSlider->setValue(volumeToSlider(fmod->m_musicVolume) * 100.f);
         pauseLayer->addChild(musicSlider);
@@ -187,7 +191,7 @@ void CleanPause::onEditor() {
 
         sfxLabelContainer->updateLayout();
 
-        auto sfxSlider = SliderNode::create([fmod] (SliderNode* sender, float value) {
+        auto sfxSlider = SliderNode::create([this, fmod] (SliderNode* sender, float value) {
             if (fmod->m_globalChannel) {
                 fmod->m_globalChannel->setVolume(sliderToVolume(value / 100.f));
             }
@@ -198,9 +202,13 @@ void CleanPause::onEditor() {
             else {
                 fmod->m_sfxVolume = sliderToVolume(value / 100.f);
             }
+
+            sender->setSliderBypass(isSliderBypassEnabled());
         });
+        
+        auto sfxVolume = volumeToSlider(fmod->m_sfxVolume) * 100.f;
         sfxSlider->setID("sfx-slider"_spr);
-        sfxSlider->setSliderBypass(hasBypass);
+        sfxSlider->setSliderBypass(hasBypass || sfxVolume > 100.f);
         sfxSlider->linkTextInput(sfxInput, 0);
         sfxSlider->setValue(volumeToSlider(fmod->m_sfxVolume) * 100.f);
         pauseLayer->addChild(sfxSlider);
