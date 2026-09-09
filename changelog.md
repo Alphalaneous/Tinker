@@ -1,3 +1,6 @@
+# 1.1.2
+- <c-dddddd>Fix a crash when editing a start pos</c>
+
 # 1.1.1
 - <c-dddddd>Fix UI Scaling not being disabled for pause when scale pause menu is disabled</c>
 - <c-dddddd>Fix position of settings menu when adjusting UI scale with clean pause enabled</c>
