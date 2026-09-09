@@ -1,3 +1,6 @@
+# 1.1.4
+- <c-dddddd>Remove text input touch rotation fix on iOS due to likely Geode bug</c>
+
 # 1.1.3
 - <c-dddddd>Change Touch Forward Z Order to 50</c>
 - <c-dddddd>Force Position Slider position and size in an update method</c>
