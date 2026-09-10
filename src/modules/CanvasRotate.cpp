@@ -474,8 +474,6 @@ OBB2D* CRLevelEditorLayer::rotatedOBB2D(GameObject* object, CCPoint pivot, float
     return OBB2D::create(rotatedCenter, width, height, radians);
 }
 
-#ifndef GEODE_IS_IOS
-
 void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d::CCRect rect) {
     auto transform = nodeToWorldTransform();
 
@@ -489,5 +487,3 @@ void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d:
 
     CCTextInputNode::updateCursorPosition(position, {});
 }
-
-#endif
