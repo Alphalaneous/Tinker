@@ -1,5 +1,9 @@
+# 1.1.5
+- <c-dddddd>Re-add text input touch rotation fix on iOS and fix the crash</c>
+- <c-dddddd>Automatically set nwo5's UI Scaling mod to prefer tinker scaling when you change scaling via Tinker settings</c>
+
 # 1.1.4
-- <c-dddddd>Remove text input touch rotation fix on iOS due to likely Geode bug</c>
+- <c-dddddd>Remove text input touch rotation fix on iOS</c>
 
 # 1.1.3
 - <c-dddddd>Change Touch Forward Z Order to 50</c>

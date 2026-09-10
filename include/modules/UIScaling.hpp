@@ -7,12 +7,17 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 
 class $module(UIScaling) {
+    class UIScaleSettingsChanged : public geode::Event<UIScaleSettingsChanged, bool()> {
+        using Event::Event;
+    };
+
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
     void onEditor();
     void setScaling(bool fullReload);
     void setPauseScaling();
 
-    void resetSettings();
+    void updateUIScalingMod();
+
     void setupSettings();
     void setupEvents();
 

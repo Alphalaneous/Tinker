@@ -1,4 +1,5 @@
 #include "settings/SettingsPopup.hpp"
+#include "modules/UIScaling.hpp"
 #include "settings/SettingNodeRegistry.hpp"
 #include "settings/SettingNode.hpp"
 #include "settings/SettingsCache.hpp"
@@ -432,6 +433,11 @@ void SettingsPopup::switchCategory() {
 }
 
 void SettingsPopup::applyUncommitted() {
+    bool uiScaleChanged = false;
+    addEventListener("check-ui-scale-change"_spr, UIScaling::UIScaleSettingsChanged(), [&uiScaleChanged] {
+        uiScaleChanged = true;
+    });
+
     bool hasUncommitted = false;
     for (const auto& node : m_settingNodes) {
         if (node->settingWasChanged()) {
@@ -443,6 +449,12 @@ void SettingsPopup::applyUncommitted() {
         for (const auto& node : m_settingNodes) {
             node->updateState();
         }
+    }
+
+    removeEventListener("check-ui-scale-change"_spr);
+
+    if (uiScaleChanged) {
+        UIScaling::get()->updateUIScalingMod();
     }
 }
 

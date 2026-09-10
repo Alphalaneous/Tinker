@@ -33,6 +33,8 @@ bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& val
     setPauseScaling();
     setScaling(true);
 
+    UIScaleSettingsChanged().send();
+
     return true;
 }
 
@@ -42,14 +44,12 @@ void UIScaling::setupEvents() {
     });
 }
 
-void UIScaling::resetSettings() {
-    m_scale = 1.f;
-    m_scaleToolbar = true;
-    m_scalePause = true;
-    m_usesSafeArea = true;
-    m_usesSafeAreaPause = true;
-    m_usesCustomSafeArea = false;
-    m_customSafeArea = 0.f;
+// if the setting is changed via tinker, set nwo5's UI scaling to prefer tinker's UI scale
+void UIScaling::updateUIScalingMod() {
+    auto uiScalingMod = tinker::utils::getMod<"nwo5.ui-scaling">();
+    if (uiScalingMod) {
+        uiScalingMod->setSettingValue("prefer-tinker-scaling", true);
+    }
 }
 
 void UIScaling::setupSettings() {
