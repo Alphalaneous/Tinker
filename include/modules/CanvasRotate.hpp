@@ -68,12 +68,8 @@ class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     void updateSliderRotation(float dt);
 };
 
-#ifndef GEODE_IS_IOS
-
 class $modify(CRCCTextInputNode, CCTextInputNode) {
     $registerHooks(CanvasRotate);
 
     void updateCursorPosition(cocos2d::CCPoint position, cocos2d::CCRect rect);
 };
-
-#endif
