@@ -487,7 +487,7 @@ void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d:
     auto worldMid = convertToWorldSpace({0, 0});
     position = tinker::utils::rotatePointAroundPivot(position, worldMid, -rot);
 
-    CCTextInputNode::updateCursorPosition(position, rect);
+    CCTextInputNode::updateCursorPosition(position, {});
 }
 
 #endif
