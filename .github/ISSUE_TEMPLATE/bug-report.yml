@@ -14,7 +14,7 @@ body:
     attributes:
       label: Tinker Issue
       options:
-      - label: I verify that this bug report isn't a crash or a touch related issues.
+      - I verify that this bug report isn't a crash or a touch related issues.
     validations:
       required: true
 
