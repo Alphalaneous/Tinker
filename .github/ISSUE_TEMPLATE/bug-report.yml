@@ -9,14 +9,13 @@ body:
         ## Report a bug with Tinker
         > Please do not use this to report crashes or touch related issues. Use the other templates for those.
   
-  - type: dropdown
+  - type: checkboxes
     id: verification
     attributes:
       label: Tinker Issue
       options:
-      - I verify that this bug report isn't a crash or a touch related issues.
-    validations:
-      required: true
+      - label: I verify that this bug report isn't a crash or a touch related issues.
+        required: true
 
   - type: input
     id: tinker-version
