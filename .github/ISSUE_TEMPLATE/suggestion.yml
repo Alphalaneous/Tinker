@@ -14,9 +14,8 @@ body:
       label: Tinker Suggestion
       options:
       - label: I verify that this suggestion isn't already a feature in Tinker and that I have looked over the settings and mod description.
-    validations:
-      required: true
-
+        required: true
+        
   - type: textarea
     id: feature-description
     attributes:
