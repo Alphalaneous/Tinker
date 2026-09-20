@@ -45,6 +45,15 @@ body:
     validations:
       required: true
 
+    - type: textarea
+    id: mod-list
+    attributes:
+      label: Mod List
+      description: Provide a list of mods you have installed. You can go to Geode Settings and press \"Copy Mods List\" to get the full list.
+      placeholder: Bug description
+    validations:
+      required: true
+
   - type: textarea
     id: media
     attributes:
