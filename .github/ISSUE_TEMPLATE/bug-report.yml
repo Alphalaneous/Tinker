@@ -9,7 +9,7 @@ body:
         ## Report a bug with Tinker
         > Please do not use this to report crashes or touch related issues. Use the other templates for those.
   
-  - type: checkboxes
+  - type: dropdown
     id: verification
     attributes:
       label: Tinker Issue
