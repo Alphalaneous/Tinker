@@ -724,9 +724,11 @@ void InputEditorUI::scrollWheel(float y, float x) {
                 float multiplier = fields->m_tabModifierHeld ? ScrollableObjects::getSetting<float, "speed-modifier">() : 1;
 
                 // only allow scroll to propagate through the editor, not itself
-                barFields->m_scrollLayer->setVerticalScrollWheel(true);
-                barFields->m_scrollLayer->scroll(0.f, y * multiplier * (invertScroll ? -1 : 1));
-                barFields->m_scrollLayer->setVerticalScrollWheel(false);
+                if (barFields->m_scrollLayer) {
+                    barFields->m_scrollLayer->setVerticalScrollWheel(true);
+                    barFields->m_scrollLayer->scroll(0.f, y * multiplier * (invertScroll ? -1 : 1));
+                    barFields->m_scrollLayer->setVerticalScrollWheel(false);
+                }
             }
         }
         fields->m_scrollFromEditor = 0.f;

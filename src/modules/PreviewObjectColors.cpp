@@ -196,26 +196,28 @@ GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
 
     if (!tinker::utils::isColorable(ret)) return ret;
 
-    using namespace tinker::constants;
+    if (ret) {
+        using namespace tinker::constants;
 
-    auto fields = m_fields.self();
+        auto fields = m_fields.self();
 
-    auto defaultObject = fields->m_defaultObject;
-    if (!defaultObject) return ret;
+        auto defaultObject = fields->m_defaultObject;
+        if (!defaultObject) return ret;
 
-    int baseColorID = defaultObject->m_baseColor->m_colorID;
+        int baseColorID = defaultObject->m_baseColor->m_colorID;
 
-    if (baseColorID == color_channels::Lighter && !ret->m_detailColor) {
-        baseColorID = color_channels::White;
-    }
+        if (baseColorID == color_channels::Lighter && !ret->m_detailColor) {
+            baseColorID = color_channels::White;
+        }
 
-    if (auto baseColor = ret->m_baseColor) {
-        baseColor->m_colorID = baseColorID;
-        baseColor->m_hsv = defaultObject->m_baseColor->m_hsv;
-    }
-    if (auto detailColor = ret->m_detailColor) {
-        detailColor->m_colorID = defaultObject->m_detailColor->m_colorID;
-        detailColor->m_hsv = defaultObject->m_detailColor->m_hsv;
+        if (auto baseColor = ret->m_baseColor) {
+            baseColor->m_colorID = baseColorID;
+            baseColor->m_hsv = defaultObject->m_baseColor->m_hsv;
+        }
+        if (auto detailColor = ret->m_detailColor) {
+            detailColor->m_colorID = defaultObject->m_detailColor->m_colorID;
+            detailColor->m_hsv = defaultObject->m_detailColor->m_hsv;
+        }
     }
 
     return ret;

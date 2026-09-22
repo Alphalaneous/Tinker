@@ -9,13 +9,19 @@ bool CustomToolbarBackground::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_gradient->removeFromParent();
-        m_gradient = nullptr;
-        m_line->removeFromParent();
-        m_line = nullptr;
+        if (m_gradient) {
+            m_gradient->removeFromParent();
+            m_gradient = nullptr;
+        }
+        if (m_line) {
+            m_line->removeFromParent();
+            m_line = nullptr;
+        }
 
         auto toolbarBG = static_cast<CCSprite*>(getEditor()->getChildByID("background-sprite"));
-        toolbarBG->setTextureRect(m_oldRect);
+        if (toolbarBG) {
+            toolbarBG->setTextureRect(m_oldRect);
+        }
     }
     return true;
 }
@@ -46,8 +52,9 @@ bool CustomToolbarBackground::onSettingChanged(std::string_view key, const matjs
 }
 
 void CustomToolbarBackground::onEditor() {
-    
     auto toolbarBG = static_cast<CCSprite*>(getEditor()->getChildByID("background-sprite"));
+    if (!toolbarBG) return;
+
     m_oldRect = toolbarBG->getTextureRect();
     
     auto oldContentSize = toolbarBG->getContentSize();

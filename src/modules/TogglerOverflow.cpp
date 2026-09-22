@@ -316,19 +316,23 @@ void ToggleContainer::updateScale(float scale) {
 }
 
 bool TogglerOverflow::onToggled(bool state) {
-    if (!state) {
-        auto editor = getEditor();
+    if (state) {
+        onEditor();
+        updateContainer();
+    }
+    else {
         removeEventListener("ui-scale");
         removeEventListener("show-ui");
         removeEventListener("status-bar-created");
-        m_container->updateContainer(false);
-        m_container->removeFromParent();
-        editor->m_uiItems->removeObject(m_container);
-        m_container = nullptr;
-    }
-    else {
-        onEditor();
-        m_container->updateContainer();
+
+        if (m_container) {
+            auto editor = getEditor();
+
+            m_container->updateContainer(false);
+            m_container->removeFromParent();
+            editor->m_uiItems->removeObject(m_container);
+            m_container = nullptr;
+        }
     }
     return true;
 }

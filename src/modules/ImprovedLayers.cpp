@@ -13,13 +13,17 @@ bool ImprovedLayers::onToggled(bool state) {
     else {
         auto editor = getEditor();
 
-        editor->m_uiItems->removeObject(m_layerInput);
-        m_layerInput->removeFromParent();
-        m_layerInput = nullptr;
+        if (m_layerInput) {
+            editor->m_uiItems->removeObject(m_layerInput);
+            m_layerInput->removeFromParent();
+            m_layerInput = nullptr;
+        }
 
-        editor->m_uiItems->removeObject(m_nextFreeBtn);
-        m_nextFreeBtn->removeFromParent();
-        m_nextFreeBtn = nullptr;
+        if (m_nextFreeBtn) {
+            editor->m_uiItems->removeObject(m_nextFreeBtn);
+            m_nextFreeBtn->removeFromParent();
+            m_nextFreeBtn = nullptr;
+        }
 
         m_labelListener = nullptr;
 

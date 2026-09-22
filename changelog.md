@@ -1,3 +1,15 @@
+# 1.1.6
+- <c-dddddd>Add some safety checks to prevent potential crashes if settings are somehow disabled twice without being enabled in between</c>
+- <c-dddddd>Add Clean StartPos integration</c>
+- <c-dddddd>Change corner radius and opacity of start pos switcher background</c>
+- <c-dddddd>Fix BetterEdit hooks not restoring when toggling off Tinker's Auto Save</c>
+- <c-dddddd>Fix Edit Tab culling</c>
+- <c-dddddd>Fix hovered object buttons not scaling down properly when pausing</c>
+- <c-dddddd>Maybe fix rare crash with object tooltips enabled</c>
+- <c-dddddd>Fix auto save crash on Android32
+- <c-dddddd>Maybe fix a potential crash with the select preview</c>
+- <c-dddddd>Fix a crash if EditorUI::createObject returns nullptr</c>
+
 # 1.1.5
 - <c-dddddd>Re-add text input touch rotation fix on iOS and fix the crash</c>
 - <c-dddddd>Automatically set nwo5's UI Scaling mod to prefer tinker scaling when you change scaling via Tinker settings</c>

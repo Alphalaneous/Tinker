@@ -14,7 +14,10 @@ bool LiveColors::onToggled(bool state) {
         updateUI(UIScaling::getScale());
     }
     else {
-        m_colorsMenu->removeFromParent();
+        if (m_colorsMenu) {
+            m_colorsMenu->removeFromParent();
+            m_colorsMenu = nullptr;
+        }
         m_buttons.clear();
         removeEventListener("ui-scale");
         removeEventListener("show-ui");

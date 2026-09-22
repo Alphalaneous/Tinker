@@ -8,18 +8,25 @@ bool ObjectAlignment::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_alignmentNode->removeFromParent();
         removeEventListener("align-modifier-event");
         getEditorLayer()->unschedule(schedule_selector(OALevelEditorLayer::updateAlignmentDraw));
-        getEditor()->m_uiItems->removeObject(m_toggler);
-        m_toggler->removeFromParent();
-        m_toggler = nullptr;
-        m_alignToggled = false;
+
+        if (m_alignmentNode) {
+            m_alignmentNode->removeFromParent();
+            m_alignmentNode = nullptr;
+        }
+        if (m_toggler) {
+            getEditor()->m_uiItems->removeObject(m_toggler);
+            m_toggler->removeFromParent();
+            m_toggler = nullptr;
+        }
 
         auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
-        if (!menu) return true;
+        if (menu) {
+            menu->updateLayout();
+        }
 
-        menu->updateLayout();
+        m_alignToggled = false;
     }
     if (TogglerOverflow::isEnabled()) {
         TogglerOverflow::get()->updateContainer();

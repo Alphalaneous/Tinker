@@ -9,8 +9,10 @@ bool DurationDrag::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_durationControl->removeFromParent();
-        m_durationControl = nullptr;
+        if (m_durationControl) {
+            m_durationControl->removeFromParent();
+            m_durationControl = nullptr;
+        }
     }
     return true;
 }

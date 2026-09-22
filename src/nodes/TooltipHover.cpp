@@ -1,4 +1,5 @@
 #include "nodes/TooltipHover.hpp"
+#include "MainHooks.hpp"
 #include "misc/ObjectNames.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/TogglerOverflow.hpp"
@@ -71,7 +72,10 @@ void TooltipHover::resetTooltip() {
     hideTooltip();
     #else
     m_tooltipBG->setVisible(false);
-    if (m_activeItem) setButtonOpacity(m_activeItem, 255);
+    if (m_activeItem) {
+        scaleItem(m_activeItem, true);
+        setButtonOpacity(m_activeItem, 255);
+    }
     #endif
     m_activeItem = nullptr;
 }
@@ -114,13 +118,13 @@ void TooltipHover::showTooltipWithTouch(TouchEvent* touch)
 void TooltipHover::mouseMoved(TouchEvent* touch) 
 #endif
 {
-    if (LevelEditorLayer::get()->getChildByType<EditorPauseLayer>(0) || InputEditorUI::get()->hasActiveAlerts()) return;
+    bool shouldSkip = false;
 
     auto origItem = m_activeItem;
     if (origItem) setButtonOpacity(origItem, 255);
 
-    bool shouldSkip = false;
-
+    if (MainEditorPauseLayer::get() || InputEditorUI::get()->hasActiveAlerts()) return;
+    
     if (TogglerOverflow::isEnabled()) {
         auto node = TogglerOverflow::get()->m_container;
 
@@ -277,6 +281,7 @@ void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
 }
 
 void TooltipHover::resetScale(CreateMenuItem* item) {
+    if (!item) return;
     auto buttonSprite = item->getChildByType<ButtonSprite>(0);
     if (buttonSprite) {
         buttonSprite->stopAllActions();

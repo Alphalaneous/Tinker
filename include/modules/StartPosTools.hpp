@@ -13,9 +13,12 @@ class $module(StartPosTools) {
 
     void removeStartPosSwitcher();
     void removeNoStartPosButton();
+    bool isSwitching();
 
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
+
+    bool m_isSwitching;
 };
 
 class $modify(SPTEditorUI, EditorUI) {
@@ -34,6 +37,7 @@ class $modify(SPTEditorUI, EditorUI) {
 
     void updateOverlay();
     void showSwitcher();
+    void updateSwitcherY();
     void showUI(bool show);
     void onPlaytest(cocos2d::CCObject* sender);
     void updatePlaytestMenu();

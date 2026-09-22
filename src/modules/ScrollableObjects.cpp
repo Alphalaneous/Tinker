@@ -1,4 +1,5 @@
 #include "modules/ScrollableObjects.hpp"
+#include "modules/ImprovedEditTab.hpp"
 #include "modules/ObjectSearch.hpp"
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
@@ -323,16 +324,20 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
         setAnchorPoint({0.5f, 0.f});
 
         fields->m_initialized = true;
-        float widthOffset = 180.f;
 
         auto spacerLeft = editorUI->getChildByID("spacer-line-left");
         auto spacerRight = editorUI->getChildByID("spacer-line-right");
 
-        if (spacerLeft && spacerRight) {
-            widthOffset = spacerLeft->getPositionX() + (editorUI->getContentWidth() - spacerRight->getPositionX());
+        float leftPos = spacerLeft->getPositionX();
+        float widthOffset = leftPos + (editorUI->getContentWidth() - spacerRight->getPositionX());
+        auto contentWidth = editorUI->getContentWidth() - widthOffset;
+
+        if (ImprovedEditTab::isEnabled() && this == editorUI->m_editButtonBar) {
+            leftPos += ImprovedEditTab::get()->getOffset();
+            contentWidth = (editorUI->getContentWidth() - widthOffset) - ImprovedEditTab::get()->getOffset();
         }
 
-        auto size = CCSize{(editorUI->getContentWidth() - widthOffset) / getScale(), tinker::constants::ToolbarHeight};
+        auto size = CCSize{contentWidth / getScale(), tinker::constants::ToolbarHeight};
         setContentSize(size);
 
         float toolbarOffset = 0.f;
@@ -340,13 +345,8 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
             toolbarOffset = StatusBar::get()->m_toolbarOffset;
         }
 
-        if (spacerLeft && spacerRight) {
-            float x = (spacerLeft->getPositionX() + spacerRight->getPositionX()) / 2.f;
-            setPosition({x, toolbarOffset});
-        }
-        else {
-            setPosition({getContentWidth() / 2.f, toolbarOffset});
-        }
+        float x = (leftPos + spacerRight->getPositionX()) / 2.f;
+        setPosition({x, toolbarOffset});
 
         auto dots = getChildByID("alphalaneous.editortab_api/dots");
         if (dots) {
@@ -485,6 +485,7 @@ void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int 
                 layout = RowLayout::create();
             }
             else {
+                fields->m_editTab = true;
                 layout = ColumnLayout::create();
             }
             
@@ -626,7 +627,7 @@ void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
     for (auto child : fields->m_objectsMenu->getChildrenExt()) {
         bool visible;
 
-        if (visibleUntilX == -1.f && idx % fields->m_rows == 0) {
+        if ((visibleUntilX == -1.f && idx % fields->m_rows == 0) || fields->m_editTab) {
             visible = child->getPositionX() + child->getContentWidth() > scaledX;
 
             if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.f) + child->getContentWidth() / 2.f;

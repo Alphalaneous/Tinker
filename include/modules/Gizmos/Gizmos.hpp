@@ -193,6 +193,7 @@ class $modify(GCCTouchDispatcher, CCTouchDispatcher) {
     }
 
     void removeDelegate(CCTouchDelegate* delegate);
+    void addTargetedDelegate(CCTouchDelegate* delegate, int priority, bool swallowsTouches);
     void touches(CCSet* touches, CCEvent* event, unsigned int index);
 };
 

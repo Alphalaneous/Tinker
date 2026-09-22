@@ -2,6 +2,7 @@
 #include "MainHooks.hpp"
 #include "actions/CCValueTo.hpp"
 #include "modules/UIScaling.hpp"
+#include "nodes/GIF.hpp"
 #include "utils/Utils.hpp"
 
 namespace tinker::ui {
@@ -34,7 +35,7 @@ bool SaveAlert::init() {
     m_label->setScale(0.3f);
     m_label->setID("time-label"_spr);
 
-    m_saveIcon = CCSprite::create("save-anim.gif"_spr);
+    m_saveIcon = tinker::ui::GIF::create("save-anim");
     m_saveIcon->setAnchorPoint({0.f, 0.5f});
     m_saveIcon->setScale((getContentHeight() - padding * 2.f) / m_saveIcon->getContentHeight());
     m_saveIcon->setPosition({padding, getContentHeight() / 2.f});
@@ -111,7 +112,8 @@ void SaveAlert::hide() {
 bool SaveTools::onToggled(bool state) {
     auto editor = static_cast<STLevelEditorLayer*>(getEditorLayer());
     auto fields = editor->m_fields.self();
-
+    m_toggledHooks.toggle(state);
+    
     if (state) {
         editor->schedule(schedule_selector(STLevelEditorLayer::autoSaveUpdate));
     }

@@ -16,8 +16,10 @@ bool HideUI::onToggled(bool state) {
         }
     }   
     else {
-        m_hideButton->removeFromParent();
-        m_hideButton = nullptr;
+        if (m_hideButton) {
+            m_hideButton->removeFromParent();
+            m_hideButton = nullptr;
+        }
         
         auto undoMenu = getEditor()->getChildByID("undo-menu");
         if (undoMenu) {

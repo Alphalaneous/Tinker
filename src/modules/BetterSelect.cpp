@@ -7,8 +7,10 @@ bool BetterSelect::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_hover->removeFromParent();
-        m_hover = nullptr;
+        if (m_hover) {
+            m_hover->removeFromParent();
+            m_hover = nullptr;
+        }
     }
     return true;
 }
@@ -379,9 +381,11 @@ bool ObjectSelectContainer::init(CCArray* objects) {
 
     showInfo();
 
-    addOnExitCallback([this] {
+    addOnExitCallback([this, scrollLayer = WeakRef(m_scrollLayer)] {
         // for some reason removal is delayed by a frame normally
-        m_scrollLayer->removeFromParent();
+        auto scroll = scrollLayer.lock();
+        if (!scroll) return;
+        scroll->removeFromParent();
     });
     
     return true;

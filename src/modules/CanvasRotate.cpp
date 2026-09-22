@@ -176,31 +176,33 @@ GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     auto module = CanvasRotate::get();
     if (!fields->m_editorLoaded) return ret;
     
-    int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
-    float rotationValue = ret->getRotation();
+    if (ret) {
+        int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
+        float rotationValue = ret->getRotation();
 
-    if (!module->m_rotationNode->isAlignKeyDown()) {
-        if (rot < 45 || rot >= 315) {
-            rotationValue += 0.f;
-        }
-        else if (rot < 135) {
-            rotationValue += 270.f;
-        }
-        else if (rot < 225) {
-            rotationValue += 180.f;
+        if (!module->m_rotationNode->isAlignKeyDown()) {
+            if (rot < 45 || rot >= 315) {
+                rotationValue += 0.f;
+            }
+            else if (rot < 135) {
+                rotationValue += 270.f;
+            }
+            else if (rot < 225) {
+                rotationValue += 180.f;
+            }
+            else {
+                rotationValue += 90.f;
+            }
         }
         else {
-            rotationValue += 90.f;
+            rotationValue += -m_editorLayer->m_gameState.m_cameraAngle;
         }
-    }
-    else {
-        rotationValue += -m_editorLayer->m_gameState.m_cameraAngle;
+        
+        removeOffset(ret);
+        ret->setRotation(rotationValue);
+        applyOffset(ret);
     }
     
-    removeOffset(ret);
-    ret->setRotation(rotationValue);
-    applyOffset(ret);
-
     return ret;
 }
 
@@ -257,7 +259,7 @@ bool CanvasRotate::isEditorUITouch(CCTouch* touch) {
         }
 
         if (handler->isSwallowsTouches()) {
-            if (handler->m_pClaimedTouches->count() > 0) {
+            if (handler->m_pClaimedTouches && handler->m_pClaimedTouches->count() > 0) {
                 return false;
             }
         }

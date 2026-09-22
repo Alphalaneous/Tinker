@@ -10,16 +10,21 @@ bool PlacePreview::onToggled(bool state) {
     if (state) {
         addEventListener("unpaused-event", EditorUnpausedEvent(), [this] () {
             onEditor();
-            m_hover->setObject(getEditor()->m_selectedObjectIndex);
+            if (m_hover) {
+                m_hover->setObject(getEditor()->m_selectedObjectIndex);
+            }
             removeEventListener("unpaused-event");
         });
     }
     else {
-        m_hover->removeFromParent();
-        m_hover = nullptr;
-
-        m_feedbackContainer->removeFromParent();
-        m_feedbackContainer = nullptr;
+        if (m_hover) {
+            m_hover->removeFromParent();
+            m_hover = nullptr;
+        }
+        if (m_feedbackContainer) {
+            m_feedbackContainer->removeFromParent();
+            m_feedbackContainer = nullptr;
+        }
     }
     return true;
 }

@@ -13,9 +13,11 @@ bool ObjectTooltips::onToggled(bool state) {
         });
     }
     else {
-        getEditor()->m_uiItems->removeObject(m_hover);
-        m_hover->removeFromParent();
-        m_hover = nullptr;
+        if (m_hover) {
+            getEditor()->m_uiItems->removeObject(m_hover);
+            m_hover->removeFromParent();
+            m_hover = nullptr;
+        }
         m_objectGroups.clear();
         removeEventListener("paused-event");
     }

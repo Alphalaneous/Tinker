@@ -1,4 +1,6 @@
 #include "modules/StartPosTools.hpp"
+#include "modules/AlternateCleanStartPosLocation.hpp"
+#include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
@@ -44,24 +46,27 @@ bool StartPosTools::onSettingChanged(std::string_view key, const matjson::Value&
     }
     if (key == "auto-hide-switcher") {
         if (getSetting<bool, "start-pos-switcher">()) {
-            fields->m_switcherContainer->stopAllActions();
-            fields->m_switcherLabel->stopAllActions();
-
-            if (state) {
-                fields->m_switcherContainer->setOpacity(0);
-                fields->m_switcherLabel->setOpacity(0);
-                fields->m_prevButton->setVisible(false);
-                fields->m_nextButton->setVisible(false);
+            if (fields->m_switcherContainer) {
+                fields->m_switcherContainer->stopAllActions();
+                fields->m_switcherContainer->setOpacity(state ? 0 : 127);
             }
-            else {
-                fields->m_switcherContainer->setOpacity(160);
-                fields->m_switcherLabel->setOpacity(255);
-                fields->m_prevButton->setVisible(true);
-                fields->m_nextButton->setVisible(true);
+            if (fields->m_switcherLabel) {
+                fields->m_switcherLabel->stopAllActions();
+                fields->m_switcherLabel->setOpacity(state ? 0 : 255);
+            }
+            if (fields->m_prevButton) {
+                fields->m_prevButton->setVisible(!state);
+            }
+            if (fields->m_nextButton) {
+                fields->m_nextButton->setVisible(!state);
             }
         }
     }
     return true;
+}
+
+bool StartPosTools::isSwitching() {
+    return m_isSwitching;
 }
 
 void StartPosTools::onEditor() {
@@ -89,8 +94,10 @@ void StartPosTools::removeStartPosSwitcher() {
     removeEventListener("next-start-pos");
     removeEventListener("ui-scale");
 
-    fields->m_switcherContainer->removeFromParent();
-    fields->m_switcherContainer = nullptr;
+    if (fields->m_switcherContainer) {
+        fields->m_switcherContainer->removeFromParent();
+        fields->m_switcherContainer = nullptr;
+    }
     fields->m_switcherLabel = nullptr;
     fields->m_prevButton = nullptr;
     fields->m_nextButton = nullptr;
@@ -99,9 +106,11 @@ void StartPosTools::removeStartPosSwitcher() {
 void StartPosTools::removeNoStartPosButton() {
     auto fields = static_cast<SPTEditorUI*>(getEditor())->m_fields.self();
 
-    getEditor()->m_uiItems->removeObject(fields->m_startPosBtn);
-    fields->m_startPosBtn->removeFromParent();
-    fields->m_startPosBtn = nullptr;
+    if (fields->m_startPosBtn) {
+        getEditor()->m_uiItems->removeObject(fields->m_startPosBtn);
+        fields->m_startPosBtn->removeFromParent();
+        fields->m_startPosBtn = nullptr;
+    }
 
     auto playtestMenu = getEditor()->getChildByID("playtest-menu");
     if (playtestMenu) {
@@ -132,8 +141,9 @@ void StartPosTools::setupStartPosSwitcher() {
     fields->m_switcherContainer->setAnchorPoint({0.5f, 0.f});
     fields->m_switcherContainer->setZOrder(500);
     fields->m_switcherContainer->setContentSize({200.f, 30.f});
-    fields->m_switcherContainer->setPosition({getEditor()->getContentWidth() / 2.f, 20.f});
+    fields->m_switcherContainer->setPosition({getEditor()->getContentWidth() / 2.f, 20.f * UIScaling::getScale()});
     fields->m_switcherContainer->setID("startpos-switcher"_spr);
+    fields->m_switcherContainer->setScaleMultiplier(1.2f);
     fields->m_switcherContainer->setVisible(false);
     fields->m_switcherContainer->setColor({0, 0, 0});
 
@@ -175,7 +185,7 @@ void StartPosTools::setupStartPosSwitcher() {
         fields->m_nextButton->setVisible(false);
     }
     else {
-        fields->m_switcherContainer->setOpacity(160);
+        fields->m_switcherContainer->setOpacity(127);
     }
 
     addEventListener(
@@ -203,7 +213,17 @@ void StartPosTools::setupStartPosSwitcher() {
     addEventListener(
         "ui-scale",
         UIScaleUpdated(), 
-        [this] (float scale, bool scaleToolbars, bool fullReload) {
+        [this, fields] (float scale, bool scaleToolbars, bool fullReload) {
+            fields->m_switcherContainer->setScale(scale);
+
+            float y = 20.f * UIScaling::getScale();
+
+            if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_originalButton) {
+                y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
+            }
+
+            fields->m_switcherContainer->setPositionY(y);
+
             if (!fullReload) return;
             static_cast<SPTEditorUI*>(getEditor())->updatePlaytestMenu();
         }
@@ -229,8 +249,16 @@ void SPTEditorUI::showSwitcher() {
     fields->m_switcherLabel->stopAllActions();
     fields->m_switcherContainer->stopAllActions();
 
+    float y = 20.f * UIScaling::getScale();
+
+    if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_originalButton) {
+        y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
+    }
+
+    fields->m_switcherContainer->setPositionY(y);
+
     fields->m_switcherLabel->setOpacity(255);
-    fields->m_switcherContainer->setOpacity(160);
+    fields->m_switcherContainer->setOpacity(127);
 
     m_editorLayer->unschedule(schedule_selector(SPTLevelEditorLayer::hideSwitcher));
     m_editorLayer->scheduleOnce(schedule_selector(SPTLevelEditorLayer::hideSwitcher), 1.f);
@@ -285,6 +313,22 @@ void SPTEditorUI::updatePlaytestMenu() {
             m_fields->m_currentlyPlaying = false;
         }
     }));
+
+    updateSwitcherY();
+}
+
+void SPTEditorUI::updateSwitcherY() {
+    auto fields = m_fields.self();
+
+    if (!fields->m_switcherContainer) return;
+
+    float y = 20.f * UIScaling::getScale();
+
+    if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_container) {
+        y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
+    }
+
+    fields->m_switcherContainer->setPositionY(y);
 }
 
 void SPTEditorUI::showUI(bool show) {
@@ -297,6 +341,8 @@ void SPTEditorUI::showUI(bool show) {
         auto editorLayer = static_cast<SPTLevelEditorLayer*>(m_editorLayer);
         fields->m_switcherContainer->setVisible(m_editorLayer->m_playbackMode == PlaybackMode::Playing && editorLayer->getStartPosCount() != 0);
     }
+
+    updateSwitcherY();
 
     updatePlaytestMenu();
 }
@@ -500,6 +546,7 @@ void SPTLevelEditorLayer::restartFromStartPos() {
     auto fields = m_fields.self();
 
     if (fields->m_startPositions.empty()) return;
+    StartPosTools::get()->m_isSwitching = true;
 
     if (!fields->m_fromStart) {
         fields->m_startPosIndexReal = fields->m_startPosIndex;
@@ -526,6 +573,8 @@ void SPTLevelEditorLayer::restartFromStartPos() {
     gameManager->setGameVariable(GameVar::AutoPause, false);
     editorUI->onPlaytest(dummy);
     gameManager->setGameVariable(GameVar::AutoPause, autoPause);
+
+    StartPosTools::get()->m_isSwitching = false;
 }
 
 void SPTLevelEditorLayer::startSwitcher(bool start) {

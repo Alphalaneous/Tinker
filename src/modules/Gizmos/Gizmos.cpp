@@ -323,8 +323,13 @@ GameObject* GGameObject::createWithKey(const int key) {
 }
 
 void GCCTouchDispatcher::removeDelegate(CCTouchDelegate* delegate) {
-    Gizmos::get()->m_removedDelegates.insert(delegate); 
+    Gizmos::get()->m_removedDelegates.insert(delegate);
     CCTouchDispatcher::removeDelegate(delegate);
+}
+
+void GCCTouchDispatcher::addTargetedDelegate(CCTouchDelegate* delegate, int priority, bool swallowsTouches) {
+    Gizmos::get()->m_removedDelegates.erase(delegate);
+    CCTouchDispatcher::addTargetedDelegate(delegate, priority, swallowsTouches);
 }
 
 // evil I know

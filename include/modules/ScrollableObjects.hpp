@@ -58,6 +58,8 @@ class $modify(SOEditButtonBar, EditButtonBar) {
         bool m_initialized;
         bool m_loading;
 
+        bool m_editTab;
+
         CCRect m_world;
 
         std::vector<Ref<CCNode>> m_visibleNodes;

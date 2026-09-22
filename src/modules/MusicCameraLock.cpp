@@ -4,14 +4,14 @@
 #include "modules/UIScaling.hpp"
 
 bool MusicCameraLock::onToggled(bool state) {
-    if (!state) {
+    if (state) {
+        onEditor();
+    }
+    else {
         if (m_toggler) {
             m_toggler->removeFromParent();
             m_toggler = nullptr;
         }
-    }
-    else {
-        onEditor();
     }
     return true;
 }

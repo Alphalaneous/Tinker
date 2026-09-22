@@ -5,13 +5,17 @@ bool LengthInEditor::onToggled(bool state) {
     auto editor = getEditor();
     if (state) {
         onEditor();
-        m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
+        if (m_timeLabel) {
+            m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
+        }
         updateUI(UIScaling::getScale());
     }
     else {
-        editor->m_uiItems->removeObject(m_lengthContainer);
-        m_lengthContainer->removeFromParent();
-        m_lengthContainer = nullptr;
+        if (m_lengthContainer) {
+            editor->m_uiItems->removeObject(m_lengthContainer);
+            m_lengthContainer->removeFromParent();
+            m_lengthContainer = nullptr;
+        }
 
         removeEventListener("level-type-changed-event");
         removeEventListener("object-change-event");

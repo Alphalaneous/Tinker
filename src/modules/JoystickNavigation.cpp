@@ -13,6 +13,7 @@ bool JoystickNavigation::onToggled(bool state) {
         if (m_navigationControl) {
             getEditor()->m_uiItems->removeObject(m_navigationControl);
             m_navigationControl->removeFromParent();
+            m_navigationControl = nullptr;
         }
     }
     return true;

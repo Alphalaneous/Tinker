@@ -3,7 +3,10 @@
 #include <alphalaneous.editorsounds/include/API.hpp>
 
 bool AlternateLassoLocation::onToggled(bool state) {
-    if (!state) {
+    if (state) {
+        onEditor();
+    }
+    else {
         auto buttonsMenu = getEditor()->getChildByID("editor-buttons-menu");
         if (!buttonsMenu) return true;
 
@@ -13,16 +16,15 @@ bool AlternateLassoLocation::onToggled(bool state) {
         if (m_originalToggler) {
             lassoMenu->addChild(m_originalToggler);
         }
-        m_newToggler->removeFromParent();
-        m_newToggler = nullptr;
+        if (m_newToggler) {
+            m_newToggler->removeFromParent();
+            m_newToggler = nullptr;
+        }
 
         auto togglesMenu = getEditor()->getChildByID("toolbar-toggles-menu");
-        if (!togglesMenu) return true;
-
-        togglesMenu->updateLayout();
-    }
-    else {
-        onEditor();
+        if (togglesMenu) {
+            togglesMenu->updateLayout();
+        }
     }
 
     if (TogglerOverflow::isEnabled()) {

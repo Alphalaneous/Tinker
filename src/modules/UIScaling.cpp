@@ -486,9 +486,11 @@ void UIScaling::setScaling(bool fullReload) {
 
         toolbarCategoriesMenu->setPosition(CCPoint{offset * toolbarScale + toolbarCategoriesMenu->getScaledContentWidth() / 2.f, toolbarCategoriesMenu->getScaledContentHeight() / 2.f} + getSafeOffset());
         toolbarCategoriesMenu->setAnchorPoint({0.5f, 0.5f});
+        toolbarCategoriesMenu->setZOrder(12);
 
         if (spacerLineLeft) {
             spacerLineLeft->setAnchorPoint({0.5f, 0.5f});
+            spacerLineLeft->setZOrder(11);
             spacerLineLeft->setScale(toolbarScale);
             spacerLineLeft->setPosition({toolbarCategoriesMenu->getPositionX() + toolbarCategoriesMenu->getScaledContentWidth() / 2.f + offset * toolbarScale, 6.5f * toolbarScale + spacerLineLeft->getScaledContentHeight() / 2.f});
         }
@@ -503,9 +505,11 @@ void UIScaling::setScaling(bool fullReload) {
         toolbarTogglesMenu->setScale(toolbarScale);
         toolbarTogglesMenu->setPosition(CCPoint{winSize.width - toolbarTogglesMenu->getScaledContentWidth() / 2.f - 3.f * toolbarScale, toolbarTogglesMenu->getScaledContentHeight() / 2.f} - getSafeOffset());
         toolbarTogglesMenu->setAnchorPoint({0.5f, 0.5f});
+        toolbarTogglesMenu->setZOrder(12);
 
         if (spacerLineRight) {
             spacerLineRight->setAnchorPoint({0.5f, 0.5f});
+            spacerLineRight->setZOrder(11);
             spacerLineRight->setScale(toolbarScale);
             spacerLineRight->setPosition({toolbarTogglesMenu->getPositionX() - toolbarTogglesMenu->getScaledContentWidth() / 2.f - 3.f * toolbarScale, 6.5f * toolbarScale + spacerLineRight->getScaledContentHeight() / 2.f});
         }

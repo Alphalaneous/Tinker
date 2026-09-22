@@ -1,4 +1,5 @@
 #include "settings/SupportButton.hpp"
+#include "nodes/GIF.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
 namespace tinker::ui {
@@ -26,15 +27,13 @@ bool SupportButton::init(float width) {
     m_banner->setCascadeColorEnabled(true);
     m_banner->setAnchorPoint({0.f, 0.f});
 
-    #ifndef GEODE_IS_ANDROID32
-    auto alphaSmile = CCSprite::create("alpha-smile.gif"_spr);
+    auto alphaSmile = tinker::ui::GIF::create("alpha-smile");
     alphaSmile->setAnchorPoint({1.f, 0.f});
     alphaSmile->setPositionX(m_banner->getContentWidth());
     alphaSmile->setScale(m_banner->getContentHeight() / alphaSmile->getContentHeight());
     alphaSmile->setID("alpha-smile-:3"_spr);
 
     m_banner->addChild(alphaSmile);
-    #endif
 
     addChild(m_banner);
     setContentSize(m_banner->getContentSize());

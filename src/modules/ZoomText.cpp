@@ -5,8 +5,10 @@ bool ZoomText::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_zoomLabel->removeFromParent();
-        m_zoomLabel = nullptr;
+        if (m_zoomLabel) {
+            m_zoomLabel->removeFromParent();
+            m_zoomLabel = nullptr;
+        }
         removeEventListener("ui-scale");
         removeEventListener("editor-zoom");
     }
@@ -37,6 +39,8 @@ void ZoomText::onEditor() {
     editor->addChild(m_zoomLabel);
 
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+        if (!m_zoomLabel) return;
+
         auto winSize = CCDirector::get()->getWinSize();
         m_zoomLabel->setPosition(winSize.width / 2.f, winSize.height - 60.f * scale);
         m_zoomLabel->setScale(0.5f * scale);

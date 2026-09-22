@@ -86,10 +86,10 @@ bool StatusBar::init() {
         auto winSize = CCDirector::get()->getWinSize();
         auto objectLayer = LevelEditorLayer::get()->m_objectLayer;
 
-        CCPoint screenCenter = {winSize.width * 0.5f, winSize.height * 0.5f};
-        CCPoint pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
-        CCPoint lineScreenPos = {winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
-        CCPoint linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
+        auto screenCenter = CCPoint{winSize.width * 0.5f, winSize.height * 0.5f};
+        auto pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
+        auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
+        auto linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
         
         positionLabel->setText(fmt::format("Pos: ({}, {})", numToString(linePosInObject.x, 2), numToString(linePosInObject.y - 90.f, 2)));
         positionLabel->validate();
@@ -97,10 +97,10 @@ bool StatusBar::init() {
         updateLayouts();
     });
 
-    CCPoint screenCenter = {winSize.width * 0.5f, winSize.height * 0.5f};
-    CCPoint pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
-    CCPoint lineScreenPos = {winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
-    CCPoint linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
+    auto screenCenter = CCPoint{winSize.width * 0.5f, winSize.height * 0.5f};
+    auto pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
+    auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
+    auto linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
 
     positionLabel->setText(fmt::format("Pos: ({}, {})", numToString(linePosInObject.x, 2), numToString(linePosInObject.y - 90.f, 2)));
     positionLabel->validate();
@@ -190,9 +190,11 @@ bool StatusBar::onToggled(bool state) {
         onEditor();
     }
     else {
-        m_statusBar->removeFromParent();
-        getEditor()->m_uiItems->removeObject(m_statusBar);
-        m_statusBar = nullptr;
+        if (m_statusBar) {
+            m_statusBar->removeFromParent();
+            getEditor()->m_uiItems->removeObject(m_statusBar);
+            m_statusBar = nullptr;
+        }
         m_toolbarOffset = 0.f;
 
         removeEventListener("ui-scale");

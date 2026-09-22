@@ -20,13 +20,17 @@ bool GridControl::onToggled(bool state) {
     }
     else {
         auto editor = getEditor();
-        editor->m_uiItems->removeObject(m_control);
-        m_control->removeFromParent();
-        editor->m_uiItems->removeObject(m_toggler);
-        m_toggler->removeFromParent();
-        m_toggler = nullptr;
+        if (m_control) {
+            editor->m_uiItems->removeObject(m_control);
+            m_control->removeFromParent();
+            m_control = nullptr;
+        }
+        if (m_toggler) {
+            editor->m_uiItems->removeObject(m_toggler);
+            m_toggler->removeFromParent();
+            m_toggler = nullptr;
+        }
 
-        m_control = nullptr;
         m_input = nullptr;
 
         if (m_oldBEControl) {
@@ -64,9 +68,9 @@ bool GridControl::onToggled(bool state) {
         editor->updateGridNodeSize();
 
         auto menu = getEditor()->getChildByID("toolbar-toggles-menu");
-        if (!menu) return true;
-
-        menu->updateLayout();
+        if (menu) {
+            menu->updateLayout();
+        }
     }
 
     if (TogglerOverflow::isEnabled()) {
@@ -326,10 +330,12 @@ float GridControl::getGridMultiplier() {
 
 GameObject* GCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
     auto ret = EditorUI::createObject(objectID, position);
-    auto mult = GridControl::get()->getGridMultiplier();
 
-    ret->updateCustomScaleX(ret->m_pixelScaleX * mult);
-    ret->updateCustomScaleY(ret->m_pixelScaleY * mult);
+    if (ret) {
+        auto mult = GridControl::get()->getGridMultiplier();
+        ret->updateCustomScaleX(ret->m_pixelScaleX * mult);
+        ret->updateCustomScaleY(ret->m_pixelScaleY * mult);
+    }
 
     return ret;
 }
