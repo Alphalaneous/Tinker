@@ -1,3 +1,6 @@
+# 1.1.7
+- <c-dddddd>Add flip position lock to Edit Tools</c>
+
 # 1.1.6
 - <c-dddddd>Add some safety checks to prevent potential crashes if settings are somehow disabled twice without being enabled in between</c>
 - <c-dddddd>Add Clean StartPos integration</c>

@@ -13,18 +13,29 @@ void EditTools::onEditor() {
     fields->m_centerCameraButton->setID("center-camera"_spr);
     getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
 
+    fields->m_lockFlipPosButton = getEditor()->getSpriteButton("flip-position-lock.png"_spr, menu_selector(ETEditorUI::onLockFlipPos), nullptr, 0.9f);
+    fields->m_lockFlipPosButton->setID("lock-flip-pos"_spr);
+
+    int pos = 0;
+    for (auto btn : getEditor()->m_editButtonBar->m_buttonArray->asExt()) {
+        if (btn->getTag() == 22) break;
+        pos++;
+    }
+
+    getEditor()->m_editButtonBar->m_buttonArray->insertObject(fields->m_lockFlipPosButton, pos + 1);
+
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
     getEditor()->m_editButtonBar->reloadItems(cols, rows);
 
-    getEditor()->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down & !repeat) {
             static_cast<ETEditorUI*>(getEditor())->onCenterCamera(nullptr);
         }
     });
 
-    getEditor()->addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down) {
             static_cast<ETEditorUI*>(getEditor())->onCenterObjects(nullptr);
         }
@@ -50,6 +61,11 @@ void ETEditorUI::updateButtons() {
         fields->m_centerObjectButton->setEnabled(false);
         fields->m_centerCameraButton->setEnabled(false);
     }
+
+    auto bg = fields->m_flipPosLocked ? "GJ_button_02.png" : "GJ_button_01.png";
+
+    auto btnSpr = fields->m_lockFlipPosButton->getChildByType<ButtonSprite*>(0);
+    btnSpr->updateBGImage(bg);
 }
 
 void ETEditorUI::setButtonColor(CCMenuItemSpriteExtra* btn, const ccColor3B& color) {
@@ -229,4 +245,31 @@ void ETEditorUI::onCenterCamera(CCObject* sender) {
     playCircleAnim(pos, 50.f, 0.8f);
 
     updateSlider();
+}
+
+void ETEditorUI::transformObjectCall(EditCommand command) {
+    auto fields = m_fields.self();
+    if (!fields->m_flipPosLocked) {
+        EditorUI::transformObjectCall(command);
+        return;
+    }
+    if (command == EditCommand::FlipX || command == EditCommand::FlipY) {
+        fields->m_isFlipping = true;
+    }
+    EditorUI::transformObjectCall(command);
+    fields->m_isFlipping = false;
+}
+
+void ETEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
+    auto fields = m_fields.self();
+    if (fields->m_flipPosLocked && fields->m_isFlipping) return;
+
+    EditorUI::moveObject(object, offset);
+}
+
+void ETEditorUI::onLockFlipPos(CCObject* sender) {
+    auto fields = m_fields.self();
+    fields->m_flipPosLocked = !fields->m_flipPosLocked;
+    
+    updateButtons();
 }

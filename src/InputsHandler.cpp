@@ -809,7 +809,9 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
                         bool began = handler->getDelegate()->ccTouchBegan(touch, nullptr);
                         if (!began) continue;
 
-                        handler->m_pClaimedTouches->addObject(touch);
+                        if (handler->m_pClaimedTouches) {
+                            handler->m_pClaimedTouches->addObject(touch);
+                        }
                         fields->m_inGizmo = true;
                         fields->m_activeGizmoTouch = gizmo;
                         fields->m_touchedGizmoChild = static_cast<CCTargetedTouchDelegate*>(handler->getDelegate());

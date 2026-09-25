@@ -357,11 +357,14 @@ void GCCTouchDispatcher::touches(CCSet* touches, CCEvent* event, unsigned int in
 
         auto editor = LevelEditorLayer::get();
         if (!editor->validGroup(gizmo, false) || blockTouch || (playing && !gizmo->isInteractiveDuringPlaytest())) {
-            for (auto claimed : *handlers[i]->getClaimedTouches()->m_pSet) {
-                handlers[i]->getDelegate()->ccTouchCancelled(static_cast<CCTouch*>(claimed), event);
+            auto claimedTouches = handlers[i]->getClaimedTouches();
+            if (claimedTouches) {
+                for (auto claimed : *claimedTouches->m_pSet) {
+                    handlers[i]->getDelegate()->ccTouchCancelled(static_cast<CCTouch*>(claimed), event);
+                }
+                claimedTouches->m_pSet->clear();
+                handlersToReadd->addObject(handlers[i]);
             }
-            handlers[i]->getClaimedTouches()->m_pSet->clear();
-            handlersToReadd->addObject(handlers[i]);
         }
     }
     
