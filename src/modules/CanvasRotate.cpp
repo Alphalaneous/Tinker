@@ -25,9 +25,9 @@ RotateTouch::RotateTouch(CCTouch* touch) {
 }
 
 RotateTouch::~RotateTouch() {
-    m_touch->m_startPoint = m_startPoint;
-    m_touch->m_point = m_point;
-    m_touch->m_prevPoint = m_prevPoint;
+    //m_touch->m_startPoint = m_startPoint;
+    //m_touch->m_point = m_point;
+    //m_touch->m_prevPoint = m_prevPoint;
 }
 
 bool CanvasRotate::onToggled(bool state) {

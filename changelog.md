@@ -1,5 +1,6 @@
 # 1.1.8
 - <c-dddddd>Fix delete tab being unresponsive</c>
+- <c-dddddd>Fix Allium Polygon tool breaking</c>
 
 # 1.1.7
 - <c-dddddd>Add flip position lock to Edit Tools</c>
