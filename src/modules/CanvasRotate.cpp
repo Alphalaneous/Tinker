@@ -11,17 +11,17 @@ using namespace tinker::ui;
 
 RotateTouch::RotateTouch(CCTouch* touch) {
     m_touch = touch;
-    m_startPoint = touch->getStartLocation();
+    //m_startPoint = touch->getStartLocation();
     m_point = touch->getLocation();
-    m_prevPoint = touch->getPreviousLocation();
+    //m_prevPoint = touch->getPreviousLocation();
 
     auto winSize = CCDirector::get()->getWinSize();
     auto editorLayer = LevelEditorLayer::get();
 
     auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, editorLayer->m_gameState.m_cameraAngle);
     touch->m_point = CCPoint{newPoint.x, winSize.height - newPoint.y};
-    touch->m_startPoint = tinker::utils::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
-    touch->m_prevPoint = tinker::utils::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
+    //touch->m_startPoint = tinker::utils::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
+    //touch->m_prevPoint = tinker::utils::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
 }
 
 RotateTouch::~RotateTouch() {
