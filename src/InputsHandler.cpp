@@ -12,6 +12,7 @@
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <geode.devtools/include/API.hpp>
+#include "nodes/ToolbarTouch.hpp"
 
 using namespace alpha::prelude;
 
@@ -344,6 +345,12 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
     fields->m_forward = tinker::ui::TouchForward::create(this);
     editorLayer->addChild(fields->m_forward);
+
+    auto toolbarTouch = tinker::ui::ToolbarTouch::create();
+    toolbarTouch->setZOrder(3);
+    toolbarTouch->setID("toolbar-touch"_spr);
+
+    addChild(toolbarTouch);
 
     return true;
 }

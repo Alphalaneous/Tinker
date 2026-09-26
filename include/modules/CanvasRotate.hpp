@@ -10,6 +10,18 @@ namespace tinker::ui {
     class RotationNode;
 }
 
+class RotateTouch {
+public:
+    RotateTouch(CCTouch* touch);
+    ~RotateTouch();
+protected:
+    CCTouch* m_touch;
+
+    CCPoint m_startPoint;
+    CCPoint m_point;
+    CCPoint m_prevPoint;
+};
+
 class $module(CanvasRotate) {
     tinker::ui::RotationNode* m_rotationNode;
     std::unordered_map<Ref<CCTouch>, CCPoint> m_preTransformTouch;
@@ -47,6 +59,7 @@ class $modify(CREditorUI, EditorUI) {
     struct Fields {
         int m_blockOffsetMove;
         bool m_editorLoaded;
+        bool m_blockCreateRotate;
     };
 
     void moveObject(GameObject* object, CCPoint offset);
@@ -56,6 +69,8 @@ class $modify(CREditorUI, EditorUI) {
     GameObject* createObject(int objectID, CCPoint position);
     void clickOnPosition(CCPoint pos);
     void triggerSwipeMode();
+    cocos2d::CCSprite* spriteFromObjectString(gd::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent);
+    
 };
 
 class $modify(CRLevelEditorLayer, LevelEditorLayer) {

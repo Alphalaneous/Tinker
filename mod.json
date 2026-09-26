@@ -1,5 +1,5 @@
 {
-	"geode": "5.9.0",
+	"geode": "5.10.1",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -500,14 +500,6 @@
 			"default": true,
 			"enable-if": "loaded:undefined0.lasso-select",
 			"enable-if-description": "This feature requires the Lasso Select mod."
-		},
-		"AlternateCleanStartPosLocation-enabled": {
-			"type": "bool",
-			"name": "Clean StartPos Integration",
-			"description": "Move the Clean StartPos button to the bottom and add a remove StartPos button. Remove StartPos will only remove start positions created during that playtest session.",
-			"default": true,
-			"enable-if": "loaded:blueblock6.cleanstartpos",
-			"enable-if-description": "This feature requires the Clean StartPos mod."
 		},
 		"AutoBuildHelper-title": {
 			"type": "title",

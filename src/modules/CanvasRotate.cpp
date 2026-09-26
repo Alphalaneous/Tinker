@@ -9,6 +9,27 @@
 
 using namespace tinker::ui;
 
+RotateTouch::RotateTouch(CCTouch* touch) {
+    m_touch = touch;
+    m_startPoint = touch->getStartLocation();
+    m_point = touch->getLocation();
+    m_prevPoint = touch->getPreviousLocation();
+
+    auto winSize = CCDirector::get()->getWinSize();
+    auto editorLayer = LevelEditorLayer::get();
+
+    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, editorLayer->m_gameState.m_cameraAngle);
+    touch->m_point = CCPoint{newPoint.x, winSize.height - newPoint.y};
+    touch->m_startPoint = tinker::utils::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
+    touch->m_prevPoint = tinker::utils::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
+}
+
+RotateTouch::~RotateTouch() {
+    m_touch->m_startPoint = m_startPoint;
+    m_touch->m_point = m_point;
+    m_touch->m_prevPoint = m_prevPoint;
+}
+
 bool CanvasRotate::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -79,6 +100,8 @@ CCPoint CanvasRotate::getPreTransformPoint(CCTouch* touch) {
 void CanvasRotate::onEditor() {
     m_rotationNode = RotationNode::create(getEditor());
     m_rotationNode->setID("rotation-node"_spr);
+    m_rotationNode->setZOrder(4);
+
     getEditor()->addChild(m_rotationNode);
 
     getEditorLayer()->schedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
@@ -115,10 +138,10 @@ void CanvasRotate::setupStatus() {
 
 void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     auto fields = m_fields.self();
-    if (fields->m_blockOffsetMove) return EditorUI::moveObject(object, offset);
+    if (fields->m_blockOffsetMove || fields->m_blockCreateRotate) return EditorUI::moveObject(object, offset);
+    if (!fields->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
 
     auto module = CanvasRotate::get();
-    if (!fields->m_editorLoaded || m_snapObjectExists) return EditorUI::moveObject(object, offset);
 
     int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
     if (rot < 45 || rot >= 315) {
@@ -135,6 +158,14 @@ void CREditorUI::moveObject(GameObject* object, CCPoint offset) {
     }
 
     EditorUI::moveObject(object, offset);
+}
+
+cocos2d::CCSprite* CREditorUI::spriteFromObjectString(gd::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent) {
+    auto fields = m_fields.self();
+    fields->m_blockCreateRotate = true;
+    auto ret = EditorUI::spriteFromObjectString(str, absoluteCenter, useGroup, objLimit, objects, group, groupParent);
+    fields->m_blockCreateRotate = false;
+    return ret;
 }
 
 void CREditorUI::rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint) {
@@ -174,7 +205,7 @@ GameObject* CREditorUI::createObject(int objectID, CCPoint position) {
     auto ret = EditorUI::createObject(objectID, position);
     auto fields = m_fields.self();
     auto module = CanvasRotate::get();
-    if (!fields->m_editorLoaded) return ret;
+    if (!fields->m_editorLoaded || fields->m_blockCreateRotate) return ret;
     
     if (ret) {
         int rot = static_cast<int>(std::round(m_editorLayer->m_gameState.m_cameraAngle));
@@ -277,17 +308,19 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
         return next(touch);
     }
 
+    auto editor = getEditor();
+
     auto quickMoveMenu = getEditor()->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
     if (quickMoveMenu && quickMoveMenu->isVisible()) {
         if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
-            getEditor()->stopActionByTag(123);
+            editor->stopActionByTag(123);
             m_inQuickMove = true;
-            auto selected = getEditor()->m_selectedMode;
+            auto selected = editor->m_selectedMode;
             if (m_inQuickMove) {
-                getEditor()->m_selectedMode = -1;
+                editor->m_selectedMode = -1;
             }
             auto ret = next(touch);
-            getEditor()->m_selectedMode = selected;
+            editor->m_selectedMode = selected;
             return ret;
         }
     }
@@ -295,17 +328,14 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
     auto preTransform = touch->getLocation();
     m_preTransformTouch[touch] = preTransform;
 
-    m_rotationNode->translate(touch);
+    auto r = RotateTouch{touch};
 
-    getEditor()->m_toolbarHeight = INT_MIN;
-    if (preTransform.y <= tinker::utils::getToolbarHeight()) {
-        getEditor()->m_toolbarHeight = tinker::utils::getToolbarHeight();
-        return true;
-    }
+    editor->m_toolbarHeight = INT_MIN;
     auto ret = next(touch);
-    getEditor()->m_swipeStart = preTransform;
-    getEditor()->m_swipeEnd = preTransform;
-    getEditor()->m_toolbarHeight = tinker::utils::getToolbarHeight();
+    editor->m_swipeStart = preTransform;
+    editor->m_swipeEnd = preTransform;
+    editor->m_toolbarHeight = tinker::utils::getToolbarHeight();
+
     return ret;
 }
 
@@ -315,49 +345,51 @@ void CanvasRotate::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* to
         return;
     }
 
-    auto quickMoveMenu = getEditor()->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
+    auto editor = getEditor();
+
+    auto quickMoveMenu = editor->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
     if (quickMoveMenu && quickMoveMenu->isVisible()) {
         if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
-            getEditor()->m_swipeActive = false;
-            getEditor()->stopActionByTag(123);
-            auto selected = getEditor()->m_selectedMode;
+            editor->m_swipeActive = false;
+            editor->stopActionByTag(123);
+            auto selected = editor->m_selectedMode;
             if (m_inQuickMove) {
-                getEditor()->m_selectedMode = -1;
+                editor->m_selectedMode = -1;
             }
             next(touch);
-            getEditor()->m_selectedMode = selected;
+            editor->m_selectedMode = selected;
             return;
         }
     }
 
     if (isEditorUITouch(touch)) {
-        if (!getEditor()->m_snapObjectExists) {
+        if (!editor->m_snapObjectExists) {
             bool allowSwipe = false;
 
-            if (CCKeyboardDispatcher::get()->getShiftKeyPressed() || getEditor()->m_swipeModeTriggered || getEditor()->m_swipeEnabled) {
+            if (CCKeyboardDispatcher::get()->getShiftKeyPressed() || editor->m_swipeModeTriggered || editor->m_swipeEnabled) {
                 allowSwipe = true;
             }
-            if (getEditor()->m_spaceSwiping) {
+            if (editor->m_spaceSwiping) {
                 allowSwipe = false;
             }
             if (allowSwipe) {
-                auto world = getEditor()->getTouchPoint(touch, nullptr);
+                auto world = editor->getTouchPoint(touch, nullptr);
 
-                if (getEditor()->m_selectedMode == 3) {
-                    getEditor()->m_swipeEnd = world;
-                    getEditor()->stopActionByTag(123);
+                if (editor->m_selectedMode == 3) {
+                    editor->m_swipeEnd = world;
+                    editor->stopActionByTag(123);
                     return;
                 }
-                getEditor()->m_createPosition = getEditor()->getGridSnappedPos(world);
+                editor->m_createPosition = editor->getGridSnappedPos(world);
 
-                getEditor()->clickOnPosition(world);
+                editor->clickOnPosition(world);
 
-                getEditor()->stopActionByTag(123);
+                editor->stopActionByTag(123);
                 return;
             }
 
-            if (!getEditor()->m_isDraggingCamera && !allowSwipe) {
-                float dist = touch->getLocation().getDistance(getEditor()->m_swipeStart);
+            if (!editor->m_isDraggingCamera && !allowSwipe) {
+                float dist = touch->getLocation().getDistance(editor->m_swipeStart);
 
                 if (std::abs(dist) < 20.f) {
                     return;
@@ -368,34 +400,38 @@ void CanvasRotate::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* to
 
     auto preTransform = touch->getLocation();
     m_preTransformTouch[touch] = preTransform;
-    m_rotationNode->translate(touch);
+    auto r = RotateTouch{touch};
 
     next(touch);
-    if (!getEditor()->m_snapObjectExists) {
-        getEditor()->m_swipeEnd = preTransform;
+
+    if (!editor->m_snapObjectExists) {
+        editor->m_swipeEnd = preTransform;
     }
 }
 
 void CanvasRotate::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
-    auto selected = getEditor()->m_selectedMode;
+    auto editor = getEditor();
+
+    auto selected = editor->m_selectedMode;
     if (m_inQuickMove) {
-        getEditor()->m_selectedMode = -1;
+        editor->m_selectedMode = -1;
     }
 
     auto preTransform = touch->getLocation();
     m_preTransformTouch[touch] = preTransform;
 
-    m_rotationNode->translate(touch);
+    auto r = RotateTouch{touch};
     m_world = preTransform;
 
     auto winSize = CCDirector::get()->getWinSize();
-    getEditor()->m_swipeStart = tinker::utils::rotatePointAroundPivot(getEditor()->m_swipeStart, winSize / 2.f, getEditorLayer()->m_gameState.m_cameraAngle);
+    editor->m_swipeStart = tinker::utils::rotatePointAroundPivot(editor->m_swipeStart, winSize / 2.f, getEditorLayer()->m_gameState.m_cameraAngle);
 
     m_dontRotate = true;
     next(touch);
+
     m_dontRotate = false;
     m_preTransformTouch.erase(touch);
-    getEditor()->m_selectedMode = selected;
+    editor->m_selectedMode = selected;
     m_inQuickMove = false;
 }
 

@@ -41,6 +41,7 @@ public:
     bool hoveringObjects();
     void stopHover();
 
+    static CCPoint rotatedPos(const CCPoint& pos);
 protected:
 
     bool init() override;

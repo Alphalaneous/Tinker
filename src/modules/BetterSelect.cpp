@@ -387,6 +387,12 @@ bool ObjectSelectContainer::init(CCArray* objects) {
         if (!scroll) return;
         scroll->removeFromParent();
     });
+
+    addEventListener(EditorRotationEvent(), [this] (float rotation) {
+        setRotation(-rotation);
+    });
+
+    setRotation(-LevelEditorLayer::get()->m_gameState.m_cameraAngle);
     
     return true;
 }
@@ -561,6 +567,14 @@ void HoverObjectNode::shiftObject(bool forward) {
     }
 }
 
+CCPoint HoverObjectNode::rotatedPos(const CCPoint& pos) {
+    auto editor = LevelEditorLayer::get();
+    auto winSize = CCDirector::get()->getWinSize();
+    auto world = editor->m_objectLayer->convertToWorldSpace(pos);
+    auto rotated = tinker::utils::rotatePointAroundPivot(world, winSize / 2.f, editor->m_gameState.m_cameraAngle);
+    return editor->m_objectLayer->convertToNodeSpace(rotated);
+}
+
 void HoverObjectNode::showObjectList() {
     if (m_stopped) return;
 
@@ -577,7 +591,7 @@ void HoverObjectNode::showObjectList() {
 
     m_activeSelectContainer = ObjectSelectContainer::create(m_lastObjects);
 
-    m_activeSelectContainer->setPosition(m_lastPos + CCPoint{0.f, 5.f});
+    m_activeSelectContainer->setPosition(HoverObjectNode::rotatedPos(m_lastPos + CCPoint{0.f, 5.f}));
     m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
 
     BetterSelect::get()->m_selectPickerContainer->addChild(m_activeSelectContainer);
@@ -622,7 +636,7 @@ void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
         && editorUI->m_selectedMode == 3 
         && editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Playing
     ) {
-        auto objects = editorUI->m_editorLayer->objectsAtPosition(pos);
+        auto objects = editorUI->m_editorLayer->objectsAtPosition(HoverObjectNode::rotatedPos(pos));
         auto allowedObjects = CCArray::create();
 
         for (auto obj : objects->asExt<GameObject>()) {
@@ -675,7 +689,7 @@ void HoverObjectNode::onHoverObjects(const CCPoint& pos) {
             showObjectList();
         }
         if (m_activeSelectContainer) {
-            m_activeSelectContainer->setPosition(m_lastPos + CCPoint{0.f, 5.f});
+            m_activeSelectContainer->setPosition(HoverObjectNode::rotatedPos(pos + CCPoint{0.f, 5.f}));
             m_activeSelectContainer->setScale(1.f / editorUI->m_editorLayer->m_objectLayer->getScale());
         }
     }

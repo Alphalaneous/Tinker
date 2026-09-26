@@ -1,5 +1,11 @@
 # 1.1.7
 - <c-dddddd>Add flip position lock to Edit Tools</c>
+- <c-dddddd>Fix toolbar clicks being registered behind it</c>
+- <c-dddddd>Fix editor rotation reset keybind not resetting rotation of scale and rotate controls</c>
+- <c-dddddd>Fix being able to click buttons on the main UI as if they were rotated</c>
+- <c-dddddd>Fix selection picker UI not rotating with the camera</c>
+- <c-dddddd>Fix selection picker objects being invisible if camera was rotated between 45-315 degrees</c>
+- <c-dddddd>Remove clean start pos integration due to many complaints</c>
 
 # 1.1.6
 - <c-dddddd>Add some safety checks to prevent potential crashes if settings are somehow disabled twice without being enabled in between</c>

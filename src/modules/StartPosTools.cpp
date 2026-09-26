@@ -1,5 +1,4 @@
 #include "modules/StartPosTools.hpp"
-#include "modules/AlternateCleanStartPosLocation.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
@@ -217,11 +216,6 @@ void StartPosTools::setupStartPosSwitcher() {
             fields->m_switcherContainer->setScale(scale);
 
             float y = 20.f * UIScaling::getScale();
-
-            if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_originalButton) {
-                y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
-            }
-
             fields->m_switcherContainer->setPositionY(y);
 
             if (!fullReload) return;
@@ -250,11 +244,6 @@ void SPTEditorUI::showSwitcher() {
     fields->m_switcherContainer->stopAllActions();
 
     float y = 20.f * UIScaling::getScale();
-
-    if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_originalButton) {
-        y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
-    }
-
     fields->m_switcherContainer->setPositionY(y);
 
     fields->m_switcherLabel->setOpacity(255);
@@ -323,11 +312,6 @@ void SPTEditorUI::updateSwitcherY() {
     if (!fields->m_switcherContainer) return;
 
     float y = 20.f * UIScaling::getScale();
-
-    if (AlternateCleanStartPosLocation::isEnabled() && AlternateCleanStartPosLocation::get()->m_container) {
-        y = AlternateCleanStartPosLocation::get()->m_container->boundingBox().getMaxY() + 5.f * UIScaling::getScale();
-    }
-
     fields->m_switcherContainer->setPositionY(y);
 }
 
