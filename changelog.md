@@ -1,3 +1,6 @@
+# 1.1.8
+- <c-dddddd>Fix delete tab being unresponsive</c>
+
 # 1.1.7
 - <c-dddddd>Add flip position lock to Edit Tools</c>
 - <c-dddddd>Fix toolbar clicks being registered behind it</c>

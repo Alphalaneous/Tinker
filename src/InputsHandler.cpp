@@ -347,7 +347,7 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     editorLayer->addChild(fields->m_forward);
 
     auto toolbarTouch = tinker::ui::ToolbarTouch::create();
-    toolbarTouch->setZOrder(3);
+    toolbarTouch->setZOrder(1);
     toolbarTouch->setID("toolbar-touch"_spr);
 
     addChild(toolbarTouch);
