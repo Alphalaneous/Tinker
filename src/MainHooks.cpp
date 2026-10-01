@@ -1,4 +1,5 @@
 #include "MainHooks.hpp"
+#include <Geode/binding/CCTextInputNode.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 #include "modules/StatusBar.hpp"
 #include "nodes/ShadowLabel.hpp"
@@ -460,4 +461,20 @@ $on_mod(Loaded) {
     PauseUIScaleUpdated().listen([] (EditorPauseLayer* pauseLayer, float scale) {
         tinker::api::ui_scaling::PauseUIScaleUpdated().send(scale);
     }).leak();
+}
+
+bool FixCCTextInputNode::init(float width, float height, char const* placeholder, char const* textFont, int fontSize, char const* labelFont) {
+    auto fields = m_fields.self();
+
+    addOnEnterCallback([this, fields] {
+        if (m_delegate) return;
+        m_delegate = fields->m_delegate;
+    });
+
+    addOnExitCallback([this, fields] {
+        fields->m_delegate = m_delegate;
+        m_delegate = nullptr;
+    });
+
+    return CCTextInputNode::init(width, height, placeholder, textFont, fontSize, labelFont);
 }

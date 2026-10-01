@@ -1,3 +1,6 @@
+# 1.1.9
+- <c-dddddd>Fix 
+
 # 1.1.8
 - <c-dddddd>Fix delete tab being unresponsive</c>
 - <c-dddddd>Fix Allium Polygon tool breaking</c>

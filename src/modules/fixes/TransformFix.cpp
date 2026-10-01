@@ -4,6 +4,17 @@ bool TransformFix::onToggled(bool state) {
     return true;
 }
 
+void TFGJTransformControl::updateButtons(bool transform, bool skew) {
+    auto editor = LevelEditorLayer::get();
+    auto shaders = editor->m_shaderLayer->m_state.m_usesShaders;
+    editor->m_shaderLayer->m_state.m_usesShaders = false;
+    editor->updateShaderLayer(0.f);
+
+    GJTransformControl::updateButtons(transform, skew);
+
+    editor->m_shaderLayer->m_state.m_usesShaders = shaders;
+}
+
 void TFGJTransformControl::scaleButtons(float scale) {
     GJTransformControl::scaleButtons(scale);
     if (tinker::utils::getMod<"razoom.improved_transform_controls">()) return;

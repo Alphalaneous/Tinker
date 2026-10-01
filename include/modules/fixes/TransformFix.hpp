@@ -11,4 +11,5 @@ class $modify(TFGJTransformControl, GJTransformControl) {
     $registerHooks(TransformFix);
 
     void scaleButtons(float scale);
+    void updateButtons(bool transform, bool skew);
 };

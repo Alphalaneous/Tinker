@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.1.8",
+	"version": "v1.1.9",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -407,7 +407,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Warp Control Fix",
-			"description": "Fix the button scale issue with Warp controls."
+			"description": "Fix the button scale and position issues with Warp controls."
 		},
 		"FixIgnoreDamage-enabled": {
 			"type": "bool",

@@ -6,6 +6,7 @@
 #include <Geode/modify/SetGroupIDLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
+#include <Geode/modify/CCTextInputNode.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
 #include "module/ModuleBase.hpp"
 #include "utils/Utils.hpp"
@@ -130,4 +131,14 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
     static EditorPauseLayer* get();
     bool init(LevelEditorLayer* layer);
     void saveLevel();
+};
+
+class $modify(FixCCTextInputNode, CCTextInputNode) {
+
+    struct Fields {
+        TextInputDelegate* m_delegate = nullptr;
+    };
+
+    bool init(float width, float height, char const* placeholder, char const* textFont, int fontSize, char const* labelFont);
+
 };
