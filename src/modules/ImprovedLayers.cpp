@@ -119,7 +119,6 @@ void ImprovedLayers::cleanupLayerMenu() {
     for (auto child : editor->getChildrenExt()) {
         auto input = typeinfo_cast<TextInput*>(child);
         if (input && input->getInputNode()->m_caption == "Z") {
-            m_oldBEInput = input;
             input->defocus();
             // cuz it still accepts input lol
             input->setPosition({99999, 99999});
@@ -132,20 +131,6 @@ void ImprovedLayers::cleanupLayerMenu() {
     auto layerMenu = editor->getChildByID("layer-menu");
     if (layerMenu) {
         m_oldMenuSize = layerMenu->getContentSize();
-
-        m_oldBELayerLock = layerMenu->getChildByID("hjfod.betteredit/lock-layer");
-        m_oldBENextFree = layerMenu->getChildByID("hjfod.betteredit/next-free-layer-button");
-
-        if (m_oldBELayerLock) {
-            m_oldScales[m_oldBELayerLock] = m_oldBELayerLock->getScale();
-            m_oldPositions[m_oldBELayerLock] = m_oldBELayerLock->getPosition();
-            m_oldBELayerLock->removeFromParent();
-        }
-        if (m_oldBENextFree) {
-            m_oldScales[m_oldBENextFree] = m_oldBENextFree->getScale();
-            m_oldPositions[m_oldBENextFree] = m_oldBENextFree->getPosition();
-            m_oldBENextFree->removeFromParent();
-        }
     }
 
     m_oldLayerLockButton = editor->getChildByIDRecursive("lock-layer-button");
@@ -173,11 +158,6 @@ void ImprovedLayers::revertLayerMenu() {
         editor->m_layerLockSprite->setOpacity(m_oldLockOpacity);
     }
 
-    if (m_oldBEInput) {
-        editor->m_uiItems->addObject(m_oldBEInput);
-        editor->addChild(m_oldBEInput);
-    }
-
     if (layerMenu) {
         layerMenu->setContentSize(m_oldMenuSize);
 
@@ -185,21 +165,6 @@ void ImprovedLayers::revertLayerMenu() {
         layout->setAutoScale(true);
         layout->setAutoGrowAxis(std::nullopt);
         layout->setGap(5.f);
-
-        if (m_oldBELayerLock) {
-            m_oldBELayerLock->setZOrder(0);
-            m_oldBELayerLock->setScale(m_oldScales[m_oldBELayerLock]);
-            m_oldBELayerLock->setPosition(m_oldPositions[m_oldBELayerLock]);
-            static_cast<CCMenuItemSpriteExtra*>(m_oldBELayerLock.data())->m_baseScale = m_oldScales[m_oldBELayerLock];
-            layerMenu->addChild(m_oldBELayerLock);
-        }
-        if (m_oldBENextFree) {
-            m_oldBENextFree->setZOrder(0);
-            m_oldBENextFree->setScale(m_oldScales[m_oldBENextFree]);
-            m_oldBENextFree->setPosition(m_oldPositions[m_oldBENextFree]);
-            static_cast<CCMenuItemSpriteExtra*>(m_oldBENextFree.data())->m_baseScale = m_oldScales[m_oldBENextFree];
-            layerMenu->addChild(m_oldBENextFree);
-        }
 
         editor->m_goToBaseBtn->setZOrder(0);
         editor->m_goToBaseBtn->setScale(m_oldScales[editor->m_goToBaseBtn]);
@@ -224,14 +189,11 @@ void ImprovedLayers::revertLayerMenu() {
             editor->m_uiItems->addObject(m_oldLabel);
             editor->m_currentLayerLabel = m_oldLabel;
 
-            // betteredit will crash if called before addChild, and will refuse the new position and scale if not forced
-            editor->m_currentLayerLabel->runAction(CallFuncExt::create([this, editor] {
-                editor->m_currentLayerLabel->setPosition(m_oldPositions[editor->m_currentLayerLabel]);
-                editor->m_currentLayerLabel->m_bPositionDirty = true;
-                editor->m_currentLayerLabel->m_bTransformDirty = true;
-                editor->m_currentLayerLabel->m_bInverseDirty = true;
-                editor->m_currentLayerLabel->nodeToParentTransform();
-            }));
+            editor->m_currentLayerLabel->setPosition(m_oldPositions[editor->m_currentLayerLabel]);
+            editor->m_currentLayerLabel->m_bPositionDirty = true;
+            editor->m_currentLayerLabel->m_bTransformDirty = true;
+            editor->m_currentLayerLabel->m_bInverseDirty = true;
+            editor->m_currentLayerLabel->nodeToParentTransform();
         }
 
         auto winSize = CCDirector::get()->getWinSize();
@@ -249,9 +211,6 @@ void ImprovedLayers::revertLayerMenu() {
     editor->m_goToBaseBtn->setVisible(!isBase);
 
     m_oldLabel = nullptr;
-    m_oldBEInput = nullptr;
-    m_oldBELayerLock = nullptr;
-    m_oldBENextFree = nullptr;
     m_oldLayerLockButton = nullptr;
     m_layerLockButtonParent = nullptr;
 }

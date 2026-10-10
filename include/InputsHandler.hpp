@@ -5,7 +5,7 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/AppDelegate.hpp>
-#include "utils/Utils.hpp"
+#include "utils/Mod.hpp"
 
 using namespace geode::prelude;
 
@@ -120,7 +120,7 @@ class $modify(InputEditorUI, EditorUI) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }
@@ -173,8 +173,6 @@ class $modify(InputEditorUI, EditorUI) {
     bool init(LevelEditorLayer* editorLayer);
     void onScroll();
     void scrollWheel(float y, float x);
-    void disableBetterEditHook();
-
 
     void addActiveAlert(CCNode* alert);
     void removeActiveAlert(CCNode* alert);
@@ -222,7 +220,7 @@ class $modify(InputEditorPauseLayer, EditorPauseLayer) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }

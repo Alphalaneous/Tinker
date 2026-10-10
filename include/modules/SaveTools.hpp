@@ -54,13 +54,6 @@ class $module(SaveTools, true) {
 
     bool m_creatingAutoSave;
     bool m_skipLLMSave;
-
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit", SaveTools> m_toggledHooks = {
-        "GManager::save",
-        "EditorPauseLayer::saveLevel",
-        "EditorPauseLayer::FLAlert_Clicked",
-        "EditorPauseLayer::onExitNoSave"
-    };
 };
 
 class $modify(STGManager, GManager) {

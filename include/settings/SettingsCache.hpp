@@ -1,7 +1,10 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
 #include "utils/Singleton.hpp"
+#include <memory>
+#include <set>
+#include <Geode/utils/StringMap.hpp>
+#include <Geode/utils/ZStringView.hpp>
 
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>

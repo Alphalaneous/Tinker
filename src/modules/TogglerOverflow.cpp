@@ -1,6 +1,6 @@
 #include "modules/TogglerOverflow.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <alphalaneous.editorsounds/include/API.hpp>
 #include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
@@ -324,6 +324,7 @@ bool TogglerOverflow::onToggled(bool state) {
         removeEventListener("ui-scale");
         removeEventListener("show-ui");
         removeEventListener("status-bar-created");
+        removeEventListener("switch-tab");
 
         if (m_container) {
             auto editor = getEditor();
@@ -359,15 +360,16 @@ void TogglerOverflow::onEditor() {
         m_container->updateContainer();
     });
 
+    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+        if (!m_container) return;
+        m_container->setVisible(show && tab->getID() != "michael.sculptorv4/sculptor");
+    });
+
     if (!m_addedCallbacks) {
         m_addedCallbacks = true;
         editor->addOnEnterCallback([this, editor] {
             if (!m_container) return;
             m_container->updateContainer();
-        });
-        alpha::editor_tabs::addTabSwitchCallback([this, editor] (auto tab) {
-            if (!m_container) return;
-            m_container->setVisible(tab != "michael.sculptorv4/sculptor");
         });
     }
 }

@@ -1,21 +1,18 @@
-#include "modules/GridControl.hpp"
+#ifndef GEODE_IS_ANDROID32
+
+#include "modules/GridControlOld.hpp"
 #include "modules/RepeatingEditorButtons.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
-
-#ifndef GEODE_IS_ANDROID32
-
 #include "InputsHandler.hpp"
 
-bool GridControl::onToggled(bool state) {
+bool GridControlOld::onToggled(bool state) {
     float scale = UIScaling::getScale();
 
     if (state) {
         onEditor();
-
-        removeBE();
         updateUI(scale);
     }
     else {
@@ -33,35 +30,9 @@ bool GridControl::onToggled(bool state) {
 
         m_input = nullptr;
 
-        if (m_oldBEControl) {
-            m_oldBEControl->setVisible(true);
-            m_oldBEControl->setScale(scale * 0.9f);
-            m_oldBEControl->setContentSize({70.f, 35.f});
-
-            auto settingsMenu = editor->getChildByID("settings-menu");
-            if (settingsMenu) {
-                auto available = tinker::utils::getAvailableSpace(settingsMenu, editor->m_positionSlider, tinker::utils::Axis::Horizontal);
-                
-                if (tinker::utils::nodeFits(m_oldBEControl, available, tinker::utils::Axis::Horizontal)) {
-                    m_oldBEControl->setAnchorPoint({1.f, 0.5f});
-                    m_oldBEControl->setPosition({available.max - 5.f / scale, settingsMenu->getPositionY()});
-                }
-                else {
-                    m_oldBEControl->setAnchorPoint({0.5f, 0.5f});
-                    m_oldBEControl->setPosition({editor->m_positionSlider->getPositionX(), GridControl::getSliderMinY(editor) - 12.f});
-                }
-            }
-        }
-
-        getEditorLayer()->unschedule(schedule_selector(GCLevelEditorLayer::forceBetterEditAway));
-
-        m_oldBEControl = nullptr;
-
         removeEventListener("ui-scale");
         removeEventListener("pre-ui-scale");
         removeEventListener("show-ui");
-        removeEventListener("betteredit-increase-keybind");
-        removeEventListener("betteredit-decrease-keybind");
         removeEventListener("increase-keybind");
         removeEventListener("decrease-keybind");
 
@@ -79,7 +50,7 @@ bool GridControl::onToggled(bool state) {
     return true;
 }
 
-bool GridControl::onSettingChanged(std::string_view key, const matjson::Value& value) {
+bool GridControlOld::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "show-grid-scale-toggle") {
         auto res = value.asBool();
         if (!res) return true;
@@ -114,7 +85,7 @@ bool GridControl::onSettingChanged(std::string_view key, const matjson::Value& v
     return true;
 }
 
-void GridControl::onEditor() {
+void GridControlOld::onEditor() {
     m_control = CCMenu::create();
     m_control->setContentSize({70.f, 35.f});
     m_control->setScale(0.9f);
@@ -188,18 +159,6 @@ void GridControl::onEditor() {
         }
     });
 
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (betterEdit) {
-        addEventListener("betteredit-increase-keybind", KeybindSettingPressedEvent(betterEdit, "keybind-enlarge-grid-size"), [this, incBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-            if (!down) return;
-            incBtn->activate();
-        });
-        addEventListener("betteredit-decrease-keybind", KeybindSettingPressedEvent(betterEdit, "keybind-ensmallen-grid-size"), [this, decBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-            if (!down) return;
-            decBtn->activate();
-        });
-    }
-
     addEventListener("increase-keybind", KeybindSettingPressedEvent(Mod::get(), "GridControl-increase-keybind"), [this, incBtn] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (!down) return;
         incBtn->activate();
@@ -210,13 +169,6 @@ void GridControl::onEditor() {
     });
 
     editor->m_uiItems->addObject(m_control);
-
-    if (!m_addedCallbacks) {
-        m_addedCallbacks = true;
-        editor->addOnEnterCallback([this] {
-            removeBE();
-        });
-    }
 
     updateGrid();
 
@@ -256,27 +208,9 @@ void GridControl::onEditor() {
         menu->updateLayout();
     }
     editor->m_uiItems->addObject(m_toggler);
-
-    getEditorLayer()->schedule(schedule_selector(GCLevelEditorLayer::forceBetterEditAway));
 }
 
-void GridControl::removeBE() {
-    auto editor = getEditor();
-    m_oldBEControl = editor->getChildByID("hjfod.betteredit/grid-size-controls");
-    moveBE();
-}
-
-void GridControl::moveBE() {
-    auto editor = getEditor();
-
-    if (m_oldBEControl) {
-        // hacky hide so BE doesn't crash when changing grid with its keybinds
-        m_oldBEControl->setVisible(false);
-        m_oldBEControl->setPositionY(editor->getContentHeight() + m_oldBEControl->getScaledContentHeight() + 50.f);
-    }
-}
-
-void GridControl::updateUI(float scale) {
+void GridControlOld::updateUI(float scale) {
     auto editorUI = getEditor();
 
     m_control->removeFromParent();
@@ -285,9 +219,9 @@ void GridControl::updateUI(float scale) {
     settingsMenu->updateLayout();
 
     auto slider = editorUI->m_positionSlider;
-    auto available = tinker::utils::getAvailableSpace(settingsMenu, slider, tinker::utils::Axis::Horizontal, {6.f * scale, 0.f}, {slider->m_touchLogic->m_thumb});
+    auto available = tinker::utils::ui::getAvailableSpace(settingsMenu, slider, tinker::utils::ui::Axis::Horizontal, {6.f * scale, 0.f}, {slider->m_touchLogic->m_thumb});
 
-    if (tinker::utils::nodeFits(m_control, available, tinker::utils::Axis::Horizontal)) {
+    if (tinker::utils::ui::nodeFits(m_control, available, tinker::utils::ui::Axis::Horizontal)) {
         m_control->setZOrder(100);
         settingsMenu->addChild(m_control);
         settingsMenu->updateLayout();
@@ -299,12 +233,12 @@ void GridControl::updateUI(float scale) {
     }
 }
 
-float GridControl::getSliderMinY(EditorUI* editorUI) {
+float GridControlOld::getSliderMinY(EditorUI* editorUI) {
     auto slider = editorUI->m_positionSlider;
     return slider->getPositionY() - (slider->m_touchLogic->m_thumb->getScaledContentHeight() / 2.f - 2.f) * slider->getScale();
 }
 
-void GridControl::updateGrid(float newValue, bool updateInput) {
+void GridControlOld::updateGrid(float newValue, bool updateInput) {
     if (newValue < 0.9f || newValue > 120.1f) {
         newValue = 30.f;
     }
@@ -317,7 +251,7 @@ void GridControl::updateGrid(float newValue, bool updateInput) {
     }
 }
 
-float GridControl::getGridMultiplier() {
+float GridControlOld::getGridMultiplier() {
     if (!m_gridScaleToggled) return 1.f;
 
     auto size = Mod::get()->getSavedValue<float>("grid-size");
@@ -332,7 +266,7 @@ GameObject* GCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
     auto ret = EditorUI::createObject(objectID, position);
 
     if (ret) {
-        auto mult = GridControl::get()->getGridMultiplier();
+        auto mult = GridControlOld::get()->getGridMultiplier();
         ret->updateCustomScaleX(ret->m_pixelScaleX * mult);
         ret->updateCustomScaleY(ret->m_pixelScaleY * mult);
     }
@@ -342,14 +276,10 @@ GameObject* GCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
 
 cocos2d::CCPoint GCEditorUI::offsetForKey(int id) {
     auto ret = EditorUI::offsetForKey(id);
-    auto mult = GridControl::get()->getGridMultiplier();
+    auto mult = GridControlOld::get()->getGridMultiplier();
 
     ret *= mult;
     return ret;
-}
-
-void GCLevelEditorLayer::forceBetterEditAway(float dt) {
-    GridControl::get()->moveBE();
 }
 
 float GCObjectToolbox::gridNodeSizeForKey(int id) {

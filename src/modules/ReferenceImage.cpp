@@ -2,6 +2,8 @@
 #include "modules/RepeatingEditorButtons.hpp"
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
+#include "utils/String.hpp"
+#include "utils/UI.hpp"
 
 void ReferenceImage::onEditor() {
     auto editor = getEditor();
@@ -29,7 +31,7 @@ void RICustomizeObjectLayer::setTextBtn() {
     auto textObject = typeinfo_cast<TextGameObject*>(m_targetObject);
     if (!textObject) return;
 
-    auto pair = tinker::utils::splitIntoPair(textObject->m_text);
+    auto pair = tinker::utils::string::splitIntoPair(textObject->m_text);
     if (pair.first != "image") return;
 
     fields->m_isImageObject = true;
@@ -103,7 +105,7 @@ void RITextGameObject::onImageFail(ZStringView icon, ZStringView text) {
 }
 
 bool RITextGameObject::isReferenceImage() {
-    auto pair = tinker::utils::splitIntoPair(m_text);
+    auto pair = tinker::utils::string::splitIntoPair(m_text);
     return pair.first == "image";
 }
 
@@ -123,7 +125,7 @@ void RITextGameObject::setAttributes() {
 }
 
 void RITextGameObject::setupCustomSprite() {
-    auto pair = tinker::utils::splitIntoPair(m_text);
+    auto pair = tinker::utils::string::splitIntoPair(m_text);
 
     if (pair.first == "image") {
         if (!setupInitial(pair.second)) return;
@@ -220,7 +222,7 @@ void RIEditorUI::onImport(CCObject* sender) {
             else {
                 auto winSize = CCDirector::get()->getWinSize();
                 auto localPosAR = m_editorLayer->m_objectLayer->convertToNodeSpaceAR(winSize / 2.f);
-                pos = CCPoint{localPosAR.x, localPosAR.y + tinker::utils::getToolbarHeight()};
+                pos = CCPoint{localPosAR.x, localPosAR.y + tinker::utils::ui::getToolbarHeight()};
             }
 
             std::string objStr = fmt::format("1,914,2,{},3,{},31,{}", pos.x, pos.y, utils::base64::encode("image:" + utils::base64::encode(utils::string::pathToString(path))));

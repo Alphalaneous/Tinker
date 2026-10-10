@@ -2,9 +2,10 @@
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
+#include "utils/UI.hpp"
 
 bool PreviewObjectColors::onToggled(bool state) {
     if (state) {
@@ -26,7 +27,7 @@ bool PreviewObjectColors::onToggled(bool state) {
 
         for (auto child : getEditor()->getChildrenExt()) {
             if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
-                if (!bar->m_hasCreateItems) continue;
+                if (!bar->m_hasCreateItems || bar->m_tabIndex == 13) continue;
                 auto soBar = static_cast<SOEditButtonBar*>(bar);
                 soBar->removeFromExtrasMenu("color-preview"_spr);
             }
@@ -34,6 +35,8 @@ bool PreviewObjectColors::onToggled(bool state) {
         removeEventListener("scrollable-toggled");
         removeEventListener("level-saved-event");
         removeEventListener("ui-scale");
+        removeEventListener("switch-tab");
+        removeEventListener("switch-mode");
 
         m_buttonForScroll = nullptr;
         fields->m_defaultObject = nullptr;
@@ -91,7 +94,7 @@ void PreviewObjectColors::setupButton(bool scrollable) {
         editor->runAction(CallFuncExt::create([this, editor] {
             for (auto child : editor->getChildrenExt()) {
                 if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
-                    if (!bar->m_hasCreateItems) continue;
+                    if (!bar->m_hasCreateItems || bar->m_tabIndex == 13) continue;
                     auto soBar = static_cast<SOEditButtonBar*>(bar);
                     auto btn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_editHSVBtn2_001.png", 1.f, [this] (CCMenuItemSpriteExtra* sender) {
                         editColor();
@@ -132,7 +135,7 @@ void PreviewObjectColors::setupButton(bool scrollable) {
                 x = spacer->boundingBox().getMinX();
             }
             
-            m_buttonContainer->setPosition({x - 3.f * scale, tinker::utils::getToolbarHeight(false) - 4.f * scale});
+            m_buttonContainer->setPosition({x - 3.f * scale, tinker::utils::ui::getToolbarHeight(false) - 4.f * scale});
         };
 
         addEventListener("ui-scale", UIScaleUpdated(), [this, uiScale] (float scale, bool scaleToolbars, bool fullReload) {
@@ -145,17 +148,15 @@ void PreviewObjectColors::setupButton(bool scrollable) {
 
         uiScale(UIScaling::getScale());
 
-        if (!m_callbacksAdded) {
-            m_callbacksAdded = true;
-            alpha::editor_tabs::addTabSwitchCallback([this] (auto id) {
-                if (!m_buttonForScroll) return;
-                setButtonVisible(m_buttonForScroll);
-            });
-            alpha::editor_tabs::addModeSwitchCallback([this] (auto id) {
-                if (!m_buttonForScroll) return;
-                setButtonVisible(m_buttonForScroll);
-            });
-        }
+        addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+            if (!m_buttonForScroll) return;
+            setButtonVisible(m_buttonForScroll);
+        });
+
+        addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+            if (!m_buttonForScroll) return;
+            setButtonVisible(m_buttonForScroll);
+        });
     }
 }
 
@@ -174,11 +175,12 @@ GJSpriteColor* PreviewObjectColors::getDetailColor() {
 }
 
 void PreviewObjectColors::setButtonVisible(geode::Button* button) {
-    auto tabRes = alpha::editor_tabs::nodeForTab(alpha::editor_tabs::getCurrentTab().unwrapOrDefault());
-    if (!tabRes) return;
-    auto tab = typeinfo_cast<EditButtonBar*>(tabRes.unwrap().data());
+    auto tab = alpha::editor_tabs::getCurrentTab();
+    if (!tab) return;
 
-    button->setVisible(tab && tab->m_tabIndex != 13 && tab->m_hasCreateItems && alpha::editor_tabs::getCurrentMode().unwrapOrDefault() == alpha::editor_tabs::BUILD);
+    auto node = tab->getNode();
+
+    button->setVisible(node && node->m_tabIndex != 13 && node->m_hasCreateItems && alpha::editor_tabs::getCurrentModeID() == alpha::editor_tabs::Build);
 }
 
 void PreviewObjectColors::editColor() {
@@ -194,7 +196,7 @@ void PreviewObjectColors::editColor() {
 GameObject* POCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
     auto ret = EditorUI::createObject(objectID, position);
 
-    if (!tinker::utils::isColorable(ret)) return ret;
+    if (!tinker::utils::objects::isColorable(ret)) return ret;
 
     if (ret) {
         using namespace tinker::constants;
@@ -234,13 +236,13 @@ void POCLevelEditorLayer::updateObjectColors(float dt) {
                 auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(bar);
                 for (auto item : scrollEditButtonBar->m_fields->m_visibleNodes) {
                     if (!nodeIsVisible(item)) continue;
-                    tinker::utils::updateCreateButtonColor(this, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::objects::updateCreateButtonColor(item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
             else {
                 for (auto item : bar->m_buttonArray->asExt<CreateMenuItem>()) {
                     if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
-                    tinker::utils::updateCreateButtonColor(this, item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::objects::updateCreateButtonColor(item, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
         }
@@ -252,7 +254,7 @@ void POCLevelEditorLayer::updateObjectColors(float dt) {
             if (auto innerMenu = group->getChildByType<CCMenu>(1)) {
                 for (auto btn : innerMenu->getChildrenExt()) {
                     if (!btn->isVisible()) continue;
-                    tinker::utils::updateCreateButtonColor(this, btn, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
+                    tinker::utils::objects::updateCreateButtonColor(btn, fields->m_defaultObject->m_baseColor->m_colorID, fields->m_defaultObject->m_detailColor->m_colorID, fields->m_defaultObject->m_baseColor->m_hsv, fields->m_defaultObject->m_detailColor->m_hsv);
                 }
             }
         }

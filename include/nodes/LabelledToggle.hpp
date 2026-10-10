@@ -1,6 +1,9 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/function.hpp>
+#include <Geode/binding/CCMenuItemToggler.hpp>
 
 using namespace geode::prelude;
 

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <chrono>
+#include <string>
 
 using namespace geode::prelude;
 

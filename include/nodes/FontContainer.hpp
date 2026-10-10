@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/ui/Label.hpp>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/binding/CCMenuItemToggler.hpp>
+#include <Geode/binding/SelectFontLayer.hpp>
+#include <string>
 
 using namespace geode::prelude;
 

@@ -1,6 +1,14 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/cocos/menu_nodes/CCMenu.h>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/EditorUI.hpp>
+#include <Geode/binding/EffectGameObject.hpp>
+#include <string>
+#include <unordered_map>
 #include "DurationSlider.hpp"
 #include "DurationThumb.hpp"
 

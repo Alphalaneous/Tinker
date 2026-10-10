@@ -1,5 +1,5 @@
 #include "modules/ThatPasteButton.hpp"
-#include "utils/Utils.hpp"
+#include "utils/HijackCallback.hpp"
 
 bool ThatPasteButton::onToggled(bool state) {
     if (state) {

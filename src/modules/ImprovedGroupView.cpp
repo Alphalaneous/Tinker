@@ -1,6 +1,7 @@
 #include "modules/ImprovedGroupView.hpp"
 #include "ImprovedGroupView.hpp"
-#include "utils/Utils.hpp"
+#include "utils/HijackCallback.hpp"
+#include "utils/Mod.hpp"
 #include <spaghettdev.named-editor-groups/api/NIDManager.hpp>
 
 bool ImprovedGroupView::onToggled(bool state) {
@@ -57,7 +58,7 @@ bool IGVSetGroupIDLayer::init(GameObject* obj, cocos2d::CCArray* objs) {
         }
     }
 
-    if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+    if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
         schedule(schedule_selector(IGVSetGroupIDLayer::checkNamedIDs));
     }
     
@@ -149,7 +150,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
     groupsMenu->setLayout(layout);
 
     fields->m_lastRemoved = 0;
-    bool isNamed = tinker::utils::getMod<"spaghettdev.named-editor-groups">();
+    bool isNamed = tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">();
 
     for (const auto& [k, v] : allGroups) {
         bool isParent = allParentGroups.count(k);
@@ -317,7 +318,7 @@ ImprovedGroupView::GroupData IGVSetGroupIDLayer::parseObjGroups(GameObject* obj)
 bool IGVSetupSpawnPopup::init(EffectGameObject* object, cocos2d::CCArray* objects) {
     if (!SetupSpawnPopup::init(object, objects)) return false;
 
-    if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+    if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
         schedule(schedule_selector(IGVSetupSpawnPopup::fixNamedEditorGroups));
     }
 
@@ -340,7 +341,7 @@ void IGVSetupSpawnPopup::fixNamedEditorGroups(float dt) {
     fields->m_lastPage = m_page;
 
     if (m_page == 1) {
-        if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+        if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
             runAction(CallFuncExt::create([this] {
                 queueUpdateButtons();
             }));
@@ -605,7 +606,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
 
         auto size = CCSize{40.f, 30.f};
         bool hasName = false;
-        if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+        if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
             size.height = 35.f;
 
             std::string name = NIDManager::getNameForID(NID::GROUP, obj.m_groupID).unwrapOrDefault();
@@ -733,7 +734,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
         fields->m_scrollBar->setVisible(false);
     }
 
-    if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+    if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
         runAction(CallFuncExt::create([this] {
             for (auto btn : CCArrayExt<CCNode, false>(m_groupButtons)) {
                 btn->setVisible(true);
@@ -782,7 +783,7 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
     int width;
     float padding = 25.f;
 
-    if (count <= 10 || tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+    if (count <= 10 || tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
         width = 40;
     } else {
         width = 15;
@@ -795,7 +796,7 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
     for (const auto& chance : object->m_chanceObjects) {
         std::string label;
 
-        if (count <= 10 || tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+        if (count <= 10 || tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
             label = fmt::format("{}-{}", chance.m_groupID, chance.m_chance);
 
             std::string name = NIDManager::getNameForID(NID::GROUP, chance.m_groupID).unwrapOrDefault();
@@ -905,7 +906,7 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
         fields->m_scrollBar->setVisible(false);
     }
 
-    if (tinker::utils::getMod<"spaghettdev.named-editor-groups">()) {
+    if (tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {
         runAction(CallFuncExt::create([this] {
             for (auto btn : CCArrayExt<CCNode, false>(m_groupButtons)) {
                 btn->setVisible(true);

@@ -2,6 +2,7 @@
 #include "modules/JoystickNavigation.hpp"
 #include "modules/CanvasRotate.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -64,11 +65,11 @@ bool NavigationControl::init(EditorUI* editorUI) {
 
     if (JoystickNavigation::s_resetPosition) {
         Mod::get()->setSavedValue("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-        Mod::get()->setSavedValue("nav-joystick-pos-y", tinker::utils::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
+        Mod::get()->setSavedValue("nav-joystick-pos-y", tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
     }
 
     auto posX = Mod::get()->getSavedValue<float>("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", tinker::utils::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
+    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
 
     CCSize winSize = CCDirector::get()->getWinSize();
 

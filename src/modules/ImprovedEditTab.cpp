@@ -1,11 +1,11 @@
 #include "modules/ImprovedEditTab.hpp"
 #include "MainHooks.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include "modules/EditTools.hpp"
 #include "modules/RepeatingEditorButtons.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -106,7 +106,7 @@ bool ButtonContainer::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     if (!nodeIsVisible(this)) return false;
 
     if (!alpha::utils::isPointInsideNode(this, touch->getLocation())) {
-        if (touch->getLocation().y <= tinker::utils::getToolbarHeight()) {
+        if (touch->getLocation().y <= tinker::utils::ui::getToolbarHeight()) {
             hide();
         }
         return false;

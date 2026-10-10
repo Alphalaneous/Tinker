@@ -1,6 +1,14 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/cocoa/CCObject.h>
+#include <Geode/cocos/menu_nodes/CCMenu.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/ui/Popup.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/CCMenuItemToggler.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <vector>
 #include "ObjectList.hpp"
 
 using namespace geode::prelude;

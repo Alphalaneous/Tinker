@@ -1,5 +1,4 @@
 #include "modules/CenteredToggles.hpp"
-#include "utils/Utils.hpp"
 
 bool CenteredToggles::onToggled(bool state) {
     if (state) {
@@ -38,25 +37,4 @@ void CenteredToggles::onEditor() {
     // arrow weight at the top makes it look uncentered so I offset it slightly less
     setOffset(editor->m_rotateBtn, -1.2f);
     setOffset(editor->m_snapBtn, -1.5f);
-
-    // betteredit is a pain
-    editor->runAction(CallFuncExt::create([this, editor] {
-        auto toolbarCategoriesMenu = editor->getChildByID("toolbar-categories-menu");
-        if (!toolbarCategoriesMenu) return;
-
-        for (auto child : toolbarCategoriesMenu->getChildrenExt()) {
-            CenteredToggles::get()->setOffset(child, -1.3f);
-
-            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
-            if (!btn) continue;
-            tinker::utils::hijackButton(btn, [this, toolbarCategoriesMenu] (geode::Function<void(CCObject* sender)> orig, CCObject* sender) {
-                orig(sender);
-                if (!CenteredToggles::isEnabled()) return;
-
-                for (auto child : toolbarCategoriesMenu->getChildrenExt()) {
-                    setOffset(child, -1.3f);
-                }
-            });
-        }
-    }));
 }

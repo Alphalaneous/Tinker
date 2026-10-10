@@ -1,4 +1,5 @@
 #include "modules/SingleDeselect.hpp"
+#include "utils/UI.hpp"
 
 // TODO fix deselecting while controls are open
 
@@ -90,7 +91,7 @@ void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 
     if (swipeSelected && swipeDistance >= 20.f) return;
     if (m_selectedMode != 3 || !getKeyPressed() || (snapObject && editingObject)) return;
-    if (world.y < tinker::utils::getToolbarHeight()) return;
+    if (world.y < tinker::utils::ui::getToolbarHeight()) return;
 
     auto position = m_editorLayer->m_objectLayer->convertToNodeSpace(world);
     auto object = selectedObjectAtPosition(position);

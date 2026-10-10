@@ -1,5 +1,6 @@
 #include "modules/fixes/ZoomGroundFix.hpp"
 #include "utils/Constants.hpp"
+#include "utils/Objects.hpp"
 
 bool ZoomGroundFix::onToggled(bool state) {
 	return true;
@@ -19,8 +20,8 @@ void ZGFGJBaseGameLayer::updateCameraBGArt(CCPoint position, float zoom) {
 	ccColor3B color1;
 	ccColor3B color2;
 
-	tinker::utils::ColorData color1DataMG;
-	tinker::utils::ColorData color2DataMG;
+	tinker::utils::objects::ColorData color1DataMG;
+	tinker::utils::objects::ColorData color2DataMG;
 
 	if (!editorLayer->m_previewMode) {
 		color1 = colors::DefaultGround;
@@ -30,11 +31,11 @@ void ZGFGJBaseGameLayer::updateCameraBGArt(CCPoint position, float zoom) {
 		color2DataMG = {colors::DefaultMiddleground2, false, 255};
 	}
 	else {
-		color1 = tinker::utils::getActiveColor(editorLayer, color_channels::Ground1).color;
-		color2 = tinker::utils::getActiveColor(editorLayer, color_channels::Ground2).color;
+		color1 = tinker::utils::objects::getActiveColor(color_channels::Ground1).color;
+		color2 = tinker::utils::objects::getActiveColor(color_channels::Ground2).color;
 
-		color1DataMG = tinker::utils::getActiveColor(editorLayer, color_channels::Middleground1);
-		color2DataMG = tinker::utils::getActiveColor(editorLayer, color_channels::Middleground2);
+		color1DataMG = tinker::utils::objects::getActiveColor(color_channels::Middleground1);
+		color2DataMG = tinker::utils::objects::getActiveColor(color_channels::Middleground2);
 	}
 
 	if (m_groundLayer && (m_groundLayer->m_ground1Sprite || m_groundLayer->m_ground2Sprite)) {

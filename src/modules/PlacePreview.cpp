@@ -1,10 +1,11 @@
 #include "modules/PlacePreview.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include "InputsHandler.hpp"
 #include "modules/CanvasRotate.hpp"
-#include "modules/GridControl.hpp"
+#include "modules/GridControlOld.hpp"
 #include "modules/PreviewObjectColors.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
+#include "utils/Objects.hpp"
 
 bool PlacePreview::onToggled(bool state) {
     if (state) {
@@ -25,6 +26,8 @@ bool PlacePreview::onToggled(bool state) {
             m_feedbackContainer->removeFromParent();
             m_feedbackContainer = nullptr;
         }
+        removeEventListener("switch-tab");
+        removeEventListener("switch-mode");
     }
     return true;
 }
@@ -55,25 +58,22 @@ void PlacePreview::onEditor() {
     m_hover = tinker::ui::PlacePreviewNode::create();
     editor->addChild(m_hover);
 
-    if (!m_callbacksSet) {
-        alpha::editor_tabs::addModeSwitchCallback([this] (ZStringView ID) {
-            if (!m_feedbackContainer) return;
-            m_feedbackContainer->setVisible(inValidTab());
-        });
+    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+        if (!m_feedbackContainer) return;
+        m_feedbackContainer->setVisible(inValidTab());
+    });
 
-        alpha::editor_tabs::addTabSwitchCallback([this] (ZStringView ID) {
-            if (!m_feedbackContainer) return;
-            m_feedbackContainer->setVisible(inValidTab());
-        });
-        m_callbacksSet = true;
-    }
+    addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+        if (!m_feedbackContainer) return;
+        m_feedbackContainer->setVisible(inValidTab());
+    });
 }
 
 bool PlacePreview::inValidTab() {
-    auto mode = alpha::editor_tabs::getCurrentMode().unwrapOrDefault();
-    if (mode != alpha::editor_tabs::BUILD) return false;
+    auto mode = alpha::editor_tabs::getCurrentModeID();
+    if (mode != alpha::editor_tabs::Build) return false;
 
-    auto tab = alpha::editor_tabs::getCurrentTab().unwrapOrDefault();
+    auto tab = alpha::editor_tabs::getCurrentTabID();
     if (tab == "alk.allium/allium") return false;
     if (tab == "michael.sculptorv4/sculptor") return false;
 
@@ -175,8 +175,8 @@ void PlacePreviewNode::update(float dt) {
             applyOffset(m_hoverObject);
         }
         #ifndef GEODE_IS_ANDROID32
-        if (GridControl::isEnabled()) {
-            auto mult = GridControl::get()->getGridMultiplier();
+        if (GridControlOld::isEnabled()) {
+            auto mult = GridControlOld::get()->getGridMultiplier();
             m_hoverObject->updateCustomScaleX(m_hoverObject->m_pixelScaleX * mult);
             m_hoverObject->updateCustomScaleY(m_hoverObject->m_pixelScaleY * mult);
         }
@@ -204,7 +204,7 @@ void PlacePreviewNode::showAtPos(const CCPoint& pos, const CCPoint& world) {
     }
 
     bool exists = editor->m_editorLayer->typeExistsAtPosition(m_hoverObject->m_objectID, checkPos, isFlipX, isFlipY, rot);
-    bool canBeShown = !exists && world.y > utils::getToolbarHeight();
+    bool canBeShown = !exists && world.y > tinker::utils::ui::getToolbarHeight();
 
     m_objectVisible = canBeShown;
     m_objectPos = objectPos;
@@ -217,7 +217,7 @@ void PlacePreviewNode::mouseMoved(TouchEvent* touch) {
     auto pos = touch->getLocation();
 
     auto winSize = CCDirector::get()->getWinSize();
-    auto mousePos = tinker::utils::rotatePointAroundPivot(pos, winSize / 2.f, editor->m_editorLayer->m_gameState.m_cameraAngle);
+    auto mousePos = tinker::utils::ui::rotatePointAroundPivot(pos, winSize / 2.f, editor->m_editorLayer->m_gameState.m_cameraAngle);
 
     auto objectSpace = editor->m_editorLayer->m_objectLayer->convertToNodeSpace(mousePos);
 
@@ -264,7 +264,7 @@ void PlacePreviewNode::updateObjectColor() {
         }
     }
 
-    tinker::utils::updateGameObjectColor(editor->m_editorLayer, m_hoverObject);
+    tinker::utils::objects::updateGameObjectColor(m_hoverObject);
 }
 
 void PlacePreviewNode::updateOpacity(float opacity) {
@@ -294,7 +294,7 @@ void PlacePreviewNode::setObject(int id) {
 
     auto pos = getMousePos();
     auto winSize = CCDirector::get()->getWinSize();
-    auto mousePos = tinker::utils::rotatePointAroundPivot(pos, winSize / 2.f, editor->m_editorLayer->m_gameState.m_cameraAngle);
+    auto mousePos = tinker::utils::ui::rotatePointAroundPivot(pos, winSize / 2.f, editor->m_editorLayer->m_gameState.m_cameraAngle);
 
     auto objectSpace = editor->m_editorLayer->m_objectLayer->convertToNodeSpace(mousePos);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
 
 using namespace geode::prelude;
 

@@ -1,19 +1,11 @@
 #include "modules/HideUI.hpp"
 #include "MainHooks.hpp"
-#include "utils/Utils.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
+#include "utils/UI.hpp"
 
 bool HideUI::onToggled(bool state) {
     if (state) {
         onEditor();
-        auto undoMenu = getEditor()->getChildByID("undo-menu");
-        if (undoMenu) {
-            m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
-            if (m_oldBEButton) {
-                m_oldBEButton->removeFromParent();
-            }
-            undoMenu->updateLayout();
-        }
     }   
     else {
         if (m_hideButton) {
@@ -23,16 +15,11 @@ bool HideUI::onToggled(bool state) {
         
         auto undoMenu = getEditor()->getChildByID("undo-menu");
         if (undoMenu) {
-            if (m_oldBEButton) {
-                undoMenu->addChild(m_oldBEButton);
-            }
             undoMenu->updateLayout();
         }
-        m_oldBEButton = nullptr;
+
         removeEventListener("show-ui-event");
         removeEventListener("show-keybind");
-        removeEventListener("betteredit-show-keybind");
-
     }
     return true;
 }
@@ -70,17 +57,10 @@ void HideUI::onEditor() {
 
     if (!m_addedCallbacks) {
         m_addedCallbacks = true;
-        undoMenu->addOnEnterCallback([this, undoMenu, showEye, hideEye] {
-            m_oldBEButton = undoMenu->getChildByID("hjfod.betteredit/hide-ui-toggle");
-            if (m_oldBEButton) {
-                m_oldBEButton->removeFromParent();
-            }
-            undoMenu->updateLayout();
-        });
     }
 
     addEventListener("show-ui-event", ShowUIEvent(), [this] (bool show) {
-        getEditor()->m_toolbarHeight = show ? tinker::utils::getToolbarHeight() : 0;
+        getEditor()->m_toolbarHeight = show ? tinker::utils::ui::getToolbarHeight() : 0;
         
         m_hideButton->toggle(!show);
         m_hideButton->setVisible(getEditorLayer()->m_playbackMode != PlaybackMode::Playing);
@@ -103,22 +83,6 @@ void HideUI::onEditor() {
         if (!down || repeat) return;
         m_hideButton->toggleWithCallback(!m_hideButton->isToggled());
     });
-
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (betterEdit) {
-        addEventListener("betteredit-show-keybind", KeybindSettingPressedEvent(betterEdit, "keybind-view-mode"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-            if (!down) return;
-            auto mainEditorUI = MainEditorUI::get();
-            if (mainEditorUI && mainEditorUI->isUIVisible()) return;
-
-            auto node = alpha::editor_tabs::nodeForTab("hjfod.betteredit/view").unwrapOr(nullptr);
-            if (node) {
-                node->runAction(CallFuncExt::create([node] {
-                    node->setVisible(false);
-                }));
-            }
-        });
-    }
 }
 
 void HUIEditorUI::updateButtons() {

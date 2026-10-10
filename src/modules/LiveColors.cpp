@@ -1,10 +1,11 @@
 #include "modules/LiveColors.hpp"
 #include "MainHooks.hpp"
 #include "modules/UIScaling.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
+#include "utils/UI.hpp"
 #include "utils/Constants.hpp"
 #include "nodes/ColorVisualButton.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 
 using namespace tinker::ui;
 
@@ -53,7 +54,7 @@ void LiveColors::onEditor() {
         auto module = LiveColors::get();
 
         module->m_colorsMenu->setEnabled(show);
-        if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() != "all-objects"_spr) {
+        if (alpha::editor_tabs::getCurrentTabID() != "all-objects"_spr) {
             module->m_colorsMenu->setVisible(getEditorLayer()->m_playbackMode == PlaybackMode::Playing || show);
         }
     });
@@ -106,7 +107,7 @@ void LCLevelEditorLayer::checkColors(float dt) {
         btn->setColorData(-1);
     }
 
-    tinker::utils::forEachObject(this, [&activeColors, this](GameObject* object) {
+    tinker::utils::objects::forEachObject([&activeColors, this](GameObject* object) {
         if (m_currentLayer != -1 
             && object->m_editorLayer != m_currentLayer 
             && object->m_editorLayer2 != m_currentLayer) return;
@@ -140,7 +141,7 @@ void LCLevelEditorLayer::checkColors(float dt) {
     }
     module->m_lastBtnCount = count;
 
-    float heightOffset = tinker::utils::getToolbarHeight();
+    float heightOffset = tinker::utils::ui::getToolbarHeight();
 
     if (m_editorUI->m_tabsMenu && m_editorUI->m_tabsMenu->isVisible()) {
         heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();

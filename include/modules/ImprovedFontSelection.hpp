@@ -7,10 +7,6 @@
 class $module(ImprovedFontSelection) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
-
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit", ImprovedFontSelection> m_toggledHooks = {
-        "SelectFontLayer::init"
-    };
 };
 
 class $modify(IFSSelectFontLayer, SelectFontLayer) {

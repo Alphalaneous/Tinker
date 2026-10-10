@@ -1,6 +1,10 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/ui/NineSlice.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/CreateMenuItem.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
 using namespace geode::prelude;

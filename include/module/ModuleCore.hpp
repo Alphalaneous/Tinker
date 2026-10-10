@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
-
 #include "settings/SettingsCache.hpp"
 #include "settings/SettingsQueueHandler.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Settings.hpp"
+#include "utils/String.hpp"
+#include "utils/Mod.hpp"
 #include "module/ModuleLoader.hpp"
 #include "Events.hpp"
 
@@ -30,7 +30,7 @@ private:
 
 public:
     ~ModuleCore() {
-        if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+        if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
             log::debug("Destroyed: {}", Name.data());
         }
     }
@@ -46,7 +46,7 @@ public:
     static std::shared_ptr<T> create() {
         auto ret = std::make_shared<T>();
 
-        if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+        if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
             log::debug("Created: {}", Name.data());
         }
 
@@ -76,11 +76,11 @@ public:
     }
 
     static bool isEnabled() {
-        if (!tinker::utils::shouldLoadTinker()) return false;
+        if (!tinker::utils::mod::shouldLoadTinker()) return false;
         if constexpr (Name == "UIScaling") return true;
 
         static constexpr auto enabledKey =
-            tinker::utils::concat<Name, "-enabled">();
+            tinker::utils::string::concat<Name, "-enabled">();
 
         static auto setting = Mod::get()->getSetting(enabledKey.data());
         if (!setting) {
@@ -123,7 +123,7 @@ public:
     template <class S, geode::utils::string::ConstexprString key>
     static const S& getSetting() {
         static constexpr auto fullKey =
-            tinker::utils::concat<Name, "-", key>();
+            tinker::utils::string::concat<Name, "-", key>();
 
         static auto setting =
             Mod::get()->getSettingValue<S>(fullKey.data());
@@ -143,9 +143,9 @@ public:
                 }
 
                 constexpr bool isEnabledSetting =
-                    tinker::utils::equals<
+                    tinker::utils::string::equals<
                         fullKey,
-                        tinker::utils::concat<Name, "-enabled">()
+                        tinker::utils::string::concat<Name, "-enabled">()
                     >();
 
                 if constexpr (isEnabledSetting) {
@@ -197,16 +197,16 @@ public:
 
             auto queued = value.unwrap();
 
-            if (tinker::utils::getSetting<bool, "Debug-module-logs">()) {
+            if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
                 log::debug("[{}]: {}", fullKey.data(), queued.dump(4));
             }
 
             setting = queued.template as<S>().unwrapOrDefault();
 
             if constexpr (
-                tinker::utils::equals<
+                tinker::utils::string::equals<
                     fullKey,
-                    tinker::utils::concat<Name, "-enabled">()
+                    tinker::utils::string::concat<Name, "-enabled">()
                 >()
             ) {
                 hookToggle();

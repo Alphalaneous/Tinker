@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/robtop/keyboard_dispatcher/CCKeyboardDispatcher.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/ui/NineSlice.hpp>
+#include <Geode/utils/function.hpp>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <vector>
 
 using namespace geode::prelude;
 

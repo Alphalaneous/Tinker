@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
 #include "utils/Singleton.hpp"
+#include <string>
+#include <vector>
 
 using namespace geode::prelude;
 

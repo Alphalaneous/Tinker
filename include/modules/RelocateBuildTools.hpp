@@ -12,7 +12,7 @@ class $module(RelocateBuildTools) {
 
     CCSprite* addIcon(CCNode* node, CCLabelBMFont* label);
     void rebuildButtons(std::vector<Ref<CCNode>> nodes);
-    CCNode* createBuildTools();
+    EditButtonBar* createBuildTools();
 };
 
 class $modify(RBTEditorPauseLayer, EditorPauseLayer){

@@ -1,5 +1,7 @@
 #include "utils/HijackCallback.hpp"
 
+namespace tinker::utils {
+
 HijackCallback* HijackCallback::create(Hijack method, SEL_MenuHandler originalSelector) {
     auto ret = new HijackCallback();
     if (ret->init(std::move(method), originalSelector)) {
@@ -23,4 +25,14 @@ void HijackCallback::callback(CCObject* sender) {
     if (hijack->m_method) hijack->m_method([btn, hijack] (CCObject* sender) {
         (btn->m_pListener->*hijack->m_selector)(sender);
     }, sender);
+}
+
+void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method) {
+    if (btn->getUserObject("hijack"_spr)) return;
+
+    auto hijack = HijackCallback::create(std::move(method), btn->m_pfnSelector);
+    btn->setUserObject("hijack"_spr, hijack);
+    btn->m_pfnSelector = menu_selector(HijackCallback::callback);
+}
+
 }

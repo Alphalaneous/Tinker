@@ -1,6 +1,6 @@
 #include "modules/ObjectAlignment.hpp"
 #include "modules/TogglerOverflow.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
 
 bool ObjectAlignment::onToggled(bool state) {
@@ -104,7 +104,7 @@ ObjectAlignment::SnapEdge ObjectAlignment::closestSnapEdge(CCRect bounds) {
     auto editor = getEditor();
     auto editorLayer = getEditorLayer();
 
-    tinker::utils::forEachObject(editorLayer, [&](GameObject* object) {
+    tinker::utils::objects::forEachObject([&](GameObject* object) {
         if (editorLayer->m_currentLayer != -1 
             && object->m_editorLayer != editorLayer->m_currentLayer 
             && object->m_editorLayer2 != editorLayer->m_currentLayer) return;

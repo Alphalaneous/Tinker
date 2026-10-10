@@ -5,7 +5,6 @@
 #include "nodes/NextFreeOffsetInput.hpp"
 
 bool ImprovedColorPicker::onToggled(bool state) {
-    m_toggledHooks.toggle(state);
     return true;
 }
 

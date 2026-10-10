@@ -1,5 +1,5 @@
 #include "modules/ObjectTooltips.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "nodes/TooltipHover.hpp"
 
@@ -20,6 +20,8 @@ bool ObjectTooltips::onToggled(bool state) {
         }
         m_objectGroups.clear();
         removeEventListener("paused-event");
+        removeEventListener("switch-tab");
+        removeEventListener("switch-mode");
     }
     return true;
 }
@@ -42,16 +44,13 @@ void ObjectTooltips::onEditor() {
     getEditor()->addChild(m_hover);
     getEditor()->m_uiItems->addObject(m_hover);
 
-    if (!m_addedCallbacks) {
-        m_addedCallbacks = true;
-        alpha::editor_tabs::addTabSwitchCallback([this] (auto tab) {
-            if (m_hover) m_hover->resetTooltip();
-        });
+    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+        if (m_hover) m_hover->resetTooltip();
+    });
 
-        alpha::editor_tabs::addModeSwitchCallback([this] (auto mode) {
-            if (m_hover) m_hover->resetTooltip();
-        });
-    }
+    addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+        if (m_hover) m_hover->resetTooltip();
+    });
 
     addEventListener("paused-event", EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
         if (m_hover) m_hover->resetTooltip();

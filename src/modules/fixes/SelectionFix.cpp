@@ -1,5 +1,5 @@
 #include "modules/fixes/SelectionFix.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
 
 bool SelectionFix::onToggled(bool state) {
     return true;
@@ -13,7 +13,7 @@ GameObject* SFLevelEditorLayer::objectAtPosition(cocos2d::CCPoint position) {
 
     GameObject* object = nullptr;
 
-    tinker::utils::forEachObject(this, [this, position, &object] (GameObject* obj) mutable {
+    tinker::utils::objects::forEachObject([this, position, &object] (GameObject* obj) mutable {
         if (object) return;
 
         if (validGroup(obj, true)) {
@@ -43,7 +43,7 @@ cocos2d::CCArray* SFLevelEditorLayer::objectsAtPosition(cocos2d::CCPoint positio
 
     auto objects = CCArray::create();
 
-    tinker::utils::forEachObject(this, [this, position, objects] (GameObject* obj) mutable {
+    tinker::utils::objects::forEachObject([this, position, objects] (GameObject* obj) mutable {
         if (validGroup(obj, true)) {
             auto rect = getObjectRect(obj, false, false);
 

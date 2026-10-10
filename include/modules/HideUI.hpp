@@ -4,7 +4,6 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(HideUI) {
-    Ref<CCNode> m_oldBEButton;
     Ref<CCMenuItemToggler> m_hideButton;
     bool m_addedCallbacks;
     

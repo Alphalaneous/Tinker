@@ -5,7 +5,8 @@
 #include "settings/SettingsCache.hpp"
 #include "settings/SupportButton.hpp"
 #include "nodes/PopupBorder.hpp"
-#include "utils/Utils.hpp"
+#include "utils/HijackCallback.hpp"
+#include "utils/Mod.hpp"
 #include <Geode/modify/SliderTouchLogic.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
@@ -358,6 +359,12 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     addEventListener(SettingNodeValueChangeEventV3(), [this, applyBtn] (std::string_view modID, std::string_view key, SettingNodeV3* node, bool committed)  {
         if (modID != Mod::get()->getID() || committed) return;
+        if (key == "UIScaling-scale" || key == "UIScaling-custom-safe-area") {
+            if (node->hasUncommittedChanges()) {
+                node->commit();
+            }
+            return;
+        }
 
         bool uncommitted = hasUncommitted();
         applyBtn->setEnabled(uncommitted);
@@ -567,7 +574,7 @@ class $nodeModify(MyModPopup, ModPopup) {
 		auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(getChildByIDRecursive("settings-button"));
         if (btn) {
             tinker::utils::hijackButton(btn, [] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
-        	    auto geode = tinker::utils::getMod<"geode.loader">();
+        	    auto geode = tinker::utils::mod::getMod<"geode.loader">();
                 auto theme = geode->getSettingValue<std::string>("used-theme");
                 
                 bool geodeTheme = theme != "Geometry Dash";

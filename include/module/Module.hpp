@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
 #include "module/ModuleCore.hpp"
 #include "module/ModuleBase.hpp"
 

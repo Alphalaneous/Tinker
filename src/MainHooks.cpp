@@ -1,17 +1,18 @@
 #include "MainHooks.hpp"
 #include <Geode/binding/CCTextInputNode.hpp>
 #include <Geode/ui/GeodeUI.hpp>
-#include "modules/StatusBar.hpp"
 #include "nodes/ShadowLabel.hpp"
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
 #include "Events.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include "../../include/UIScaling.hpp"
 #include "settings/SettingsPopup.hpp"
 #include "utils/next-free/NextFreeProvider.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
+#include "utils/Mod.hpp"
+#include "utils/HijackCallback.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
@@ -93,7 +94,7 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
     addEventListener(UpdateObjectLabel(), [this] () {
         float scale = UIScaling::getScale();
-        float x = std::max(tinker::utils::getFurthestLeft(m_objectInfoLabel, 150.f * scale), UIScaling::getSafeOffset().x);
+        float x = std::max(tinker::utils::ui::getFurthestLeft(m_objectInfoLabel, 150.f * scale), UIScaling::getSafeOffset().x);
         float offset = 10.f * scale;
         m_objectInfoLabel->setPositionX(x + offset);
     });
@@ -101,7 +102,7 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     editorLayer->schedule(schedule_selector(MainLevelEditorLayer::mainUpdate), 1.f / 60.f);
 
     runAction(CallFuncExt::create([this, editorLayer] {
-        m_toolbarHeight = tinker::utils::getToolbarHeight(false);
+        m_toolbarHeight = tinker::utils::ui::getToolbarHeight(false);
         EditorZoomEvent().send(editorLayer->m_objectLayer->getScale());
     }));
 
@@ -134,9 +135,6 @@ void MainLevelEditorLayer::mainUpdate(float dt) {
     editor->checkModifierState(fields);
     editor->checkEditorPosition(fields);
     editor->checkActiveObjectCount(fields);
-
-    // hack to fix y positions of tabs being wrong for some people (???)
-    editor->fixTabPositions();
 }
 
 void MainEditorUI::checkPlatformerState(MainEditorUI::Fields* fields) {
@@ -199,29 +197,9 @@ void MainEditorUI::checkActiveObjectCount(MainEditorUI::Fields* fields) {
     fields->m_lastActiveObjectCount = cur;
 }
 
-void MainEditorUI::fixTabPositions() {
-    float toolbarOffset = 0.f;
-    if (StatusBar::isEnabled()) {
-        toolbarOffset = StatusBar::get()->m_toolbarOffset;
-    } 
-    for (auto tab : alpha::editor_tabs::getAllTabs().unwrapOrDefault()) {
-        if (!tab) continue;
-        if (tab->getID() == "all-objects-tab-bar"_spr) continue;
-
-        float posY = tab->getScaledContentHeight() * tab->getAnchorPoint().y + toolbarOffset;
-        if (tab->getScaledContentHeight() == 0) {
-            posY = tinker::utils::getToolbarHeight(false) / 2.f;
-        }
-        tab->setPositionY(posY);
-    }
-
-    m_deleteMenu->setContentSize({0, 0});
-    m_deleteMenu->setPositionY(tinker::utils::getToolbarHeight(false) / 2.f + toolbarOffset / 2.f);
-}
-
 void MainEditorUI::updateButtons() {
     auto toolbarHeight = m_toolbarHeight;
-    m_toolbarHeight = tinker::utils::getToolbarHeight(false);
+    m_toolbarHeight = tinker::utils::ui::getToolbarHeight(false);
     EditorUI::updateButtons();
     m_toolbarHeight = toolbarHeight;
     UpdateButtonsEvent().send();
@@ -427,7 +405,7 @@ void MainEditorPauseLayer::saveLevel() {
 class $classModify(UnloadedEditLevelLayer, EditLevelLayer) {
 
     void modify() {
-        if (tinker::utils::shouldLoadTinker()) return;
+        if (tinker::utils::mod::shouldLoadTinker()) return;
 
         auto editBtn = static_cast<CCMenuItemSpriteExtra*>(getChildByIDRecursive("edit-button"));
         if (!editBtn) return;
@@ -442,7 +420,7 @@ class $classModify(UnloadedEditLevelLayer, EditLevelLayer) {
 };
 
 $on_game(ModsLoaded) {
-    if (!tinker::utils::shouldLoadTinker()) return;
+    if (!tinker::utils::mod::shouldLoadTinker()) return;
 
     static std::vector<std::shared_ptr<ModuleBase>> modules;
     for (auto& [k, v] : ModuleRegistry::get()->m_modules) {

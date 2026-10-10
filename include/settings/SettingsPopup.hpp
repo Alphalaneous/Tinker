@@ -1,9 +1,19 @@
 #pragma once
 
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/ui/Popup.hpp>
+#include <Geode/cocos/menu_nodes/CCMenu.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/ui/TextInput.hpp>
+#include <Geode/utils/StringMap.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <memory>
+#include <unordered_map>
+#include <vector>
 #include "settings/SettingNode.hpp"
 #include "settings/SettingsCache.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 

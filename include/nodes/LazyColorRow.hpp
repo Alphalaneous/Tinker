@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/menu_nodes/CCMenu.h>
+#include <Geode/utils/function.hpp>
 
 using namespace geode::prelude;
 

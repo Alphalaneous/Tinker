@@ -4,7 +4,6 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/CreateMenuItem.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
-#include <Geode/modify/BoomScrollLayer.hpp>
 #include "nodes/SearchField.hpp"
 
 class $module(ObjectSearch) {
@@ -20,10 +19,18 @@ class $modify(OSEditorUI, EditorUI) {
         std::map<unsigned int, tinker::ui::SearchField::ItemInformation> m_items;
         std::vector<tinker::ui::SearchField::ItemInformation*> m_orderedItems;
         bool m_initialLoaded = false;
+        bool m_loadedCMIs = false;
+        unsigned int m_tabIndex = 0;
+        unsigned int m_itemIndex = 0;
+        Ref<CCNode> m_loadingContainer;
+        ProgressBar* m_progressBar;
+        geode::Label* m_progressLabel;
+        unsigned int m_itemCount = 0;
+        unsigned int m_itemProgress = 0;
     };
 
-    void setupCreateMenu();
-    void onSetupCreateMenu();
+    void loadTab();
+    void setupNextTab(float dt);
     void updateCreateMenu(bool selectTab);
     CreateMenuItem* getCreateBtn(int id, int bg);
     void onPause(CCObject* sender);
@@ -52,10 +59,4 @@ class $modify(OSEditButtonBar, EditButtonBar) {
 
     void checkPage();
     void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
-};
-
-class $modify(OSBoomScrollLayer, BoomScrollLayer) {
-    $registerHooks(ObjectSearch)
-
-    void instantMoveToPage(int page);
 };

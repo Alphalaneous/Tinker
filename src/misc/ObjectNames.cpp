@@ -1,5 +1,5 @@
 #include "misc/ObjectNames.hpp"
-#include "utils/Utils.hpp"
+#include "utils/String.hpp"
 
 void ObjectNames::checkNames(bool ignoreVersion) {
     auto req = web::WebRequest();
@@ -37,7 +37,7 @@ void ObjectNames::checkNames(bool ignoreVersion) {
     );
 }
 
-void ObjectNames::loadNames(std::string_view names) {
+void ObjectNames::loadNames(ZStringView names) {
     auto split = utils::string::split(names, "\n");
     for (const auto& str : split) {
         auto commaSplit = utils::string::split(str, ",");
@@ -114,20 +114,20 @@ std::string ObjectNames::deduceFromID(ZStringView id) {
         if (!first) {
             str.append(" ");
         }
-        str.append(tinker::utils::capitalize(part));
+        str.append(tinker::utils::string::capitalize(part));
         first = false;
     }
     return str.str();
 }
 
-Result<std::string_view> ObjectNames::getName(unsigned int id) {
+Result<ZStringView> ObjectNames::getName(unsigned int id) {
     if (id >= 100000000) {
         return Ok("Custom Object");
     }
     auto iter = m_names.find(id);
     if (iter == m_names.end()) return Err("Name not found for ID");
 
-    return Ok(std::string_view(iter->second));
+    return Ok(ZStringView(iter->second));
 }
 
 const std::unordered_map<unsigned int, std::string>& ObjectNames::getNames() {

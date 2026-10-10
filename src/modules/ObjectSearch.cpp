@@ -1,14 +1,14 @@
 #include "modules/ObjectSearch.hpp"
-#include "misc/ObjectNames.hpp"
 #include "modules/LiveColors.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/CenteredObjectButtons.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <smjs.object-collab/include/object_collab_optional.hpp>
 #include "modules/StatusBar.hpp"
 #include "third-party/ObjectIDDisplay.hpp"
 #include "utils/Constants.hpp"
+#include "utils/UI.hpp"
 
 using namespace alpha::prelude;
 
@@ -27,27 +27,61 @@ void ObjectSearch::onEditor() {
     fields->m_searchField = tinker::ui::SearchField::create(static_cast<OSEditorUI*>(editor));
     fields->m_searchField->defocus();
     fields->m_searchField->setID("search-field"_spr);
+    fields->m_searchField->setVisible(false);
     
     editor->m_uiItems->addObject(fields->m_searchField);
 
+    fields->m_loadingContainer = CCNode::create();
+    fields->m_loadingContainer->setAnchorPoint({0.5f, 0.5f});
+    fields->m_loadingContainer->setContentSize({140.f, 35.f});
+    fields->m_loadingContainer->setID("loading-container"_spr);
+
+    fields->m_progressBar = ProgressBar::create(ProgressBarStyle::Solid);
+    fields->m_progressBar->setPosition({fields->m_loadingContainer->getContentWidth() / 2.f, 15.f});
+    fields->m_progressBar->setScale(0.4f);
+    fields->m_progressBar->setAnchorPoint({0.5f, 0.5f});
+    fields->m_progressBar->setID("loading-progress-bar"_spr);
+
+    fields->m_loadingContainer->addChild(fields->m_progressBar);
+
+    fields->m_progressLabel = geode::Label::create("Loading: 0%", "bigFont.fnt");
+    fields->m_progressLabel->setScale(0.35f);
+    fields->m_progressLabel->setPosition({fields->m_loadingContainer->getContentWidth() / 2.f, 30.f});
+    fields->m_progressLabel->setID("loading-progress-label"_spr);
+
+    fields->m_loadingContainer->addChild(fields->m_progressLabel);
+
     auto winSize = CCDirector::get()->getWinSize();
 
-    alpha::editor_tabs::addTab("all-objects"_spr, alpha::editor_tabs::BUILD, [this, fields] () {
-        fields->m_searchBar = alpha::editor_tabs::createEditButtonBar({});
-        fields->m_searchBar->m_hasCreateItems = true;
+    fields->m_searchBar = alpha::editor_tabs::createTabBar({});
+    fields->m_searchBar->m_hasCreateItems = true;
 
-        auto osBar = static_cast<OSEditButtonBar*>(fields->m_searchBar);
-        auto osFields = osBar->m_fields.self();
-        osFields->m_searchBar = true;
+    fields->m_searchBar->addChild(fields->m_loadingContainer);
 
-        return fields->m_searchBar;
-    }, [] () {
-        return CCSprite::create("search.png"_spr);
-    }, [this, fields, editor] (bool state, cocos2d::CCNode*) {
+    auto osBar = static_cast<OSEditButtonBar*>(fields->m_searchBar);
+    auto osFields = osBar->m_fields.self();
+    osFields->m_searchBar = true;
+
+    auto buildMode = alpha::editor_tabs::getMode(alpha::editor_tabs::Build);
+    auto tab = buildMode->createTab("all-objects"_spr, fields->m_searchBar, CCSprite::create("search.png"_spr));
+
+    fields->m_loadingContainer->addEventListener(alpha::editor_tabs::tab::UpdateTabUIEvent(tab), [fields] (EditButtonBar* node) {
+        fields->m_loadingContainer->setPosition(node->getContentSize() / 2.f);
+    });
+
+    addEventListener(alpha::editor_tabs::tab::SwitchPageEvent(tab), [this] (EditButtonBar* node, int page) {
+        auto sEbb = static_cast<OSEditButtonBar*>(node);
+        sEbb->checkPage();
+    });
+
+    addEventListener(alpha::editor_tabs::tab::SwitchTabEvent(tab), [this, fields, editor, tab] (bool show) {
         if (!fields->m_searchField) return;
-        if (state && !fields->m_searchField->getParent()) {
+
+        if (show && !fields->m_searchField->getParent()) {
             #ifndef GEODE_IS_MOBILE
-            fields->m_searchField->focus();
+            if (fields->m_loadedCMIs) {
+                fields->m_searchField->focus();
+            }
             #endif
             editor->addChild(fields->m_searchField);
 
@@ -58,27 +92,19 @@ void ObjectSearch::onEditor() {
         else {
             fields->m_searchField->defocus();
             fields->m_searchField->removeFromParent();
-            fields->m_searchField->onClosed();
+
+            #ifdef GEODE_IS_MOBILE
+            editor->runAction(CallFuncExt::create([fields] {
+                fields->m_searchField->onClosed();
+            }));
+            #endif
 
             if (LiveColors::isEnabled()) {
                 LiveColors::get()->showMenu(true);
             }
         }
-        if (state && !fields->m_initialLoaded) {
-            auto arr = fields->m_searchField->generateItemArrayForSearch("");
-            
-            auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-            auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-            fields->m_searchBar->loadFromItems(arr, cols, rows, false);
-            fields->m_initialLoaded = true;
-
-            float toolbarOffset = 0.f;
-            if (StatusBar::isEnabled()) {
-                toolbarOffset = StatusBar::get()->m_toolbarOffset;
-            }
-
-            fields->m_searchBar->setPositionY(toolbarOffset);
+        if (show && !fields->m_initialLoaded) {
+            static_cast<OSEditorUI*>(editor)->loadTab();
         }
     });
     
@@ -90,7 +116,7 @@ void ObjectSearch::onEditor() {
             scale = node->getScale();
         }
 
-        fields->m_searchField->setPosition({editor->getContentWidth() / 2.f, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
+        fields->m_searchField->setPosition({editor->getContentWidth() / 2.f, tinker::utils::ui::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
         fields->m_searchField->setScale(0.6f * scale);
     }));
 
@@ -98,7 +124,13 @@ void ObjectSearch::onEditor() {
         if (!down || repeat) return;
         if (editor->m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
 
-        alpha::editor_tabs::switchTab("all-objects"_spr);
+        auto mode = alpha::editor_tabs::getMode(alpha::editor_tabs::Build);
+        if (!mode) return;
+
+        mode->show();
+        alpha::editor_tabs::switchMode(mode);
+
+        mode->switchTab("all-objects"_spr);
     });
 
     addEventListener(UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
@@ -124,53 +156,91 @@ void ObjectSearch::onEditor() {
         }
     });
 
-    /*addEventListener(SetupCreateMenuEvent(), [this] () {
-        static_cast<OSEditorUI*>(m_editorUI)->onSetupCreateMenu();
-    });*/
-}
-
-void OSEditorUI::onSetupCreateMenu() {
-    auto fields = m_fields.self();
-    auto bar = fields->m_searchBar;
-    for (auto tab : m_createButtonBars->asExt<EditButtonBar>()) {
-        if (!tab || !tab->m_hasCreateItems || bar == tab) continue;
-
-        for (auto node : tab->m_buttonArray->asExt<CCNode>()) {
-            auto cmi = typeinfo_cast<CreateMenuItem*>(node);
-            if (!cmi || cmi->m_objectID < 1 || cmi->m_tabIndex == 13) continue;
-
-            int bgID = 1;
-            auto bgObject = typeinfo_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
-            if (bgObject) {
-                bgID = bgObject->getValue();
-            }
-
-            auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, this, menu_selector(EditorUI::onCreateButton));
-
-            std::string name;
-            if (cmi->m_objectID >= 100000000) {
-                auto registryRes = object_collab::getOptionalRegister();
-                if (registryRes) {
-                    auto registry = registryRes.unwrap();
-                    auto& info = registry[cmi->m_objectID];
-                    name = ObjectNames::get()->deduceFromID(info.id);
-                }
-                else {
-                    name = "Unknown";
-                }
-            }
-            else {
-                name = ObjectNames::get()->getName(cmi->m_objectID).unwrapOrDefault();
-            }
-            fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, name, cmi->m_objectID, tab->m_tabIndex, cmi};
-            fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
+    addEventListener(alpha::editor_tabs::AllTabsInitializedEvent(), [editor, fields] {
+        for (auto bar : editor->m_createButtonBars->asExt<EditButtonBar>()) {
+            fields->m_itemCount += bar->m_buttonArray->count();
         }
-    }
+        fields->m_loadingContainer->setPosition(fields->m_searchBar->getContentSize() / 2.f);
+        editor->schedule(schedule_selector(OSEditorUI::setupNextTab));
+    });
 }
 
-void OSEditorUI::setupCreateMenu() {
-    EditorUI::setupCreateMenu();
-    onSetupCreateMenu();
+void OSEditorUI::loadTab() {
+    auto fields = m_fields.self();
+    if (!fields->m_loadedCMIs) return;
+
+    auto arr = fields->m_searchField->generateItemArrayForSearch("");
+    
+    auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
+    auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
+
+    fields->m_searchBar->loadFromItems(arr, cols, rows, false);
+    fields->m_initialLoaded = true;
+
+    float toolbarOffset = 0.f;
+    if (StatusBar::isEnabled()) {
+        toolbarOffset = StatusBar::get()->m_toolbarOffset;
+    }
+
+    fields->m_loadingContainer->removeFromParent();
+    fields->m_searchBar->setPositionY(toolbarOffset);
+}
+
+void OSEditorUI::setupNextTab(float dt) {
+    auto fields = m_fields.self();
+    if (fields->m_tabIndex >= m_createButtonBars->count()) {
+        unschedule(schedule_selector(OSEditorUI::setupNextTab));
+        fields->m_loadedCMIs = true;
+        fields->m_searchField->setVisible(true);
+
+        if (fields->m_searchBar->isVisible()) {
+            loadTab();
+        }
+        return;
+    }
+    
+    auto tab = m_createButtonBars->asExt<EditButtonBar>()[fields->m_tabIndex];
+
+    if (!tab || !tab->m_hasCreateItems || fields->m_searchBar == tab || tab->m_tabIndex == 13) {
+        fields->m_itemIndex = 0;
+        fields->m_tabIndex++;
+        return;
+    }
+
+    int count = 0;
+    for (int i = fields->m_itemIndex; i < tab->m_buttonArray->count(); i++) {
+        if (count == 250) return;
+
+        auto cmi = tab->m_buttonArray->asExt<CreateMenuItem>()[i];
+        if (!cmi || cmi->m_objectID < 1) {
+            fields->m_itemIndex++;
+            count++;
+            fields->m_itemProgress++;
+            continue;
+        }
+
+        int bgID = 1;
+        auto bgObject = static_cast<CCInteger*>(cmi->getUserObject("bg"_spr));
+        if (bgObject) {
+            bgID = bgObject->getValue();
+        }
+
+        auto newItem = OSCreateMenuItem::createSearchItem(cmi, bgID, this, menu_selector(EditorUI::onCreateButton));
+        fields->m_items[cmi->m_objectID] = tinker::ui::SearchField::ItemInformation{newItem, cmi->m_objectID, tab->m_tabIndex};
+        fields->m_orderedItems.push_back(&fields->m_items[cmi->m_objectID]);
+
+        fields->m_itemIndex++;
+        count++;
+        fields->m_itemProgress++;
+    }
+
+    fields->m_itemIndex = 0;
+    fields->m_tabIndex++;
+
+    auto progress = static_cast<unsigned int>((fields->m_itemProgress / static_cast<float>(fields->m_itemCount)) * 100.f);
+
+    fields->m_progressBar->updateProgress(progress);
+    fields->m_progressLabel->setText(fmt::format("Progress: {}%", progress));
 }
 
 void OSEditorUI::onPause(CCObject* sender) {
@@ -181,10 +251,16 @@ void OSEditorUI::onPause(CCObject* sender) {
 void OSEditorUI::updateCreateMenu(bool selectTab) {
     EditorUI::updateCreateMenu(selectTab);
 
-    auto nodeRes = alpha::editor_tabs::nodeForTab("all-objects"_spr);
-    if (!nodeRes) return;
+    auto mode = alpha::editor_tabs::getMode(alpha::editor_tabs::Build);
+    if (!mode) return;
 
-    auto allObjectsBar = static_cast<EditButtonBar*>(nodeRes.unwrap().data());
+    auto tab = mode->getTab("all-objects"_spr);
+    if (!tab) return;
+
+    auto node = tab->getNode();
+    if (!node) return;
+
+    auto allObjectsBar = static_cast<EditButtonBar*>(node);
     if (!allObjectsBar) return;
         
     for (auto node : allObjectsBar->m_buttonArray->asExt<CCNode>()) {
@@ -300,8 +376,6 @@ void OSCreateMenuItem::loadObject() {
 
     buttonSprite->m_subSprite = obj;
     buttonSprite->addChild(obj);
-
-    geode::cocos::limitNodeSize(obj, {32.f, 32.f}, 1.f, 0.01f);
     
     if (CenteredObjectButtons::isEnabled()) {
         buttonSprite->updateSpriteOffset({-0.25f, -1.5f});
@@ -342,20 +416,11 @@ void OSEditButtonBar::checkPage() {
         return;
     }
 
-    auto pageNum = getPage();
-    for (auto node : m_buttonArray->asExt<CreateMenuItem>()) {
-        auto oCmi = static_cast<OSCreateMenuItem*>(node);
-        if (std::abs(pageNum - oCmi->m_pageIndex) <= 1) {
-            oCmi->loadObject();
-        }
-    }
-}
-
-void OSBoomScrollLayer::instantMoveToPage(int page) {
-    BoomScrollLayer::instantMoveToPage(page);
-
-    if (auto ebb = typeinfo_cast<EditButtonBar*>(getParent())) {
-        auto sEbb = static_cast<OSEditButtonBar*>(ebb);
-        sEbb->checkPage();
+    auto container = getChildByID("alphalaneous.editortab_api/item-container");
+    if (!container) return;
+    
+    for (auto child : container->getChildrenExt()) {
+        auto oCmi = static_cast<OSCreateMenuItem*>(child);
+        oCmi->loadObject();
     }
 }

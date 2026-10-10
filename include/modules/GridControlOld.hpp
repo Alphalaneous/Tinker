@@ -7,10 +7,9 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 
-class $module(GridControl) {
+class $module(GridControlOld) {
     TextInput* m_input;
     Ref<CCNode> m_control;
-    Ref<CCNode> m_oldBEControl;
     Ref<CCMenuItemToggler> m_toggler;
     bool m_addedCallbacks;
     bool m_gridScaleToggled;
@@ -20,35 +19,27 @@ class $module(GridControl) {
 
     void onEditor();
     void updateUI(float scale);
-    void removeBE();
-    void moveBE();
     void updateGrid(float newValue = 0, bool updateInput = true);
     float getGridMultiplier();
 
     static float getSliderMinY(EditorUI* editorUI);
-
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit", GridControl> m_toggledHooks = {
-        "EditorUI::updateGridNodeSize"
-    };
 };
 
 class $modify(GCObjectToolbox, ObjectToolbox) {
-    $registerHooks(GridControl)
+    $registerHooks(GridControlOld)
 
     float gridNodeSizeForKey(int id);
 };
 
 class $modify(GCEditorUI, EditorUI) {
-    $registerHooks(GridControl)
+    $registerHooks(GridControlOld)
 
     cocos2d::CCPoint offsetForKey(int id);
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
 };
 
 class $modify(GCLevelEditorLayer, LevelEditorLayer) {
-    $registerHooks(GridControl)
-
-    void forceBetterEditAway(float dt);
+    $registerHooks(GridControlOld)
 };
 
 #endif

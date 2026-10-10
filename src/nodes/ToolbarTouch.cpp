@@ -1,5 +1,5 @@
 #include "nodes/ToolbarTouch.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -22,7 +22,7 @@ bool ToolbarTouch::init() {
 }
 
 bool ToolbarTouch::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    return touch->getLocation().y <= utils::getToolbarHeight(true);
+    return touch->getLocation().y <= tinker::utils::ui::getToolbarHeight(true);
 }
 
 void ToolbarTouch::registerWithTouchDispatcher() {

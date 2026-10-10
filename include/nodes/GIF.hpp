@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/utils/ZStringView.hpp>
 
 using namespace geode::prelude;
 

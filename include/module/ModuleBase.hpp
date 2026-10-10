@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/utils/StringMap.hpp>
+#include <Geode/loader/Event.hpp>
+#include <memory>
 
 using namespace geode::prelude;
 

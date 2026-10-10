@@ -1,7 +1,9 @@
 #pragma once
 
+#include <Geode/loader/SettingV3.hpp>
+#include <Geode/utils/string.hpp>
+#include <memory>
 #include "settings/SettingNodeRegistry.hpp"
-#include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 

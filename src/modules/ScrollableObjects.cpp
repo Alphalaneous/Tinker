@@ -1,16 +1,21 @@
 #include "modules/ScrollableObjects.hpp"
-#include "modules/ImprovedEditTab.hpp"
+#include "MainHooks.hpp"
 #include "modules/ObjectSearch.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <Geode/binding/EditButtonBar.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <razoom.object_groups/include/ObjectFoundEvent.hpp>
-#include "modules/StatusBar.hpp"
-#include "modules/UIScaling.hpp"
-#include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Mod.hpp"
+#include "utils/UI.hpp"
 
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
-    static_cast<SOEditorUI*>(getEditor())->reloadTabsSafe();
+    for (const auto& tab : alpha::editor_tabs::getAllTabs()) {
+        auto bar = static_cast<SOEditButtonBar*>(tab->getNode());
+        if (!bar) continue;
+
+        bar->updateBar();
+    }
+
     return true;
 }
 
@@ -20,28 +25,32 @@ bool ScrollableObjects::onToggled(bool state) {
         onEditor();
     }
     else {
-        auto fields = static_cast<SOEditorUI*>(getEditor())->m_fields.self();
+        auto editor = getEditor();
+        auto fields = static_cast<SOEditorUI*>(editor)->m_fields.self();
 
         removeEventListener("object-found-event");
+        removeEventListener("switch-tab");
+        removeEventListener("switch-mode");
+        removeEventListener("tab-loaded");
+
         if (fields->m_groupsGotoMenu) {
-            getEditor()->addChild(fields->m_groupsGotoMenu);
+            editor->addChild(fields->m_groupsGotoMenu);
         }
         if (fields->m_groupsTogglesMenu) {
-            getEditor()->addChild(fields->m_groupsTogglesMenu);
+            editor->addChild(fields->m_groupsTogglesMenu);
         }
         
-        for (auto c : CCArrayExt<CCNode*>(getEditor()->getChildren())) {
-            if (auto bar = typeinfo_cast<EditButtonBar*>(c)) {
-                static_cast<SOEditButtonBar*>(bar)->revertChanges();
-            }
-        }
+        for (const auto& tab : alpha::editor_tabs::getAllTabs()) {
+            auto bar = static_cast<SOEditButtonBar*>(tab->getNode());
+            if (!bar) continue;
 
-        static_cast<SOEditorUI*>(getEditor())->reloadTabsSafe();
+            bar->revertScrollable();
+        }
     }
 
-    getEditor()->runAction(CallFuncExt::create([state] {
-        ScrollableObjectsToggledEvent().send(state);
-    }));
+    alpha::editor_tabs::reloadAllModes();
+    ScrollableObjectsToggledEvent().send(state);
+
     return true;
 }
 
@@ -52,43 +61,34 @@ void ScrollableObjects::onEditor() {
     if (leftSpacerLine) leftSpacerLine->setZOrder(11);
     if (rightSpacerLine) rightSpacerLine->setZOrder(11);
 
-    if (!m_callbacksAdded) {
-        m_callbacksAdded = true;
-        alpha::editor_tabs::addTabSwitchCallback([this] (auto tab) {
-            if (!ScrollableObjects::isEnabled()) return;
+    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [] (alpha::editor_tabs::Tab* tab, bool show) {
+        if (!ScrollableObjects::isEnabled() || !show) return;
+        
+        auto node = tab->getNode();
+        if (!node) return;
 
-            auto nodeRes = alpha::editor_tabs::nodeForTab(tab);
-            if (!nodeRes) return;
-            
-            auto node = nodeRes.unwrap();
-            auto ebb = typeinfo_cast<EditButtonBar*>(node.data());
+        auto scrollEbb = static_cast<SOEditButtonBar*>(node);
+        auto scrollEbbFields = scrollEbb->m_fields.self();
 
-            if (!ebb) return;
+        if (!scrollEbbFields->m_scrollLayer) return;
+        scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
+    });
 
-            auto scrollEbb = static_cast<SOEditButtonBar*>(ebb);
-            auto scrollEbbFields = scrollEbb->m_fields.self();
+    addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [] (alpha::editor_tabs::Mode* mode, bool show) {
+        if (!ScrollableObjects::isEnabled() || !show) return;
+        
+        auto tab = mode->getCurrentTab();
+        if (!tab) return;
 
-            if (!scrollEbbFields->m_scrollLayer) return;
-            scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
-        });
+        auto node = tab->getNode();
+        if (!node) return;
 
-        alpha::editor_tabs::addModeSwitchCallback([] (auto mode) {
-            if (!ScrollableObjects::isEnabled()) return;
+        auto scrollEbb = static_cast<SOEditButtonBar*>(node);
+        auto scrollEbbFields = scrollEbb->m_fields.self();
 
-            auto nodeRes = alpha::editor_tabs::nodeForTab(alpha::editor_tabs::getCurrentTab().unwrapOrDefault());
-            if (!nodeRes) return;
-            
-            auto node = nodeRes.unwrap();
-            auto ebb = typeinfo_cast<EditButtonBar*>(node.data());
-
-            if (!ebb) return;
-            auto scrollEbb = static_cast<SOEditButtonBar*>(ebb);
-            auto scrollEbbFields = scrollEbb->m_fields.self();
-
-            if (!scrollEbbFields->m_scrollLayer) return;
-            scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
-        });
-    }
+        if (!scrollEbbFields->m_scrollLayer) return;
+        scrollEbb->cull(scrollEbbFields, scrollEbbFields->m_scrollLayer->getScrollPoint().x);
+    });
 
     getEditor()->runAction(CallFuncExt::create([this] {
         auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
@@ -108,30 +108,25 @@ void ScrollableObjects::onEditor() {
             fields->m_groupsTogglesMenu->removeFromParent();
         }
 
-        for (auto tab : alpha::editor_tabs::getAllTabs().unwrap()) {
-            auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(tab));
-            if (!bar) continue;
-
-            bar->setPositionY(0);
-
-            if (tinker::utils::getMod<"razoom.object_groups">()) {
-                if (bar->m_hasCreateItems && bar->m_tabIndex != 13) {
-                    if (fields->m_groupsGotoObjectsButton) {
-                        auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_findObject.png", 0.78f, [this, fields] (auto sender) {
-                            fields->m_groupsGotoObjectsButton->activate();
-                        });
-                        bar->addToExtrasMenu(newBtn);
-                    }
-                    if (fields->m_groupsTogglesButton) {
-                        auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_editMode.png", 0.78f, [this, fields] (auto sender) {
-                            fields->m_groupsTogglesButton->activate();
-                        });
-                        bar->addToExtrasMenu(newBtn);
-                    }
-                }
+        for (const auto& tab : alpha::editor_tabs::getAllTabs()) {
+            auto bar = static_cast<SOEditButtonBar*>(tab->getNode());
+            if (!bar || !tinker::utils::mod::getMod<"razoom.object_groups">() 
+                || !bar->m_hasCreateItems || bar->m_tabIndex == 13) {
+                continue;
             }
 
-            bar->reloadItems(cols, rows);
+            if (fields->m_groupsGotoObjectsButton) {
+                auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_findObject.png", 0.78f, [this, fields] (auto sender) {
+                    fields->m_groupsGotoObjectsButton->activate();
+                });
+                bar->addToExtrasMenu(newBtn);
+            }
+            if (fields->m_groupsTogglesButton) {
+                auto newBtn = CCMenuItemExt::createSpriteExtraWithFilename("razoom.object_groups/OG_button_editMode.png", 0.78f, [this, fields] (auto sender) {
+                    fields->m_groupsTogglesButton->activate();
+                });
+                bar->addToExtrasMenu(newBtn);
+            }
         }
     }));
 
@@ -149,6 +144,33 @@ void ScrollableObjects::onEditor() {
 
         scrollLayer->setScrollX(nodePos.x - scrollLayer->getContentWidth() / 2, true);
     });
+
+    addEventListener("tab-loaded", alpha::editor_tabs::tab::TabLoadedEvent(), [this] (alpha::editor_tabs::Tab* tab, EditButtonBar* node) {        
+        auto bar = static_cast<SOEditButtonBar*>(node);
+        auto fields = bar->m_fields.self();
+
+        if (!fields->m_initialized) {
+            fields->m_wasItemless = tab->isItemless();
+            fields->m_hadAutoScale = tab->hasAutoScale();
+            fields->m_initialized = true;
+            if (!fields->m_wasItemless) {
+                tab->setItemless(true);
+                tab->setAutoScale(false);
+                bar->setupScrollable(tab);
+
+                if (bar->m_tabIndex == 13) {
+                    for (auto btn : getEditor()->m_customTabControls->asExt<CreateMenuItem>()) {
+                        btn->removeFromParent();
+                        bar->addToExtrasMenu(btn);
+                    }
+                }
+            }
+        }
+
+        if (!fields->m_wasItemless) {
+            bar->loadItems(tab->getRows());
+        }
+    });
 }
 
 bool ScrollableObjects::shouldLoadBars() {
@@ -163,22 +185,18 @@ bool ScrollableObjects::canScroll() {
     auto editorUI = EditorUI::get();
     if (!editorUI) return false;
 
-    auto mode = alpha::editor_tabs::getCurrentMode().unwrapOrDefault();
-    auto tab = alpha::editor_tabs::getCurrentTab().unwrapOrDefault();
+    auto mode = alpha::editor_tabs::getCurrentModeID();
+    auto tab = alpha::editor_tabs::getCurrentTabID();
 
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-
-    if (betterEdit && betterEdit->getSettingValue<bool>("new-edit-menu")) {
-        if (mode == alpha::editor_tabs::EDIT && tab == "edit") {
-            return true;
-        }
+    if (mode == alpha::editor_tabs::Edit && tab == "edit") {
+        return true;
     }
-    if (mode == alpha::editor_tabs::DELETE && tab == "delete") {
+    if (mode == alpha::editor_tabs::Delete && tab == "delete") {
         return true;
     }
 
     auto mousePos = getMousePos();
-    if (mousePos.y < tinker::utils::getToolbarHeight()) {
+    if (mousePos.y < tinker::utils::ui::getToolbarHeight()) {
         return false;
     }
 
@@ -187,24 +205,11 @@ bool ScrollableObjects::canScroll() {
 
 void SOEditorUI::updateCreateMenu(bool selectTab) {
     EditorUI::updateCreateMenu(selectTab);
-    auto cur = alpha::editor_tabs::getCurrentTab().unwrapOrDefault();
-
-    if (tinker::utils::getMod<"hjfod.betteredit">() && cur == "edit" && alpha::editor_tabs::getCurrentMode().unwrapOrDefault() == alpha::editor_tabs::EDIT) {
-        auto nodeRes = alpha::editor_tabs::nodeForTab(cur);
-        if (!nodeRes) return;
-
-        auto node = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(nodeRes.unwrap().data()));
-        auto fields = node->m_fields.self();
-        
-        for (auto child : fields->m_items) {
-            child->setVisible(true);
-        }
-    }
 
     if (selectTab) {
         CreateMenuItem* cmi = nullptr;
 
-        for (auto item : m_createButtonArray->asExt<CCNode>()) {
+        for (auto item : m_createButtonArray->asExt<EditButtonBar>()) {
             if (auto createMenuItem = typeinfo_cast<CreateMenuItem*>(item)) {
                 if (createMenuItem->getUserFlag("search-item"_spr)) continue;
                 if (createMenuItem->m_objectID == m_selectedObjectIndex) {
@@ -218,6 +223,7 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
 
         auto menu = cmi->getParent();
         if (!menu) return;
+
         auto content = typeinfo_cast<alpha::ui::ScrollContent*>(menu->getParent());
         if (!content) return;
 
@@ -231,433 +237,245 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
     }
 }
 
-void SOEditorUI::reloadTabsSafe() {
-    runAction(CallFuncExt::create([this] {
-        float toolbarOffset = 0.f;
-        if (StatusBar::get()) {
-            toolbarOffset = StatusBar::get()->m_toolbarOffset;
-        }
-
-        for (auto c : CCArrayExt<CCNode*>(getChildren())) {
-            if (auto bar = typeinfo_cast<EditButtonBar*>(c)) {
-                auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-                auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-                bar->reloadItems(cols, rows);
-                bar->setPositionY(toolbarOffset);
-            }
-        }
-    }));
-}
-
-EditButtonBar* SOEditButtonBar::create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows) {
-    auto ret = EditButtonBar::create(objects, position, tab, hasCreateItems, columns, rows);
-    ret->setUserFlag("alphalaneous.editortab_api/disable-rewrite");
-    return ret;
-}
-
-void SOEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int columns, int rows, bool keepPage) {
+void SOEditButtonBar::setupScrollable(alpha::editor_tabs::Tab* tab) {
     auto fields = m_fields.self();
 
-    if (!m_pagesArray) {
-        m_pagesArray = CCArray::create();
-        m_pagesArray->retain();
-    }
+    fields->m_tab = tab;
 
-    if (m_scrollLayer) {
-        m_scrollLayer->removeFromParent();
-    }
-    m_scrollLayer = BoomScrollLayer::create(m_pagesArray, 0, false);
-    m_scrollLayer->m_pages->addObject(CCNode::create());
-    fields->m_dummyScrollLayer = m_scrollLayer;
+    fields->m_container = CCNode::create();
+    fields->m_container->setAnchorPoint({0.5f, 0.5f});
 
-    objects->retain();
+    addChild(fields->m_container);
 
-    if (m_buttonArray) {
-        m_buttonArray->release();
-    }
-    if (auto menu = getChildByType<CCMenu>(0)) {
-        menu->removeFromParent();
-    }
+    fields->m_objectsMenu = CCMenu::create();
+    fields->m_objectsMenu->setAnchorPoint({0.f, 0.f});
+    fields->m_objectsMenu->ignoreAnchorPointForPosition(false);
+    fields->m_objectsMenu->setPosition({0.f, 0.f});
+    fields->m_objectsMenu->setID("items-menu"_spr);
 
-    m_buttonArray = objects;
-    if (objects->count() > 0) {
-        fields->m_items.clear();
-    }
+    fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(getContentSize(), [this, fields](CCNode* content, const CCPoint& scroll) {
+        cull(fields, scroll.x);
+    });
 
-    setUserFlag("alphalaneous.editortab_api/disable-rewrite");
-    auto editorUI = EditorUI::get();
-    if (!editorUI || !ScrollableObjects::get()->shouldLoadBars() || fields->m_loading) return;
+    fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
+    fields->m_scrollLayer->setHorizontalScroll(true);
+    fields->m_scrollLayer->setVerticalScrollWheel(false);
+    fields->m_scrollLayer->setHorizontalScrollWheel(false);
+    fields->m_scrollLayer->setVerticalScroll(false);
+    fields->m_scrollLayer->setTouchPriority(-130);
+    fields->m_scrollLayer->setID("buttons-scroll-layer"_spr);
+    fields->m_scrollLayer->setScrollDelta(1.5f GEODE_MOBILE(+ 1.f));
 
-    float currentX = 0.f;
-    fields->m_loading = true;
+    fields->m_scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_scrollLayer, alpha::ui::ScrollOrientation::HORIZONTAL);
+    fields->m_scrollBar->setID("buttons-scroll-bar"_spr);
 
-    if (fields->m_objectsMenu) {
-        fields->m_objectsMenu->removeFromParent();
-    }
-    if (fields->m_scrollBar) {
-        fields->m_scrollBar->removeFromParent();
-    }
-    if (fields->m_scrollLayer) {
-        currentX = fields->m_scrollLayer->getScrollPoint().x;
-        fields->m_scrollLayer->removeFromParent();
-    }
-    if (fields->m_extrasMenu) {
-        fields->m_extrasMenu->removeFromParent();
-    }
-    if (fields->m_extrasMenuContainer) {
-        fields->m_extrasMenuContainer->removeFromParent();
-    }
-    if (fields->m_separator) {
-        fields->m_separator->removeFromParent();
-    }
+    fields->m_container->addChild(fields->m_scrollLayer);
+    fields->m_container->addChild(fields->m_scrollBar);
 
-    setScale(UIScaling::getToolbarScale());
+    fields->m_scrollLayer->getContentLayer()->addChild(fields->m_objectsMenu);
 
-    runAction(CallFuncExt::create([this, fields, editorUI, rows, objects, currentX] {
-        fields->m_widthOffset = 0.f;
+    createExtrasMenu();
 
-        if (m_tabIndex == 13 || !fields->m_extrasButtons.empty()) {
-            fields->m_widthOffset = -26.f;
-        }
+    addEventListener("update-ui-event"_spr, alpha::editor_tabs::tab::UpdateTabUIEvent(tab), [this] (EditButtonBar* node) {
+        updateBar();
+    });
 
-        setAnchorPoint({0.5f, 0.f});
-
-        fields->m_initialized = true;
-
-        auto spacerLeft = editorUI->getChildByID("spacer-line-left");
-        auto spacerRight = editorUI->getChildByID("spacer-line-right");
-
-        float leftPos = spacerLeft->getPositionX();
-        float widthOffset = leftPos + (editorUI->getContentWidth() - spacerRight->getPositionX());
-        auto contentWidth = editorUI->getContentWidth() - widthOffset;
-
-        if (ImprovedEditTab::isEnabled() && this == editorUI->m_editButtonBar) {
-            leftPos += ImprovedEditTab::get()->getOffset();
-            contentWidth = (editorUI->getContentWidth() - widthOffset) - ImprovedEditTab::get()->getOffset();
-        }
-
-        auto size = CCSize{contentWidth / getScale(), tinker::constants::ToolbarHeight};
-        setContentSize(size);
-
-        float toolbarOffset = 0.f;
-        if (StatusBar::get()) {
-            toolbarOffset = StatusBar::get()->m_toolbarOffset;
-        }
-
-        float x = (leftPos + spacerRight->getPositionX()) / 2.f;
-        setPosition({x, toolbarOffset});
-
-        auto dots = getChildByID("alphalaneous.editortab_api/dots");
-        if (dots) {
-            dots->setVisible(false);
-        }
-
-        float scrollHeight = ScrollableObjects::getSetting<float, "scrollbar-height">();
-        float scrollPadding = 2.f;
-        float topPadding = 6.f;
-        float bottomPadding = ScrollableObjects::getSetting<float, "y-offset">();
-
-        auto newSize = CCSize{size.width + fields->m_widthOffset, size.height - scrollHeight - scrollPadding - bottomPadding - topPadding};
-
-        float gap = 5.f;
-        float height = rows * (40.f + gap) - gap; 
-
-        float scale = (newSize.height) / height;
-        fields->m_rows = rows;
-        
-        fields->m_objectsMenu = CCMenu::create();
-        fields->m_objectsMenu->setContentSize({newSize.width, height});
-        fields->m_objectsMenu->setScale(scale);
-        fields->m_objectsMenu->setAnchorPoint({0.f, 0.f});
-        fields->m_objectsMenu->setPosition({0.f, 0.f});
-        fields->m_objectsMenu->setID("items-menu"_spr);
-
-        std::vector<Ref<CreateMenuItem>> customControls;
-
-        int rIdx = objects->count();
-
-        int rowIdx = 0;
-        int colIdx = 0;
-
-        float width = 0.f;
-
-        for (auto object : objects->asExt<CCNode>()) {
-            rIdx--;
-            object->removeFromParentAndCleanup(false);
-            object->setScale(1);
-            object->setVisible(true);
-
-            if (m_hasCreateItems) {
-                auto cmi = static_cast<CreateMenuItem*>(object);
-                cmi->m_tabIndex = m_tabIndex;
-                cmi->m_baseScale = 1.f;
-            }
-            else if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
-                item->m_baseScale = 1.f;
-            }
-
-            if (m_tabIndex == 13 && rIdx < 4) {
-                customControls.push_back(static_cast<CreateMenuItem*>(object));
-                continue;
-            }
-
-            object->setPosition({object->getContentWidth() / 2.f + (object->getContentWidth() + gap) * colIdx, fields->m_objectsMenu->getContentHeight() - object->getContentHeight() / 2.f - (object->getContentHeight() + gap) * rowIdx});
-
-            if (rowIdx == 0) {
-                width += object->getContentWidth() + gap;
-            }
-
-            fields->m_objectsMenu->addChild(object);
-            fields->m_items.push_back(object);
-
-            rowIdx++;
-            if (rowIdx == rows) {
-                rowIdx = 0;
-                colIdx++;
-            }
-        }
-
-        width -= gap;
-
-        fields->m_objectsMenu->setContentSize({width, height});
-        float heightOffset = 10.f;
-
-        fields->m_scrollLayer = alpha::ui::AdvancedScrollLayer::create(newSize + CCSize{0.f, heightOffset});
-        fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight - heightOffset / 2.f});
-        fields->m_scrollLayer->setAnchorPoint({0.f, 0.f});
-        fields->m_scrollLayer->setHorizontalScroll(true);
-        fields->m_scrollLayer->setVerticalScrollWheel(false);
-        fields->m_scrollLayer->setHorizontalScrollWheel(false);
-        fields->m_scrollLayer->setVerticalScroll(false);
-        fields->m_scrollLayer->setTouchPriority(-130);
-        fields->m_scrollLayer->setID("buttons-scroll-layer"_spr);
-        #ifdef GEODE_IS_MOBILE
-        fields->m_scrollLayer->setScrollDelta(2.5f);
-        #else
-        fields->m_scrollLayer->setScrollDelta(1.5f);
-        #endif
-        
-        fields->m_scrollLayer->setCullingMethod([this, fields](CCNode* content, const CCPoint& scroll) {
-            cull(fields, scroll.x);
-        });
-
-        fields->m_scrollLayout = RowLayout::create();
-        fields->m_scrollLayout->setAutoScale(false);
-        fields->m_scrollLayout->setAutoGrowAxis(fields->m_scrollLayer->getContentWidth());
-        fields->m_scrollLayout->ignoreInvisibleChildren(false);
-        fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Start);
-        fields->m_scrollLayout->setCrossAxisLineAlignment(AxisAlignment::End);
-        fields->m_scrollLayout->setPadding({10.f, heightOffset / 2.f, 10.f, heightOffset / 2.f});
-
-        fields->m_scrollLayout->setGap(0);
-        fields->m_scrollLayer->setLayout(fields->m_scrollLayout);
-
-        fields->m_scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_scrollLayer, alpha::ui::ScrollOrientation::HORIZONTAL);
-        fields->m_scrollBar->setContentWidth(scrollHeight);
-        fields->m_scrollBar->setContentHeight(newSize.width - 10.f);
-        fields->m_scrollBar->setPosition({fields->m_scrollBar->getPosition().x, bottomPadding + scrollHeight / 2.f});
-        fields->m_scrollBar->setID("buttons-scroll-bar"_spr);
-
-        addChild(fields->m_scrollLayer);
-        addChild(fields->m_scrollBar);
-
-        fields->m_scrollLayer->getContentLayer()->addChild(fields->m_objectsMenu);
-
-        fields->m_scrollLayer->getContentLayer()->updateLayout();
-
-        fields->m_scrollLayer->setScrollX(currentX);
-
-        float btnWidth = 40.f + gap;
-        fields->m_cols = std::ceil((fields->m_scrollLayer->getContentWidth() / fields->m_objectsMenu->getScale()) / btnWidth);
-
-        bool larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
-
-        bool editTabBar = getID() == "edit-tab-bar";
-
-        if ((!larger && m_tabIndex != 13) || editTabBar) {
-
-            AxisLayout* layout = nullptr;
-
-            if (!editTabBar) {
-                fields->m_objectsMenu->setContentWidth((fields->m_scrollLayer->getContentWidth() - 20.f) / scale);
-                fields->m_scrollLayer->setHorizontalScroll(false);
-                layout = RowLayout::create();
-            }
-            else {
-                fields->m_editTab = true;
-                layout = ColumnLayout::create();
-            }
-            
-            fields->m_scrollLayout->setAxisAlignment(AxisAlignment::Center);
-            
-            layout->setAutoScale(false);
-            layout->setGrowCrossAxis(true);
-            layout->ignoreInvisibleChildren(false);
-            layout->setGap(gap);
-            layout->setAxis(Axis::Row);
-            layout->setAutoGrowAxis(std::nullopt);
-            layout->setAxisReverse(false);
-            layout->setCrossAxisReverse(false);
-            layout->setAxisAlignment(AxisAlignment::Start);
-
-            fields->m_objectsMenu->setLayout(layout);
-
-            float maxX = 0.f;
-
-            for (auto child : fields->m_objectsMenu->getChildrenExt()) {
-                auto bb = child->boundingBox();
-                if (bb.getMaxX() > maxX) maxX = bb.getMaxX();
-            }
-
-            fields->m_objectsMenu->setContentWidth(maxX);
-
-            fields->m_scrollLayer->updateLayout();
-
-            larger = fields->m_scrollLayer->getContentLayer()->getScaledContentWidth() > fields->m_scrollLayer->getContentWidth();
-        }
-
-        fields->m_scrollBar->setVisible(larger);
-
-        createExtrasMenu();
-
-        if (m_tabIndex == 13) {
-            fields->m_separator->setVisible(true);
-
-            for (const auto& item : customControls) {
-                item->removeFromParent();
-                fields->m_extrasMenu->addChild(item);
-            }
-            fields->m_extrasMenu->updateLayout();
-        }
-        else {
-            if (!fields->m_extrasButtons.empty()) {
-                fields->m_separator->setVisible(true);
-            }
-
-            for (const auto& item : fields->m_extrasButtons) {
-                item->removeFromParent();
-                fields->m_extrasMenu->addChild(item);
-            }
-            fields->m_extrasMenu->updateLayout();
-        }
-
-        fields->m_world = alpha::utils::rectToWorld(fields->m_scrollLayer);
-        fields->m_loading = false;
-
-        cull(fields, fields->m_scrollLayer->getScrollPoint().x);
-    }));
+    updateBar();
 }
 
-void SOEditButtonBar::revertChanges() {
+void SOEditButtonBar::revertScrollable() {
     auto fields = m_fields.self();
 
-    if (fields->m_objectsMenu) {
-        fields->m_objectsMenu->removeFromParent();
-    }
-    if (fields->m_scrollBar) {
-        fields->m_scrollBar->removeFromParent();
-    }
-    if (fields->m_scrollLayer) {
-        fields->m_scrollLayer->removeFromParent();
-    }
-    if (fields->m_extrasMenu) {
-        fields->m_extrasMenu->removeFromParent();
-    }
-    if (fields->m_extrasMenuContainer) {
-        fields->m_extrasMenuContainer->removeFromParent();
-    }
-    if (fields->m_separator) {
-        fields->m_separator->removeFromParent();
+    removeEventListener("update-ui-event"_spr);
+
+    if (fields->m_container) {
+        fields->m_container->removeFromParent();
     }
 
-    for (const auto& item : fields->m_items) {
-        item->setVisible(true);
-    }
+    fields->m_container = nullptr;
+    fields->m_scrollBar = nullptr;
+    fields->m_scrollLayer = nullptr;
+    fields->m_objectsMenu = nullptr;
 
-    m_scrollLayer = nullptr;
-    fields->m_dummyScrollLayer = nullptr;
-    fields->m_scrollLayout = nullptr;
-    fields->m_extrasLayout = nullptr;
-    fields->m_items.clear();
+    fields->m_columns.clear();
     fields->m_visibleNodes.clear();
-    fields->m_extrasButtons.clear();
     fields->m_initialized = false;
-    fields->m_loading = false;
     fields->m_widthOffset = 0.f;
     fields->m_rows = 0;
     fields->m_cols = 0;
 
-    setUserFlag("alphalaneous.editortab_api/disable-rewrite", false);
+    if (!fields->m_wasItemless) {
+        fields->m_tab->setItemless(false);
+        fields->m_tab->setAutoScale(fields->m_hadAutoScale);
+    }
+
+    fields->m_hadAutoScale = false;
+    fields->m_wasItemless = false;
+    fields->m_tab = nullptr;
+}
+
+void SOEditButtonBar::loadItems(int rows) {
+    auto fields = m_fields.self();
+    fields->m_rows = rows;
+
+    fields->m_visibleNodes.clear();
+
+    fields->m_objectsMenu->removeAllChildren();
+    for (auto object : m_buttonArray->asExt<CCNode>()) {
+        if (m_tabIndex == 13 && MainEditorUI::get()->m_customTabControls->containsObject(object)) {
+            continue;
+        }
+        object->removeFromParent();
+    }
+
+    updateBar();
+}
+
+void SOEditButtonBar::updateBar() {
+    auto fields = m_fields.self();
+
+    auto size = getContentSize();
+    size.width += 6.f;
+
+    fields->m_container->setContentSize(size);
+
+    float scrollHeight = ScrollableObjects::getSetting<float, "scrollbar-height">();
+    float bottomPadding = ScrollableObjects::getSetting<float, "y-offset">();
+    float scrollPadding = 2.f;
+    float topPadding = 6.f;
+
+    auto newSize = CCSize{size.width + fields->m_widthOffset, size.height - scrollHeight - scrollPadding - bottomPadding - topPadding};
+
+    float gap = 5.f;
+    float buttonSize = 40.f;
+    float buttonSizeGap = buttonSize + gap;
+
+    float height = fields->m_rows * buttonSizeGap - gap; 
+    float scale = newSize.height / height;
+    float menuPadding = 10.f;
+
+    fields->m_cols = std::floor(((newSize.width - menuPadding * 2.f) / scale) / buttonSizeGap);
+
+    int totalCols = std::max(static_cast<int>(std::ceil(m_buttonArray->count() / static_cast<float>(fields->m_rows))), fields->m_cols);
+
+    float width = totalCols * buttonSizeGap - gap;
+
+    fields->m_scrollLayer->getContentLayer()->setContentSize({std::max(width * scale + menuPadding * 2.f, newSize.width), size.height - 10.f});
+
+    bool isSmall = fields->m_scrollLayer->getContentLayer()->getContentWidth() <= newSize.width;
+    bool horizontalSort = isSmall || getID() == "edit-tab-bar";
+
+    fields->m_objectsMenu->setScale(scale);
+    fields->m_objectsMenu->setContentSize({width, height});
+    fields->m_objectsMenu->setPosition({menuPadding, 5.f});
+
+    fields->m_extrasMenuContainer->setPosition({size.width - 2.5f, size.height / 2.f});
+    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5.f, size.height - 10.f});
+
+    fields->m_extrasMenu->setContentSize(fields->m_extrasMenuContainer->getContentSize());
+    fields->m_extrasMenu->updateLayout();
+
+    fields->m_scrollLayer->setContentSize(newSize + CCSize{0.f, 10.f});
+    fields->m_scrollLayer->setPosition({0.f, scrollPadding + bottomPadding + scrollHeight - 10.f / 2.f});
+
+    fields->m_scrollBar->setContentSize({scrollHeight, newSize.width - 10.f});
+    fields->m_scrollBar->setPosition({fields->m_scrollLayer->boundingBox().getMidX(), bottomPadding + scrollHeight / 2.f});
+
+    fields->m_separator->setPosition({newSize.width, size.height / 2.f});
+
+    fields->m_scrollBar->setVisible(!isSmall);
+    fields->m_scrollLayer->setHorizontalScroll(!isSmall);
+
+    fields->m_columns.clear();
+
+    int rowIdx = 0;
+    int colIdx = 0;
+
+    for (auto object : m_buttonArray->asExt<CCNode>()) {
+        if (m_tabIndex == 13 && MainEditorUI::get()->m_customTabControls->containsObject(object)) {
+            continue;
+        }
+
+        object->setScale(1.f);
+
+        fields->m_columns[colIdx * buttonSizeGap].push_back(object);
+
+        if (m_hasCreateItems) {
+            auto cmi = static_cast<CreateMenuItem*>(object);
+            cmi->m_tabIndex = m_tabIndex;
+            cmi->m_baseScale = 1.f;
+        }
+        else if (auto item = typeinfo_cast<CCMenuItemSpriteExtra*>(object)) {
+            item->m_baseScale = 1.f;
+        }
+
+        object->setPosition({buttonSizeGap * colIdx + buttonSize / 2.f, height - buttonSize / 2.f - buttonSizeGap * rowIdx});
+        
+        if (horizontalSort) {
+            colIdx++;
+            if (colIdx == totalCols) {
+                colIdx = 0;
+                rowIdx++;
+            }
+        }
+        else {
+            rowIdx++;
+            if (rowIdx == fields->m_rows) {
+                rowIdx = 0;
+                colIdx++;
+            }
+        }
+    }
+
+    fields->m_scrollLayer->forceCull();
 }
 
 void SOEditButtonBar::cull(SOEditButtonBar::Fields* fields, float x) {
     if (!fields->m_initialized) return;
 
+    auto visibleNodesCopy = fields->m_visibleNodes;
+
     auto& visibleNodes = fields->m_visibleNodes;
     visibleNodes.clear();
 
-    if (tinker::utils::getMod<"hjfod.betteredit">() && alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "edit" && alpha::editor_tabs::getCurrentMode().unwrapOrDefault() == alpha::editor_tabs::EDIT) {
-        for (auto child : fields->m_items) {
-            child->setVisible(true);
-            visibleNodes.push_back(child);
-        }
-        return;
-    }
+    static constexpr float ColumnWidth = 45.f;
 
-    if (fields->m_objectsMenu->getChildrenCount() <= fields->m_rows * fields->m_cols) {
-        for (auto child : fields->m_objectsMenu->getChildrenExt()) {
-            child->setVisible(true);
-            visibleNodes.push_back(child);
-            if (ObjectSearch::isEnabled()) {
-                auto cmi = typeinfo_cast<CreateMenuItem*>(child);
-                if (cmi) {
-                    auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
-                    oCmi->loadObject();
-                }
+    float adjustedX = x / fields->m_objectsMenu->getScale();
+    int pos = std::floor(adjustedX / ColumnWidth);
+
+    // start at -1 due to padding
+    // +1 col for partial and +1 col due to padding
+    for (int i = -1; i < fields->m_cols + 2; i++) {
+        float x = ColumnWidth * (pos + i);
+
+        auto it = fields->m_columns.find(x);
+        if (it == fields->m_columns.end()) continue;
+
+        auto& column = it->second;
+
+        for (auto node : column) {
+            auto it = visibleNodesCopy.find(node);
+
+            if (it == visibleNodesCopy.end()) {
+                fields->m_objectsMenu->addChild(node);
             }
-        }
-        return;
-    }
-
-    float scaledX = x / fields->m_objectsMenu->getScale();
-    float visibleUntilX = -1.0f;
-
-    int idx = 0;
-    for (auto child : fields->m_objectsMenu->getChildrenExt()) {
-        bool visible;
-
-        if ((visibleUntilX == -1.f && idx % fields->m_rows == 0) || fields->m_editTab) {
-            visible = child->getPositionX() + child->getContentWidth() > scaledX;
-
-            if (visible) visibleUntilX = (child->getPositionX() + 45.f * fields->m_cols - 5.f) + child->getContentWidth() / 2.f;
-
-        } else {
-            visible = child->getPositionX() < visibleUntilX;
-        }
-
-        child->setVisible(visible);
-
-        if (visible) {
-            visibleNodes.push_back(child);
-            if (ObjectSearch::isEnabled()) {
-                auto cmi = typeinfo_cast<CreateMenuItem*>(child);
-                if (cmi) {
-                    auto oCmi = static_cast<OSCreateMenuItem*>(cmi);
-                    oCmi->loadObject();
-                }
+            else {
+                visibleNodesCopy.erase(it);
             }
+
+            visibleNodes.insert(node);
+
+            if (!ObjectSearch::isEnabled()) continue;
+
+            auto cmi = static_cast<OSCreateMenuItem*>(typeinfo_cast<CreateMenuItem*>(node));
+            if (!cmi) continue;
+            
+            cmi->loadObject();
         }
-
-        ++idx;
     }
-}
 
-void SOEditButtonBar::clearExtrasMenu() {
-    auto fields = m_fields.self();
-    fields->m_extrasButtons.clear();
-    if (fields->m_extrasMenu) {
-        fields->m_extrasMenu->removeAllChildren();
+    for (const auto& node : visibleNodesCopy) {
+        node->removeFromParent();
     }
 }
 
@@ -666,20 +484,17 @@ void SOEditButtonBar::createExtrasMenu() {
     if (!fields->m_initialized) return;
     
     fields->m_extrasMenuContainer = CCNode::create();
-    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2.f});
-    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
     fields->m_extrasMenuContainer->setAnchorPoint({1.f, 0.5f});
     fields->m_extrasMenuContainer->ignoreAnchorPointForPosition(false);
     fields->m_extrasMenuContainer->setID("extras-menu-container"_spr);
 
     fields->m_extrasMenu = CCMenu::create();
     fields->m_extrasMenu->setPosition({0.f, 0.f});
-    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
     fields->m_extrasMenu->setAnchorPoint({0.f, 0.f});
     fields->m_extrasMenu->ignoreAnchorPointForPosition(false);
     fields->m_extrasMenu->setID("extras-menu"_spr);
 
-    addChild(fields->m_extrasMenuContainer);
+    fields->m_container->addChild(fields->m_extrasMenuContainer);
 
     fields->m_extrasLayout = ColumnLayout::create();
     fields->m_extrasLayout->setAxisReverse(true);
@@ -697,66 +512,40 @@ void SOEditButtonBar::createExtrasMenu() {
 
     fields->m_separator = CCSprite::createWithSpriteFrameName("edit_vLine_001.png");
     fields->m_separator->setZOrder(11);
-    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
     fields->m_separator->setVisible(false);
+    fields->m_separator->setID("extras-separator"_spr);
 
-    addChild(fields->m_separator);
-}
-
-void SOEditButtonBar::updateScrollSize() {
-    auto fields = m_fields.self();
-
-    fields->m_extrasMenuContainer->setPosition({getContentWidth() - 2.5f, getContentHeight() / 2.f});
-    fields->m_extrasMenuContainer->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
-
-    fields->m_extrasMenu->setContentSize({-fields->m_widthOffset - 5.f, getContentHeight() - 10.f});
-
-    auto size = fields->m_scrollLayer->getContentSize() + CCSize{fields->m_widthOffset, -18.f};
-
-    fields->m_scrollLayer->setContentWidth(size.width);
-    fields->m_scrollBar->setContentHeight(size.width - 10.f);
-
-    fields->m_scrollBar->setPositionX(fields->m_scrollLayer->getContentWidth() / 2.f);
-
-    fields->m_separator->setPosition({fields->m_scrollLayer->getContentWidth(), getContentHeight() / 2.f});
-
-    fields->m_extrasMenu->updateLayout();
+    fields->m_container->addChild(fields->m_separator);
 }
 
 void SOEditButtonBar::addToExtrasMenu(CCMenuItemSpriteExtra* button) {
-    if (m_tabIndex == 13) return;
-
     auto fields = m_fields.self();
     
-    fields->m_extrasButtons.push_back(button);
     fields->m_widthOffset = -26.f;
 
     if (!fields->m_initialized) return;
 
     fields->m_separator->setVisible(true);
-
     fields->m_extrasMenu->addChild(button);
 
-    updateScrollSize();
+    updateBar();
 }
 
 void SOEditButtonBar::removeFromExtrasMenu(CCMenuItemSpriteExtra* button) {
     if (!button) return;
     
     auto fields = m_fields.self();
-    bool wasEmpty = fields->m_extrasButtons.empty();
-
-    fields->m_extrasButtons.erase(std::find(fields->m_extrasButtons.begin(), fields->m_extrasButtons.end(), button));
-
     if (!fields->m_initialized) return;
 
     button->removeFromParent();
 
-    if (fields->m_extrasButtons.empty() && !wasEmpty) {
+    fields->m_extrasMenu->updateLayout();
+
+    if (fields->m_extrasMenu->getChildrenCount() == 0) {
         fields->m_separator->setVisible(false);
         fields->m_scrollLayer->setContentWidth(fields->m_scrollLayer->getContentWidth() - fields->m_widthOffset);
         fields->m_widthOffset = 0.f;
-        updateScrollSize();
+        updateBar();
     }
 }
 
@@ -766,10 +555,6 @@ void SOEditButtonBar::removeFromExtrasMenu(ZStringView ID) {
 
     auto btn = fields->m_extrasMenu->getChildByID(ID);
     removeFromExtrasMenu(static_cast<CCMenuItemSpriteExtra*>(btn));
-}
-
-void SOEditButtonBar::goToPage(int page) {
-    // does nothing now
 }
 
 void SOEditorOptionsLayer::setupOptions() {
@@ -823,7 +608,7 @@ void SOEditorOptionsLayer::onClose(cocos2d::CCObject* sender) {
 
     auto editorUI = static_cast<SOEditorUI*>(EditorUI::get());
     if (editorUI->m_reloadItems) {
-        editorUI->reloadTabsSafe();
+        alpha::editor_tabs::reloadAllModes();
     }
     editorUI->m_reloadItems = false;
 }
@@ -832,12 +617,15 @@ class $nodeModify(SOGroup, Group) {
 
     // to kinda match Object Groups implementation
     float getTabScale() {
-        if (auto someBar = EditorUI::get()->getChildByID("pixel-tab-bar")) {
-            if (auto menu = someBar->getChildByIDRecursive("alphalaneous.tinker/items-menu")) {
-                return someBar->getScale() * menu->getScale();
-            }
-        }
-        return 0.8f;
+        auto editor = EditorUI::get();
+        auto pixelBar = editor->getChildByID("pixel-tab-bar");
+        if (!pixelBar) return 0.8f;
+
+        auto soBar = modify_cast<SOEditButtonBar*>(pixelBar);
+        auto menu = soBar->m_fields->m_objectsMenu;
+        if (!menu) return 0.8f;
+
+        return pixelBar->getScale() * menu->getScale();
     }
 
     void modify() {
@@ -850,7 +638,7 @@ class $nodeModify(SOGroup, Group) {
             if (!getParent()) return;
 
             if (auto node = exact_cast<CCNode*>(getParent())) {
-                setScale(1);
+                setScale(1.f);
                 if (auto node = EditorUI::get()->getChildByID("razoom.object_groups/pinned-groups")) {
                     node->setScale(getTabScale());
                 }
@@ -889,26 +677,5 @@ class $nodeModify(SOMoveGroup, MoveGroup) {
                 node->setVisible(true);
             }
         }));
-    }
-};
-
-// betteredit is a meanyhead
-class $nodeModify(SOCustomEditMenu, CustomEditMenu) {
-
-    void modify() {
-        if (!ScrollableObjects::isEnabled()) return;
-        schedule(schedule_selector(SOCustomEditMenu::ensureVisible));
-    }
-
-    void ensureVisible(float dt) {        
-        for (auto node : getChildrenExt()) {
-            if (node->getChildrenCount() <= 2 || !typeinfo_cast<CCMenu*>(node)) continue;
-
-            for (auto btn : node->getChildrenExt()) {
-                btn->setVisible(true);
-            }
-            node->updateLayout();
-            unschedule(schedule_selector(SOCustomEditMenu::ensureVisible));
-        }
     }
 };

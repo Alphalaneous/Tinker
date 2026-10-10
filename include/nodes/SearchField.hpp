@@ -1,7 +1,18 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/cocoa/CCArray.h>
+#include <Geode/ui/Button.hpp>
+#include <Geode/ui/NineSlice.hpp>
+#include <Geode/ui/TextInput.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/Result.hpp>
+#include <Geode/binding/CCTextInputNode.hpp>
+#include <Geode/binding/CreateMenuItem.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/binding/TextInputDelegate.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <string>
 
 using namespace geode::prelude;
 using namespace alpha::prelude;
@@ -13,10 +24,9 @@ namespace tinker::ui {
     public:
         struct ItemInformation {
             Ref<CreateMenuItem> item;
-            std::string name;
             int id;
             int tabIndex;
-            Ref<CreateMenuItem> origItem;
+            std::string name;
         };
         
         ~SearchField();
@@ -40,6 +50,7 @@ namespace tinker::ui {
 
         virtual bool clickBegan(TouchEvent* touch) override;
 
+        ZStringView nameForInfo(ItemInformation& item);
         CCArray* generateItemArrayForSearch(const std::string& search);
     protected:
 

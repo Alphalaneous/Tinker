@@ -1,6 +1,9 @@
 #pragma once
 
 #include "utils/next-free/NextFreeProvider.hpp"
+#include <Geode/binding/GameObject.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <unordered_set>
 
 class EditorLayerSource : public NextFreeSource {
 public:

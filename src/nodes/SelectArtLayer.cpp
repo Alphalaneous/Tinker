@@ -1,7 +1,7 @@
 #include "nodes/SelectArtLayer.hpp"
 #include "nodes/ColorChannelSprite.hpp"
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
 
 namespace tinker::ui {
 
@@ -325,11 +325,11 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
 void SelectArtLayer::updateColors() {
     auto lineAction = m_editorLayer->m_levelSettings->m_effectManager->getColorAction(constants::color_channels::Line);
 
-    m_stylePreview->updateBGColor(tinker::utils::getRealizedColor(constants::color_channels::Background));
+    m_stylePreview->updateBGColor(tinker::utils::objects::getRealizedColor(constants::color_channels::Background));
     m_stylePreview->updateGroundColor(
-        tinker::utils::getRealizedColor(constants::color_channels::Ground1),
-        tinker::utils::getRealizedColor(constants::color_channels::Ground2),
-        tinker::utils::getRealizedColor(constants::color_channels::Line),
+        tinker::utils::objects::getRealizedColor(constants::color_channels::Ground1),
+        tinker::utils::objects::getRealizedColor(constants::color_channels::Ground2),
+        tinker::utils::objects::getRealizedColor(constants::color_channels::Line),
         lineAction->m_fromOpacity * 255,
         lineAction->m_blending
     );
@@ -338,10 +338,10 @@ void SelectArtLayer::updateColors() {
     auto mg2Action = m_editorLayer->m_levelSettings->m_effectManager->getColorAction(constants::color_channels::Middleground2);
 
     m_stylePreview->updateMiddlegroundColor(
-        tinker::utils::getRealizedColor(constants::color_channels::Middleground1),
+        tinker::utils::objects::getRealizedColor(constants::color_channels::Middleground1),
         mg1Action->m_fromOpacity * 255,
         mg1Action->m_blending,
-        tinker::utils::getRealizedColor(constants::color_channels::Middleground2),
+        tinker::utils::objects::getRealizedColor(constants::color_channels::Middleground2),
         mg2Action->m_fromOpacity * 255,
         mg2Action->m_blending
     );

@@ -1,6 +1,7 @@
 #include "modules/BetterSelect.hpp"
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
+#include "utils/Objects.hpp"
 
 bool BetterSelect::onToggled(bool state) {
     if (state) {
@@ -166,7 +167,7 @@ void ObjectSelectContainer::refreshSelectedObjects() {
             auto gameObject = spr->getChildByType<GameObject>(0);
             if (gameObject) {
                 gameObject->selectObject({255, 255, 255});
-                tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
+                tinker::utils::objects::updateGameObjectColor(gameObject);
             }
             else {
                 spr->setColor({255, 255, 255});
@@ -325,7 +326,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
             if (gameObject) {
                 gameObject->setVisible(true);
                 gameObject->setOpacity(255);
-                tinker::utils::updateGameObjectColor(editorUI->m_editorLayer, gameObject);
+                tinker::utils::objects::updateGameObjectColor(gameObject);
             }
             if (obj->m_objectID == tinker::constants::objects::Particle) {
                 spr = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
@@ -333,7 +334,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
             m_objectSprites[obj] = spr;
             spr->setID("selected-object-sprite"_spr);
 
-            auto realBounds = tinker::utils::getRealBounds(spr);
+            auto realBounds = tinker::utils::ui::getRealBounds(spr);
 
             if (realBounds.size.height != 0.f && realBounds.size.width != 0.f) {
                 auto scaleMultiplier = 30.f / realBounds.size.height;
@@ -571,7 +572,7 @@ CCPoint HoverObjectNode::rotatedPos(const CCPoint& pos) {
     auto editor = LevelEditorLayer::get();
     auto winSize = CCDirector::get()->getWinSize();
     auto world = editor->m_objectLayer->convertToWorldSpace(pos);
-    auto rotated = tinker::utils::rotatePointAroundPivot(world, winSize / 2.f, editor->m_gameState.m_cameraAngle);
+    auto rotated = tinker::utils::ui::rotatePointAroundPivot(world, winSize / 2.f, editor->m_gameState.m_cameraAngle);
     return editor->m_objectLayer->convertToNodeSpace(rotated);
 }
 

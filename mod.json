@@ -13,10 +13,10 @@
 	"description": "Editor Revamped",
 	"dependencies": {
 		"geode.node-ids": "v1.23.3",
-		"alphalaneous.good_grid": "v1.2.0",
+		"alphalaneous.good_grid": "v2.0.0",
 		"alphalaneous.alphas_geode_utils": "v1.2.4",
-		"alphalaneous.alphas-ui-pack": "v1.4.0",
-		"alphalaneous.editortab_api": "v2.1.11",
+		"alphalaneous.alphas-ui-pack": "v1.4.6",
+		"alphalaneous.editortab_api": "v3.0.0",
 		"alphalaneous.level-storage-api": "v1.0.0",
 		"alk.better-touch-prio": "v1.0.16",
 		"prevter.imageplus": "v1.1.1",
@@ -42,6 +42,9 @@
 			"version": "v1.14.0",
 			"required": false
 		}
+	},
+	"incompatibilities": {
+		"hjfod.betteredit": ">=v6.0.0"
 	},
 	"resources": {
 		"spritesheets": {
@@ -88,6 +91,12 @@
 			"enable-if": "!loaded:ninkaz.editor_utils",
 			"enable-if-description": "This feature is not compatible with Ninkaz's Editor Utils."
 		},
+		"AdvancedGridControls-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Advanced Grid Controls",
+			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale."
+		},
 		"ImprovedEditTab-enabled": {
 			"type": "bool",
 			"default": true,
@@ -118,9 +127,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "LDM Object Count",
-			"description": "Show the total objects marked as high detail next to the total object count.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Show the total objects marked as high detail next to the total object count."
 		},
 		"LengthInEditor-enabled": {
 			"type": "bool",
@@ -174,9 +181,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Zoom Text",
-			"description": "Show a label with your current zoom as you zoom.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Show a label with your current zoom as you zoom."
 		},
 		"scrolling-title": {
 			"type": "title",
@@ -440,17 +445,13 @@
 			"type": "bool",
 			"default": false,
 			"name": "Button Rows Bypass",
-			"description": "Bypass the 3x12 Button Grid settings.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Bypass the 3x12 Button Grid settings."
 		},
 		"CopyObjectString-enabled": {
 			"type": "bool",
 			"default": true,
 			"name": "Copy Object String",
-			"description": "Copy object string to clipboard when copying in the editor.",
-			"enable-if": "!loaded:hjfod.betteredit",
-			"enable-if-description": "This feature is not compatible with BetterEdit."
+			"description": "Copy object string to clipboard when copying in the editor."
 		},
 		"Gizmos-enabled": {
 			"type": "bool",
@@ -686,43 +687,6 @@
 			"type": "keybind",
 			"default": ["M"],
 			"category": "editor"
-		},
-		"GridControl-title": {
-			"type": "title",
-			"name": "Grid Controls",
-			"platforms": ["win", "mac", "ios", "android64"]
-		},
-		"GridControl-description": {
-			"type": "info",
-			"description": "Add buttons to change the grid size.",
-			"color": "#000000",
-			"platforms": ["win", "mac", "ios", "android64"]
-		},
-		"GridControl-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled",
-			"platforms": ["win", "mac", "ios", "android64"]
-		},
-		"GridControl-show-grid-scale-toggle": {
-			"type": "bool",
-			"default": true,
-			"name": "Show Grid Scale Toggle",
-			"platforms": ["win", "mac", "ios", "android64"]
-		},
-		"GridControl-increase-keybind": {
-			"name": "Increase Grid Size Keybind",
-			"type": "keybind",
-			"default": [],
-			"category": "editor",
-			"platforms": ["win", "mac", "ios", "android64"]
-		},
-		"GridControl-decrease-keybind": {
-			"name": "Decrease Grid Size Keybind",
-			"type": "keybind",
-			"default": [],
-			"category": "editor",
-			"platforms": ["win", "mac", "ios", "android64"]
 		},
 		"HideUI-title": {
 			"type": "title",
@@ -1208,7 +1172,7 @@
 		},
 		"SaveTools-description": {
 			"type": "info",
-			"description": "Auto saving and quick saving. (This module will override BetterEdit fully, if you wish to use the BetterEdit versions of these, you must disable Save Tools fully.)",
+			"description": "Auto saving and quick saving.",
 			"color": "#000000"
 		},
 		"SaveTools-enabled": {
@@ -1360,14 +1324,14 @@
 		},
 		"UIScaling-description": {
 			"type": "info",
-			"description": "How large elements in the UI are. BetterEdit's scale factor will override this if being used.",
+			"description": "How large elements in the UI are.",
 			"color": "#000000"
 		},
 		"UIScaling-scale": {
 			"type": "float",
 			"default": 0.9,
 			"name": "Scale Factor",
-			"min": 0.4,
+			"min": 0.1,
 			"max": 1,
 			"control": {
                 "slider": true,
@@ -1438,6 +1402,11 @@
 			"type": "info",
 			"description": "Customize the colors of the editor grid",
 			"color": "#000000"
+		},
+		"EditorGridCustomization-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
 		},
 		"EditorGridCustomization-grid-color": {
 			"type": "rgba",

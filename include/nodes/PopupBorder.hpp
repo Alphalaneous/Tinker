@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/ui/NineSlice.hpp>
+#include <ccTypes.h>
 
 using namespace geode::prelude;
 
@@ -17,7 +19,6 @@ public:
     void hideBottom(bool hide);
 protected:
     bool init(const ccColor3B& topColor, GLubyte topOpacity, const ccColor3B& bottomColor, GLubyte bottomOpacity);
-
 
     geode::NineSlice* m_border;
     geode::NineSlice* m_innerTopBorder;

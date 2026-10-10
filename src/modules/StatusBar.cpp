@@ -3,7 +3,7 @@
 #include "modules/LengthInEditor.hpp"
 #include "modules/UIScaling.hpp"
 #include "third-party/BlurAPI.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -88,7 +88,7 @@ bool StatusBar::init() {
 
         auto screenCenter = CCPoint{winSize.width * 0.5f, winSize.height * 0.5f};
         auto pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
-        auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
+        auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + tinker::utils::ui::getToolbarHeight()) * 0.5f};
         auto linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
         
         positionLabel->setText(fmt::format("Pos: ({}, {})", numToString(linePosInObject.x, 2), numToString(linePosInObject.y - 90.f, 2)));
@@ -99,7 +99,7 @@ bool StatusBar::init() {
 
     auto screenCenter = CCPoint{winSize.width * 0.5f, winSize.height * 0.5f};
     auto pivotInObject = objectLayer->convertToNodeSpace(screenCenter);
-    auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + utils::getToolbarHeight()) * 0.5f};
+    auto lineScreenPos = CCPoint{winSize.width * 0.5f, (winSize.height + tinker::utils::ui::getToolbarHeight()) * 0.5f};
     auto linePosInObject = objectLayer->convertToNodeSpace(lineScreenPos);
 
     positionLabel->setText(fmt::format("Pos: ({}, {})", numToString(linePosInObject.x, 2), numToString(linePosInObject.y - 90.f, 2)));
@@ -282,9 +282,7 @@ void StatusBar::adjustPositions() {
     auto spacerLineRight = editor->getChildByID("spacer-line-right");
     auto objectGroupsToggleMenu = editor->getChildByID("razoom.object_groups/toggle_menu");
     auto toolbarBackground = editor->getChildByID("background-sprite");
-    auto editorTabAPINavigationMenu = editor->getChildByID("alphalaneous.editortab_api/tabs-navigation-menu");
     auto buildTabsMenu = editor->getChildByID("build-tabs-menu");
-    auto betterEditCustomEditMenu = editor->getChildByID("hjfod.betteredit/custom-move-menu");
 
     if (toolbarCategoriesMenu) {
         toolbarCategoriesMenu->setPositionY(toolbarCategoriesMenu->getPositionY() + m_toolbarOffset);
@@ -307,13 +305,18 @@ void StatusBar::adjustPositions() {
     if (toolbarBackground) {
         toolbarBackground->setPositionY(toolbarBackground->getPositionY() + m_toolbarOffset);
     }
-    if (editorTabAPINavigationMenu) {
-        editorTabAPINavigationMenu->setPositionY(editorTabAPINavigationMenu->getPositionY() + m_toolbarOffset);
-    }
     if (buildTabsMenu) {
         buildTabsMenu->setPositionY(buildTabsMenu->getPositionY() + m_toolbarOffset);
     }
-    if (betterEditCustomEditMenu) {
-        betterEditCustomEditMenu->setPositionY(betterEditCustomEditMenu->getPositionY() + m_toolbarOffset);
+
+    for (auto c : editor->getChildrenExt()) {
+        if (auto bar = typeinfo_cast<EditButtonBar*>(c)) {
+            float y = 0.f;
+            if (StatusBar::isEnabled()) {
+                y = StatusBar::get()->m_toolbarOffset;
+            }
+
+            bar->setPositionY(y);
+        }
     }
 }

@@ -1,7 +1,7 @@
 #include "XYRotationControl.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "modules/ImprovedControls.hpp"
-#include "utils/Utils.hpp"
+#include "utils/String.hpp"
 
 using namespace tinker::ui;
 
@@ -40,7 +40,7 @@ bool XYRotationControl::init() {
                 scale = std::roundf(scale / m_snapSize) * m_snapSize;
             }
             rotationXChanged(scale);
-            m_inputX->setString(tinker::utils::floatToString(scale, 3));
+            m_inputX->setString(tinker::utils::string::floatToString(scale, 3));
             sender->setValue(valueFromRotation(scale), true);
         }, this
     );
@@ -60,7 +60,7 @@ bool XYRotationControl::init() {
                 scale = std::roundf(scale / m_snapSize) * m_snapSize;
             }
             rotationYChanged(scale);
-            m_inputY->setString(tinker::utils::floatToString(scale, 3));
+            m_inputY->setString(tinker::utils::string::floatToString(scale, 3));
             sender->setValue(valueFromRotation(scale), true);
         }, this
     );
@@ -231,8 +231,8 @@ void XYRotationControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered
     m_sliderX->setPercent(valueFromRotation(m_rotationX), true);
     m_sliderY->setPercent(valueFromRotation(m_rotationY), true);
 
-    m_inputX->setString(tinker::utils::floatToString(m_rotationX, 3));
-    m_inputY->setString(tinker::utils::floatToString(m_rotationY, 3));
+    m_inputX->setString(tinker::utils::string::floatToString(m_rotationX, 3));
+    m_inputY->setString(tinker::utils::string::floatToString(m_rotationY, 3));
 }
 
 float XYRotationControl::rotationFromValue(float value) {

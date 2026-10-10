@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/cocos.hpp>
 #include <alphalaneous.alphas-ui-pack/include/nodes/RenderNode.hpp>
-#include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 

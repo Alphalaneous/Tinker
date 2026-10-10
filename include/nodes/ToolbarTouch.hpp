@@ -1,7 +1,7 @@
 #pragma once
 
-
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
+#include <Geode/cocos/touch_dispatcher/CCTouch.h>
 
 using namespace geode::prelude;
 

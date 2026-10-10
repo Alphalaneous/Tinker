@@ -1,6 +1,13 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/GJGroundLayer.hpp>
+#include <Geode/binding/GJMGLayer.hpp>
+#include <ccTypes.h>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
 using namespace geode::prelude;

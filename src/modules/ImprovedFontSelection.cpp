@@ -2,7 +2,6 @@
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
 bool ImprovedFontSelection::onToggled(bool state) {
-    m_toggledHooks.toggle(state);
     return true;
 }
 

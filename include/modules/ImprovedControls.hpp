@@ -6,7 +6,6 @@
 #include <Geode/modify/EditorUI.hpp>
 #include "nodes/ScaleSlider.hpp"
 #include "nodes/ValueToggler.hpp"
-#include "utils/Utils.hpp"
 
 using namespace tinker::ui;
 
@@ -17,24 +16,6 @@ class $module(ImprovedControls) {
     static float roundToThousandth(float value);
 
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
-
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit", ImprovedControls> m_toggledHooks = {
-        "GJScaleControl::init",
-        "GJScaleControl::loadValues",
-        "GJScaleControl::updateLabelX",
-        "GJScaleControl::updateLabelY",
-        "GJScaleControl::updateLabelXY",
-        "GJScaleControl::onToggleLockScale",
-        "GJScaleControl::ccTouchMoved",
-
-        "GJRotationControl::init",
-        "GJRotationControl::draw",
-        "GJRotationControl::ccTouchMoved",
-
-        "EditorUI::activateRotationControl",
-        "EditorUI::angleChanged",
-        "EditorUI::moveObject"
-    };
 };
 
 class $modify(ICEditorUI, EditorUI) {

@@ -1,9 +1,21 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include "ArtPreview.hpp"
+#include <Geode/binding/CCMenuItemToggler.hpp>
+#include <Geode/binding/ColorSelectDelegate.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <Geode/binding/LevelSettingsLayer.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/ui/Button.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/cocos.hpp>
 #include "nodes/ColorChannelSprite.hpp"
+#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <unordered_map>
+#include <vector>
+#include "ArtPreview.hpp"
 
 using namespace geode::prelude;
 

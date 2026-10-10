@@ -9,7 +9,7 @@
 #include <Geode/modify/CCTextInputNode.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
 #include "module/ModuleBase.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Mod.hpp"
 
 using namespace geode::prelude;
 
@@ -20,7 +20,7 @@ class $modify(MainLevelEditorLayer, LevelEditorLayer) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }
@@ -64,7 +64,7 @@ class $modify(MainEditorUI, EditorUI) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }
@@ -72,7 +72,6 @@ class $modify(MainEditorUI, EditorUI) {
 
     bool init(LevelEditorLayer* editorLayer);
     void showUI(bool show);
-    void fixTabPositions();
     void checkPlatformerState(MainEditorUI::Fields* fields);
     void checkObjectPlacement(MainEditorUI::Fields* fields);
     void checkModifierState(MainEditorUI::Fields* fields);
@@ -97,7 +96,7 @@ class $modify(MainSetGroupIDLayer, SetGroupIDLayer) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }
@@ -117,7 +116,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
             v->setAutoEnable(false);
         }
 
-        auto shouldLoad = tinker::utils::shouldLoadTinker();
+        auto shouldLoad = tinker::utils::mod::shouldLoadTinker();
         for (const auto& [k, v] : self.m_hooks) { 
             (void) v->toggle(shouldLoad);
         }

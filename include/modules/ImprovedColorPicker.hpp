@@ -11,17 +11,6 @@
 class $module(ImprovedColorPicker) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
-
-    tinker::utils::ScopedHookToggle<"hjfod.betteredit", ImprovedColorPicker> m_toggledHooks = {
-        "CustomizeObjectLayer::onSelectColor",
-        "CustomizeObjectLayer::highlightSelected",
-        "CustomizeObjectLayer::updateColorSprite",
-        "CustomizeObjectLayer::updateCustomColorLabels",
-        "CustomizeObjectLayer::onUpdateCustomColor",
-        "CustomizeObjectLayer::textChanged",
-        "CustomizeObjectLayer::init",
-        "CustomizeObjectLayer::onNextColorChannel"
-    };
 };
 
 class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {

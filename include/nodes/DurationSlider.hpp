@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/binding/EffectGameObject.hpp>
 
 using namespace geode::prelude;
 

@@ -2,22 +2,23 @@
 #include <Geode/ui/SliderNode.hpp>
 #include "modules/UIScaling.hpp"
 #include "third-party/BlurAPI.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Mod.hpp"
+#include "utils/UI.hpp"
 
 constexpr float k = 9.0f;
 
 float CleanPause::volumeToSlider(float n) {
-    if (tinker::utils::getMod<"reidlab.logarithmic_volume">()) {
+    if (tinker::utils::mod::getMod<"reidlab.logarithmic_volume">()) {
         return std::log1p(n * k) / std::log1p(k); 
     }
     return n;
 }
 
 float CleanPause::sliderToVolume(float n) {
-    if (tinker::utils::getMod<"reidlab.logarithmic_volume">()) {
+    if (tinker::utils::mod::getMod<"reidlab.logarithmic_volume">()) {
         return std::expm1(n * std::log1p(k)) / k;
     }
-    if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+    if (auto mod = tinker::utils::mod::getMod<"mopigames.exponential-volume">()) {
         if (n <= 0.0f) return 0.0f;
         if (n >= 1.0f) return 1.0f;
 
@@ -147,7 +148,7 @@ void CleanPause::onEditor() {
             if (fmod->m_backgroundMusicChannel) {
                 fmod->m_backgroundMusicChannel->setVolume(sliderToVolume(value / 100.f));
             }
-            if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+            if (auto mod = tinker::utils::mod::getMod<"mopigames.exponential-volume">()) {
                 GameManager::get()->m_bgVolume = value / 100.f;
                 fmod->m_musicVolume = value / 100.f;
             }
@@ -195,7 +196,7 @@ void CleanPause::onEditor() {
             if (fmod->m_globalChannel) {
                 fmod->m_globalChannel->setVolume(sliderToVolume(value / 100.f));
             }
-            if (auto mod = tinker::utils::getMod<"mopigames.exponential-volume">()) {
+            if (auto mod = tinker::utils::mod::getMod<"mopigames.exponential-volume">()) {
                 GameManager::get()->m_sfxVolume = value / 100.f;
                 fmod->m_sfxVolume = value / 100.f;
             }
@@ -254,7 +255,7 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
 
     auto optionsMenu = pauseLayer->getChildByID("options-menu");
     if (optionsMenu) {
-        if (tinker::utils::getMod<"razoom.improved_playtest">() && !isNewNodeIDs) {
+        if (tinker::utils::mod::getMod<"razoom.improved_playtest">() && !isNewNodeIDs) {
             optionsMenu->setScale(scale * 0.925f);
         }
         else {
@@ -275,13 +276,13 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
         if (actionsMenu) {
             actionsMenu->removeEventListener("entered-event"_spr);
             actionsMenu->addEventListener("entered-event"_spr, NodeEvent(actionsMenu, NodeEventType::OnEnter), [this, actionsMenu, settingsMenu] {
-                auto bounds = tinker::utils::getRealBounds(actionsMenu);
+                auto bounds = tinker::utils::ui::getRealBounds(actionsMenu);
                 auto y = actionsMenu->boundingBox().getMinY() + bounds.size.height;
 
                 settingsMenu->setAnchorPoint({0.5f, 0.f});
                 settingsMenu->setPosition({actionsMenu->getPositionX(), y});
             });
-            auto bounds = tinker::utils::getRealBounds(actionsMenu);
+            auto bounds = tinker::utils::ui::getRealBounds(actionsMenu);
             auto y = actionsMenu->boundingBox().getMinY() + bounds.size.height;
 
             settingsMenu->setAnchorPoint({0.5f, 0.f});
@@ -297,8 +298,9 @@ void CleanPause::scaleAndPosition(EditorPauseLayer* pauseLayer, float scale) {
 
     auto bg = pauseLayer->getChildByID("background"_spr);
     if (bg) {
-        auto bgSprite = bg->getChildByID("background-sprite"_spr);
+        auto bgSprite = static_cast<geode::NineSlice*>(bg->getChildByID("background-sprite"_spr));
         bgSprite->setContentSize(winSize + CCSize{24.f, 4.f} - UIScaling::getSafeOffsetPause() * 2.f);
+        bgSprite->setScaleMultiplier(scale);
     }
 
     auto musicSlider = pauseLayer->getChildByID("music-slider"_spr);

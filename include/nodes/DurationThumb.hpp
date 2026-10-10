@@ -1,6 +1,16 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+
+#include <Geode/cocos/actions/CCAction.h>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/cocos/touch_dispatcher/CCTouch.h>
+#include <Geode/cocos/touch_dispatcher/CCTouchDelegateProtocol.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/EffectGameObject.hpp>
+#include <unordered_map>
 
 using namespace geode::prelude;
 

@@ -1,11 +1,12 @@
 #include "modules/CanvasRotate.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include "InputsHandler.hpp"
 #include "modules/Gizmos/Gizmos.hpp"
 #include "modules/StatusBar.hpp"
-#include "utils/Utils.hpp"
 #include "modules/JoystickNavigation.hpp"
+#include "utils/UI.hpp"
+#include "utils/Objects.hpp"
 
 using namespace tinker::ui;
 
@@ -18,7 +19,7 @@ RotateTouch::RotateTouch(CCTouch* touch) {
     auto winSize = CCDirector::get()->getWinSize();
     auto editorLayer = LevelEditorLayer::get();
 
-    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, editorLayer->m_gameState.m_cameraAngle);
+    auto newPoint = tinker::utils::ui::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, editorLayer->m_gameState.m_cameraAngle);
     touch->m_point = CCPoint{newPoint.x, winSize.height - newPoint.y};
     //touch->m_startPoint = tinker::utils::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
     //touch->m_prevPoint = tinker::utils::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, -editorLayer->m_gameState.m_cameraAngle);
@@ -243,17 +244,17 @@ void CREditorUI::clickOnPosition(CCPoint pos) {
 
     if (!module->m_dontRotate) {
         auto winSize = CCDirector::get()->getWinSize();
-        pos = tinker::utils::rotatePointAroundPivot(pos, winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+        pos = tinker::utils::ui::rotatePointAroundPivot(pos, winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
     }
 
     m_toolbarHeight = INT_MIN;
     EditorUI::clickOnPosition(pos);
-    m_toolbarHeight = tinker::utils::getToolbarHeight();
+    m_toolbarHeight = tinker::utils::ui::getToolbarHeight();
 };
 
 void CREditorUI::triggerSwipeMode() {
     auto winSize = CCDirector::get()->getWinSize();
-    m_swipeStart = tinker::utils::rotatePointAroundPivot(m_swipeStart, winSize / 2.f, -m_editorLayer->m_gameState.m_cameraAngle);
+    m_swipeStart = tinker::utils::ui::rotatePointAroundPivot(m_swipeStart, winSize / 2.f, -m_editorLayer->m_gameState.m_cameraAngle);
     EditorUI::triggerSwipeMode();
 }
 
@@ -272,11 +273,11 @@ bool CanvasRotate::isEditorUITouch(CCTouch* touch) {
         return false;
     }
 
-    if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "alk.allium/allium") {
+    if (alpha::editor_tabs::getCurrentTabID() == "alk.allium/allium") {
         return false;
     }
 
-    if (alpha::editor_tabs::getCurrentTab().unwrapOrDefault() == "michael.sculptorv4/sculptor") {
+    if (alpha::editor_tabs::getCurrentTabID() == "michael.sculptorv4/sculptor") {
         return false;
     }
 
@@ -334,7 +335,7 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
     auto ret = next(touch);
     editor->m_swipeStart = preTransform;
     editor->m_swipeEnd = preTransform;
-    editor->m_toolbarHeight = tinker::utils::getToolbarHeight();
+    editor->m_toolbarHeight = tinker::utils::ui::getToolbarHeight();
 
     return ret;
 }
@@ -424,7 +425,7 @@ void CanvasRotate::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* to
     m_world = preTransform;
 
     auto winSize = CCDirector::get()->getWinSize();
-    editor->m_swipeStart = tinker::utils::rotatePointAroundPivot(editor->m_swipeStart, winSize / 2.f, getEditorLayer()->m_gameState.m_cameraAngle);
+    editor->m_swipeStart = tinker::utils::ui::rotatePointAroundPivot(editor->m_swipeStart, winSize / 2.f, getEditorLayer()->m_gameState.m_cameraAngle);
 
     m_dontRotate = true;
     next(touch);
@@ -449,7 +450,7 @@ cocos2d::CCArray* CRLevelEditorLayer::objectsAtPosition(cocos2d::CCPoint positio
     auto module = CanvasRotate::get();
     if (module->m_dontRotate) {
         auto winSize = CCDirector::get()->getWinSize();
-        auto unrotated = tinker::utils::rotatePointAroundPivot(module->m_world, winSize / 2.f, m_gameState.m_cameraAngle);
+        auto unrotated = tinker::utils::ui::rotatePointAroundPivot(module->m_world, winSize / 2.f, m_gameState.m_cameraAngle);
         position = m_objectLayer->convertToNodeSpace(unrotated);
     }
     return LevelEditorLayer::objectsAtPosition(position);
@@ -461,7 +462,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
         auto nodePos = m_objectLayer->convertToNodeSpace(module->m_world);
 
         auto winSize = CCDirector::get()->getWinSize();
-        auto unrotated = tinker::utils::rotatePointAroundPivot(m_editorUI->m_swipeStart, winSize / 2.f, -m_gameState.m_cameraAngle);
+        auto unrotated = tinker::utils::ui::rotatePointAroundPivot(m_editorUI->m_swipeStart, winSize / 2.f, -m_gameState.m_cameraAngle);
 
         auto start = m_objectLayer->convertToNodeSpace(unrotated);
 
@@ -481,7 +482,7 @@ CCArray* CRLevelEditorLayer::objectsInRect(CCRect rect, bool ignoreLayerCheck) {
 
     auto centerInObjectLayer = m_objectLayer->convertToNodeSpace(winSize / 2.f);
 
-    tinker::utils::forEachObject(this, [this, &rect, result, selectionOBB, &winSize, &centerInObjectLayer, &ignoreLayerCheck] (GameObject* object) {
+    tinker::utils::objects::forEachObject([this, &rect, result, selectionOBB, &winSize, &centerInObjectLayer, &ignoreLayerCheck] (GameObject* object) {
         if (!validGroup(object, !ignoreLayerCheck)) return;
 
         if (selectionOBB->overlaps(rotatedOBB2D(object, centerInObjectLayer, m_gameState.m_cameraAngle))) {
@@ -521,7 +522,7 @@ void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d:
     ));
 
     auto worldMid = convertToWorldSpace({0, 0});
-    position = tinker::utils::rotatePointAroundPivot(position, worldMid, -rot);
+    position = tinker::utils::ui::rotatePointAroundPivot(position, worldMid, -rot);
 
     CCTextInputNode::updateCursorPosition(position, {});
 }

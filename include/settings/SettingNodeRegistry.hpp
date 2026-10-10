@@ -1,6 +1,9 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/loader/SettingV3.hpp>
+#include <Geode/utils/StringMap.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <memory>
 #include "utils/Singleton.hpp"
 
 using namespace geode::prelude;
@@ -10,6 +13,7 @@ namespace tinker::settings {
 class SettingNodeBase;
 
 struct SettingNodeRegistry : public Singleton<SettingNodeRegistry> {
+
     StringMap<std::function<SettingNodeBase*(float, std::shared_ptr<SettingV3>)>> m_settingNodes;
 
     static SettingNodeBase* create(ZStringView type, float width, std::shared_ptr<SettingV3> setting) {

@@ -3,7 +3,8 @@
 #include "actions/CCValueTo.hpp"
 #include "modules/UIScaling.hpp"
 #include "nodes/GIF.hpp"
-#include "utils/Utils.hpp"
+#include "utils/FakeEditorPauseLayer.hpp"
+#include "utils/Mod.hpp"
 
 namespace tinker::ui {
 
@@ -112,7 +113,6 @@ void SaveAlert::hide() {
 bool SaveTools::onToggled(bool state) {
     auto editor = static_cast<STLevelEditorLayer*>(getEditorLayer());
     auto fields = editor->m_fields.self();
-    m_toggledHooks.toggle(state);
     
     if (state) {
         editor->schedule(schedule_selector(STLevelEditorLayer::autoSaveUpdate));
@@ -162,7 +162,7 @@ std::filesystem::path SaveTools::getAutoSaveDir() {
 
 void SaveTools::transferBetterEdit() {
     std::error_code ec;
-    auto be = tinker::utils::getInstalledMod<"hjfod.betteredit">();
+    auto be = tinker::utils::mod::getInstalledMod<"hjfod.betteredit">();
     if (!be) return;
 
     std::filesystem::rename(be->getSaveDir() / "autosave", Mod::get()->getSaveDir() / "autosave", ec);
@@ -332,7 +332,7 @@ $on_game(Loaded) {
     // Quick save data is always up to date so load after autosave
     SaveTools::restoreData(SaveTools::getQuickSaveDir());
 
-    auto be = tinker::utils::getMod<"hjfod.betteredit">();
+    auto be = tinker::utils::mod::getMod<"hjfod.betteredit">();
     if (be) {
         bool hasAutoSave = be->getSettingValue<bool>("enable-auto-save");
 

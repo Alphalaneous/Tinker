@@ -2,7 +2,6 @@
 #include "Events.hpp"
 #include "modules/BetterSelect.hpp"
 #include "modules/ObjectAlignment.hpp"
-#include "utils/Utils.hpp"
 #include "modules/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/Gizmos/Gizmos.hpp"
@@ -10,9 +9,12 @@
 #include "actions/CCValueTo.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <geode.devtools/include/API.hpp>
 #include "nodes/ToolbarTouch.hpp"
+#include "utils/Mod.hpp"
+#include "utils/UI.hpp"
+#include "utils/Settings.hpp"
 
 using namespace alpha::prelude;
 
@@ -127,21 +129,8 @@ InputEditorUI* InputEditorUI::get() {
     return static_cast<InputEditorUI*>(EditorUI::get());
 }
 
-void InputEditorUI::disableBetterEditHook() {
-    auto betterEdit = tinker::utils::getMod<"hjfod.betteredit">();
-    if (!betterEdit) return;
-
-    for (auto hook : betterEdit->getHooks()) {
-        if (hook->getDisplayName() == "EditorUI::scrollWheel") {
-            (void) hook->disable();
-            break;
-        }
-    }
-}
-
 bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     if (!EditorUI::init(editorLayer)) return false;
-    disableBetterEditHook();
     
     auto fields = m_fields.self();
 
@@ -328,19 +317,19 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
     });
 
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_LeftShift), [this] (KeyboardInputData& data) {
-        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
+        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::settings::get<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;
         }
     });
     
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_RightShift), [this] (KeyboardInputData& data) {
-        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::getSetting<bool, "stop-swipe-on-shift-release">()) {
+        if (!m_swipeEnabled && data.action == KeyboardInputData::Action::Release && tinker::utils::settings::get<bool, "stop-swipe-on-shift-release">()) {
             m_swipeActive = false;
         }
     });
 
     if (!std::isfinite(editorLayer->m_objectLayer->getPosition().x) || !std::isfinite(editorLayer->m_objectLayer->getPosition().y) || editorLayer->m_level->m_lastBuildSave->count() == 0) {
-        editorLayer->m_objectLayer->setPosition({130, tinker::utils::getToolbarHeight() / 2.f});
+        editorLayer->m_objectLayer->setPosition({130, tinker::utils::ui::getToolbarHeight() / 2.f});
     }
 
     fields->m_forward = tinker::ui::TouchForward::create(this);
@@ -443,7 +432,6 @@ void InputEditorUI::onScroll() {
     auto editorPause = m_editorLayer->getChildByType<EditorPauseLayer>(0);
     if (editorPause) return;
 
-    using namespace tinker::utils;
     auto fields = m_fields.self();
     float x = fields->m_scroll.x;
     float y = fields->m_scroll.y;
@@ -472,17 +460,22 @@ void InputEditorUI::onScroll() {
     auto mousePos = getMousePos();
     if (isInDevtools()) return;
     
-    if (mousePos.y < getToolbarHeight()) {
-        auto currentTabIDRes = alpha::editor_tabs::getCurrentTab();
-        if (currentTabIDRes) {
-            auto currentTabID = currentTabIDRes.unwrap();
-            auto currentTabRes = alpha::editor_tabs::nodeForTab(currentTabID);
-            if (currentTabRes) {
-                auto currentTab = currentTabRes.unwrap();
-                if (currentTab->getUserFlag("disable-editor-scroll"_spr)) {
-                    return;
-                }
+    if (mousePos.y < tinker::utils::ui::getToolbarHeight()) {
+        auto currentTab = alpha::editor_tabs::getCurrentTab();
+        if (currentTab) {
+            auto node = currentTab->getNode();
+            if (node && node->getUserFlag("disable-editor-scroll"_spr)) {
+                return;
             }
+        }
+    }
+
+    for (auto textInput : fields->m_allTextInputs) {
+        auto parent = textInput->getParentByType<geode::TextInput>();
+        if (!parent) continue;
+
+        if (nodeIsVisible(parent) && isPointInsideNode(parent, mousePos)) {
+            return;
         }
     }
 
@@ -510,7 +503,7 @@ void InputEditorUI::onScroll() {
             fields->m_startSwipe = layer->convertToNodeSpace(m_swipeStart);
             fields->m_activeZoom = true;
         }
-        fields->m_targetScale = std::max(fields->m_targetScale, getSetting<float, "zoom-minimum">());
+        fields->m_targetScale = std::max(fields->m_targetScale, tinker::utils::settings::get<float, "zoom-minimum">());
 
         auto winSize = CCDirector::get()->getWinSize();
 
@@ -518,28 +511,28 @@ void InputEditorUI::onScroll() {
         float zoomSpeed = 0.2f;
 
         #ifdef GEODE_IS_MACOS
-        float newY = (y * getSetting<float, "zoom-multiplier">()) * -yMult;
+        float newY = (y * tinker::utils::settings::get<float, "zoom-multiplier">()) * -yMult;
         #else
-        float newY = (y * getSetting<float, "zoom-multiplier">()) * yMult;
+        float newY = (y * tinker::utils::settings::get<float, "zoom-multiplier">()) * yMult;
         #endif
 
-        newY *= (getSetting<bool, "invert-zoom-scroll">() ? -1 : 1);
+        newY *= (tinker::utils::settings::get<bool, "invert-zoom-scroll">() ? -1 : 1);
 
         auto oldScale = fields->m_targetScale;
 
         float newScale = fields->m_targetScale * std::powf(zoomFactor, -newY * zoomSpeed);
-        fields->m_targetScale = std::clamp(newScale, getSetting<float, "zoom-minimum">(), getSetting<float, "zoom-maximum">());
+        fields->m_targetScale = std::clamp(newScale, tinker::utils::settings::get<float, "zoom-minimum">(), tinker::utils::settings::get<float, "zoom-maximum">());
 
-        if (getSetting<bool, "smooth-scroll-enabled">()) {
+        if (tinker::utils::settings::get<bool, "smooth-scroll-enabled">()) {
             if (oldScale != fields->m_targetScale) {
                 if (fields->m_scale) layer->stopAction(fields->m_scale);
 
-                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, std::clamp(layer->getScale(), getSetting<float, "zoom-minimum">(), getSetting<float, "zoom-maximum">()), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
+                fields->m_scale = CCEaseOut::create(CCValueTo<float>::create(0.1f * fields->m_speedScale, std::clamp(layer->getScale(), tinker::utils::settings::get<float, "zoom-minimum">(), tinker::utils::settings::get<float, "zoom-maximum">()), fields->m_targetScale, [this, layer, fields, winSize] (float t, float start, float end, float& scale) {
                     scale = start + (end - start) * t;
                     if (scale == 0.f) return;
 
-                    if (getSetting<bool, "zoom-to-cursor">()) {
-                        auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+                    if (tinker::utils::settings::get<bool, "zoom-to-cursor">()) {
+                        auto mousePos = tinker::utils::ui::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
                         auto prevPos = layer->convertToNodeSpace(mousePos);
                     
                         updateZoom(scale);
@@ -561,8 +554,8 @@ void InputEditorUI::onScroll() {
         else {
             fields->m_activeZoom = false;
 
-            if (getSetting<bool, "zoom-to-cursor">()) {
-                auto mousePos = tinker::utils::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+            if (tinker::utils::settings::get<bool, "zoom-to-cursor">()) {
+                auto mousePos = tinker::utils::ui::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
                 if (mousePos.equals({0.f, 0.f})) return;
                 
                 auto prevPos = layer->convertToNodeSpace(mousePos);
@@ -592,24 +585,24 @@ void InputEditorUI::onScroll() {
         fields->m_activeScroll = true;
     }
 
-    float multiplier = getSetting<float, "scroll-multiplier">();
+    float multiplier = tinker::utils::settings::get<float, "scroll-multiplier">();
 
     float newX = (x * multiplier) * xMult;
     float newY = (y * multiplier) * yMult;
 
-    if (getSetting<bool, "invert-vertical-scroll">()) {
+    if (tinker::utils::settings::get<bool, "invert-vertical-scroll">()) {
         newY *= -1;
     }
-    if (getSetting<bool, "invert-horizontal-scroll">()) {
+    if (tinker::utils::settings::get<bool, "invert-horizontal-scroll">()) {
         newX *= -1;
     }
 
-    auto newPos = tinker::utils::rotatePointAroundPivot({newX, newY}, {0.f, 0.f}, m_editorLayer->m_gameState.m_cameraAngle);
+    auto newPos = tinker::utils::ui::rotatePointAroundPivot({newX, newY}, {0.f, 0.f}, m_editorLayer->m_gameState.m_cameraAngle);
 
     auto oldPos = fields->m_targetPos;
     fields->m_targetPos = fields->m_targetPos + newPos;
 
-    if (getSetting<bool, "smooth-scroll-enabled">()) {
+    if (tinker::utils::settings::get<bool, "smooth-scroll-enabled">()) {
         if (oldPos.x != fields->m_targetPos.x) {
             if (fields->m_moveX) layer->stopAction(fields->m_moveX);
             fields->m_moveX = CCEaseOut::create(CCCallbackAction::create(CCMoveToX::create(0.1f * fields->m_speedScale, fields->m_targetPos.x), [this, fields] (auto target) {
@@ -643,7 +636,7 @@ void InputLevelEditorLayer::checkScrolling(float dt) {
 
     fields->m_speedScale = dt / CCDirector::get()->getDeltaTime();
 
-    if (!tinker::utils::getSetting<bool, "smooth-scroll-enabled">()) {
+    if (!tinker::utils::settings::get<bool, "smooth-scroll-enabled">()) {
         fields->m_activeScroll = false;
         fields->m_activeZoom = false;
         return;
@@ -695,7 +688,7 @@ void InputEditorUI::scrollWheel(float y, float x) {
     auto fields = m_fields.self();
 
     bool stillEditorScroll = false;
-    auto smoothScroll = tinker::utils::getMod<"prevter.smooth-scroll">();
+    auto smoothScroll = tinker::utils::mod::getMod<"prevter.smooth-scroll">();
     bool hasSmoothScroll = false;
     if (smoothScroll) {
         hasSmoothScroll = smoothScroll->getSettingValue<bool>("scroll-enable-in-editor");
@@ -780,7 +773,7 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     }
 
     auto mainPos = getTouchLocation(touch);
-    bool aboveToolbar = mainPos.y > tinker::utils::getToolbarHeight();
+    bool aboveToolbar = mainPos.y > tinker::utils::ui::getToolbarHeight();
     bool playing = m_editorLayer->m_playbackMode == PlaybackMode::Playing;
 
     if (aboveToolbar) {
@@ -829,8 +822,8 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
         }
     }
 
-    if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
-        if (mainPos.y <= tinker::utils::getToolbarHeight()) {
+    if (!fields->m_blockPinching && tinker::utils::settings::get<bool, "pinch-to-zoom">()) {
+        if (mainPos.y <= tinker::utils::ui::getToolbarHeight()) {
             if (!playing || m_playbackBtn->isVisible()) return false;
 
             m_editorLayer->m_uiLayer->ccTouchBegan(touch, nullptr);
@@ -891,7 +884,7 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
         return;
     }
 
-    if (!fields->m_blockPinching && tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (!fields->m_blockPinching && tinker::utils::settings::get<bool, "pinch-to-zoom">()) {
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
             fields->m_touch1 = nullptr;
             fields->m_touch2 = nullptr;
@@ -911,9 +904,9 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
             if (std::abs(distNow) >= 20.f) {
                 auto mult = fields->m_initialDistance / distNow;
 
-                auto zoom = std::clamp(fields->m_initialScale / mult, tinker::utils::getSetting<float, "zoom-minimum">(), tinker::utils::getSetting<float, "zoom-maximum">());
+                auto zoom = std::clamp(fields->m_initialScale / mult, tinker::utils::settings::get<float, "zoom-minimum">(), tinker::utils::settings::get<float, "zoom-maximum">());
 
-                auto midPos = tinker::utils::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
+                auto midPos = tinker::utils::ui::rotatePointAroundPivot(fields->m_touchMidPoint, CCDirector::get()->getWinSize() / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
                 auto prevPos = layer->convertToNodeSpace(midPos);
             
                 updateZoom(zoom);
@@ -960,7 +953,7 @@ void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* t
         return;
     }
 
-    if (tinker::utils::getSetting<bool, "pinch-to-zoom">()) {
+    if (tinker::utils::settings::get<bool, "pinch-to-zoom">()) {
         if (fields->m_touch1 == touch) {
             fields->m_touch1 = fields->m_touch2;
             fields->m_touch2 = nullptr;
@@ -1039,7 +1032,7 @@ void InputEditorPauseLayer::customSetup() {
 
 class $baseModify(InputCCTextInputNode, CCTextInputNode) {
     void modify() {
-        if (!tinker::utils::shouldLoadTinker()) return;
+        if (!tinker::utils::mod::shouldLoadTinker()) return;
 
         addOnEnterCallback([this] {
             auto editor = InputEditorUI::get();
@@ -1059,7 +1052,7 @@ class $baseModify(InputCCTextInputNode, CCTextInputNode) {
 
 class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
     void modify() {
-        if (!tinker::utils::shouldLoadTinker()) return;
+        if (!tinker::utils::mod::shouldLoadTinker()) return;
 
         auto editor = InputEditorUI::get();
         if (!editor) return;
@@ -1086,7 +1079,7 @@ class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
 
 class $baseModify(BlockingGJDropDownLayer, GJDropDownLayer) {
     void modify() {
-        if (!tinker::utils::shouldLoadTinker()) return;
+        if (!tinker::utils::mod::shouldLoadTinker()) return;
 
         auto editor = InputEditorUI::get();
         if (!editor) return;

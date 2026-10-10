@@ -32,7 +32,6 @@ class $module(CanvasRotate) {
 
     void onEditor();
     void setupStatus();
-    void toggleBetterEditHook(bool enabled);
     bool isLassoActive();
     bool isRotating();
 

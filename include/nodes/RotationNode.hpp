@@ -1,6 +1,9 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/EditorUI.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
 using namespace geode::prelude;

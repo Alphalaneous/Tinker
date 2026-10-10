@@ -1,6 +1,6 @@
 #include "modules/EditTools.hpp"
-#include "utils/Utils.hpp"
 #include "utils/Constants.hpp"
+#include "utils/UI.hpp"
 
 void EditTools::onEditor() {
     auto fields = static_cast<ETEditorUI*>(getEditor())->m_fields.self();
@@ -209,7 +209,7 @@ void ETEditorUI::onCenterObjects(CCObject* sender) {
 
     auto center = getGroupCenter(arr, false);
 
-    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::getToolbarHeight() / 2.f});
+    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
     CCPoint snapped = getGridSnappedPos(camCenter);
 
     auto offset = snapped - center;
@@ -238,7 +238,7 @@ void ETEditorUI::onCenterCamera(CCObject* sender) {
     auto winSize = CCDirector::get()->getWinSize();
 
     auto center = getGroupCenter(arr, false);
-    m_editorLayer->m_objectLayer->setPosition(-(center * m_editorLayer->m_objectLayer->getScale()) + winSize / 2.f + CCPoint{0.f, tinker::utils::getToolbarHeight() / 2.f});
+    m_editorLayer->m_objectLayer->setPosition(-(center * m_editorLayer->m_objectLayer->getScale()) + winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
 
     auto pos = m_editorLayer->m_objectLayer->convertToWorldSpace(center);
 

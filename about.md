@@ -22,12 +22,6 @@ Sometimes, your experience with one mod can be improved by having other mods ins
 
 ---
 
-<mod:hjfod.betteredit>
-
-<c-dddddd>When using Tinker, it is highly recommended to use BetterEdit's UI Scale setting at a value of 0.9 or lower.</c>
-
----
-
 <mod:undefined0.lasso-select>
 
 ---

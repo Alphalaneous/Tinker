@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/ui/Label.hpp>
+#include <Geode/ui/Layout.hpp>
+#include <Geode/ui/TextInput.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <concepts>
 #include "utils/next-free/NextFreeProvider.hpp"
 
 using namespace geode::prelude;

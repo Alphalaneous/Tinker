@@ -5,13 +5,25 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
-#include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include <alphalaneous.good_grid/include/DrawNode.hpp>
 #include "nodes/DurationControl.hpp"
 
+namespace tinker::ui {
+
+class DurationDragDraw : public alpha::grid::DrawGridBase {
+public:
+    static DurationDragDraw* create();
+
+	void drawDottedLine(const cocos2d::CCPoint& start, const cocos2d::CCPoint& end, const alpha::grid::Color& color, const cocos2d::CCRect& visibleRect);
+	void draw(const cocos2d::CCRect& visibleRect);
+};
+
+}
+
 class $module(DurationDrag) {
     tinker::ui::DurationControl* m_durationControl = nullptr;
+    tinker::ui::DurationDragDraw* m_durationDragDraw = nullptr;
 
     bool onToggled(bool state);
     void onEditor();
@@ -43,9 +55,4 @@ class $modify(DDEditorPauseLayer, EditorPauseLayer) {
     $registerHooks(DurationDrag)
 
     void onResume(CCObject* sender);
-};
-
-class DurationDragDraw : public DrawNode {
-	static void drawDottedLine(const CCPoint& start, const CCPoint& end, const LineColor& color, float minX, float maxX, float minY, float maxY);
-	void draw(DrawGridLayer* dgl, float minX, float maxX, float minY, float maxY);
 };

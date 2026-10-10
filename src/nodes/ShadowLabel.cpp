@@ -1,5 +1,5 @@
 #include "nodes/ShadowLabel.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -35,7 +35,7 @@ bool ShadowLabel::init(ZStringView text, ZStringView font) {
     m_container->addChild(m_mainLabel);
     m_container->addChild(m_shadowLabel);
 
-    auto bounds = utils::getRealBounds(m_container);
+    auto bounds = tinker::utils::ui::getRealBounds(m_container);
     m_container->setContentSize(bounds.size);
 
     setContentSize(m_container->getContentSize());
@@ -50,7 +50,7 @@ void ShadowLabel::setText(ZStringView text) {
     m_mainLabel->setText(text);
     m_shadowLabel->setText(text);
 
-    auto bounds = utils::getRealBounds(m_container);
+    auto bounds = tinker::utils::ui::getRealBounds(m_container);
 
     m_container->setContentSize(bounds.size);
     setContentSize(m_container->getContentSize());

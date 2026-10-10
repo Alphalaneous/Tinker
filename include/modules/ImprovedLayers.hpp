@@ -40,9 +40,6 @@ class $module(ImprovedLayers) {
     Ref<CCLabelBMFont> m_oldLabel;
     Ref<CCNode> m_oldLayerLockButton;
     CCNode* m_layerLockButtonParent;
-    Ref<geode::TextInput> m_oldBEInput;
-    Ref<CCNode> m_oldBELayerLock;
-    Ref<CCNode> m_oldBENextFree;
     std::unordered_map<CCNode*, float> m_oldScales;
     std::unordered_map<CCNode*, CCPoint> m_oldPositions;
     GLubyte m_oldLockOpacity;

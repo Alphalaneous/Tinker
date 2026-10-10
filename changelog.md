@@ -1,5 +1,18 @@
 # 1.1.9
-- <c-dddddd>Fix 
+- <c-dddddd>Update to 2.209</c>
+- <c-dddddd>Fix a vanilla crash that could happen when a text area lasts longer than the delegate</c>
+- <c-dddddd>Improve Scrollable Toolbars</c>
+  - <c-dddddd>Better Performance</c>
+  - <c-dddddd>Culling is immediate now</c>
+  - <c-dddddd>Fixed scrollbars showing when they shouldn't</c>
+  - <c-dddddd>Horizontal defaults work properly when a tab has less than row * columns items</c>
+  - <c-dddddd>Culling now removes buttons when off view rather than simply hiding them, improving performance</c>
+- <c-dddddd>Scrolling while hovered over a text input no longer scrolls the editor</c>
+- <c-dddddd>Improved editor load times by making object search index after load</c>
+- <c-dddddd>Improve performance of UI scaling</c>
+- <c-dddddd>Make UI Scaling and UI Safe Area sliders affect the UI live</c>
+- <c-dddddd>Remove BetterEdit compatibility changes and mark incompatible</c>
+- <c-dddddd>Pixel objects are now scaled properly in the Search tab</c>
 
 # 1.1.8
 - <c-dddddd>Fix delete tab being unresponsive</c>

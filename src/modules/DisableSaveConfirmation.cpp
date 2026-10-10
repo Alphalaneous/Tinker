@@ -1,6 +1,6 @@
 #include "modules/DisableSaveConfirmation.hpp"
 #include "MainHooks.hpp"
-#include "utils/Utils.hpp"
+#include "utils/HijackCallback.hpp"
 
 bool DisableSaveConfirmation::onToggled(bool state) {
     if (!state) {

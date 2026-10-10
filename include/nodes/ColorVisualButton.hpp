@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/ColorAction.hpp>
+#include <Geode/binding/EditorUI.hpp>
 #include "nodes/ColorChannelSprite.hpp"
 
 using namespace geode::prelude;

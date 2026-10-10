@@ -1,4 +1,6 @@
-#include <Geode/Geode.hpp>
+#pragma once
+
+#include <Geode/cocos/cocoa/CCGeometry.h>
 
 using namespace geode::prelude;
 

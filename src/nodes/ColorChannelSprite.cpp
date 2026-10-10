@@ -1,6 +1,7 @@
 #include "nodes/ColorChannelSprite.hpp"
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
+#include "utils/Color.hpp"
 #include "modules/ImprovedColorPicker.hpp"
 
 namespace tinker::ui {
@@ -136,7 +137,7 @@ void ColorChannelSprite::updateSprite() {
             auto editor = LevelEditorLayer::get();
 
             if (m_live) {
-                auto colorData = utils::getActiveColor(editor, m_colorID);
+                auto colorData = tinker::utils::objects::getActiveColor(m_colorID);
 
                 color = colorData.color;
                 action = colorData.action;
@@ -160,16 +161,16 @@ void ColorChannelSprite::updateSprite() {
 
                     if (ImprovedColorPicker::getSetting<bool, "show-copy-color">()) {
                         if (action->m_copyID != 0) {
-                            color = tinker::utils::getRealizedColor(action->m_colorID);
+                            color = tinker::utils::objects::getRealizedColor(action->m_colorID);
                         }
                     }
 
                     if (action->m_copyID == 0) {
                         if (action->m_playerColor == 1) {
-                            color = tinker::utils::getRealizedColor(PlayerColor1);
+                            color = tinker::utils::objects::getRealizedColor(PlayerColor1);
                         }
                         else if (action->m_playerColor == 2) {
-                            color = tinker::utils::getRealizedColor(PlayerColor2);
+                            color = tinker::utils::objects::getRealizedColor(PlayerColor2);
                         }
                     }
 

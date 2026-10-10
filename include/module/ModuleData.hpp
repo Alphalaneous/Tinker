@@ -1,6 +1,9 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/loader/Hook.hpp>
+#include <Geode/utils/function.hpp>
+#include <memory>
+#include <vector>
 
 using namespace geode::prelude;
 

@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/ui/Button.hpp>
+#include <Geode/ui/NineSlice.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/binding/GameObject.hpp>
+#include <Geode/binding/StartPosObject.hpp>
 
 using namespace geode::prelude;
 

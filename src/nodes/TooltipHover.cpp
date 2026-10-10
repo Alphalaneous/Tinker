@@ -6,8 +6,10 @@
 #include "modules/UIScaling.hpp"
 #include "modules/ObjectTooltips.hpp"
 #include "InputsHandler.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 #include <smjs.object-collab/include/object_collab_optional.hpp>
+#include "utils/String.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -87,7 +89,7 @@ bool TooltipHover::clickBegan(TouchEvent* touch) {
         m_tooltipBG->setVisible(false);
     }
     m_clicking = true;
-    if (touch->getLocation().y > tinker::utils::getToolbarHeight()) {
+    if (touch->getLocation().y > tinker::utils::ui::getToolbarHeight()) {
         m_clickingOutside = true;
     }
     return true;
@@ -161,18 +163,13 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         }
     }
 
-    auto tabIDRes = alpha::editor_tabs::getCurrentTab();
-    if (!tabIDRes) return;
-    auto tabID = tabIDRes.unwrap();
+    auto tab = alpha::editor_tabs::getCurrentTab();
+    if (!tab) return;
 
-    auto tabRes = alpha::editor_tabs::nodeForTab(tabID);
-    if (!tabRes) return;
-    auto tab = tabRes.unwrap();
+    auto node = tab->getNode();
+    if (!node) return;
 
-    auto editButtonBar = typeinfo_cast<EditButtonBar*>(tab.data());
-    if (!editButtonBar) return;
-
-    if (!editButtonBar->m_hasCreateItems) return;
+    if (!node->m_hasCreateItems) return;
 
     if (!shouldSkip) {
         if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
@@ -180,7 +177,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
         }
 
         if (ScrollableObjects::isEnabled()) {
-            auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(editButtonBar);
+            auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(node);
             auto soEbbFields = scrollEditButtonBar->m_fields.self();
             bool inScrollBounds = alpha::utils::isPointInsideNode(soEbbFields->m_scrollLayer, touch->getLocation());
             if (!inScrollBounds && m_activeItem) {
@@ -199,7 +196,7 @@ void TooltipHover::mouseMoved(TouchEvent* touch)
             }
         }
         else {
-            for (auto item : editButtonBar->m_buttonArray->asExt<CreateMenuItem>()) {
+            for (auto item : node->m_buttonArray->asExt<CreateMenuItem>()) {
                 if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
                 if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation()) && !m_clickingOutside) {
                     m_activeItem = item;
@@ -328,7 +325,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         auto nameRes = ObjectNames::get()->getName(item->m_objectID);
         if (!nameRes) {
             if (auto obj = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
-                name = tinker::utils::capitalize(obj->getCString());
+                name = tinker::utils::string::capitalize(obj->getCString());
             }
         }
         else {

@@ -1,18 +1,19 @@
 #pragma once
 
 #include "utils/Singleton.hpp"
-#include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
+#include <Geode/utils/ZStringView.hpp>
+#include <unordered_map>
 
 using namespace geode::prelude;
 
 class ObjectNames : public Singleton<ObjectNames> {
 public:
     void checkNames(bool ignoreVersion = false);
-    Result<std::string_view> getName(unsigned int id);
+    Result<ZStringView> getName(unsigned int id);
     std::string deduceFromID(ZStringView id);
     const std::unordered_map<unsigned int, std::string>& getNames();
-    void loadNames(std::string_view names);
+    void loadNames(ZStringView names);
 protected:
     int checkVersion();
     void downloadNames();

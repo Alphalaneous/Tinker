@@ -1,4 +1,5 @@
 #include "modules/fixes/TransformFix.hpp"
+#include "utils/Mod.hpp"
 
 bool TransformFix::onToggled(bool state) {
     return true;
@@ -17,7 +18,7 @@ void TFGJTransformControl::updateButtons(bool transform, bool skew) {
 
 void TFGJTransformControl::scaleButtons(float scale) {
     GJTransformControl::scaleButtons(scale);
-    if (tinker::utils::getMod<"razoom.improved_transform_controls">()) return;
+    if (tinker::utils::mod::getMod<"razoom.improved_transform_controls">()) return;
     if (!m_warpLockButton) return;
 
     auto spr = m_warpLockButton->getChildByIndex(0);

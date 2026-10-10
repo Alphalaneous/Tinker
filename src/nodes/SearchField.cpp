@@ -4,9 +4,11 @@
 #include <smjs.object-collab/include/object_collab_optional.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
-#include "utils/Utils.hpp"
+#include "utils/String.hpp"
+#include "utils/UI.hpp"
 #include "modules/ObjectSearch.hpp"
 #include "modules/ScrollableObjects.hpp"
+#include "misc/ObjectNames.hpp"
 
 namespace tinker::ui {
 
@@ -20,9 +22,29 @@ Result<SearchField::ItemInformation> SearchField::infoForID(unsigned int id) {
     auto iter = fields->m_items.find(id);
     if (iter == fields->m_items.end()) return geode::Err("item not found");
 
-    if (iter->second.name.empty()) return geode::Err("item has no name");
-
     return geode::Ok(iter->second);
+}
+
+ZStringView SearchField::nameForInfo(ItemInformation& item) {
+    if (!item.name.empty()) return item.name;
+
+    if (item.id >= 100000000) {
+        auto registryRes = object_collab::getOptionalRegister();
+        if (registryRes) {
+            auto registry = registryRes.unwrap();
+            auto& info = registry[item.id];
+
+            item.name = ObjectNames::get()->deduceFromID(info.id);
+        }
+        else {
+            item.name = "Unknown";
+        }
+    }
+    else {
+        item.name = ObjectNames::get()->getName(item.id).unwrapOrDefault();
+    }
+
+    return item.name;
 }
 
 CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
@@ -41,7 +63,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
     }
 
     if (lower.starts_with("id:")) {
-        std::vector<std::string> parts = tinker::utils::split(lower, ":");
+        std::vector<std::string> parts = tinker::utils::string::split(lower, ":");
         if (parts.size() == 2) {
             Result<int> numRes = numFromString<int>(geode::utils::string::trim(parts[1]));
             if (numRes.isOk()) {
@@ -66,10 +88,10 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
     }
     else if (lower.starts_with("exact:")) {
         auto& items = static_cast<OSEditorUI*>(ObjectSearch::get()->getEditor())->m_fields->m_items;
-        std::vector<std::string> parts = tinker::utils::split(lower, ":", 2);
+        std::vector<std::string> parts = tinker::utils::string::split(lower, ":", 2);
         if (parts.size() == 2) {
             for (auto& [k, v] : items) {
-                std::string lowerV = geode::utils::string::toLower(v.name);
+                std::string lowerV = geode::utils::string::toLower(nameForInfo(v));
                 if (lowerV == geode::utils::string::trim(parts[1])) {
                     auto info = infoForID(k);
                     if (info) arr->addObject(info.unwrap().item);
@@ -89,8 +111,8 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
         auto queryWords = geode::utils::string::split(lower, " ");
         auto& items = static_cast<OSEditorUI*>(ObjectSearch::get()->getEditor())->m_fields->m_items;
 
-        for (const auto& [k, v] : items) {
-            auto nameWords = geode::utils::string::split(geode::utils::string::toLower(v.name), " ");
+        for (auto& [k, v] : items) {
+            auto nameWords = geode::utils::string::split(geode::utils::string::toLower(nameForInfo(v)), " ");
 
             int totalScore = 0;
             bool matches = true;
@@ -117,7 +139,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
             }
 
             if (matches) {
-                nameScores.push_back({k, v.name, totalScore});
+                nameScores.push_back({k, nameForInfo(v), totalScore});
             }
         }
 
@@ -133,7 +155,6 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
                 auto infoRes = infoForID(score.id);
                 if (infoRes) {
                     auto& info = infoRes.unwrap();
-                    auto item = info.item;
                     auto& section = sections[info.tabIndex];
                     section.push_back(info);
                 }
@@ -303,7 +324,7 @@ void SearchField::onClosed() {
         scale = node->getScale();
     }
 
-    setPosition({m_editorUI->getContentWidth() / 2, tinker::utils::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
+    setPosition({m_editorUI->getContentWidth() / 2, tinker::utils::ui::getToolbarHeight(false) + 5.f * scale + buildTabHeight});
 
     auto tab = m_editorUI->m_fields->m_searchBar;
 

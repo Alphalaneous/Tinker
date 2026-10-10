@@ -1,7 +1,14 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/cocos/touch_dispatcher/CCTouch.h>
+#include <Geode/ui/NineSlice.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/utils/function.hpp>
 #include <Geode/ui/SliderNode.hpp>
+#include <ccTypes.h>
+#include <vector>
 
 using namespace geode::prelude;
 

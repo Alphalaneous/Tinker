@@ -1,7 +1,7 @@
 #include "modules/ImprovedControls.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/String.hpp"
 
 void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
     auto label = geode::Label::create(text.c_str(), "bigFont.fnt");
@@ -346,7 +346,7 @@ bool ICGJScaleControl::init() {
             }
             if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
             updateLabelX(scale);
-            fields->m_inputX->setString(tinker::utils::floatToString(scale, 3));
+            fields->m_inputX->setString(tinker::utils::string::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -362,7 +362,7 @@ bool ICGJScaleControl::init() {
             }
             if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
             updateLabelY(scale);
-            fields->m_inputY->setString(tinker::utils::floatToString(scale, 3));
+            fields->m_inputY->setString(tinker::utils::string::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -391,7 +391,7 @@ bool ICGJScaleControl::init() {
             if (m_delegate) m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
 
             updateLabelXY(scale);
-            fields->m_inputXY->setString(tinker::utils::floatToString(scale, 3));
+            fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, 3));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
@@ -700,9 +700,9 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
     fields->m_sliderY->setPercent(trueValueFromScale(m_valueY), true);
     fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
 
-    fields->m_inputX->setString(tinker::utils::floatToString(m_valueX, 3));
-    fields->m_inputY->setString(tinker::utils::floatToString(m_valueY, 3));
-    fields->m_inputXY->setString(tinker::utils::floatToString(scale, 3));
+    fields->m_inputX->setString(tinker::utils::string::floatToString(m_valueX, 3));
+    fields->m_inputY->setString(tinker::utils::string::floatToString(m_valueY, 3));
+    fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, 3));
 
     updateLabelX(m_valueX);
     updateLabelY(m_valueY);
@@ -912,7 +912,7 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     }
 
     if (m_delegate) m_delegate->angleChanged(angle);
-    fields->m_input->setString(tinker::utils::floatToString(angle, 3));
+    fields->m_input->setString(tinker::utils::string::floatToString(angle, 3));
 }
 
 void ICGJRotationControl::finishTouch() {
@@ -972,7 +972,7 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
     
     auto rot = parent->getRotation();
     setControlRotation(rot);
-    fields->m_input->setString(tinker::utils::floatToString(rot, 3));
+    fields->m_input->setString(tinker::utils::string::floatToString(rot, 3));
 }
 
 float ICGJRotationControl::getThumbValue() const {

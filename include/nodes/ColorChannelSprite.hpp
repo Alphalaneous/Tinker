@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/ui/Label.hpp>
+#include <string>
 
 using namespace geode::prelude;
 

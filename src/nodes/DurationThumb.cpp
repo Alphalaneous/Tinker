@@ -1,7 +1,8 @@
 #include "nodes/DurationThumb.hpp"
 #include "nodes/DurationControl.hpp"
 #include "utils/Constants.hpp"
-#include "utils/Utils.hpp"
+#include "utils/Objects.hpp"
+#include "utils/UI.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
 namespace tinker::ui {
@@ -107,7 +108,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
     m_durationLabel->setString(fmt::format("{:.2f}", m_object->m_duration).c_str());
     checkFreeMoving();
 
-    m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+    m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
     
     switch (thumbType) {
         case ThumbType::Default: {
@@ -115,7 +116,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
             break;
         }
         case ThumbType::Multi: {
-            auto center = tinker::utils::getCenter(EditorUI::get());
+            auto center = tinker::utils::objects::getCenter();
             if (center) {
                 setPosition(center.unwrap().second);
             }
@@ -127,7 +128,7 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         }
     }
 
-    m_overlapping = tinker::utils::nodesIntersect(m_thumbSpr, m_object);
+    m_overlapping = tinker::utils::ui::nodesIntersect(m_thumbSpr, m_object);
     setOpacity(m_overlapping ? 127 : 255);
 
     if (m_object->m_objectID == constants::objects::PulseTrigger && thumbType != ThumbType::Default) {
@@ -181,7 +182,7 @@ void DurationThumb::positionPulseSlider() {
     if (m_object->m_isDirty) {
         runAction(CallFuncExt::create([this] {
             if (!m_object) return;
-            m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+            m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
         }));
     }
 
@@ -190,7 +191,7 @@ void DurationThumb::positionPulseSlider() {
         start.x = 0.f;
     }
 
-    auto end = tinker::utils::getEndPos(m_object);
+    auto end = tinker::utils::objects::getEndPos(m_object);
 
     setPosition({
         std::lerp(start.x, end.x, percent),
@@ -204,10 +205,10 @@ void DurationThumb::update(float dt) {
     if (m_thumbType == ThumbType::Multi) {
 
         if (m_object->m_endPosition == CCPointZero) {
-            m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+            m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
         }
 
-        center = tinker::utils::getCenter(EditorUI::get());
+        center = tinker::utils::objects::getCenter();
     }
 
     if (!m_dragging) {
@@ -259,7 +260,7 @@ void DurationThumb::update(float dt) {
                     }
                 }
                 else {
-                    setPosition(tinker::utils::getEndPos(m_object));
+                    setPosition(tinker::utils::objects::getEndPos(m_object));
                 }
             }
         }
@@ -269,7 +270,7 @@ void DurationThumb::update(float dt) {
         m_dragging = false;
     }
 
-    bool overlap = tinker::utils::nodesIntersect(m_thumbSpr, m_object);
+    bool overlap = tinker::utils::ui::nodesIntersect(m_thumbSpr, m_object);
     if (overlap != m_overlapping) {
         stopAction(m_fadeInAction);
         stopAction(m_fadeOutAction);
@@ -394,7 +395,7 @@ void DurationThumb::checkForNewLongest() {
 
     auto unitRefDir = CCPoint{refDir.x / refLen, refDir.y / refLen};
 
-    m_object = tinker::utils::getFurthestEndObject(objects, unitRefDir);
+    m_object = tinker::utils::objects::getFurthestEndObject(objects, unitRefDir);
 }
 
 void DurationThumb::select(bool select) {
@@ -409,7 +410,7 @@ void DurationThumb::select(bool select) {
         if (m_thumbType == ThumbType::Multi) {
             checkForNewLongest();
             m_selectedStartingDurations.clear();
-            auto center = tinker::utils::getCenter(EditorUI::get());
+            auto center = tinker::utils::objects::getCenter();
             if (center) {
                 setPosition(center.unwrap().second);
             }
@@ -501,17 +502,17 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
             }
         }
 
-        auto center = tinker::utils::getCenter(EditorUI::get());
+        auto center = tinker::utils::objects::getCenter();
         if (center) {
             m_start = center.unwrap().first;
             m_startingEndPos = center.unwrap().second;
         }
 
-        m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+        m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
         m_durationLabel->setString(fmt::format("{:+.2f}", 0.f).c_str());
     }
     else {
-        m_startingEndPos = tinker::utils::getEndPos(m_object);
+        m_startingEndPos = tinker::utils::objects::getEndPos(m_object);
         if (skipSet) {
             m_object->m_endPosition = m_startingEndPos;
         }
@@ -603,7 +604,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         }
 
         if (m_thumbType == ThumbType::Default) {
-            m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+            m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
             setPosition(m_object->m_endPosition);
         }
         else {
@@ -614,7 +615,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         if (m_thumbType == ThumbType::Default) {
             m_object->m_duration = m_startingDuration * percent;
             duration = m_object->m_duration;
-            m_object->m_endPosition = tinker::utils::getEndPos(m_object);
+            m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
             setPosition(m_object->m_endPosition);
         }
         else if (m_thumbType == ThumbType::Multi) {
@@ -633,8 +634,8 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
                 }
             }
 
-            m_object->m_endPosition = tinker::utils::getEndPos(m_object);
-            auto center = tinker::utils::getCenter(EditorUI::get());
+            m_object->m_endPosition = tinker::utils::objects::getEndPos(m_object);
+            auto center = tinker::utils::objects::getCenter();
             if (center) {
                 setPosition(center.unwrap().second);
             }
@@ -658,7 +659,7 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
                         effectObj->m_duration = 0.00001f;
                     }
                 }
-                effectObj->m_endPosition = tinker::utils::getEndPos(effectObj);
+                effectObj->m_endPosition = tinker::utils::objects::getEndPos(effectObj);
             }
         }
     }

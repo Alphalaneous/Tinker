@@ -1,13 +1,41 @@
 #include "modules/SlopeDirectionIndicators.hpp"
 
+
 bool SlopeDirectionIndicators::onToggled(bool state) {
+    if (state) {
+        onEditor();
+    }
+    else {
+        if (m_directionDraw) {
+            m_directionDraw->removeFromParent();
+            m_directionDraw = nullptr;
+        }
+    }
     return true;
 }
 
-void SlopeDirectionDraw::drawIndicator(GameObject* obj, float minX, float maxX, float minY, float maxY) {
+void SlopeDirectionIndicators::onEditor() {
+    auto editorLayer = getEditorLayer();
+
+    m_directionDraw = tinker::ui::SlopeDirectionDraw::create();
+    m_directionDraw->setID("slope-direction"_spr);
+    m_directionDraw->setZOrder(0);
+    editorLayer->m_drawGridLayer->addChild(m_directionDraw);
+}
+
+namespace tinker::ui {
+
+SlopeDirectionDraw* SlopeDirectionDraw::create() {
+    auto ret = new SlopeDirectionDraw();
+    ret->autorelease();
+    return ret;
+}
+
+void SlopeDirectionDraw::drawIndicator(GameObject* obj, const CCRect& visibleRect) {
     if (obj->m_objectType != GameObjectType::Slope) return;
     auto& rect = obj->getObjectRect();
-    if (rect.getMaxX() < minX || rect.getMinX() > maxX || rect.getMaxY() < minY || rect.getMinY() > maxY) return;
+
+    if (rect.getMaxX() < visibleRect.getMinX() || rect.getMinX() > visibleRect.getMaxX() || rect.getMaxY() < visibleRect.getMinY() || rect.getMinY() > visibleRect.getMaxY()) return;
 
     obj->determineSlopeDirection();
 
@@ -26,7 +54,7 @@ void SlopeDirectionDraw::drawIndicator(GameObject* obj, float minX, float maxX, 
         {TR, BR, BL},
     };
 
-    const ccVertex2F corners[] = {
+    const CCPoint corners[] = {
         {rect.getMinX(), rect.getMinY()},
         {rect.getMaxX(), rect.getMinY()},
         {rect.getMaxX(), rect.getMaxY()},
@@ -35,30 +63,22 @@ void SlopeDirectionDraw::drawIndicator(GameObject* obj, float minX, float maxX, 
 
     const auto& dir = lookup[obj->m_slopeDirection];
 
-    DrawGridAPI::get().drawLine(corners[dir[0]], corners[dir[1]], {255, 50, 50, 50}, 3);
-    DrawGridAPI::get().drawLine(corners[dir[2]], corners[dir[1]], {255, 50, 50, 50}, 3);
+    drawLine(corners[dir[0]], corners[dir[1]], {255, 50, 50, 50}, 3);
+    drawLine(corners[dir[2]], corners[dir[1]], {255, 50, 50, 50}, 3);
 }
     
-void SlopeDirectionDraw::draw(DrawGridLayer* dgl, float minX, float maxX, float minY, float maxY) {
+void SlopeDirectionDraw::draw(const CCRect& visibleRect) {
+    auto dgl = getDrawGridLayer();
+
     auto editorUI = dgl->m_editorLayer->m_editorUI;
     if (editorUI->m_selectedObject) {
-        drawIndicator(editorUI->m_selectedObject, minX, maxX, minY, maxY);
+        drawIndicator(editorUI->m_selectedObject, visibleRect);
     }
     else {
         for (auto obj : editorUI->m_selectedObjects->asExt<GameObject>()) {
-            drawIndicator(obj, minX, maxX, minY, maxY);
+            drawIndicator(obj, visibleRect);
         }
     }
 }
 
-$on_mod(Loaded) {
-	auto& api = DrawGridAPI::get();
-    
-	auto& node = api.addDraw<SlopeDirectionDraw>("slope-direction-indicators");
-
-    listenForSettingChanges<bool>("SlopeDirectionIndicators-enabled", [&node] (bool val) {
-        node.setEnabled(val);
-    });
-
-    node.setEnabled(SlopeDirectionIndicators::isEnabled());
 }

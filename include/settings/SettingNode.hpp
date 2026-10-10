@@ -1,6 +1,13 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
+#include <Geode/loader/SettingV3.hpp>
+#include <Geode/ui/Button.hpp>
+#include <Geode/ui/Label.hpp>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/utils/string.hpp>
+#include <memory>
 #include "SettingNodeLoader.hpp"
 
 using namespace geode::prelude;

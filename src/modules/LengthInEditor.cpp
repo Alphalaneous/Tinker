@@ -1,5 +1,6 @@
 #include "modules/LengthInEditor.hpp"
 #include "modules/UIScaling.hpp"
+#include "utils/UI.hpp"
 
 bool LengthInEditor::onToggled(bool state) {
     auto editor = getEditor();
@@ -107,14 +108,14 @@ void LengthInEditor::updateUI(float scale) {
     if (!undoMenu || !playbackMenu) return;
     m_lengthContainer->setScale(0.5f * scale);
 
-    auto available = tinker::utils::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::Axis::Vertical);
+    auto available = tinker::utils::ui::getAvailableSpace(undoMenu, playbackMenu, tinker::utils::ui::Axis::Vertical);
 
     float y = (available.min + available.max) / 2.f;
     m_lengthContainer->setPositionY(y);
 
-    if (!tinker::utils::nodeFits(m_lengthContainer, available, tinker::utils::Axis::Vertical)) {
+    if (!tinker::utils::ui::nodeFits(m_lengthContainer, available, tinker::utils::ui::Axis::Vertical)) {
         m_lengthContainer->setPositionY(available.max - m_lengthContainer->getScaledContentHeight() / 2.f - 6.f * scale);
-        float x = std::max(tinker::utils::getFurthestLeft(m_lengthContainer, 150.f * scale), UIScaling::getSafeOffset().x);
+        float x = std::max(tinker::utils::ui::getFurthestLeft(m_lengthContainer, 150.f * scale), UIScaling::getSafeOffset().x);
         m_lengthContainer->setPositionX(x + 5.f * scale);
 
         if (editor->m_objectInfoLabel) {

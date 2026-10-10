@@ -1,5 +1,5 @@
 #include "modules/RelocateBuildTools.hpp"
-#include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
+#include <alphalaneous.editortab_api/include/API.hpp>
 
 StringMap<std::string> RelocateBuildTools::s_labelToIcon = {
     {"Reset\nScroll", "ResetScroll"},
@@ -29,13 +29,8 @@ void RelocateBuildTools::onEditor() {
     CCTouchDispatcher::get()->unregisterForcePrio(m_pauseLayer);
     static_cast<RBTEditorPauseLayer*>(m_pauseLayer.data())->m_fields->m_noResume = true;
 
-    alpha::editor_tabs::addTab("build-tools"_spr, alpha::editor_tabs::EDIT, 
-    [this] {
-        return createBuildTools();
-    },
-    [] {
-        return geode::Label::create("B", "bigFont.fnt");
-    });
+    auto mode = alpha::editor_tabs::getMode(alpha::editor_tabs::Edit);
+    mode->createTab("build-tools"_spr, createBuildTools(), geode::Label::create("B", "bigFont.fnt"));
 
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
         if (auto smallActionsMenu = editorPauseLayer->getChildByID("small-actions-menu")) {
@@ -139,7 +134,7 @@ void RelocateBuildTools::rebuildButtons(std::vector<Ref<CCNode>> nodes) {
     }
 }
 
-CCNode* RelocateBuildTools::createBuildTools() {
+EditButtonBar* RelocateBuildTools::createBuildTools() {
     
     std::vector<Ref<CCNode>> nodes;
 
@@ -163,7 +158,7 @@ CCNode* RelocateBuildTools::createBuildTools() {
         rebuildButtons(nodes);
     }
 
-    return alpha::editor_tabs::createEditButtonBar(nodes);
+    return alpha::editor_tabs::createTabBar(nodes);
 }
 
 void RBTEditorPauseLayer::onResume(CCObject* sender) {

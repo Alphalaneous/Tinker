@@ -1,4 +1,5 @@
 #include "modules/MixedEditExtras.hpp"
+#include "utils/HijackCallback.hpp"
 
 bool MixedEditExtras::onToggled(bool state) {
     return true;

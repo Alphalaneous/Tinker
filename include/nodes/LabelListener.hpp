@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/label_nodes/CCLabelBMFont.h>
+#include <Geode/utils/ZStringView.hpp>
+#include <Geode/utils/function.hpp>
 
 using namespace geode::prelude;
 

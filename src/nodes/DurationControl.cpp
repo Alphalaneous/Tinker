@@ -1,6 +1,6 @@
 #include "nodes/DurationControl.hpp"
-#include "utils/Utils.hpp"
 #include "utils/Constants.hpp"
+#include "utils/Objects.hpp"
 
 namespace tinker::ui {
 
@@ -87,14 +87,14 @@ EffectGameObject* DurationControl::getEndObject() {
 
     auto unitRefDir = CCPoint{ refDir.x / refLen, refDir.y / refLen };
 
-    return tinker::utils::getFurthestEndObject(objects, unitRefDir);
+    return tinker::utils::objects::getFurthestEndObject(objects, unitRefDir);
 }
 
 void DurationControl::onAlign(CCObject* obj) {
     createQuickPopup("Align All?", "Align all to the furthest duration?", "Cancel", "Yes", [&] (FLAlertLayer*, bool btn){
         if (btn) {
             auto endObj = getEndObject();
-            auto endPos = tinker::utils::getEndPos(endObj);
+            auto endPos = tinker::utils::objects::getEndPos(endObj);
 
             auto dgl = LevelEditorLayer::get()->m_drawGridLayer;
 
@@ -149,7 +149,7 @@ void DurationControl::onAlign(CCObject* obj) {
                 else {
                     k->m_duration = newTime;
                 }
-                k->m_endPosition = tinker::utils::getEndPos(k);
+                k->m_endPosition = tinker::utils::objects::getEndPos(k);
             }
         }
     }, true);

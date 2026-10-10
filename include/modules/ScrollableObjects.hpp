@@ -5,6 +5,7 @@
 #include <Geode/modify/EditorOptionsLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.editortab_api/include/Tab.hpp>
 
 class $module(ScrollableObjects) {
     bool m_shouldLoadBars;
@@ -32,21 +33,18 @@ class $modify(SOEditorUI, EditorUI) {
     };
 
     void updateCreateMenu(bool selectTab);
-    void reloadTabsSafe();
 };
 
 class $modify(SOEditButtonBar, EditButtonBar) {
     $registerHooks(ScrollableObjects, true)
 
     struct Fields {
+        Ref<CCNode> m_container;
         Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer;
         Ref<alpha::ui::AdvancedScrollBar> m_scrollBar;
-        Ref<RowLayout> m_scrollLayout;
         Ref<CCMenu> m_objectsMenu;
         Ref<CCMenu> m_extrasMenu;
         Ref<CCNode> m_extrasMenuContainer;
-        Ref<BoomScrollLayer> m_dummyScrollLayer;
-        std::vector<Ref<CCNode>> m_items;
 
         Ref<CCSprite> m_separator;
         Ref<ColumnLayout> m_extrasLayout;
@@ -56,29 +54,26 @@ class $modify(SOEditButtonBar, EditButtonBar) {
         int m_cols;
 
         bool m_initialized;
-        bool m_loading;
+        bool m_wasItemless;
+        bool m_hadAutoScale;
 
-        bool m_editTab;
+        std::unordered_map<float, std::vector<CCNode*>> m_columns;
+        std::set<Ref<CCNode>> m_visibleNodes;
 
-        CCRect m_world;
-
-        std::vector<Ref<CCNode>> m_visibleNodes;
-        std::vector<Ref<CCMenuItemSpriteExtra>> m_extrasButtons;
+        alpha::editor_tabs::Tab* m_tab;
     };
 
-    static EditButtonBar* create(cocos2d::CCArray* objects, cocos2d::CCPoint position, int tab, bool hasCreateItems, int columns, int rows);
+    void setupScrollable(alpha::editor_tabs::Tab* tab);
+    void revertScrollable();
+    void loadItems(int rows);
+    void updateBar();
 
-    void revertChanges();
-    void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
-    void goToPage(int page);
     void cull(SOEditButtonBar::Fields* fields, float x);
 
     void createExtrasMenu();
     void addToExtrasMenu(CCMenuItemSpriteExtra* button);
     void removeFromExtrasMenu(CCMenuItemSpriteExtra* button);
     void removeFromExtrasMenu(ZStringView ID);
-    void clearExtrasMenu();
-    void updateScrollSize();
 
     static void _onModify(auto& self) {
         (void) self.setHookPriority("EditButtonBar::loadFromItems", Priority::Replace);

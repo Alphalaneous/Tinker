@@ -1,9 +1,7 @@
 #include "nodes/RotationNode.hpp"
-#include <alphalaneous.good_grid/include/DrawGridAPI.hpp>
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include "Events.hpp"
 #include "InputsHandler.hpp"
-#include "utils/Utils.hpp"
+#include "utils/UI.hpp"
 #include "modules/CanvasRotate.hpp"
 
 namespace tinker::ui {
@@ -35,10 +33,6 @@ bool RotationNode::init(EditorUI* editor) {
         m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
 
         EditorRotationEvent().send(m_rotation);
-
-        DrawGridAPI::get().setLineSmoothing(static_cast<int>(std::round(m_rotation)) % 90 != 0);
-
-        DrawGridAPI::get().markDirty();
     });
 
     addEventListener(EditorPausedEvent(), [this] (EditorPauseLayer* editorPauseLayer) {
@@ -59,7 +53,7 @@ bool RotationNode::init(EditorUI* editor) {
 }
 
 bool RotationNode::clickBegan(alpha::dispatcher::TouchEvent* touch) {
-    if (touch->getLocation().y < tinker::utils::getToolbarHeight()) return false;
+    if (touch->getLocation().y < tinker::utils::ui::getToolbarHeight()) return false;
     if (!CanvasRotate::getSetting<bool, "use-modifier">()) return false;
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return false;
     if (InputEditorUI::get()->hasActiveAlerts()) return false;
@@ -145,9 +139,9 @@ void RotationNode::onExit() {
 
 void RotationNode::translate(CCTouch* touch) {
     auto winSize = CCDirector::get()->getWinSize();
-    auto newPoint = tinker::utils::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
-    auto newStartPoint = tinker::utils::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
-    auto newPrevPoint = tinker::utils::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
+    auto newPoint = tinker::utils::ui::rotatePointAroundPivot(touch->getLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
+    auto newStartPoint = tinker::utils::ui::rotatePointAroundPivot(touch->getStartLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
+    auto newPrevPoint = tinker::utils::ui::rotatePointAroundPivot(touch->getPreviousLocation(), winSize / 2.f, m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
 
     touch->m_point = CCPoint{newPoint.x, winSize.height - newPoint.y};
     touch->m_startPoint = CCPoint{newStartPoint.x, winSize.height - newStartPoint.y};
@@ -196,10 +190,6 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
     m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = m_smoothedCameraAngle;
 
     m_rotation = m_editorUI->m_editorLayer->m_gameState.m_cameraAngle;
-
-    DrawGridAPI::get().setLineSmoothing(static_cast<int>(std::round(m_rotation)) % 90 != 0);
-
-    DrawGridAPI::get().markDirty();
 
     EditorRotationEvent().send(m_rotation);
 }

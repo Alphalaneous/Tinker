@@ -7,6 +7,7 @@
 #include "modules/Gizmos/TestGizmo.hpp"
 #include "nodes/LabelledToggle.hpp"
 #include "utils/Constants.hpp"
+#include "utils/UI.hpp"
 
 namespace tinker::ui {
 
@@ -350,7 +351,7 @@ void GCCTouchDispatcher::touches(CCSet* touches, CCEvent* event, unsigned int in
         auto firstTouch = static_cast<CCTouch*>(touches->anyObject());
         if (firstTouch) {
             auto mainPos = InputEditorUI::getTouchLocation(firstTouch);
-            if (mainPos.y <= tinker::utils::getToolbarHeight()) {
+            if (mainPos.y <= tinker::utils::ui::getToolbarHeight()) {
                 blockTouch = true;
             }
         }
@@ -441,7 +442,7 @@ bool GLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
 
 void GEditorUI::placeGizmo() {
     auto winSize = CCDirector::get()->getWinSize();
-    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::getToolbarHeight() / 2.f});
+    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
 
     auto oldClick = m_clickAtPosition;
     

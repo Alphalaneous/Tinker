@@ -1,6 +1,10 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/actions/CCAction.h>
+#include <Geode/cocos/actions/CCActionInterval.h>
+#include <Geode/cocos/base_nodes/CCNode.h>
+#include <Geode/utils/cocos.hpp>
+#include <Geode/utils/function.hpp>
 
 using namespace geode::prelude;
 

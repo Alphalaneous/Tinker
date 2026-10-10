@@ -1,6 +1,7 @@
 #include "modules/AlternateLassoLocation.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
+#include "utils/Mod.hpp"
 
 bool AlternateLassoLocation::onToggled(bool state) {
     if (state) {
@@ -67,7 +68,7 @@ void AlternateLassoLocation::onEditor() {
 
     m_newToggler = CCMenuItemToggler::create(sprOn, sprOff, getEditor(), menu_selector(AlternateLassoLocation::onLasso));
     m_newToggler->setID("undefined0.lasso-select/lasso-button-toggler");
-    m_newToggler->toggle(tinker::utils::getMod<"undefined0.lasso-select">()->getSavedValue<bool>("use-lasso", true));
+    m_newToggler->toggle(tinker::utils::mod::getMod<"undefined0.lasso-select">()->getSavedValue<bool>("use-lasso", true));
     alpha::editor_sounds::assignToMenuItem(m_newToggler, "toolbar-toggles");
 
     togglesMenu->addChild(m_newToggler);

@@ -1,8 +1,11 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+#include <Geode/cocos/cocoa/CCObject.h>
+#include <Geode/utils/function.hpp>
 
 using namespace geode::prelude;
+
+namespace tinker::utils {
 
 class HijackCallback : public CCObject {
     public:
@@ -15,3 +18,7 @@ class HijackCallback : public CCObject {
     Hijack m_method;
     SEL_MenuHandler m_selector;
 };
+
+void hijackButton(CCMenuItem* btn, HijackCallback::Hijack method);
+
+}

@@ -2,6 +2,7 @@
 #include "MainHooks.hpp"
 #include "modules/LengthInEditor.hpp"
 #include "modules/UIScaling.hpp"
+#include "utils/UI.hpp"
 
 bool MusicCameraLock::onToggled(bool state) {
     if (state) {
@@ -108,7 +109,7 @@ void MCLLevelEditorLayer::lockCamera(float dt) {
         y = m_objectLayer->getPositionY();
     }
     else {
-        y = -((dgl->m_playbackY) * scale - winSize.height / 2.f - tinker::utils::getToolbarHeight() / 2.f);
+        y = -((dgl->m_playbackY) * scale - winSize.height / 2.f - tinker::utils::ui::getToolbarHeight() / 2.f);
     }
 
     m_objectLayer->setPosition(CCPoint{x, y});

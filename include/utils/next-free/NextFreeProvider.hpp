@@ -1,7 +1,10 @@
 #pragma once
 
 #include "utils/Singleton.hpp"
-#include <Geode/Geode.hpp>
+#include <Geode/Result.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <concepts>
+#include <unordered_set>
 
 using namespace geode::prelude;
 

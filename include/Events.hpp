@@ -1,6 +1,14 @@
 #pragma once
 
-#include <Geode/Geode.hpp>
+
+#include <Geode/binding/EditorPauseLayer.hpp>
+#include <Geode/binding/EditorUI.hpp>
+#include <Geode/binding/GameObject.hpp>
+#include <Geode/binding/SetGroupIDLayer.hpp>
+#include <Geode/cocos/cocoa/CCArray.h>
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/loader/Event.hpp>
+#include <Geode/utils/Keyboard.hpp>
 
 using namespace geode::prelude;
 
