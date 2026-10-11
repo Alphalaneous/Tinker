@@ -1,6 +1,8 @@
 #include "nodes/StartPosOverlay.hpp"
 #include "modules/StartPosTools.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 StartPosOverlay* StartPosOverlay::create() {

@@ -1,5 +1,6 @@
 #include "modules/SlopeDirectionIndicators.hpp"
 
+using namespace geode::prelude;
 
 bool SlopeDirectionIndicators::onToggled(bool state) {
     if (state) {

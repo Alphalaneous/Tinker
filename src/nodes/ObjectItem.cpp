@@ -1,8 +1,9 @@
 #include "nodes/ObjectItem.hpp"
 #include <Geode/ui/GeodeUI.hpp>
+#include <Geode/utils/random.hpp>
 #include "utils/Constants.hpp"
 
-using namespace tinker::constants::objects;
+using namespace geode::prelude;
 
 namespace tinker::ui {
 
@@ -11,12 +12,12 @@ bool ObjectItem::init(int objectID, int count) {
 
     auto arr = CCArray::create();
 
-    CCNode* object;
+    CCNode* object = nullptr;
 
-    if (objectID == Particle) {
+    if (objectID == tinker::constants::objects::Particle) {
         object = CCSprite::createWithSpriteFrameName("edit_eCParticleBtn_001.png");
     }
-    else if (objectID == LinkedTeleportPortal) {
+    else if (objectID == tinker::constants::objects::LinkedTeleportPortal) {
         object = CCNode::create();
         object->setContentSize({100.f, 100.f});
         object->setAnchorPoint({0.5f, 0.5f});
@@ -68,7 +69,7 @@ bool ObjectItem::init(int objectID, int count) {
     bg->setPosition({max / 2.f + gap / 2.f, max / 2.f + labelOffset + gap / 2.f});
     bg->setID("background"_spr);
 
-    utils::random::Generator generator(objectID);
+    geode::utils::random::Generator generator(objectID);
 
     for (int i = 0; i < 5; i++) {
         generator.next();

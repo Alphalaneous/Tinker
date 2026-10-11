@@ -4,23 +4,21 @@
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <Geode/cocos/touch_dispatcher/CCTouch.h>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class SupportButton : public CCLayer {
+class SupportButton : public cocos2d::CCLayer {
 public:
     static SupportButton* create(float width);
 protected:
     bool init(float width);
 
-    bool ccTouchBegan(CCTouch* touch, CCEvent* event);
-    void ccTouchMoved(CCTouch* touch, CCEvent* event);
-    void ccTouchEnded(CCTouch* touch, CCEvent* event);
-    void ccTouchCancelled(CCTouch* touch, CCEvent* event);
+    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+    void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void registerWithTouchDispatcher();
 
-    CCSprite* m_banner;
+    cocos2d::CCSprite* m_banner = nullptr;
 };
 
 }

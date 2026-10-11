@@ -1,6 +1,8 @@
 #include "modules/OldColorTriggers.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::constants::objects;
 
 std::unordered_map<int, std::string> OldColorTriggers::s_textureMap = {

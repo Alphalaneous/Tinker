@@ -1,6 +1,7 @@
 #pragma once
 
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <Geode/utils/cocos.hpp>
 #include "module/Module.hpp"
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
@@ -12,7 +13,7 @@ class Gizmo;
 
 class GizmoInterface {
 public:
-    virtual CCNode* setup() { return nullptr; }
+    virtual cocos2d::CCNode* setup() { return nullptr; }
     virtual void onEditObject() {}
     virtual void loadData(std::optional<const matjson::Value> data) {}
     virtual matjson::Value saveData() { return {}; }
@@ -24,26 +25,26 @@ public:
     void setObject(Gizmo* object);
     Gizmo* getObject();
 
-    const CCSize& getEditPopupSize();
-    ZStringView getEditPopupTitle();
+    const cocos2d::CCSize& getEditPopupSize();
+    geode::ZStringView getEditPopupTitle();
 
 protected:
-    Gizmo* m_object;
+    Gizmo* m_object = nullptr;
 
-    CCSize m_editPopupSize;
-    std::string m_editPopupTitle;
+    cocos2d::CCSize m_editPopupSize{};
+    std::string m_editPopupTitle = "";
 };
 
 namespace tinker::ui {
 
-class ScheduleNode : public CCNodeRGBA {
+class ScheduleNode : public cocos2d::CCNodeRGBA {
 public:
     static ScheduleNode* create(geode::Function<void(float dt)> callback);
 protected:
     bool init(geode::Function<void(float dt)> callback);
     void update(float dt) override;
 
-    geode::Function<void(float dt)> m_callback;
+    geode::Function<void(float dt)> m_callback = nullptr;
 };
 
 template<class T>
@@ -77,12 +78,12 @@ protected:
         auto okSpr = ButtonSprite::create("OK");
         okSpr->setID("ok-button-sprite"_spr);
 
-        auto okBtn = CCMenuItemExt::createSpriteExtra(okSpr, [this] (auto sender) {
+        auto okBtn = geode::cocos::CCMenuItemExt::createSpriteExtra(okSpr, [this] (auto sender) {
             onClose(sender);
         });
         okBtn->setID("ok-button"_spr);
 
-        m_buttonMenu->addChildAtPosition(okBtn, Anchor::Bottom, {0.f, 8.f + okBtn->getContentHeight() / 2.f}, false);
+        m_buttonMenu->addChildAtPosition(okBtn, geode::Anchor::Bottom, {0.f, 8.f + okBtn->getContentHeight() / 2.f}, false);
         m_buttonMenu->setID("main-menu"_spr);
 
         addEventListener(listenForClose(), [this] {
@@ -94,7 +95,7 @@ protected:
         return true;
     }
 
-    T* m_gizmo;
+    T* m_gizmo = nullptr;
 };
 
 class EditSpecialGizmoPopup : public geode::Popup {
@@ -104,7 +105,7 @@ protected:
     bool init(const std::set<Gizmo*>& gizmos);
     void forEachGizmo(geode::Function<bool(Gizmo* gizmo)> callback);
 
-    std::set<Gizmo*> m_gizmos;
+    std::set<Gizmo*> m_gizmos{};
 };
 
 }
@@ -112,13 +113,13 @@ protected:
 class Gizmo : public GameObject {
 public:
     static Gizmo* create();
-    static Gizmo* createWithID(ZStringView ID);
-    void setChildNode(CCNode* node);
+    static Gizmo* createWithID(geode::ZStringView ID);
+    void setChildNode(cocos2d::CCNode* node);
     void updateBounds();
-    CCNode* getChildNode();
+    cocos2d::CCNode* getChildNode();
 
-    void setGizmoID(ZStringView ID);
-    ZStringView getGizmoID();
+    void setGizmoID(geode::ZStringView ID);
+    geode::ZStringView getGizmoID();
 
     void setCanEditObject(bool canEdit);
     bool canEditObject();
@@ -140,38 +141,38 @@ public:
 
     void setRotation(float rotation) override;
 protected:
-    bool initWithID(ZStringView ID);
+    bool initWithID(geode::ZStringView ID);
     bool init() override;
 
-    bool m_visibleDuringPlaytest;
-    bool m_interactiveDuringPlaytest;
-    bool m_canEditObject;
-    std::string m_gizmoID;
-    tinker::ui::ScheduleNode* m_scheduleNode;
-    CCNode* m_childNode;
-    std::shared_ptr<GizmoInterface> m_gizmoInterface;
-    alpha::ui::RenderNode* m_renderNode;
+    bool m_visibleDuringPlaytest = false;
+    bool m_interactiveDuringPlaytest = false;
+    bool m_canEditObject = false;
+    std::string m_gizmoID = "";
+    tinker::ui::ScheduleNode* m_scheduleNode = nullptr;
+    cocos2d::CCNode* m_childNode = nullptr;
+    std::shared_ptr<GizmoInterface> m_gizmoInterface = nullptr;
+    alpha::ui::RenderNode* m_renderNode = nullptr;
 };
 
 class $module(Gizmos, true) {
-    int m_unusedID;
-    StringMap<geode::Function<std::shared_ptr<GizmoInterface>()>> m_gizmoForID;
-    bool m_useSelectedGizmo;
-    std::string m_selectedGizmo;
-    std::set<CCTouchDelegate*> m_removedDelegates;
+    int m_unusedID = 0;
+    geode::utils::StringMap<geode::Function<std::shared_ptr<GizmoInterface>()>> m_gizmoForID{};
+    bool m_useSelectedGizmo = false;
+    std::string m_selectedGizmo = "";
+    std::set<cocos2d::CCTouchDelegate*> m_removedDelegates{};
 
     template <class T>
-    void registerGizmo(ZStringView ID) {
+    void registerGizmo(geode::ZStringView ID) {
         m_gizmoForID[ID] = [] {
             return std::make_shared<T>();
         };
     }
 
-    std::shared_ptr<GizmoInterface> interfaceForID(ZStringView ID);
+    std::shared_ptr<GizmoInterface> interfaceForID(geode::ZStringView ID);
 
-    void selectGizmo(ZStringView ID);
+    void selectGizmo(geode::ZStringView ID);
     void unselectGizmo();
-    ZStringView getSelectedGizmo();
+    geode::ZStringView getSelectedGizmo();
     bool useSelectedGizmo();
 
     void setupGizmos();
@@ -185,16 +186,16 @@ class $modify(GGameObject, GameObject) {
     static GameObject* createWithKey(const int key);
 };
 
-class $modify(GCCTouchDispatcher, CCTouchDispatcher) {
+class $modify(GCCTouchDispatcher, cocos2d::CCTouchDispatcher) {
     $registerHooks(Gizmos, true)
 
     static void _onModify(auto& self) {
-        (void) self.setHookPriorityPre("CCTouchDispatcher::touches", Priority::VeryEarlyPre);
+        (void) self.setHookPriorityPre("CCTouchDispatcher::touches", geode::Priority::VeryEarlyPre);
     }
 
-    void removeDelegate(CCTouchDelegate* delegate);
-    void addTargetedDelegate(CCTouchDelegate* delegate, int priority, bool swallowsTouches);
-    void touches(CCSet* touches, CCEvent* event, unsigned int index);
+    void removeDelegate(cocos2d::CCTouchDelegate* delegate);
+    void addTargetedDelegate(cocos2d::CCTouchDelegate* delegate, int priority, bool swallowsTouches);
+    void touches(cocos2d::CCSet* touches, cocos2d::CCEvent* event, unsigned int index);
 };
 
 class $modify(GEditorPauseLayer, EditorPauseLayer) {

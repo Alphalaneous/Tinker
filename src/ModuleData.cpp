@@ -1,19 +1,21 @@
 #include "module/ModuleData.hpp"
 
+using namespace geode::prelude;
+
 class ModuleData::Impl final {
 public:
-    std::vector<std::shared_ptr<Hook>> m_hooks;
-    geode::Function<void()> m_onEditor;
-    geode::Function<bool()> m_moduleEnabled;
+    std::vector<std::shared_ptr<geode::Hook>> m_hooks{};
+    geode::Function<void()> m_onEditor = nullptr;
+    geode::Function<bool()> m_moduleEnabled = nullptr;
 
-    bool m_isGlobal;
+    bool m_isGlobal = false;
 };
 
 ModuleData::ModuleData() : m_impl(std::make_unique<Impl>()) {}
 
 ModuleData::~ModuleData() {}
 
-std::vector<std::shared_ptr<Hook>>& ModuleData::getHooks() {
+std::vector<std::shared_ptr<geode::Hook>>& ModuleData::getHooks() {
     return m_impl->m_hooks;
 }
 

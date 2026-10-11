@@ -9,9 +9,9 @@ using namespace alpha::prelude;
 
 namespace tinker::ui {
 
-class ObjectSelectContainer : public CCNode {
+class ObjectSelectContainer : public cocos2d::CCNode {
 public:
-    static ObjectSelectContainer* create(CCArray* objects);
+    static ObjectSelectContainer* create(cocos2d::CCArray* objects);
 
     void shiftObject(bool forward);
     GameObject* getCurrentObject();
@@ -20,28 +20,28 @@ public:
     void showInfo();
 protected:
 
-    bool init(CCArray* objects);
+    bool init(cocos2d::CCArray* objects);
 
-    int m_index;
+    int m_index = 0;
 
-    Ref<CCArray> m_objects;
+    geode::Ref<cocos2d::CCArray> m_objects = nullptr;
 
-    geode::NineSlice* m_objectsBG;
-    AdvancedScrollLayer* m_scrollLayer;
-    std::unordered_map<Ref<GameObject>, Ref<CCSprite>> m_objectSprites;
+    geode::NineSlice* m_objectsBG = nullptr;
+    AdvancedScrollLayer* m_scrollLayer = nullptr;
+    std::unordered_map<geode::Ref<GameObject>, geode::Ref<cocos2d::CCSprite>> m_objectSprites{};
 
-    geode::NineSlice* m_infoBG;
+    geode::NineSlice* m_infoBG = nullptr;
 
-    CCSprite* m_selectDot;
+    cocos2d::CCSprite* m_selectDot = nullptr;
 };
 
-class HoverObjectNode : public CCNode, public TouchDelegate {
+class HoverObjectNode : public cocos2d::CCNode, public TouchDelegate {
 public:
     static HoverObjectNode* create();
     bool hoveringObjects();
     void stopHover();
 
-    static CCPoint rotatedPos(const CCPoint& pos);
+    static cocos2d::CCPoint rotatedPos(const cocos2d::CCPoint& pos);
 protected:
 
     bool init() override;
@@ -54,19 +54,19 @@ protected:
     void quickSelect();
     void selectObject(GameObject* object, bool toggleSelect = false);
 
-    void onHoverObjects(const CCPoint& pos);
+    void onHoverObjects(const cocos2d::CCPoint& pos);
 
     void showObjectList();
     void removeObjectList();
     void shiftObject(bool forward);
 
-    Ref<ObjectSelectContainer> m_activeSelectContainer;
-    Ref<CCArray> m_lastObjects;
-    CCPoint m_lastPos;
-    bool m_active;
-    bool m_modifierPressed;
-    bool m_stopped;
-    bool m_skipStop;
+    geode::Ref<ObjectSelectContainer> m_activeSelectContainer = nullptr;
+    geode::Ref<cocos2d::CCArray> m_lastObjects = nullptr;
+    cocos2d::CCPoint m_lastPos{};
+    bool m_active = false;
+    bool m_modifierPressed = false;
+    bool m_stopped = false;
+    bool m_skipStop = false;
 };
 
 }
@@ -80,8 +80,8 @@ class $module(BetterSelect) {
     bool hoveringObjects();
     void stopHover();
 
-    tinker::ui::HoverObjectNode* m_hover;
-    CCNode* m_selectPickerContainer;
+    tinker::ui::HoverObjectNode* m_hover = nullptr;
+    cocos2d::CCNode* m_selectPickerContainer = nullptr;
 };
 
 class $modify(BSEditorUI, EditorUI) {

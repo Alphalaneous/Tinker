@@ -6,29 +6,29 @@
 
 namespace tinker::ui {
 
-class SizeContainer : public CCNode {
+class SizeContainer : public cocos2d::CCNode {
 public:
-    static SizeContainer* create(ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback);
+    static SizeContainer* create(geode::ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback);
 
     void setEnabled(bool enabled);
     void setValue(float value);
     
 protected:
-    bool init(ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback);
+    bool init(geode::ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback);
 
     void updateValue();
 
-    bool m_compact;
-    geode::Function<void(float)> m_sizeCallback;
+    bool m_compact = false;
+    geode::Function<void(float)> m_sizeCallback = nullptr;
 
-    float m_value;
+    float m_value = 0.f;
 
-    float m_min;
-    float m_max;
+    float m_min = 0.f;
+    float m_max = 0.f;
 
-    SliderNode* m_sizeSlider;
-    geode::TextInput* m_sizeInput;
-    bool m_skipSliderCallback;
+    geode::SliderNode* m_sizeSlider = nullptr;
+    geode::TextInput* m_sizeInput = nullptr;
+    bool m_skipSliderCallback = false;
 };
 
 class GridSizePopup : public geode::Popup {
@@ -41,21 +41,21 @@ protected:
     void setupSizePage();
     void setupOffsetPage();
 
-    int m_page;
+    int m_page = 0;
 
-    geode::Label* m_titleLabel;
+    geode::Label* m_titleLabel = nullptr;
 
-    geode::NineSlice* m_background;
-    CCMenuItemSpriteExtra* m_clearBtn;
-    CCMenuItemSpriteExtra* m_alignBtn;
-    geode::Label* m_enabledLabel;
-    CCMenuItemToggler* m_enabledCheckbox;
-    SizeContainer* m_sizeContainer;
-    SizeContainer* m_sizeXContainer;
-    SizeContainer* m_sizeYContainer;
+    geode::NineSlice* m_background = nullptr;
+    CCMenuItemSpriteExtra* m_clearBtn = nullptr;
+    CCMenuItemSpriteExtra* m_alignBtn = nullptr;
+    geode::Label* m_enabledLabel = nullptr;
+    CCMenuItemToggler* m_enabledCheckbox = nullptr;
+    SizeContainer* m_sizeContainer = nullptr;
+    SizeContainer* m_sizeXContainer = nullptr;
+    SizeContainer* m_sizeYContainer = nullptr;
 
-    SizeContainer* m_offsetXContainer;
-    SizeContainer* m_offsetYContainer;
+    SizeContainer* m_offsetXContainer = nullptr;
+    SizeContainer* m_offsetYContainer = nullptr;
 };
 
 };
@@ -67,18 +67,18 @@ class $module(AdvancedGridControls) {
     float getGridMultiplierX();
     float getGridMultiplierY();
 
-    bool m_enabled;
-    bool m_gridScale;
-    bool m_separateXY;
+    bool m_enabled = false;
+    bool m_gridScale = false;
+    bool m_separateXY = false;
 
-    float m_gridSize;
-    float m_gridX;
-    float m_gridY;
+    float m_gridSize = 0.f;
+    float m_gridX = 0.f;
+    float m_gridY = 0.f;
 
-    float m_offsetX;
-    float m_offsetY;
+    float m_offsetX = 0.f;
+    float m_offsetY = 0.f;
 
-    bool m_updatingGridSize;
+    bool m_updatingGridSize = false;
 };
 
 
@@ -89,10 +89,10 @@ class $modify(AGCEditorUI, EditorUI) {
         bool m_regularLimited = false;
     };
 
-    CCPoint offsetForKey(int id);
-    GameObject* createObject(int objectID, CCPoint position);
-    CCPoint getLimitedPosition(CCPoint position);
-    void moveObject(GameObject* object, CCPoint offset);
+    cocos2d::CCPoint offsetForKey(int id);
+    GameObject* createObject(int objectID, cocos2d::CCPoint position);
+    cocos2d::CCPoint getLimitedPosition(cocos2d::CCPoint position);
+    void moveObject(GameObject* object, cocos2d::CCPoint offset);
 
     void updateGridNodeSize();
 };

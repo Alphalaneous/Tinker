@@ -5,6 +5,8 @@
 #include "utils/UI.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 DurationThumb* DurationThumb::create(CCNode* parent, EffectGameObject* object, ThumbType thumbType) {
@@ -315,8 +317,8 @@ void DurationThumb::update(float dt) {
     constexpr float offset = 20.f;
 
     if (m_control) {
-        CCPoint pos;
-        CCPoint anchor;
+        CCPoint pos{};
+        CCPoint anchor{};
         
         if (m_thumbType == ThumbType::Multi) {
             
@@ -373,7 +375,7 @@ void DurationThumb::checkFreeMoving() {
 }
 
 void DurationThumb::checkForNewLongest() {
-    std::vector<EffectGameObject*> objects;
+    std::vector<EffectGameObject*> objects{};
     objects.reserve(m_selectedStartingDurations.size());
 
     std::transform(
@@ -532,7 +534,7 @@ bool DurationThumb::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     if (!m_dragging) return;
 
-    CCPoint start;
+    CCPoint start{};
 
     if (m_thumbType == ThumbType::Multi) {
         start = m_start;
@@ -544,14 +546,14 @@ void DurationThumb::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         }
     }
 
-    CCPoint line = m_startingEndPos - start;
+    auto line = m_startingEndPos - start;
     float lineLen = std::sqrt(line.x * line.x + line.y * line.y);
     if (lineLen == 0.f) return;
 
     auto touchPos = getParent()->convertToNodeSpace(touch->getLocation()) - m_offset;
 
     auto ap = touchPos - start;
-    float percent;
+    float percent = 0.f;
 
     if (m_thumbType == ThumbType::Multi) {
         percent = (ap.x * line.x + ap.y * line.y) / (lineLen * lineLen);

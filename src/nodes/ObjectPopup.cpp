@@ -1,6 +1,8 @@
 #include "nodes/ObjectPopup.hpp"
 #include "nodes/ObjectList.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
@@ -11,7 +13,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
 
     setCloseButtonSpr(
         CircleButtonSprite::createWithSpriteFrameName(
-            "geode.loader/close.png", .85f,
+            "geode.loader/close.png", 0.85f,
             CircleBaseColor::Green
         )
     );
@@ -26,11 +28,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     m_uniqueLabel->setAnchorPoint({1.f, 0.5f});
     m_uniqueLabel->setID("unique-label"_spr);
 
-    m_mainLayer->addChildAtPosition(
-        m_uniqueLabel,
-        Anchor::BottomRight,
-        { -17.0f, 20.5f }
-    );
+    m_mainLayer->addChildAtPosition(m_uniqueLabel, Anchor::BottomRight, {-17.f, 20.5f});
 
     generateList(m_sortOptions);
 
@@ -65,11 +63,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
 
     m_sortButtons->updateLayout();
 
-    m_mainLayer->addChildAtPosition(
-        m_sortButtons,
-        Anchor::Left,
-        { 24.f, -5.f }
-    );
+    m_mainLayer->addChildAtPosition(m_sortButtons, Anchor::Left, {24.f, -5.f});
 
     m_mainLayer->setID("main-layer"_spr);
 
@@ -88,21 +82,13 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     hideMenu->addChild(hideToggle);
     hideMenu->updateLayout();
 
-    m_mainLayer->addChildAtPosition(
-        hideMenu,
-        Anchor::BottomLeft,
-        { 24.f, 20.f }
-    );
+    m_mainLayer->addChildAtPosition(hideMenu, Anchor::BottomLeft, {24.f, 20.f});
 
     auto countHiddenLabel = geode::Label::create("Count Hidden", "bigFont.fnt");
     countHiddenLabel->setScale(0.25f);
     countHiddenLabel->setID("count-hidden-label"_spr);
     countHiddenLabel->setAnchorPoint({0.f, 0.5f});
-    m_mainLayer->addChildAtPosition(
-        countHiddenLabel,
-        Anchor::BottomLeft,
-        { 36.f, 20.5f }
-    );
+    m_mainLayer->addChildAtPosition(countHiddenLabel, Anchor::BottomLeft, {36.f, 20.5f});
 
     return true;
 }
@@ -174,7 +160,7 @@ void ObjectPopup::onShowHidden(CCObject* sender) {
 }
 
 void ObjectPopup::generateList(const SortOptions& sortOptions) {
-    std::map<int, int> objectCounts;
+    std::map<int, int> objectCounts{};
 
     for (auto obj : m_editorLayer->m_objects->asExt<GameObject>()){
         if (!sortOptions.showHidden && obj->m_isHide){
@@ -186,7 +172,7 @@ void ObjectPopup::generateList(const SortOptions& sortOptions) {
         objectCounts[obj->m_objectID]++;
     }
 
-    std::map<int, bool> objectTotals;
+    std::map<int, bool> objectTotals{};
 
     for (auto obj : m_editorLayer->m_objects->asExt<GameObject>()){
         objectTotals[obj->m_objectID] = true;
@@ -197,13 +183,9 @@ void ObjectPopup::generateList(const SortOptions& sortOptions) {
     m_objectList = ObjectList::create(objectCounts, sortOptions, {m_mainLayer->getContentSize().width- 60.f, m_mainLayer->getContentSize().height - 75.f});
     m_objectList->setID("object-list"_spr);
     
-    m_mainLayer->addChildAtPosition(
-        m_objectList,
-        Anchor::Center,
-        {15.f, -5.f }
-    );
+    m_mainLayer->addChildAtPosition(m_objectList, Anchor::Center, {15.f, -5.f});
 
-    std::string text;
+    std::string text = "";
 
     if (objectTotals.size() == 1){
         text = fmt::format("{} unique object", objectTotals.size());

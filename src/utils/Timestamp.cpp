@@ -1,5 +1,7 @@
 #include "utils/Timestamp.hpp"
 
+using namespace geode::prelude;
+
 Timestamp::Timestamp(ZStringView id) : m_id(id) {
     m_start = m_last = std::chrono::steady_clock::now();
 }

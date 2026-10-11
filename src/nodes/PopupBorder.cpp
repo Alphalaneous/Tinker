@@ -1,5 +1,7 @@
 #include "nodes/PopupBorder.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 PopupBorder* PopupBorder::create(const ccColor3B& topColor, GLubyte topOpacity, const ccColor3B& bottomColor, GLubyte bottomOpacity) {
@@ -44,6 +46,7 @@ void PopupBorder::setContentSize(const CCSize& contentSize) {
 
     auto posOffset = CCPoint{0.f, 0.f};
     auto sizeOffset = CCSize{0.f, 0.f};
+    
     if (m_hideLeft) {
         posOffset.x -= m_border->getInsetLeft() / 2.f;
         sizeOffset.width += m_border->getInsetLeft();

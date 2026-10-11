@@ -52,7 +52,7 @@ void ObjectNames::loadNames(ZStringView names) {
 
 void ObjectNames::loadNamesFromFile() {
     std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-    std::error_code err;
+    std::error_code err{};
 
     if (!std::filesystem::exists(objectNames, err)) {
         downloadNames();
@@ -76,7 +76,7 @@ void ObjectNames::downloadNames() {
         [this] (web::WebResponse value) {
             if (value.error()) {
                 std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-                std::error_code err;
+                std::error_code err{};
 
                 if (!std::filesystem::exists(objectNames, err)) return;
                 
@@ -105,7 +105,7 @@ std::string ObjectNames::deduceFromID(ZStringView id) {
     auto splitSlash = utils::string::split(id, "/");
     if (splitSlash.empty()) return "Unknown";
 
-    StringBuffer<> str;
+    StringBuffer<> str{};
     auto last = splitSlash[splitSlash.size() - 1];
 
     auto splitDash = utils::string::split(last, "-");
@@ -140,7 +140,7 @@ int ObjectNames::checkVersion() {
 
 $on_game(Loaded) {
     std::filesystem::path objectNames = Mod::get()->getResourcesDir() / "objects.csv";
-    std::error_code err;
+    std::error_code err{};
 
     if (std::filesystem::exists(objectNames, err)) {
         auto namesRes = utils::file::readString(objectNames);

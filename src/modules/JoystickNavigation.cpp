@@ -1,6 +1,8 @@
 #include "modules/JoystickNavigation.hpp"
 #include "modules/CanvasRotate.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool JoystickNavigation::s_resetPosition = false;

@@ -5,7 +5,9 @@
 #include "utils/Mod.hpp"
 #include "utils/UI.hpp"
 
-constexpr float k = 9.0f;
+using namespace geode::prelude;
+
+constexpr float k = 9.f;
 
 float CleanPause::volumeToSlider(float n) {
     if (tinker::utils::mod::getMod<"reidlab.logarithmic_volume">()) {
@@ -19,8 +21,8 @@ float CleanPause::sliderToVolume(float n) {
         return std::expm1(n * std::log1p(k)) / k;
     }
     if (auto mod = tinker::utils::mod::getMod<"mopigames.exponential-volume">()) {
-        if (n <= 0.0f) return 0.0f;
-        if (n >= 1.0f) return 1.0f;
+        if (n <= 0.f) return 0.f;
+        if (n >= 1.f) return 1.f;
 
         float exponent = mod->getSettingValue<double>("exponent");
         return std::pow(n, exponent);

@@ -14,17 +14,17 @@ class $modify(OSEditorUI, EditorUI) {
     $registerHooks(ObjectSearch)
 
     struct Fields {
-        EditButtonBar* m_searchBar;
-        tinker::ui::SearchField* m_searchField;
-        std::map<unsigned int, tinker::ui::SearchField::ItemInformation> m_items;
-        std::vector<tinker::ui::SearchField::ItemInformation*> m_orderedItems;
+        EditButtonBar* m_searchBar = nullptr;
+        tinker::ui::SearchField* m_searchField = nullptr;
+        std::map<unsigned int, tinker::ui::SearchField::ItemInformation> m_items{};
+        std::vector<tinker::ui::SearchField::ItemInformation*> m_orderedItems{};
         bool m_initialLoaded = false;
         bool m_loadedCMIs = false;
         unsigned int m_tabIndex = 0;
         unsigned int m_itemIndex = 0;
-        Ref<CCNode> m_loadingContainer;
-        ProgressBar* m_progressBar;
-        geode::Label* m_progressLabel;
+        geode::Ref<cocos2d::CCNode> m_loadingContainer = nullptr;
+        geode::ProgressBar* m_progressBar = nullptr;
+        geode::Label* m_progressLabel = nullptr;
         unsigned int m_itemCount = 0;
         unsigned int m_itemProgress = 0;
     };
@@ -33,20 +33,20 @@ class $modify(OSEditorUI, EditorUI) {
     void setupNextTab(float dt);
     void updateCreateMenu(bool selectTab);
     CreateMenuItem* getCreateBtn(int id, int bg);
-    void onPause(CCObject* sender);
+    void onPause(cocos2d::CCObject* sender);
 };
 
 class $modify(OSCreateMenuItem, CreateMenuItem) {
     $registerHooks(ObjectSearch)
 
     struct Fields {
-        CCSprite* m_dummy;
+        cocos2d::CCSprite* m_dummy = nullptr;
         bool m_isLazy = false;
         bool m_loaded = false;
     };
     
     static CreateMenuItem* create(cocos2d::CCNode* normal, cocos2d::CCNode* selected, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector);
-    static CreateMenuItem* createSearchItem(CreateMenuItem* item, int bgID, CCObject* target, SEL_MenuHandler selector);
+    static CreateMenuItem* createSearchItem(CreateMenuItem* item, int bgID, cocos2d::CCObject* target, cocos2d::SEL_MenuHandler selector);
     void loadObject();
 };
 

@@ -1,5 +1,7 @@
 #include <nodes/GIF.hpp>
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 GIF* GIF::create(ZStringView gif) {
@@ -13,11 +15,10 @@ GIF* GIF::create(ZStringView gif) {
 }
 
 bool GIF::init(ZStringView gif) {
-    std::string suffix;
 #ifdef GEODE_IS_ANDROID32
-    suffix = ".png";
+    std::string suffix = ".png";
 #else
-    suffix = ".gif";
+    std::string suffix = ".gif";
 #endif
     return CCSprite::initWithFile(fmt::format("{}{}"_spr, gif, suffix).c_str());
 }

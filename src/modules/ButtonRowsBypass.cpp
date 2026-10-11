@@ -1,5 +1,7 @@
 #include "modules/ButtonRowsBypass.hpp"
 
+using namespace geode::prelude;
+
 bool ButtonRowsBypass::onToggled(bool state) {
     return true;
 }

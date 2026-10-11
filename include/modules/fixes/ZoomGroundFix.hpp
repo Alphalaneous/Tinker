@@ -10,5 +10,5 @@ class $module(ZoomGroundFix) {
 class $modify(ZGFGJBaseGameLayer, GJBaseGameLayer) {
 	$registerHooks(ZoomGroundFix)
 
-	void updateCameraBGArt(CCPoint position, float zoom);
+	void updateCameraBGArt(cocos2d::CCPoint position, float zoom);
 };

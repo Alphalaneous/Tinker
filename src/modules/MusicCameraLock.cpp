@@ -4,6 +4,8 @@
 #include "modules/UIScaling.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool MusicCameraLock::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -96,7 +98,8 @@ void MCLLevelEditorLayer::lockCamera(float dt) {
     auto winSize = CCDirector::get()->getWinSize();
     float scale = m_objectLayer->getScale();
 
-    float x, y;
+    float x = 0.f;
+    float y = 0.f;
 
     if (dgl->m_playbackX == 0) {
         x = m_objectLayer->getPositionX();

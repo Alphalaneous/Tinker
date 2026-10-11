@@ -10,6 +10,8 @@
 #include "utils/Constants.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 using namespace alpha::prelude;
 
 void ObjectSearch::onEditor() {

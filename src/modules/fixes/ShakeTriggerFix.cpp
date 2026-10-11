@@ -1,6 +1,8 @@
 #include "modules/fixes/ShakeTriggerFix.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 bool ShakeTriggerFix::onToggled(bool state) {
     return true;
 }

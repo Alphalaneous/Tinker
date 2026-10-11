@@ -1,5 +1,7 @@
 #include "modules/fixes/FixSlopeHitboxRender.hpp"
 
+using namespace geode::prelude;
+
 bool FixSlopeHitboxRender::onToggled(bool state) {
     return true;
 }

@@ -1,5 +1,7 @@
 #include "modules/fixes/FixHeadHitting.hpp"
 
+using namespace geode::prelude;
+
 bool FixHeadHitting::onToggled(bool state) {
     return true;
 }

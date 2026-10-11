@@ -58,7 +58,7 @@ public:
         }
     }
 private:
-    std::vector<geode::Hook*> m_hooks;
+    std::vector<geode::Hook*> m_hooks{};
 };
 
 }

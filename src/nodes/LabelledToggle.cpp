@@ -1,5 +1,7 @@
 #include "nodes/LabelledToggle.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 LabelledToggle* LabelledToggle::create(ZStringView text, geode::Function<void(bool state)> callback) {

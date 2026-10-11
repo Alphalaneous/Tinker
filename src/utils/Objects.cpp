@@ -1,14 +1,14 @@
 #include "utils/Objects.hpp"
-#include "Geode/cocos/cocoa/CCGeometry.h"
-#include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
-#include "Geode/platform/windows.hpp"
-#include "Geode/utils/function.hpp"
+#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/utils/function.hpp>
 #include "MainHooks.hpp"
 #include "utils/Constants.hpp"
 #include <Geode/binding/GJBaseGameLayer.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
+
+using namespace geode::prelude;
 
 namespace tinker::utils::objects {
 
@@ -231,11 +231,11 @@ void updateGameObjectColor(GameObject* obj) {
     
     if (!isColorable(obj)) return;
 
-    std::optional<cocos2d::ccColor3B> baseColor;
-    std::optional<cocos2d::ccColor3B> detailColor;
+    std::optional<cocos2d::ccColor3B> baseColor = std::nullopt;
+    std::optional<cocos2d::ccColor3B> detailColor = std::nullopt;
 
-    bool baseBlend;
-    bool detailBlend;
+    bool baseBlend = false;
+    bool detailBlend = false;
 
     if (obj->m_baseColor) {
         auto colorData = getActiveColor(obj->m_baseColor->m_colorID);
@@ -277,8 +277,8 @@ void updateCreateButtonColor(cocos2d::CCNode* btn, int color1ID, int color2ID, c
 
     if (!isColorable(obj)) return;
 
-    std::optional<cocos2d::ccColor3B> baseColor;
-    std::optional<cocos2d::ccColor3B> detailColor;
+    std::optional<cocos2d::ccColor3B> baseColor = std::nullopt;
+    std::optional<cocos2d::ccColor3B> detailColor = std::nullopt;
 
     bool baseBlend = false;
     bool detailBlend = false;
@@ -379,7 +379,7 @@ cocos2d::CCPoint getEndPos(EffectGameObject* object) {
     const auto* settings = dgl->m_editorLayer->m_levelSettings;
     const int startSpeed = static_cast<int>(settings->m_startSpeed);
 
-    float duration;
+    float duration = 0.f;
 
     if (object->m_objectID == PulseTrigger) {
         duration = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
@@ -392,7 +392,7 @@ cocos2d::CCPoint getEndPos(EffectGameObject* object) {
         duration = object->m_duration;
     }
 
-    cocos2d::CCPoint currentPos = object->getPosition();
+    auto currentPos = object->getPosition();
     if (currentPos.x < 0.f && !object->m_isSpawnTriggered)
         currentPos.x = 0.00001f;
 
@@ -444,7 +444,7 @@ cocos2d::CCPoint getEndPos(EffectGameObject* object) {
 
 EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const cocos2d::CCPoint& unitRefDir) {
     float maxProj = -FLT_MAX;
-    EffectGameObject* furthest = objects[0];
+    auto furthest = objects[0];
 
     auto refStart = furthest->getPosition();
     auto refEnd = furthest->m_endPosition;
@@ -497,7 +497,7 @@ geode::Result<std::pair<cocos2d::CCPoint, cocos2d::CCPoint>> getCenter() {
 
     auto editorUI = MainEditorUI::get();
 
-    std::vector<EffectGameObject*> objects;
+    std::vector<EffectGameObject*> objects{};
     for (auto obj : editorUI->m_selectedObjects->asExt<GameObject*>()) {
         if (obj->m_dontIgnoreDuration && obj->m_objectID != SFXTrigger) {
             objects.push_back(static_cast<EffectGameObject*>(obj));

@@ -11,5 +11,5 @@ class $modify(BRBEditorOptionsLayer, EditorOptionsLayer) {
     $registerHooks(ButtonRowsBypass)
 
     void onButtonRows(cocos2d::CCObject* sender);
-    void onButtonsPerRow(CCObject* sender);
+    void onButtonsPerRow(cocos2d::CCObject* sender);
 };

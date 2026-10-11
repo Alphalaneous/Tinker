@@ -1,5 +1,7 @@
 #include "modules/ImprovedLinkControls.hpp"
 
+using namespace geode::prelude;
+
 bool ImprovedLinkControls::onToggled(bool state) {
     return true;
 }

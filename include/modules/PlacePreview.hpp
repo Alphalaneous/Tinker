@@ -8,7 +8,7 @@ using namespace alpha::prelude;
 
 namespace tinker::ui {
 
-class PlacePreviewNode : public CCNode, public TouchDelegate {
+class PlacePreviewNode : public cocos2d::CCNode, public TouchDelegate {
 public:
     static PlacePreviewNode* create();
 
@@ -18,7 +18,7 @@ protected:
     bool init() override;
     void update(float dt) override;
 
-    void showAtPos(const CCPoint& pos, const CCPoint& world);
+    void showAtPos(const cocos2d::CCPoint& pos, const cocos2d::CCPoint& world);
     void updateObjectColor();
 
     bool mouseEntered(TouchEvent* touch) override;
@@ -30,12 +30,12 @@ protected:
     void applyOffset(GameObject* object);
     void removeOffset(GameObject* object);
 
-    CCPoint m_objectPos;
-    bool m_objectVisible;
-    Ref<GameObject> m_hoverObject;
-    Ref<RenderNode> m_objectRender;
+    cocos2d::CCPoint m_objectPos{};
+    bool m_objectVisible = false;
+    geode::Ref<GameObject> m_hoverObject = nullptr;
+    geode::Ref<RenderNode> m_objectRender = nullptr;
 
-    bool m_wasDuplicated;
+    bool m_wasDuplicated = false;
 };
 
 }
@@ -47,9 +47,9 @@ class $module(PlacePreview) {
     void onEditor();
     bool inValidTab();
 
-    tinker::ui::PlacePreviewNode* m_hover;
-    CCNode* m_feedbackContainer;
-    bool m_callbacksSet;
+    tinker::ui::PlacePreviewNode* m_hover = nullptr;
+    cocos2d::CCNode* m_feedbackContainer = nullptr;
+    bool m_callbacksSet = false;
 };
 
 class $modify(PPEditorUI, EditorUI) {

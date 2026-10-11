@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Geode/Enums.hpp>
 #include <Geode/binding/CCMenuItemToggler.hpp>
 #include <Geode/binding/ColorSelectDelegate.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
@@ -17,8 +18,6 @@
 #include <vector>
 #include "ArtPreview.hpp"
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
 class SelectArtLayer : public geode::Popup, public ColorSelectDelegate {
@@ -32,36 +31,36 @@ public:
 protected:
     bool init(LevelEditorLayer* editorLayer, LevelSettingsLayer* levelSettingsLayer, SelectArtType type);
     geode::Button* createArtButton(SelectArtType type, int id);
-    CCMenuItemToggler* createTabToggler(SelectArtType type, ZStringView text, ZStringView id, const CCPoint& offset = {0, 0});
+    CCMenuItemToggler* createTabToggler(SelectArtType type, geode::ZStringView text, geode::ZStringView id, const cocos2d::CCPoint& offset = {0, 0});
     CCMenuItemToggler* createLineToggler(int type);
     geode::Button* createColorButton(int colorID);
     void updateColors();
 
-    int m_backgroundID;
-    int m_groundID;
-    int m_groundLineID;
-    int m_middlegroundID;
+    int m_backgroundID = 0;
+    int m_groundID = 0;
+    int m_groundLineID = 0;
+    int m_middlegroundID = 0;
 
-    bool m_backgroundChanged;
-    bool m_groundChanged;
-    bool m_middlegroundChanged;
+    bool m_backgroundChanged = false;
+    bool m_groundChanged = false;
+    bool m_middlegroundChanged = false;
 
-    SelectArtType m_type;
+    SelectArtType m_type = SelectArtType::Background;
 
-    CCLayerColor* m_scrollBG;
-    Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer;
-    LevelEditorLayer* m_editorLayer;
-    LevelSettingsLayer* m_levelSettingsLayer;
-    ArtPreview* m_stylePreview;
-    SelectArtDelegate* m_delegate;
-    std::vector<CCMenuItemToggler*> m_tabTogglers;
-    CCSprite* m_topShadow;
+    cocos2d::CCLayerColor* m_scrollBG = nullptr;
+    geode::Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer = nullptr;
+    LevelEditorLayer* m_editorLayer = nullptr;
+    LevelSettingsLayer* m_levelSettingsLayer = nullptr;
+    ArtPreview* m_stylePreview = nullptr;
+    SelectArtDelegate* m_delegate = nullptr;
+    std::vector<CCMenuItemToggler*> m_tabTogglers{};
+    cocos2d::CCSprite* m_topShadow = nullptr;
 
-    CCNode* m_lineContainer;
-    std::vector<CCMenuItemToggler*> m_lineTogglers;
-    std::vector<tinker::ui::ColorChannelSprite*> m_colorSprites;
+    cocos2d::CCNode* m_lineContainer = nullptr;
+    std::vector<CCMenuItemToggler*> m_lineTogglers{};
+    std::vector<tinker::ui::ColorChannelSprite*> m_colorSprites{};
 
-    std::unordered_map<SelectArtType, std::vector<Ref<geode::Button>>> m_artNodes;
+    std::unordered_map<SelectArtType, std::vector<geode::Ref<geode::Button>>> m_artNodes{};
 };
 
 }

@@ -1,5 +1,7 @@
 #include "nodes/LazyColorRow.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 LazyColorRow* LazyColorRow::create(geode::Function<void(LazyColorRow* self)> callback, int min, int max) {

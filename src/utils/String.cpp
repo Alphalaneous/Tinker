@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+using namespace geode::prelude;
+
 namespace tinker::utils::string {
 
 std::pair<std::string, std::string> splitIntoPair(std::string_view str) {
@@ -36,7 +38,7 @@ std::string capitalize(std::string input) {
 }
 
 std::vector<std::string> split(std::string_view str, std::string_view delimiter, int limit) {
-    std::vector<std::string> result;
+    std::vector<std::string> result{};
     size_t start = 0;
     size_t end = str.find(delimiter);
     int count = 0;

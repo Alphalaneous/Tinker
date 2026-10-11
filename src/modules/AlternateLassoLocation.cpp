@@ -3,6 +3,8 @@
 #include <alphalaneous.editorsounds/include/API.hpp>
 #include "utils/Mod.hpp"
 
+using namespace geode::prelude;
+
 bool AlternateLassoLocation::onToggled(bool state) {
     if (state) {
         onEditor();

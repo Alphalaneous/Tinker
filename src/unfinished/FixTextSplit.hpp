@@ -11,9 +11,9 @@ class $modify(FTSCustomizeObjectLayer, CustomizeObjectLayer) {
     $registerHooks(FixTextSplit);
 
     struct TextObjectAttributes {
-        char c;
-        float x;
-        GameObject* object;
+        char c = 0;
+        float x = 0.f;
+        GameObject* object = nullptr;
     };
 
     void onBreakApart(cocos2d::CCObject* sender);

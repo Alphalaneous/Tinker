@@ -1,5 +1,7 @@
 #include "modules/fixes/AddToSectionCrashFix.hpp"
 
+using namespace geode::prelude;
+
 bool AddToSectionCrashFix::onToggled(bool state) {
     return true;
 }

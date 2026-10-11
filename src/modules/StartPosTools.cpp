@@ -3,6 +3,8 @@
 #include "utils/Constants.hpp"
 #include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool StartPosTools::onToggled(bool state) {

@@ -1,6 +1,8 @@
 #include "modules/fixes/FixLinkedTeleport.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 void FLTEffectGameObject::setOpacity(unsigned char opacity) {
     if (m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
         return;
@@ -69,8 +71,8 @@ void FLTEditorUI::editGroup(cocos2d::CCObject* sender) {
     }
 
     if (m_selectedObjects && m_selectedObjects->count() > 0) {
-        std::unordered_set<GameObject*> bluePortals;
-        std::unordered_set<GameObject*> orangePortals;
+        std::unordered_set<GameObject*> bluePortals{};
+        std::unordered_set<GameObject*> orangePortals{};
 
         for (auto obj : m_selectedObjects->asExt<GameObject>()) {
             if (obj->m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
@@ -105,8 +107,8 @@ void FLTEditorUI::editObjectSpecial(int type) {
     }
 
     if (m_selectedObjects && m_selectedObjects->count() > 0) {
-        std::unordered_set<GameObject*> bluePortals;
-        std::unordered_set<GameObject*> orangePortals;
+        std::unordered_set<GameObject*> bluePortals{};
+        std::unordered_set<GameObject*> orangePortals{};
 
         for (auto obj : m_selectedObjects->asExt<GameObject>()) {
             if (obj->m_objectID == tinker::constants::objects::LinkedTeleportPortal) {

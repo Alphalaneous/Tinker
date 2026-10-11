@@ -19,5 +19,5 @@ public:
 protected:
 
     Ref<CCFiniteTimeAction> innerAction = nullptr;
-    geode::Function<void(CCNode*)> callback;
+    geode::Function<void(CCNode*)> callback = nullptr;
 };

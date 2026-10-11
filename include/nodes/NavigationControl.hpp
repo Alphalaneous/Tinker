@@ -7,72 +7,73 @@
 #include <Geode/binding/EditorUI.hpp>
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
-using namespace geode::prelude;
 using namespace alpha::prelude;
 
 namespace tinker::ui {
-    class NavigationControl : public CCNodeRGBA, public TouchDelegate {
-    public:
-        static NavigationControl* create(EditorUI* editorUI);
 
-        bool init(EditorUI* editorUI);
+class NavigationControl : public cocos2d::CCNodeRGBA, public TouchDelegate {
+public:
+    static NavigationControl* create(EditorUI* editorUI);
 
-        void updateControl(bool canvasRotate);
+    bool init(EditorUI* editorUI);
 
-        void onEnter() override;
-        void onExit() override;
-        void waitForMove(float dt);
+    void updateControl(bool canvasRotate);
 
-        void update(float dt) override;
-        void motionUpdate(float dt);
+    void onEnter() override;
+    void onExit() override;
+    void waitForMove(float dt);
 
-        void enterHover();
-        void leaveHover();
+    void update(float dt) override;
+    void motionUpdate(float dt);
 
-        virtual bool clickBegan(TouchEvent* touch) override;
-        virtual void clickMoved(TouchEvent* touch) override;
-        virtual void clickEnded(TouchEvent* touch) override;
+    void enterHover();
+    void leaveHover();
 
-        virtual bool mouseEntered(TouchEvent* touch) override;
-        virtual void mouseMoved(TouchEvent* touch) override;
-        virtual void mouseExited(TouchEvent* touch) override;
+    virtual bool clickBegan(TouchEvent* touch) override;
+    virtual void clickMoved(TouchEvent* touch) override;
+    virtual void clickEnded(TouchEvent* touch) override;
 
-    protected:
-        bool m_holdingJoystick;
-        bool m_holdingRotationHandle;
-        bool m_holdingCircle;
-        bool m_waitingForMove;
-        bool m_movingControls;
-        bool m_touchActive;
-        bool m_hoverActive;
+    virtual bool mouseEntered(TouchEvent* touch) override;
+    virtual void mouseMoved(TouchEvent* touch) override;
+    virtual void mouseExited(TouchEvent* touch) override;
 
-        float m_opacity;
-        float m_scale;
+protected:
+    bool m_holdingJoystick = false;
+    bool m_holdingRotationHandle = false;
+    bool m_holdingCircle = false;
+    bool m_waitingForMove = false;
+    bool m_movingControls = false;
+    bool m_touchActive = false;
+    bool m_hoverActive = false;
 
-        CCPoint m_initialPoint;
-        CCPoint m_joystickDragOffset;
-        CCPoint m_joystickRawDelta;
-        float m_joystickRawLen = 0.f;
-        
-        float m_rotationDragOffset;
-        float m_lastTouchAngle;
-        float m_accumAngle;
+    float m_opacity = 0.f;
+    float m_scale = 0.f;
 
-        float m_currentEditorScale;
+    cocos2d::CCPoint m_initialPoint{};
+    cocos2d::CCPoint m_joystickDragOffset{};
+    cocos2d::CCPoint m_joystickRawDelta{};
+    float m_joystickRawLen = 0.f;
+    
+    float m_rotationDragOffset = 0.f;
+    float m_lastTouchAngle = 0.f;
+    float m_accumAngle = 0.f;
 
-        CCFadeTo* m_activeFade;
-        CCScaleTo* m_activeScale;
-        CCSprite* m_circle;
-        CCSprite* m_joystick;
-        CCSprite* m_rotateGrabber;
-        CCNode* m_rotationHandle;
-        CCNode* m_rotationContainer;
+    float m_currentEditorScale = 0.f;
 
-        EditorUI* m_editorUI;
+    cocos2d::CCFadeTo* m_activeFade = nullptr;
+    cocos2d::CCScaleTo* m_activeScale = nullptr;
+    cocos2d::CCSprite* m_circle = nullptr;
+    cocos2d::CCSprite* m_joystick = nullptr;
+    cocos2d::CCSprite* m_rotateGrabber = nullptr;
+    cocos2d::CCNode* m_rotationHandle = nullptr;
+    cocos2d::CCNode* m_rotationContainer = nullptr;
 
-        static constexpr float CLICK_MULTIPLIER = 1.3f;
-        static constexpr GLubyte CIRCLE_OPACITY = 168;
-        static constexpr GLubyte GRABBER_OPACITY = 180;
+    EditorUI* m_editorUI = nullptr;
 
-    };
+    static constexpr float CLICK_MULTIPLIER = 1.3f;
+    static constexpr GLubyte CIRCLE_OPACITY = 168;
+    static constexpr GLubyte GRABBER_OPACITY = 180;
+
+};
+
 }

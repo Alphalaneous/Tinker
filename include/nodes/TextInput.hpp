@@ -14,15 +14,13 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class TextInput : public CCNode, public alpha::dispatcher::TouchDelegate, public CCIMEDelegate {
+class TextInput : public cocos2d::CCNode, public alpha::dispatcher::TouchDelegate, public cocos2d::CCIMEDelegate {
 public:
-    static TextInput* create(const CCSize& size, float textScale = 1.f, ZStringView font = "bigFont.fnt", ZStringView placeholder = "");
+    static TextInput* create(const cocos2d::CCSize& size, float textScale = 1.f, geode::ZStringView font = "bigFont.fnt", geode::ZStringView placeholder = "");
 
-    void setString(ZStringView str, bool runCallback = false);
+    void setString(geode::ZStringView str, bool runCallback = false);
 
     void focus();
     void unfocus();
@@ -52,9 +50,9 @@ public:
     bool canAttachWithIME() override;
     bool canDetachWithIME() override;
 
-    void insertText(const char * text, int len, enumKeyCodes keyCode) override;
+    void insertText(const char * text, int len, cocos2d::enumKeyCodes keyCode) override;
 
-    bool onKeyboard(enumKeyCodes key, bool isKeyDown, bool isKeyRepeat, double timestamp);
+    bool onKeyboard(cocos2d::enumKeyCodes key, bool isKeyDown, bool isKeyRepeat, double timestamp);
 
     const char* getContentText() override;
 
@@ -62,9 +60,9 @@ protected:
     void parse();
     void addLabel(std::string_view str);
 
-    void insert(ZStringView text, bool undo);
+    void insert(geode::ZStringView text, bool undo);
 
-    bool init(const CCSize& size, float textScale, ZStringView font, ZStringView placeholder);
+    bool init(const cocos2d::CCSize& size, float textScale, geode::ZStringView font, geode::ZStringView placeholder);
 
     bool clickBegan(alpha::dispatcher::TouchEvent* touch) override;
 	void clickMoved(alpha::dispatcher::TouchEvent* touch) override;
@@ -72,8 +70,8 @@ protected:
 
     int kerningAmountForFirst(unsigned short first, unsigned short second);
 
-    CCPoint posForIndex(int index);
-    int indexForPos(const CCPoint& pos);
+    cocos2d::CCPoint posForIndex(int index);
+    int indexForPos(const cocos2d::CCPoint& pos);
 
     int getLineForIndex(int index);
 
@@ -91,47 +89,47 @@ protected:
 
     void pushUndo();
 
-    float m_textScale;
+    float m_textScale = 0.f;
 
-    bool m_callbackEnabled;
+    bool m_callbackEnabled = false;
 
-    bool m_focused;
-    int m_maxLength;
+    bool m_focused = false;
+    int m_maxLength = 0;
 
-    bool m_controlPressed;
-    bool m_shiftPressed;
+    bool m_controlPressed = false;
+    bool m_shiftPressed = false;
 
-    std::string m_allowedChars;
+    std::string m_allowedChars = "";
 
     struct InputState {
-        int m_cursorPos;
-        std::string m_text;
-        bool m_selecting;
-        int m_selectStart;
-        int m_selectEnd;
+        int m_cursorPos = 0;
+        std::string m_text = "";
+        bool m_selecting = false;
+        int m_selectStart = 0;
+        int m_selectEnd = 0;
     };
 
-    InputState m_inputState;
+    InputState m_inputState{};
 
-    std::vector<InputState> m_undoStack;
-    std::vector<InputState> m_redoStack;
+    std::vector<InputState> m_undoStack{};
+    std::vector<InputState> m_redoStack{};
 
     struct CharPosRange {
-        int line;
-        float startX;
-        float endX;
+        int line = 0;
+        float startX = 0.f;
+        float endX = 0.f;
     };
 
-    std::unordered_map<int, std::shared_ptr<CharPosRange>> m_characterRanges;
-    std::unordered_map<int, int> m_countForLine;
+    std::unordered_map<int, std::shared_ptr<CharPosRange>> m_characterRanges{};
+    std::unordered_map<int, int> m_countForLine{};
 
-    geode::Label* m_cursorLabel;
-    std::vector<geode::Label*> m_labels;
-    std::string m_fontFile;
-    CCNode* m_labelContainer;
-    CCNode* m_selectContainer;
+    geode::Label* m_cursorLabel = nullptr;
+    std::vector<geode::Label*> m_labels{};
+    std::string m_fontFile = "";
+    cocos2d::CCNode* m_labelContainer = nullptr;
+    cocos2d::CCNode* m_selectContainer = nullptr;
 
-    Ref<CCBMFontConfiguration> m_fontConfig;
+    geode::Ref<cocos2d::CCBMFontConfiguration> m_fontConfig = nullptr;
 };
 
 }

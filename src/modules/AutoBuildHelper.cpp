@@ -3,6 +3,8 @@
 #include "MainHooks.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
 
+using namespace geode::prelude;
+
 void AutoBuildHelper::removeFromEditorUI() {
     if (!m_bhToggler) return;
     getEditor()->m_uiItems->removeObject(m_bhToggler);

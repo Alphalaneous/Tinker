@@ -5,21 +5,19 @@
 #include <Geode/utils/function.hpp>
 #include <Geode/binding/CCMenuItemToggler.hpp>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class LabelledToggle : public CCNode {
+class LabelledToggle : public cocos2d::CCNode {
 public:
-    static LabelledToggle* create(ZStringView text, geode::Function<void(bool state)> callback);
+    static LabelledToggle* create(geode::ZStringView text, geode::Function<void(bool state)> callback);
     CCMenuItemToggler* getToggler();
     bool isToggled();
     void toggle(bool toggled);
 protected:
-    bool init(ZStringView text, geode::Function<void(bool state)> callback);
+    bool init(geode::ZStringView text, geode::Function<void(bool state)> callback);
 
-    geode::Function<void(bool state)> m_callback;
-    CCMenuItemToggler* m_toggler;
+    geode::Function<void(bool state)> m_callback = nullptr;
+    CCMenuItemToggler* m_toggler = nullptr;
 };
 
 }

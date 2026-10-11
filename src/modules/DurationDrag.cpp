@@ -3,6 +3,8 @@
 #include "utils/Objects.hpp"
 #include <alphalaneous.good_grid/include/API.hpp>
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool DurationDrag::onToggled(bool state) {
@@ -139,11 +141,11 @@ void DurationDragDraw::draw(const cocos2d::CCRect& visibleRect) {
         auto start = CCPoint{x, object->getPositionY()};
         auto end = CCPoint{object->m_endPosition.x, object->m_endPosition.y};
 
-        const float total = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
+        float total = object->m_fadeInDuration + object->m_holdDuration + object->m_fadeOutDuration;
         if (total <= 0.f) return;
 
-        const float fadeInPct = object->m_fadeInDuration / total;
-        const float holdPct   = (object->m_fadeInDuration + object->m_holdDuration) / total;
+        float fadeInPct = object->m_fadeInDuration / total;
+        float holdPct = (object->m_fadeInDuration + object->m_holdDuration) / total;
 
         auto p1 = CCPoint{std::lerp(start.x, end.x, fadeInPct), std::lerp(start.y, end.y, fadeInPct)};
         auto p2 = CCPoint{std::lerp(start.x, end.x, holdPct), std::lerp(start.y, end.y, holdPct)};
@@ -161,7 +163,7 @@ void DurationDragDraw::draw(const cocos2d::CCRect& visibleRect) {
         if (center) {
 
             bool first = true;
-            int refChannel;
+            int refChannel = 0;
             bool drawCenter = true;
 
             for (auto object : CCArrayExt<EffectGameObject*>(dgl->m_editorLayer->m_editorUI->m_selectedObjects)) {
@@ -202,10 +204,10 @@ void DurationDragDraw::draw(const cocos2d::CCRect& visibleRect) {
         if (!alpha::grid::isObjectVisible(object)) continue;
 
         if (object->m_endPosition.x < 0.f && !object->m_isSpawnTriggered) {
-            object->m_endPosition = CCPointZero;
+            object->m_endPosition = CCPoint{0.f, 0.f};
         }
 
-        if (object->m_endPosition == CCPointZero || LevelEditorLayer::get()->m_drawGridLayer->m_updateTimeMarkers) {
+        if (object->m_endPosition == CCPoint{0.f, 0.f} || LevelEditorLayer::get()->m_drawGridLayer->m_updateTimeMarkers) {
             const CCPoint newPos = tinker::utils::objects::getEndPos(object);
             object->m_endPosition = newPos;
             object->runAction(CallFuncExt::create([newPos, object] {

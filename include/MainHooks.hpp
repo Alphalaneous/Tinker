@@ -11,8 +11,6 @@
 #include "module/ModuleBase.hpp"
 #include "utils/Mod.hpp"
 
-using namespace geode::prelude;
-
 class $modify(MainLevelEditorLayer, LevelEditorLayer) {
 
     static void onModify(auto& self) {
@@ -27,13 +25,13 @@ class $modify(MainLevelEditorLayer, LevelEditorLayer) {
     }
 
     struct Fields {
-        StringMap<std::shared_ptr<ModuleBase>> m_modules;
+        geode::utils::StringMap<std::shared_ptr<ModuleBase>> m_modules{};
     };
 
     bool init(GJGameLevel* level, bool noUI);
     void mainUpdate(float dt);
     
-    StringMap<std::shared_ptr<ModuleBase>>* getModules();
+    geode::utils::StringMap<std::shared_ptr<ModuleBase>>* getModules();
     void forEachModule(geode::Function<void(ModuleBase*)> moduleCallback);
 
     static MainLevelEditorLayer* get();
@@ -44,21 +42,21 @@ class $modify(MainEditorUI, EditorUI) {
     static EditorUI* s_editorUI;
 
     struct Fields {
-        int m_lastObjectCount;
-        int m_lastActiveObjectCount;
-        bool m_wasPlatformer;
+        int m_lastObjectCount = 0;
+        int m_lastActiveObjectCount = 0;
+        bool m_wasPlatformer = false;
         bool m_uiVisible = true;
         bool m_moveEventLocked = false;
-        CCPoint m_lastPosition;
-        KeyboardModifier m_lastModifier;
+        cocos2d::CCPoint m_lastPosition{};
+        geode::KeyboardModifier m_lastModifier{};
 
         ~Fields();
     };
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("EditorUI::init", Priority::Late);
-        (void) self.setHookPriorityPre("EditorUI::scrollWheel", Priority::EarlyPre - 1);
-        (void) self.setHookPriority("EditorUI::updateCreateMenu", Priority::Replace);
+        (void) self.setHookPriority("EditorUI::init", geode::Priority::Late);
+        (void) self.setHookPriorityPre("EditorUI::scrollWheel", geode::Priority::EarlyPre - 1);
+        (void) self.setHookPriority("EditorUI::updateCreateMenu", geode::Priority::Replace);
 
         for (const auto& [k, v] : self.m_hooks) { 
             v->setAutoEnable(false);
@@ -110,7 +108,7 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
     static EditorPauseLayer* s_editorPauseLayer;
 
     static void onModify(auto& self) {
-        (void) self.setHookPriorityPost("EditorPauseLayer::init", Priority::Late);
+        (void) self.setHookPriorityPost("EditorPauseLayer::init", geode::Priority::Late);
 
         for (const auto& [k, v] : self.m_hooks) { 
             v->setAutoEnable(false);

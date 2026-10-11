@@ -3,6 +3,8 @@
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 SelectArtLayer* SelectArtLayer::create(LevelEditorLayer* editorLayer, LevelSettingsLayer* levelSettingsLayer, SelectArtType type) {

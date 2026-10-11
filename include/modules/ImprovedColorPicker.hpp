@@ -17,23 +17,23 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
     $registerHooks(ImprovedColorPicker)
 
     struct Fields {
-        std::vector<Ref<tinker::ui::ColorChannelSprite>> m_colorChannelSprites;
-        alpha::ui::AdvancedScrollLayer* m_colorList;
-        std::vector<Ref<tinker::ui::LazyColorRow>> m_rows;
+        std::vector<geode::Ref<tinker::ui::ColorChannelSprite>> m_colorChannelSprites{};
+        alpha::ui::AdvancedScrollLayer* m_colorList = nullptr;
+        std::vector<geode::Ref<tinker::ui::LazyColorRow>> m_rows{};
 
-        std::vector<Ref<tinker::ui::ColorChannelSprite>> m_recentColorSprites;
-        CCMenu* m_recentColorsMenu;
-        CCMenu* m_previewMenu;
+        std::vector<geode::Ref<tinker::ui::ColorChannelSprite>> m_recentColorSprites{};
+        cocos2d::CCMenu* m_recentColorsMenu = nullptr;
+        cocos2d::CCMenu* m_previewMenu = nullptr;
 
-        std::vector<Ref<CCMenuItemSpriteExtra>> m_lighterButtons;
+        std::vector<geode::Ref<CCMenuItemSpriteExtra>> m_lighterButtons{};
 
-        Ref<tinker::ui::ColorChannelSprite> m_colorSprite;
+        geode::Ref<tinker::ui::ColorChannelSprite> m_colorSprite = nullptr;
         
-        bool m_inited;
-        bool m_allowLighterChannel;
+        bool m_inited = false;
+        bool m_allowLighterChannel = false;
 
-        bool m_modifiedChannel1;
-        bool m_modifiedChannel2;
+        bool m_modifiedChannel1 = false;
+        bool m_modifiedChannel2 = false;
 
         int m_finalChannel1 = -1;
         int m_finalChannel2 = -1;
@@ -48,16 +48,16 @@ class $modify(ICPCustomizeObjectLayer, CustomizeObjectLayer) {
     void updateLighterButtons();
     void checkAllowLighter();
     void setChannelModified();
-    void updateSelection(const std::vector<Ref<tinker::ui::ColorChannelSprite>>& items, bool updateColor);
+    void updateSelection(const std::vector<geode::Ref<tinker::ui::ColorChannelSprite>>& items, bool updateColor);
     void scrollToChannel(int channel, bool instant);
-    void onSelectMode(CCObject* sender);
-    void onSelectColor(CCObject* sender);
+    void onSelectMode(cocos2d::CCObject* sender);
+    void onSelectColor(cocos2d::CCObject* sender);
     void highlightSelected(ButtonSprite* sprite);
     void updateColorSprite();
     void updateCustomColorLabels();
-    void onUpdateCustomColor(CCObject* sender);
+    void onUpdateCustomColor(cocos2d::CCObject* sender);
     void onNextColorChannel(cocos2d::CCObject* sender);
     void textChanged(CCTextInputNode* input);
-    bool init(GameObject* obj, CCArray* objs);
+    bool init(GameObject* obj, cocos2d::CCArray* objs);
     void onClose(cocos2d::CCObject* sender);
 };

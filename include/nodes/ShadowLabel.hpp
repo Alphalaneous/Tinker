@@ -6,22 +6,20 @@
 #include <Geode/utils/cocos.hpp>
 #include <alphalaneous.alphas-ui-pack/include/nodes/RenderNode.hpp>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class ShadowLabel : public CCNodeRGBA {
+class ShadowLabel : public cocos2d::CCNodeRGBA {
 public:
-    static ShadowLabel* create(ZStringView text, ZStringView font);
+    static ShadowLabel* create(geode::ZStringView text, geode::ZStringView font);
 
-    void setText(ZStringView text);
+    void setText(geode::ZStringView text);
 protected:
-    bool init(ZStringView text, ZStringView font);
+    bool init(geode::ZStringView text, geode::ZStringView font);
 
-    Ref<CCNode> m_container;
-    geode::Label* m_mainLabel;
-    geode::Label* m_shadowLabel;
-    alpha::ui::RenderNode* m_render;
+    geode::Ref<cocos2d::CCNode> m_container = nullptr;
+    geode::Label* m_mainLabel = nullptr;
+    geode::Label* m_shadowLabel = nullptr;
+    alpha::ui::RenderNode* m_render = nullptr;
 };
 
 }

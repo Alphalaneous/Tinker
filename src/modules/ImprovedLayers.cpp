@@ -6,6 +6,8 @@
 #include "utils/next-free/sources/EditorLayerSource.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
 
+using namespace geode::prelude;
+
 bool ImprovedLayers::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -248,8 +250,8 @@ void LayerInput::updateDisplay() {
 
     auto isLocked = !isBase && editor->m_editorLayer->isLayerLocked(editor->m_editorLayer->m_currentLayer);
 
-    CCSprite* spr;
-    CCPoint offset;
+    CCSprite* spr = nullptr;
+    CCPoint offset{};
 
     if (isLocked) {
         spr = CCSprite::createWithSpriteFrameName("GJ_lock_001.png");

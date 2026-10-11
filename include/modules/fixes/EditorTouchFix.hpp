@@ -11,7 +11,7 @@ class $modify(ETFEditorUI, EditorUI) {
     $registerHooks(EditorTouchFix)
 
     struct Fields {
-        Ref<CCTouch> m_lastTouch;
+        geode::Ref<cocos2d::CCTouch> m_lastTouch = nullptr;
     };
 
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);

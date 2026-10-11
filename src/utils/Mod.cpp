@@ -1,6 +1,8 @@
 #include "utils/Mod.hpp"
 #include <Geode/loader/Loader.hpp>
 
+using namespace geode::prelude;
+
 namespace tinker::utils::mod {
 
 bool shouldLoadTinker() {

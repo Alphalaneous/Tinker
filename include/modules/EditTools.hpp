@@ -11,23 +11,23 @@ class $modify(ETEditorUI, EditorUI) {
     $registerHooks(EditTools)
 
     struct Fields {
-        Ref<CCMenuItemSpriteExtra> m_centerCameraButton;
-        Ref<CCMenuItemSpriteExtra> m_centerObjectButton;
-        Ref<CCMenuItemSpriteExtra> m_lockFlipPosButton;
+        geode::Ref<CCMenuItemSpriteExtra> m_centerCameraButton = nullptr;
+        geode::Ref<CCMenuItemSpriteExtra> m_centerObjectButton = nullptr;
+        geode::Ref<CCMenuItemSpriteExtra> m_lockFlipPosButton = nullptr;
 
-        bool m_flipPosLocked;
-        bool m_isFlipping;
+        bool m_flipPosLocked = false;
+        bool m_isFlipping = false;
     };
 
     void objectMoved(GameObject* object);
-    void moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos);
-    void onCenterObjects(CCObject* sender);
-    void onCenterCamera(CCObject* sender);
-    void onLockFlipPos(CCObject* sender);
+    void moveObjects(cocos2d::CCArray* objects, cocos2d::CCPoint deltaPos);
+    void onCenterObjects(cocos2d::CCObject* sender);
+    void onCenterCamera(cocos2d::CCObject* sender);
+    void onLockFlipPos(cocos2d::CCObject* sender);
     void transformObjectCall(EditCommand command);
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
     void updateButtons();
 
-    void setButtonColor(CCMenuItemSpriteExtra* btn, const ccColor3B& color);
+    void setButtonColor(CCMenuItemSpriteExtra* btn, const cocos2d::ccColor3B& color);
 };
 

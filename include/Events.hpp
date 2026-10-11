@@ -10,96 +10,94 @@
 #include <Geode/loader/Event.hpp>
 #include <Geode/utils/Keyboard.hpp>
 
-using namespace geode::prelude;
-
-struct EditorEnterEvent final : Event<EditorEnterEvent, bool(EditorUI* editorUI)> {
+struct EditorEnterEvent final : geode::Event<EditorEnterEvent, bool(EditorUI* editorUI)> {
     using Event::Event;
 };
 
-struct EditorExitEvent final : Event<EditorExitEvent, bool()> {
+struct EditorExitEvent final : geode::Event<EditorExitEvent, bool()> {
     using Event::Event;
 };
 
-struct ShowUIEvent final : Event<ShowUIEvent, bool(bool show)> {
+struct ShowUIEvent final : geode::Event<ShowUIEvent, bool(bool show)> {
     using Event::Event;
 };
 
-struct ModifierEvent final : Event<ModifierEvent, bool(KeyboardModifier modifier, KeyboardModifier lastModifier)> {
+struct ModifierEvent final : geode::Event<ModifierEvent, bool(geode::KeyboardModifier modifier, geode::KeyboardModifier lastModifier)> {
     using Event::Event;
 };
 
-struct UpdateButtonsEvent final : Event<UpdateButtonsEvent, bool()> {
+struct UpdateButtonsEvent final : geode::Event<UpdateButtonsEvent, bool()> {
     using Event::Event;
 };
 
-struct SetGroupIDLayerOpenedEvent final : Event<SetGroupIDLayerOpenedEvent, bool(SetGroupIDLayer* setGroupIDLayer, GameObject* obj, cocos2d::CCArray* objs)> {
+struct SetGroupIDLayerOpenedEvent final : geode::Event<SetGroupIDLayerOpenedEvent, bool(SetGroupIDLayer* setGroupIDLayer, GameObject* obj, cocos2d::CCArray* objs)> {
     using Event::Event;
 };
 
-struct EditorPausedEvent final : Event<EditorPausedEvent, bool(EditorPauseLayer* editorPauseLayer)> {
+struct EditorPausedEvent final : geode::Event<EditorPausedEvent, bool(EditorPauseLayer* editorPauseLayer)> {
     using Event::Event;
 };
 
-struct EditorUnpausedEvent final : Event<EditorUnpausedEvent, bool()> {
+struct EditorUnpausedEvent final : geode::Event<EditorUnpausedEvent, bool()> {
     using Event::Event;
 };
 
-struct LevelSavedEvent final : Event<LevelSavedEvent, bool()> {
+struct LevelSavedEvent final : geode::Event<LevelSavedEvent, bool()> {
     using Event::Event;
 };
 
-struct LevelTypeChangedEvent final : Event<LevelTypeChangedEvent, bool(bool isPlatformer)> {
+struct LevelTypeChangedEvent final : geode::Event<LevelTypeChangedEvent, bool(bool isPlatformer)> {
     using Event::Event;
 };
 
-struct ObjectChangeEvent final : Event<ObjectChangeEvent, bool(float lastObjectX)> {
+struct ObjectChangeEvent final : geode::Event<ObjectChangeEvent, bool(float lastObjectX)> {
     using Event::Event;
 };
 
-struct SetupCreateMenuEvent final : Event<SetupCreateMenuEvent, bool()> {
+struct SetupCreateMenuEvent final : geode::Event<SetupCreateMenuEvent, bool()> {
     using Event::Event;
 };
 
-struct EditorRotationEvent final : Event<EditorRotationEvent, bool(float rotation)> {
+struct EditorRotationEvent final : geode::Event<EditorRotationEvent, bool(float rotation)> {
     using Event::Event;
 };
 
-struct EditorZoomEvent final : Event<EditorZoomEvent, bool(float zoom)> {
+struct EditorZoomEvent final : geode::Event<EditorZoomEvent, bool(float zoom)> {
     using Event::Event;
 };
 
-struct EditorMoveEvent final : Event<EditorMoveEvent, bool(CCPoint position)> {
+struct EditorMoveEvent final : geode::Event<EditorMoveEvent, bool(cocos2d::CCPoint position)> {
     using Event::Event;
 };
 
-struct UpdateObjectLabel final : Event<UpdateObjectLabel, bool()> {
+struct UpdateObjectLabel final : geode::Event<UpdateObjectLabel, bool()> {
     using Event::Event;
 };
 
-struct ObjectMovedEvent final : Event<ObjectMovedEvent, bool()> {
+struct ObjectMovedEvent final : geode::Event<ObjectMovedEvent, bool()> {
     using Event::Event;
 };
 
-struct ActiveObjectsChangedEvent final : Event<ActiveObjectsChangedEvent, bool(int count)> {
+struct ActiveObjectsChangedEvent final : geode::Event<ActiveObjectsChangedEvent, bool(int count)> {
     using Event::Event;
 };
 
-struct AlertsActiveEvent final : Event<AlertsActiveEvent, bool()> {
+struct AlertsActiveEvent final : geode::Event<AlertsActiveEvent, bool()> {
     using Event::Event;
 };
 
-struct PreUIScaleUpdated final : Event<PreUIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
+struct PreUIScaleUpdated final : geode::Event<PreUIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };
 
-struct UIScaleUpdated final : Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
+struct UIScaleUpdated final : geode::Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
     using Event::Event;
 };
 
-struct PauseUIScaleUpdated final : Event<PauseUIScaleUpdated, bool(EditorPauseLayer* pauseLayer, float scale)> {
+struct PauseUIScaleUpdated final : geode::Event<PauseUIScaleUpdated, bool(EditorPauseLayer* pauseLayer, float scale)> {
     using Event::Event;
 };
 
-struct LostFocusEvent final : Event<LostFocusEvent, bool()> {
+struct LostFocusEvent final : geode::Event<LostFocusEvent, bool()> {
     using Event::Event;
 };

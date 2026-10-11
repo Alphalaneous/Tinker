@@ -1,5 +1,7 @@
 #include "modules/Gizmos/TestGizmo.hpp"
-#include "Geode/ui/NineSlice.hpp"
+#include <Geode/ui/NineSlice.hpp>
+
+using namespace geode::prelude;
 
 CCNode* TestGizmo::setup() {
 

@@ -2,6 +2,8 @@
 #include "nodes/GIF.hpp"
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 SupportButton* SupportButton::create(float width) {

@@ -4,15 +4,13 @@
 #include <chrono>
 #include <string>
 
-using namespace geode::prelude;
-
 class Timestamp {
 public:
-    Timestamp(ZStringView id);
+    Timestamp(geode::ZStringView id);
     ~Timestamp();
-    void snapshot(ZStringView label);
+    void snapshot(geode::ZStringView label);
 private:
-    std::string m_id;
-    std::chrono::time_point<std::chrono::steady_clock> m_start;
-    std::chrono::time_point<std::chrono::steady_clock> m_last;
+    std::string m_id = "";
+    std::chrono::time_point<std::chrono::steady_clock> m_start{};
+    std::chrono::time_point<std::chrono::steady_clock> m_last{};
 };

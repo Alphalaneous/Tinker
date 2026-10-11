@@ -3,6 +3,8 @@
 
 // TODO fix deselecting while controls are open
 
+using namespace geode::prelude;
+
 bool SingleDeselect::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -54,7 +56,7 @@ void SDEditorUI::createUndoSelectObject(bool redo) {
 }
 
 GameObject* SDEditorUI::selectedObjectAtPosition(CCPoint pos) {
-    CCArray* objs;
+    CCArray* objs = nullptr;
     if (m_selectedObject && m_selectedObjects->count() == 0) {
         objs = CCArray::createWithObject(m_selectedObject);
     }

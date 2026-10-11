@@ -2,6 +2,8 @@
 #include "modules/UIScaling.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool LengthInEditor::onToggled(bool state) {
     auto editor = getEditor();
     if (state) {
@@ -143,7 +145,7 @@ std::string LengthInEditor::getTime(float x) {
     auto duration = std::chrono::seconds(seconds);
     auto formattedTime = std::chrono::hh_mm_ss(duration);
 
-    std::string timeString;
+    std::string timeString = "";
 
     if (formattedTime.hours().count() > 0) {
         timeString = fmt::format("{}h {}m {}s", 

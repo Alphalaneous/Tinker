@@ -1,6 +1,8 @@
 #include "modules/ImprovedFontSelection.hpp"
 #include <alphalaneous.alphas-ui-pack/include/API.hpp>
 
+using namespace geode::prelude;
+
 bool ImprovedFontSelection::onToggled(bool state) {
     return true;
 }

@@ -12,65 +12,65 @@
 #include <Geode/binding/EffectGameObject.hpp>
 #include <unordered_map>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
-	class DurationControl;
 
-	enum class ThumbType {
-		Default,
-		FadeIn,
-		FadeOut,
-		Multi
-	};
+class DurationControl;
 
-	class DurationThumb : public CCNodeRGBA, public CCTouchDelegate {
-	public:
-		static DurationThumb* create(CCNode* parent, EffectGameObject* object, ThumbType thumbType = ThumbType::Default);
+enum class ThumbType {
+	Default,
+	FadeIn,
+	FadeOut,
+	Multi
+};
 
-		bool init(CCNode* parent, EffectGameObject* object, ThumbType thumbType);
-		void resetText();
-		void hideText(float dt);
-		void showText(float dt);
-		void positionPulseSlider();
-		void update(float dt) override;
-		void checkFreeMoving();
-		void select(bool select);
-		void checkForNewLongest();
+class DurationThumb : public cocos2d::CCNodeRGBA, public cocos2d::CCTouchDelegate {
+public:
+	static DurationThumb* create(CCNode* parent, EffectGameObject* object, ThumbType thumbType = ThumbType::Default);
 
-		bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
-		void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
-		void ccTouchEnded(CCTouch* touch, CCEvent* event) override;
-		void ccTouchCancelled(CCTouch* touch, CCEvent* event) override;
+	bool init(CCNode* parent, EffectGameObject* object, ThumbType thumbType);
+	void resetText();
+	void hideText(float dt);
+	void showText(float dt);
+	void positionPulseSlider();
+	void update(float dt) override;
+	void checkFreeMoving();
+	void select(bool select);
+	void checkForNewLongest();
 
-		void registerWithTouchDispatcher();
-		void onEnter() override;
-		void onExit() override;
+	bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
+	void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
+	void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
+	void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
 
-		ThumbType m_thumbType = ThumbType::Default;
+	void registerWithTouchDispatcher();
+	void onEnter() override;
+	void onExit() override;
 
-		float m_labelY = 0.f;
-		float m_labelPosMultiplier = 1.f;
-		CCNodeRGBA* m_thumbContainer;
-		CCSprite* m_thumbSpr;
-		CCSprite* m_thumbSelectedSpr;
-		CCNode* m_parent;
-		DurationControl* m_control;
-		EffectGameObject* m_object;
-		geode::Label* m_durationLabel;
-		Ref<CCAction> m_fadeInAction;
-		Ref<CCAction> m_fadeOutAction;
+	ThumbType m_thumbType = ThumbType::Default;
 
-		CCPoint m_startingEndPos;
-		CCPoint m_start;
-		CCPoint m_offset;
+	float m_labelY = 0.f;
+	float m_labelPosMultiplier = 1.f;
+	cocos2d::CCNodeRGBA* m_thumbContainer = nullptr;
+	cocos2d::CCSprite* m_thumbSpr = nullptr;
+	cocos2d::CCSprite* m_thumbSelectedSpr = nullptr;
+	CCNode* m_parent = nullptr;
+	DurationControl* m_control = nullptr;
+	EffectGameObject* m_object = nullptr;
+	geode::Label* m_durationLabel = nullptr;
+	geode::Ref<cocos2d::CCAction> m_fadeInAction = nullptr;
+	geode::Ref<cocos2d::CCAction> m_fadeOutAction = nullptr;
 
-		bool m_disabled;
-		bool m_dragging;
-		bool m_overlapping;
+	cocos2d::CCPoint m_startingEndPos{};
+	cocos2d::CCPoint m_start{};
+	cocos2d::CCPoint m_offset{};
 
-		float m_startingDuration = 0.f;
-		float m_startingHoldDuration = 0.f;
-		std::unordered_map<EffectGameObject*, float> m_selectedStartingDurations;
-	};
+	bool m_disabled = false;
+	bool m_dragging = false;
+	bool m_overlapping = false;
+
+	float m_startingDuration = 0.f;
+	float m_startingHoldDuration = 0.f;
+	std::unordered_map<EffectGameObject*, float> m_selectedStartingDurations{};
+};
+
 }

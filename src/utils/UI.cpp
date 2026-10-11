@@ -4,12 +4,14 @@
 #include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::utils::ui {
 
 void resizeNodeToRealBounds(cocos2d::CCNode* node, const cocos2d::CCSize& offset, const std::vector<cocos2d::CCNode*>& ignore) {
     auto world = node->getParent()->convertToWorldSpace(node->getPosition());
 
-    std::unordered_map<cocos2d::CCNode*, cocos2d::CCPoint> worldPoints;
+    std::unordered_map<cocos2d::CCNode*, cocos2d::CCPoint> worldPoints{};
     for (auto child : node->getChildrenExt()) {
         worldPoints[child] = node->convertToWorldSpace(child->getPosition());
         auto world = child->convertToWorldSpace(cocos2d::CCPointZero);

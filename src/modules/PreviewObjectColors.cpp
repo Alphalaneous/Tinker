@@ -7,6 +7,8 @@
 #include "utils/Objects.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool PreviewObjectColors::onToggled(bool state) {
     if (state) {
         onEditor();

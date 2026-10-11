@@ -6,7 +6,7 @@
 
 class ColorChannelGizmo : public GizmoInterface {
 public:
-    CCNode* setup() override;
+    cocos2d::CCNode* setup() override;
     void onEditObject() override;
     void loadData(std::optional<const matjson::Value> data) override;
     matjson::Value saveData() override;
@@ -16,11 +16,11 @@ public:
     void onEditPopupClose(geode::Popup* popup) override;
 
 protected:
-    std::vector<CCMenu*> m_colorsMenus;
-    geode::NineSlice* m_background;
+    std::vector<cocos2d::CCMenu*> m_colorsMenus{};
+    geode::NineSlice* m_background = nullptr;
 
-    std::set<int> m_colorChannels;
-    std::vector<tinker::ui::ColorVisualButton*> m_colorButtons;
+    std::set<int> m_colorChannels{};
+    std::vector<tinker::ui::ColorVisualButton*> m_colorButtons{};
     int m_rows = 10;
     bool m_isHorizontal = false;
 
@@ -31,11 +31,11 @@ protected:
     CCMenuItemSpriteExtra* createChannelButton(int channel);
 
     struct PopupData {
-        std::vector<Ref<tinker::ui::ColorChannelSprite>> m_colorChannelSprites;
-        alpha::ui::AdvancedScrollLayer* m_colorList;
-        std::vector<Ref<tinker::ui::LazyColorRow>> m_rows;
-        geode::Label* m_rowLabel;
-        geode::TextInput* m_channelInput;
+        std::vector<geode::Ref<tinker::ui::ColorChannelSprite>> m_colorChannelSprites{};
+        alpha::ui::AdvancedScrollLayer* m_colorList = nullptr;
+        std::vector<geode::Ref<tinker::ui::LazyColorRow>> m_rows{};
+        geode::Label* m_rowLabel = nullptr;
+        geode::TextInput* m_channelInput = nullptr;
         int m_channel = 1;
-    } m_popupData;
+    } m_popupData{};
 };

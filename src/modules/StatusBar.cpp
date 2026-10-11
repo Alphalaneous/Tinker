@@ -5,10 +5,12 @@
 #include "third-party/BlurAPI.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
-StatusBar* StatusBar::create() {
-    auto ret = new StatusBar();
+StatusBarNode* StatusBarNode::create() {
+    auto ret = new StatusBarNode();
     if (ret->init()) {
         ret->autorelease();
         return ret;
@@ -17,7 +19,7 @@ StatusBar* StatusBar::create() {
     return nullptr;
 }
 
-bool StatusBar::init() {
+bool StatusBarNode::init() {
     if (!CCLayerColor::initWithColor({0, 0, 0, 200})) return false;
 
     auto winSize = CCDirector::get()->getWinSize();
@@ -156,7 +158,7 @@ bool StatusBar::init() {
     return true;
 }
 
-geode::Label* StatusBar::addLabel(ZStringView id, int idx, bool right) {
+geode::Label* StatusBarNode::addLabel(ZStringView id, int idx, bool right) {
     auto label = geode::Label::create("", "chatFont.fnt");
     label->setAlignment(right ? geode::Label::Alignment::Right : geode::Label::Alignment::Left);
     label->validate();
@@ -170,13 +172,13 @@ geode::Label* StatusBar::addLabel(ZStringView id, int idx, bool right) {
     return label;
 }
 
-void StatusBar::checkTime(float dt) {
+void StatusBarNode::checkTime(float dt) {
     auto editor = LevelEditorLayer::get();
 
     log::info("time: {}", editor->m_drawGridLayer->m_musicTime);
 }
 
-void StatusBar::updateLayouts() {
+void StatusBarNode::updateLayouts() {
     m_leftNode->updateLayout();
     m_rightNode->updateLayout();
 
@@ -214,7 +216,7 @@ void StatusBar::onEditor() {
         updateUI(scale);
     });
 
-    m_statusBar = tinker::ui::StatusBar::create();
+    m_statusBar = tinker::ui::StatusBarNode::create();
 
     editor->m_uiItems->addObject(m_statusBar);
 

@@ -1,5 +1,7 @@
 #include "modules/PlaytestConfirmation.hpp"
 
+using namespace geode::prelude;
+
 bool PlaytestConfirmation::onToggled(bool state) {
     return true;
 }

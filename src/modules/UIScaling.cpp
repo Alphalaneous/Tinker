@@ -6,6 +6,8 @@
 #include "utils/Mod.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool UIScaling::onSettingChanged(std::string_view key, const matjson::Value& value) {
     if (key == "scale") {
         m_scale = value.asDouble().unwrapOr(1);

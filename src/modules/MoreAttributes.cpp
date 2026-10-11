@@ -1,5 +1,7 @@
 #include "modules/MoreAttributes.hpp"
 
+using namespace geode::prelude;
+
 bool MoreAttributes::onToggled(bool state) {
     return true;
 }
@@ -46,7 +48,7 @@ bool MASetupKeyframePopup::init(KeyframeGameObject* object, cocos2d::CCArray* ob
 void MASetupKeyframePopup::valueDidChange(int tag, float value) {
     SetupKeyframePopup::valueDidChange(tag, value);
     if (tag == 373) {
-        CCArray* objs;
+        CCArray* objs = nullptr;
         if (!m_gameObject) {
             objs = m_gameObjects;
         }
@@ -54,7 +56,7 @@ void MASetupKeyframePopup::valueDidChange(int tag, float value) {
             objs = CCArray::createWithObject(m_gameObject);
         }
 
-        CCArray* newArr;
+        CCArray* newArr = nullptr;
         for (auto obj : objs->asExt<KeyframeGameObject>()) {
             auto arr = static_cast<CCArray*>(m_editorLayer->m_keyframeGroups->objectForKey(obj->m_keyframeGroup));
             if (arr) {
@@ -131,7 +133,7 @@ void MASetupAdvFollowPopup::onCustomToggleTriggerValue(cocos2d::CCObject* sender
 
     if (tag == 280 || tag == 281) {
         auto toggler = static_cast<CCMenuItemToggler*>(sender);
-        CCArray* objs;
+        CCArray* objs = nullptr;
         if (!m_gameObject) {
             objs = m_gameObjects;
         }
@@ -187,7 +189,7 @@ bool MASetupInstantCollisionTriggerPopup::init(EffectGameObject* object, cocos2d
 
 void MASetupInstantCollisionTriggerPopup::onRemapFix(CCObject* sender) {
     auto toggler = static_cast<CCMenuItemToggler*>(sender);
-    CCArray* objs;
+    CCArray* objs = nullptr;
     if (!m_gameObject) {
         objs = m_gameObjects;
     }
@@ -239,7 +241,7 @@ bool MASetupObjectOptions2Popup::init(GameObject* object, cocos2d::CCArray* obje
             addOnExitCallback([this, input, oldStr] {
                 if (input->getString() == oldStr) return;
 
-                CCArray* objs;
+                CCArray* objs = nullptr;
                 if (!m_gameObject) {
                     objs = m_gameObjects;
                 }

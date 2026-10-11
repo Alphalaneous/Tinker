@@ -19,6 +19,6 @@ protected:
     void downloadNames();
     void loadNamesFromFile();
 
-    std::unordered_map<unsigned int, std::string> m_names;
-    async::TaskHolder<web::WebResponse> m_listener;
+    std::unordered_map<unsigned int, std::string> m_names{};
+    async::TaskHolder<web::WebResponse> m_listener{};
 };

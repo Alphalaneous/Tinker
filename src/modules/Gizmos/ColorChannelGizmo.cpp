@@ -7,6 +7,8 @@
 #include "nodes/LazyColorRow.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 CCNode* ColorChannelGizmo::setup() {
     m_background = geode::NineSlice::create("simple-popup-square.png"_spr);
     m_background->setOpacity(160);
@@ -79,7 +81,7 @@ void ColorChannelGizmo::updateColorButtons() {
 
     int i = 0;
     int menuIdx = 0;
-    CCMenu* currentMenu;
+    CCMenu* currentMenu = nullptr;
     for (auto channel : m_colorChannels) {
         if (i % m_rows == 0) {
             currentMenu = CCMenu::create();
@@ -351,7 +353,6 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     });
     m_popupData.m_channelInput->setString("1");
     popup->m_mainLayer->addChild(m_popupData.m_channelInput);
-
 
     auto rowInput = geode::TextInput::create(50, "Rows");
     rowInput->setScale(0.65f);

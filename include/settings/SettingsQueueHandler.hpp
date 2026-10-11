@@ -1,19 +1,18 @@
 #pragma once
 
-#include "utils/Singleton.hpp"
+#include <Geode/utils/ZStringView.hpp>
 #include <string>
 #include <vector>
-
-using namespace geode::prelude;
+#include "utils/Singleton.hpp"
 
 class SettingsQueueHandler : public Singleton<SettingsQueueHandler> {
 public:
-    void addFeature(const std::string& name);
-    void addSetting(const std::string& name);
+    void addFeature(geode::ZStringView name);
+    void addSetting(geode::ZStringView name);
 
     void queueShow();
 
-    std::vector<std::string> m_features;
-    std::vector<std::string> m_settings;
-    bool m_queued;
+    std::vector<std::string> m_features{};
+    std::vector<std::string> m_settings{};
+    bool m_queued = false;
 };

@@ -8,11 +8,11 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 
 class $module(GridControlOld) {
-    TextInput* m_input;
-    Ref<CCNode> m_control;
-    Ref<CCMenuItemToggler> m_toggler;
-    bool m_addedCallbacks;
-    bool m_gridScaleToggled;
+    geode::TextInput* m_input = nullptr;
+    geode::Ref<cocos2d::CCNode> m_control = nullptr;
+    geode::Ref<CCMenuItemToggler> m_toggler = nullptr;
+    bool m_addedCallbacks = false;
+    bool m_gridScaleToggled = false;
 
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);

@@ -2,6 +2,8 @@
 #include "third-party/BlurAPI.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
+using namespace geode::prelude;
+
 bool CustomToolbarBackground::onToggled(bool state) {
     if (getSetting<bool, "blur-behind">()) return false;
 

@@ -23,15 +23,15 @@ protected:
 
 	bool clickBegan(alpha::dispatcher::TouchEvent* touch) override;
 
-    bool m_active;
+    bool m_active = false;
     geode::Button* m_showButton = nullptr;
-    Ref<CCAction> m_buttonAction = nullptr;
-    Ref<CCAction> m_moveAction = nullptr;
+    geode::Ref<cocos2d::CCAction> m_buttonAction = nullptr;
+    geode::Ref<cocos2d::CCAction> m_moveAction = nullptr;
 
     static constexpr float Offset = 50.f;
 };
 
-class EditControls : public CCLayer {
+class EditControls : public cocos2d::CCLayer {
 public:
  // I eventually want to add an API
     enum class Direction {
@@ -42,45 +42,45 @@ public:
     };
 
     using OnDirection = geode::Function<void(Direction direction)>;
-    using CreateSprite = geode::Function<CCSprite*(Direction direction)>;
+    using CreateSprite = geode::Function<cocos2d::CCSprite*(Direction direction)>;
 
     struct MoveControl {
-        std::string id;
-        std::string label;
-        float dist;
+        std::string id = "";
+        std::string label = "";
+        float dist = 0.f;
         CreateSprite createSprite = nullptr;
         OnDirection onDirection = nullptr; 
     };
 
-    static EditControls* create(CCArray* buttons, const CCSize& size);
+    static EditControls* create(cocos2d::CCArray* buttons, const cocos2d::CCSize& size);
     bool controlActive();
     float getCurrentDist();
     Direction getCurrentDirection();
 
-    void enableButton(ZStringView ID, bool enable);
-    void setButtonBG(ZStringView ID, ZStringView bgID);
+    void enableButton(geode::ZStringView ID, bool enable);
+    void setButtonBG(geode::ZStringView ID, geode::ZStringView bgID);
     void updateButtons();
     
 protected:
-    bool init(CCArray* buttons, const CCSize& size);
+    bool init(cocos2d::CCArray* buttons, const cocos2d::CCSize& size);
 
-    geode::Button* createGButton(ZStringView sprite, ZStringView ID, float scale, geode::Function<void(geode::Button* sender)> callback, bool withBG);
-    CCMenuItemSpriteExtra* createButton(ZStringView sprite, ZStringView ID, float scale, const CCPoint& offset, geode::Function<void(CCMenuItemSpriteExtra* sender)> callback, bool repeat, bool scaleBG);
-    CCMenuItemSpriteExtra* createArrowButton(ZStringView sprite, ZStringView ID, Direction direction);
+    geode::Button* createGButton(geode::ZStringView sprite, geode::ZStringView ID, float scale, geode::Function<void(geode::Button* sender)> callback, bool withBG);
+    CCMenuItemSpriteExtra* createButton(geode::ZStringView sprite, geode::ZStringView ID, float scale, const cocos2d::CCPoint& offset, geode::Function<void(CCMenuItemSpriteExtra* sender)> callback, bool repeat, bool scaleBG);
+    CCMenuItemSpriteExtra* createArrowButton(geode::ZStringView sprite, geode::ZStringView ID, Direction direction);
 
-    std::vector<MoveControl> m_controls;
-    StringMap<CCMenuItemSpriteExtra*> m_buttons;
+    std::vector<MoveControl> m_controls{};
+    geode::utils::StringMap<CCMenuItemSpriteExtra*> m_buttons{};
     
     float m_moveDist = 30.f;
     float m_moveMod = 1.f;
 
-    float m_curDist;
-    bool m_active;
-    Direction m_currentDirection;
-    ZStringView m_activeID;
-    CCNode* m_valueContainer;
+    float m_curDist = 0.f;
+    bool m_active = false;
+    Direction m_currentDirection = Direction::Up;
+    geode::ZStringView m_activeID;
+    CCNode* m_valueContainer = nullptr;
 
-    ButtonContainer* m_buttonContainer;
+    ButtonContainer* m_buttonContainer = nullptr;
 };
 
 }
@@ -97,7 +97,7 @@ class $module(ImprovedEditTab) {
 
     void updateButtons();
 
-    Ref<tinker::ui::EditControls> m_customEditContainer;
+    geode::Ref<tinker::ui::EditControls> m_customEditContainer = nullptr;
 };
 
 class $modify(IETEditorUI, EditorUI) {

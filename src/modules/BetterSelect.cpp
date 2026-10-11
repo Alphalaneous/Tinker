@@ -3,6 +3,8 @@
 #include "utils/UI.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 bool BetterSelect::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -55,7 +57,7 @@ void BSAppDelegate::applicationDidEnterBackground() {
 
 void BSEditorUI::keyDown(cocos2d::enumKeyCodes key, double timestamp) {
     auto keybinds = BetterSelect::getSetting<std::vector<Keybind>, "modifier">();
-    std::set<enumKeyCodes> validKeys;
+    std::set<enumKeyCodes> validKeys{};
 
     for (const auto& bind : keybinds) {
         validKeys.insert(bind.key);
@@ -283,7 +285,7 @@ bool ObjectSelectContainer::init(CCArray* objects) {
         firstObject = editorUI->m_selectedObject;
     }
     else if (editorUI->m_selectedObjects->count() > 0) {
-        std::vector<GameObject*> shared;
+        std::vector<GameObject*> shared{};
         for (auto obj : editorUI->m_selectedObjects->asExt<GameObject>()) {
             if (objects->containsObject(obj)) {
                 shared.push_back(obj);
@@ -439,7 +441,7 @@ bool HoverObjectNode::init() {
 
                 if (m_active && m_activeSelectContainer) {
                     if (BetterSelect::getSetting<bool, "release-modifier-to-select">()) {
-                        GameObject* obj;
+                        GameObject* obj = nullptr;
                         if (m_lastObjects->count() == 1) {
                             obj = m_lastObjects->asExt<GameObject>()[0];
                         }
@@ -495,7 +497,7 @@ bool HoverObjectNode::init() {
 
 void HoverObjectNode::quickSelect() {
     if (m_active && m_activeSelectContainer) {
-        GameObject* obj;
+        GameObject* obj = nullptr;
         if (m_lastObjects->count() == 1) {
             obj = m_lastObjects->asExt<GameObject>()[0];
         }

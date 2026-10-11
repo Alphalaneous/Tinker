@@ -4,6 +4,8 @@
 #include "utils/UI.hpp"
 #include "modules/CanvasRotate.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 RotationNode* RotationNode::create(EditorUI* editor) {
@@ -148,10 +150,7 @@ void RotationNode::translate(CCTouch* touch) {
     touch->m_prevPoint = CCPoint{newPrevPoint.x, winSize.height - newPrevPoint.y};
 }
 
-
-
 void RotationNode::updateCanvasRotation(float deltaAngle) {
-
     if (m_editorUI->m_editorLayer->m_playbackMode != PlaybackMode::Not) return;
 
     const float snapIncrement = 45.f;
@@ -170,7 +169,7 @@ void RotationNode::updateCanvasRotation(float deltaAngle) {
     float nearestSnap = std::round(m_unsnappedCameraAngle / snapIncrement) * snapIncrement;
     float diff = std::fabs(std::fmod(m_unsnappedCameraAngle - nearestSnap + 180.f, 360.f) - 180.f);
 
-    float targetAngle;
+    float targetAngle = 0.f;
 
     if (!m_isSnapped && diff < snapThreshold) {
         targetAngle = nearestSnap;

@@ -9,8 +9,8 @@ class SlopeDirectionDraw : public alpha::grid::DrawGridBase {
 public:
     static SlopeDirectionDraw* create();
 
-    void drawIndicator(GameObject* obj, const CCRect& visibleRect);
-	void draw(const CCRect& visibleRect);
+    void drawIndicator(GameObject* obj, const cocos2d::CCRect& visibleRect);
+	void draw(const cocos2d::CCRect& visibleRect);
 };
 
 }
@@ -20,6 +20,6 @@ class $module(SlopeDirectionIndicators) {
 
     void onEditor();
 
-    tinker::ui::SlopeDirectionDraw* m_directionDraw;
+    tinker::ui::SlopeDirectionDraw* m_directionDraw = nullptr;
 };
 

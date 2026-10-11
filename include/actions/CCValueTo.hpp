@@ -36,5 +36,5 @@ protected:
     T m_start = {};
     T m_end = {};
     T m_value = {};
-    UpdateFn m_update;
+    UpdateFn m_update = nullptr;
 };

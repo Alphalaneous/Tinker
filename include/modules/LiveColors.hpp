@@ -9,8 +9,8 @@ namespace tinker::ui {
 }
 
 class $module(LiveColors) {
-    CCMenu* m_colorsMenu;
-    std::vector<tinker::ui::ColorVisualButton*> m_buttons;
+    cocos2d::CCMenu* m_colorsMenu = nullptr;
+    std::vector<tinker::ui::ColorVisualButton*> m_buttons{};
     int m_lastBtnCount = 0;
     int m_availableBtnCount = 0;
 

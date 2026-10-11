@@ -1,5 +1,7 @@
 #include "modules/CopyObjectString.hpp"
 
+using namespace geode::prelude;
+
 bool CopyObjectString::onToggled(bool state) {
     return true;
 }

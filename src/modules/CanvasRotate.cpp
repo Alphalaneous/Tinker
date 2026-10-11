@@ -8,6 +8,8 @@
 #include "utils/UI.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 RotateTouch::RotateTouch(CCTouch* touch) {
@@ -32,18 +34,21 @@ RotateTouch::~RotateTouch() {
 }
 
 bool CanvasRotate::onToggled(bool state) {
+    auto editor = getEditor();
+    auto editorLayer = getEditorLayer();
+
     if (state) {
         onEditor();
         // fixes weird bug where touch stops working
-        getEditor()->runAction(CallFuncExt::create([this] {
+        editor->runAction(CallFuncExt::create([this] {
             m_rotationNode->onExit();
             m_rotationNode->onEnter();
         }));
 
-        if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
-            getEditor()->m_positionSlider->getThumb()->setRotation(getEditorLayer()->m_gameState.m_cameraAngle);
+        if (editor->m_positionSlider && editor->m_positionSlider->getThumb()) {
+            editor->m_positionSlider->getThumb()->setRotation(editorLayer->m_gameState.m_cameraAngle);
         }
-        EditorRotationEvent().send(getEditorLayer()->m_gameState.m_cameraAngle);
+        EditorRotationEvent().send(editorLayer->m_gameState.m_cameraAngle);
     }
     else {
         if (m_rotationNode) {
@@ -59,11 +64,11 @@ bool CanvasRotate::onToggled(bool state) {
         }
 
         removeEventListener("status-bar-created");
-        getEditorLayer()->unschedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
-        getEditorLayer()->m_gameState.m_cameraAngle = 0.f;
+        editorLayer->unschedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
+        editorLayer->m_gameState.m_cameraAngle = 0.f;
 
-        if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
-            getEditor()->m_positionSlider->getThumb()->setRotation(0.f);
+        if (editor->m_positionSlider && editor->m_positionSlider->getThumb()) {
+            editor->m_positionSlider->getThumb()->setRotation(0.f);
         }
 
         EditorRotationEvent().send(0.f);
@@ -75,16 +80,21 @@ bool CanvasRotate::onToggled(bool state) {
 }
 
 bool CanvasRotate::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    auto editor = getEditor();
+    auto editorLayer = getEditorLayer();
+
     if (key == "rotate-slider-thumb") {
-        if (getEditor()->m_positionSlider && getEditor()->m_positionSlider->getThumb()) {
-            getEditor()->m_positionSlider->getThumb()->setRotation(value.asBool().unwrapOrDefault() ? getEditorLayer()->m_gameState.m_cameraAngle : 0.f);
+        if (editor->m_positionSlider && editor->m_positionSlider->getThumb()) {
+            editor->m_positionSlider->getThumb()->setRotation(value.asBool().unwrapOrDefault() ? editorLayer->m_gameState.m_cameraAngle : 0.f);
         }
     }
     return true;
 }
 
 bool CanvasRotate::isLassoActive() {
-    return getEditor()->getUserFlag("undefined0.lasso-select/lasso-active") && getEditor()->m_selectedMode == 3 && (getEditor()->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed());
+    auto editor = getEditor();
+
+    return editor->getUserFlag("undefined0.lasso-select/lasso-active") && editor->m_selectedMode == 3 && (editor->m_swipeEnabled || CCKeyboardDispatcher::get()->getShiftKeyPressed());
 }
 
 bool CanvasRotate::isRotating() {
@@ -99,16 +109,19 @@ CCPoint CanvasRotate::getPreTransformPoint(CCTouch* touch) {
 }
 
 void CanvasRotate::onEditor() {
+    auto editor = getEditor();
+    auto editorLayer = getEditorLayer();
+
     m_rotationNode = RotationNode::create(getEditor());
     m_rotationNode->setID("rotation-node"_spr);
     m_rotationNode->setZOrder(4);
 
-    getEditor()->addChild(m_rotationNode);
+    editor->addChild(m_rotationNode);
 
     getEditorLayer()->schedule(schedule_selector(CRLevelEditorLayer::updateSliderRotation));
     
-    getEditor()->runAction(CallFuncExt::create([this] {
-        auto fields = static_cast<CREditorUI*>(getEditor())->m_fields.self();
+    editor->runAction(CallFuncExt::create([this, editor] {
+        auto fields = static_cast<CREditorUI*>(editor)->m_fields.self();
         fields->m_editorLoaded = true;
     }));
 
@@ -311,7 +324,7 @@ bool CanvasRotate::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* to
 
     auto editor = getEditor();
 
-    auto quickMoveMenu = getEditor()->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
+    auto quickMoveMenu = editor->getChildByID("arcticwoof.quickmovebuttons/quick-move-menu");
     if (quickMoveMenu && quickMoveMenu->isVisible()) {
         if (alpha::utils::isPointInsideNode(quickMoveMenu, touch->getLocation())) {
             editor->stopActionByTag(123);
@@ -521,7 +534,7 @@ void CRCCTextInputNode::updateCursorPosition(cocos2d::CCPoint position, cocos2d:
         transform.a
     ));
 
-    auto worldMid = convertToWorldSpace({0, 0});
+    auto worldMid = convertToWorldSpace({0.f, 0.f});
     position = tinker::utils::ui::rotatePointAroundPivot(position, worldMid, -rot);
 
     CCTextInputNode::updateCursorPosition(position, {});

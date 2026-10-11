@@ -2,6 +2,8 @@
 #include "nodes/DurationThumb.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 DurationSlider* DurationSlider::create(EffectGameObject* object) {

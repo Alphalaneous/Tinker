@@ -7,6 +7,8 @@
 #include "utils/UI.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 bool PlacePreview::onToggled(bool state) {
     if (state) {
         addEventListener("unpaused-event", EditorUnpausedEvent(), [this] () {
@@ -194,7 +196,7 @@ void PlacePreviewNode::showAtPos(const CCPoint& pos, const CCPoint& world) {
     auto checkPos = objectPos;
     bool isFlipX = false;
     bool isFlipY = false;
-    float rot = 0.0f;
+    float rot = 0.f;
 
     if (editor->m_selectedObject && editor->m_selectedObject->m_objectID == m_hoverObject->m_objectID) {
         isFlipX = m_hoverObject->isFlipX();

@@ -1,6 +1,8 @@
 #include "modules/LDMObjectCount.hpp"
 #include "MainHooks.hpp"
 
+using namespace geode::prelude;
+
 bool LDMObjectCount::onToggled(bool state) {
     if (state) {
         onEditor();

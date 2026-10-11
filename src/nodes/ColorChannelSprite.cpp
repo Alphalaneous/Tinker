@@ -4,6 +4,8 @@
 #include "utils/Color.hpp"
 #include "modules/ImprovedColorPicker.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ColorChannelSprite* ColorChannelSprite::create(int colorID, bool showLabel) {
@@ -75,7 +77,7 @@ bool ColorChannelSprite::init(int colorID, bool showLabel) {
 std::string ColorChannelSprite::textForID(int colorID, bool any) {
     using namespace tinker::constants::color_channels;
 
-    std::string text;
+    std::string text = "";
 
     if ((colorID != Black && colorID != White && colorID != -2) || any) {
         auto iter = ColorNamesShort.find(colorID);

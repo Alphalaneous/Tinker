@@ -6,7 +6,7 @@
 class $module(JoystickNavigation) {
     static bool s_resetPosition;
     
-    tinker::ui::NavigationControl* m_navigationControl;
+    tinker::ui::NavigationControl* m_navigationControl = nullptr;
     
     void onEditor();
 

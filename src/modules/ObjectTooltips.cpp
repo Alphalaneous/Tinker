@@ -3,6 +3,8 @@
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "nodes/TooltipHover.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool ObjectTooltips::onToggled(bool state) {
@@ -73,7 +75,7 @@ class $nodeModify(OTGroup, Group) {
 
         addOnEnterCallback([this, child, menu] {
             runAction(CallFuncExt::create([this, child, menu] {
-                std::set<Ref<CreateMenuItem>> items;
+                std::set<Ref<CreateMenuItem>> items{};
 
                 for (auto child : menu->getChildrenExt()) {
                     auto cmi = typeinfo_cast<CreateMenuItem*>(child);

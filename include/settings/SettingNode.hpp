@@ -10,37 +10,35 @@
 #include <memory>
 #include "SettingNodeLoader.hpp"
 
-using namespace geode::prelude;
-
 namespace tinker::settings {
 
-class SettingNodeBase : public CCLayerColor {
+class SettingNodeBase : public cocos2d::CCLayerColor {
 public:
-    bool init(float width, std::shared_ptr<SettingV3> setting);
+    bool init(float width, std::shared_ptr<geode::SettingV3> setting);
 
     virtual bool settingWasChanged();
     virtual void updateState();
     virtual void commit();
     virtual void resetToDefault();
-    virtual SettingNodeV3* getNode();
+    virtual geode::SettingNodeV3* getNode();
 
-    std::shared_ptr<SettingV3> getSetting();
+    std::shared_ptr<geode::SettingV3> getSetting();
 protected:
 
-    Ref<geode::Label> m_title;
-    Ref<geode::Button> m_infoButton;
-    Ref<CCNode> m_titleContainer;
+    geode::Ref<geode::Label> m_title = nullptr;
+    geode::Ref<geode::Button> m_infoButton = nullptr;
+    geode::Ref<CCNode> m_titleContainer = nullptr;
 
-    std::shared_ptr<SettingV3> m_setting;
+    std::shared_ptr<geode::SettingV3> m_setting = nullptr;
 };
 
 template <class T, geode::utils::string::ConstexprString Type>
 class SettingNode : public SettingNodeBase {
 public:
-    static inline SettingNodeLoader<T, Type> $apply;
+    static inline SettingNodeLoader<T, Type> $apply{};
     static inline auto const $force = &$apply;
 
-    static T* create(float width, std::shared_ptr<SettingV3> setting) {
+    static T* create(float width, std::shared_ptr<geode::SettingV3> setting) {
         auto ret = new T();
         if (ret->init(width, setting)) {
             ret->autorelease();

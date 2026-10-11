@@ -19,20 +19,20 @@ class $module(EditorGridCustomization) {
     void setupPositionLines();
     void setupPreviewLockLine();
 
-    alpha::grid::Color m_gridColor;
-    bool m_gridInvert;
-    float m_gridInvertOpacity;
+    alpha::grid::Color m_gridColor{};
+    bool m_gridInvert = false;
+    float m_gridInvertOpacity = 0.f;
 
-    alpha::grid::Color m_effectLineColor;
-    bool m_triggerBasedEffectLines;
+    alpha::grid::Color m_effectLineColor{};
+    bool m_triggerBasedEffectLines = false;
 
-    alpha::grid::Color m_activeAudioLineColor;
-    alpha::grid::Color m_inactiveAudioLineColor;
+    alpha::grid::Color m_activeAudioLineColor{};
+    alpha::grid::Color m_inactiveAudioLineColor{};
 
-    bool m_rainbowAudioLine;
+    bool m_rainbowAudioLine = false;
 
-    alpha::grid::Color m_positionLinesColor;
+    alpha::grid::Color m_positionLinesColor{};
 
-    alpha::grid::Color m_previewLockLineColor;
+    alpha::grid::Color m_previewLockLineColor{};
 
 };

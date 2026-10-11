@@ -2,6 +2,8 @@
 #include "MainHooks.hpp"
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 SizeContainer* SizeContainer::create(ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback) {

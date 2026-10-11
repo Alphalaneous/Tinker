@@ -7,6 +7,8 @@
 #include "utils/Constants.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ButtonContainer* ButtonContainer::create() {
@@ -389,9 +391,9 @@ void EditControls::updateButtons() {
 
     bool toggleRotateEnabled = GameManager::get()->getGameVariable(GameVar::EnableRotate);
 
-    int id;
-    int classType;
-    int objectType;
+    int id = 0;
+    int classType = 0;
+    int objectType = 0;
     editor->getGroupInfo(editor->m_selectedObject, editor->m_selectedObjects, id, classType, objectType);
 
     bool solid = objectType == static_cast<int>(GameObjectType::Solid);

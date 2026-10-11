@@ -6,7 +6,7 @@
 class $module(CopyObjectString) {
     bool onToggled(bool state);
 
-    static bool isObjectString(ZStringView str);
+    static bool isObjectString(geode::ZStringView str);
 };
 
 class $modify(COSEditorUI, EditorUI) {

@@ -1,5 +1,7 @@
 #include "modules/fixes/FixAreaCorruption.hpp"
 
+using namespace geode::prelude;
+
 void FACGJBaseGameLayer::loadUpToPosition(float position, int order, int channel) {
     auto fields = m_fields.self();
 

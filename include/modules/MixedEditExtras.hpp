@@ -14,15 +14,15 @@ class $modify(MEESetupObjectOptionsPopup, SetupObjectOptionsPopup) {
     void updateMixedToggles();
 
     template <class T>
-    void checkMixedFor(std::string_view id, CCArray* objects, bool T::*member) {
-        auto firstObj = typeinfo_cast<T*>(objects->firstObject());
+    void checkMixedFor(std::string_view id, cocos2d::CCArray* objects, bool T::*member) {
+        auto firstObj = geode::cast::typeinfo_cast<T*>(objects->firstObject());
         if (!firstObj) return;
 
         bool first = firstObj->*member;
         bool mixed = false;
 
         for (auto object : objects->asExt<GameObject>()) {
-            auto objectCasted = typeinfo_cast<T*>(object);
+            auto objectCasted = geode::cast::typeinfo_cast<T*>(object);
             if (!objectCasted) return;
             if (objectCasted->*member != first) {
                 mixed = true;
@@ -35,14 +35,14 @@ class $modify(MEESetupObjectOptionsPopup, SetupObjectOptionsPopup) {
 
         float scaleOffset = 1.f;
 
-        CCSprite* newSpr;
+        cocos2d::CCSprite* newSpr;
         if (mixed) {
-            newSpr = CCSprite::create("GJ_button_05.png");
+            newSpr = cocos2d::CCSprite::create("GJ_button_05.png");
             newSpr->setOpacity(200);
             scaleOffset = 0.75f;
         }
         else {
-            newSpr = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
+            newSpr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
         }
 
         toggler->m_offButton->setNormalImage(newSpr);

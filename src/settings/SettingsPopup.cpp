@@ -10,6 +10,8 @@
 #include <Geode/modify/SliderTouchLogic.hpp>
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
+using namespace geode::prelude;
+
 class TitleSettingNodeV3 : public CCNode {};
 
 struct SliderStateChanged final : Event<SliderStateChanged, bool(bool started)> {
@@ -492,7 +494,7 @@ void SettingsPopup::loadSettingNodes(bool retainPosition) {
     runAction(CallFuncExt::create([this, retainPosition, scroll] {
         bool even = false;
 
-        std::unordered_map<SettingsCache::SettingCategory*, std::set<std::shared_ptr<SettingsCache::SettingInfo>>> m_resultsForQuery;
+        std::unordered_map<SettingsCache::SettingCategory*, std::set<std::shared_ptr<SettingsCache::SettingInfo>>> m_resultsForQuery{};
         for (const auto& category : SettingsCache::get()->getCategoryList()) {
             m_resultsForQuery[category] = category->settingsForSearch(m_searchQuery);
         }

@@ -18,21 +18,21 @@ class $module(StartPosTools) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
-    bool m_isSwitching;
+    bool m_isSwitching = false;
 };
 
 class $modify(SPTEditorUI, EditorUI) {
     $registerHooks(StartPosTools)
 
     struct Fields {
-        Ref<tinker::ui::StartPosOverlay> m_overlay;
-        CCMenuItemSpriteExtra* m_startPosBtn;
-        bool m_fromStart;
+        geode::Ref<tinker::ui::StartPosOverlay> m_overlay = nullptr;
+        CCMenuItemSpriteExtra* m_startPosBtn = nullptr;
+        bool m_fromStart = false;
         bool m_currentlyPlaying = false;
-        geode::NineSlice* m_switcherContainer;
-        geode::Label* m_switcherLabel;
-        geode::Button* m_prevButton;
-        geode::Button* m_nextButton;
+        geode::NineSlice* m_switcherContainer = nullptr;
+        geode::Label* m_switcherLabel = nullptr;
+        geode::Button* m_prevButton = nullptr;
+        geode::Button* m_nextButton = nullptr;
     };
 
     void updateOverlay();
@@ -59,12 +59,12 @@ class $modify(SPTLevelEditorLayer, LevelEditorLayer) {
     $registerHooks(StartPosTools)
 
     struct Fields {
-        std::vector<Ref<StartPosObject>> m_startPositions;
+        std::vector<geode::Ref<StartPosObject>> m_startPositions{};
         int m_startPosIndex = -1;
         int m_startPosIndexReal = -1;
 
         bool m_fromStart = false;
-        Ref<StartPosObject> m_activeStartPos;
+        geode::Ref<StartPosObject> m_activeStartPos = nullptr;
     };
 
     void reloadStartPositions();

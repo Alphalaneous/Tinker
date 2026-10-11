@@ -3,8 +3,6 @@
 #include "module/ModuleCore.hpp"
 #include "module/ModuleBase.hpp"
 
-using namespace geode::prelude;
-
 #define REGISTERMODULEHOOKSDECLARE(name, alt) \
 static void onModify(auto& self) { \
     for (const auto& [k, v] : self.m_hooks) { \
@@ -14,7 +12,7 @@ static void onModify(auto& self) { \
     alt; \
 }
 
-#define REGISTERMODULEHOOKS1(name) REGISTERMODULEHOOKSDECLARE(name, do_nothing(false))
+#define REGISTERMODULEHOOKS1(name) REGISTERMODULEHOOKSDECLARE(name, geode::do_nothing(false))
 #define REGISTERMODULEHOOKS2(name, alt) REGISTERMODULEHOOKSDECLARE(name, Self::_onModify(self))
 
 #define $registerHooks(...) \

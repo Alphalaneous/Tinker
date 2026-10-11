@@ -3,11 +3,9 @@
 #include <Geode/cocos/menu_nodes/CCMenu.h>
 #include <Geode/utils/function.hpp>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class LazyColorRow : public CCMenu {
+class LazyColorRow : public cocos2d::CCMenu {
 public:
     static LazyColorRow* create(geode::Function<void(LazyColorRow* self)> callback, int min, int max);
     bool init(geode::Function<void(LazyColorRow* self)> callback, int min, int max);
@@ -17,10 +15,10 @@ public:
 
     void load();
 protected:
-    geode::Function<void(LazyColorRow* self)> m_callback;
-    bool m_loaded;
-    int m_min;
-    int m_max;
+    geode::Function<void(LazyColorRow* self)> m_callback = nullptr;
+    bool m_loaded = false;
+    int m_min = 0;
+    int m_max = 0;
 };
 
 }

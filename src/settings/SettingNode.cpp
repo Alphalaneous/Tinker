@@ -1,5 +1,7 @@
 #include "settings/SettingNode.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::settings {
 
 bool SettingNodeBase::init(float width, std::shared_ptr<SettingV3> setting) {

@@ -1,6 +1,8 @@
 #include "modules/fixes/SelectionFix.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 bool SelectionFix::onToggled(bool state) {
     return true;
 }

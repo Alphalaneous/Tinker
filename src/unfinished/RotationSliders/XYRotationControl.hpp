@@ -4,15 +4,13 @@
 #include "nodes/ValueToggler.hpp"
 #include "nodes/ScaleSlider.hpp"
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class XYRotationControl : public CCLayer {
+class XYRotationControl : public cocos2d::CCLayer {
 public:
     static XYRotationControl* create();
     void unfocus();
-    void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
+    void loadValues(GameObject* obj, cocos2d::CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
 
 protected:
 
@@ -26,27 +24,27 @@ protected:
     void rotationXChanged(float value);
     void rotationYChanged(float value);
 
-    geode::Label* m_rotationXLabel;
-    geode::Label* m_rotationYLabel;
+    geode::Label* m_rotationXLabel = nullptr;
+    geode::Label* m_rotationYLabel = nullptr;
 
-    CCMenuItemToggler* m_snapToggle;
-    CCMenuItemToggler* m_posLockToggle;
+    CCMenuItemToggler* m_snapToggle = nullptr;
+    CCMenuItemToggler* m_posLockToggle = nullptr;
 
-    ScaleSlider* m_sliderX;
-    ScaleSlider* m_sliderY;
+    ScaleSlider* m_sliderX = nullptr;
+    ScaleSlider* m_sliderY = nullptr;
 
-    TextInput* m_inputX;
-    TextInput* m_inputY;
+    geode::TextInput* m_inputX = nullptr;
+    geode::TextInput* m_inputY = nullptr;
 
-    std::vector<TextInput*> m_inputs;
-    ValueToggler<float>* m_valueToggler;
-    bool m_posLock;
-    bool m_snapLock;
+    std::vector<geode::TextInput*> m_inputs{};
+    ValueToggler<float>* m_valueToggler = nullptr;
+    bool m_posLock = false;
+    bool m_snapLock = false;
 
-    float m_snapSize;
+    float m_snapSize = 0.f;
 
-    Ref<GameObject> m_object;
-    Ref<CCArray> m_objects;
+    geode::Ref<GameObject> m_object = nullptr;
+    geode::Ref<cocos2d::CCArray> m_objects = nullptr;
 
     float m_lowerBound = -90.f;
     float m_upperBound = 90.f;

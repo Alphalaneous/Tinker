@@ -3,6 +3,8 @@
 #include "utils/Constants.hpp"
 #include "utils/String.hpp"
 
+using namespace geode::prelude;
+
 void ImprovedControls::addLabelToNode(CCNode* node, ZStringView text) {
     auto label = geode::Label::create(text.c_str(), "bigFont.fnt");
     label->setScale(0.25f);
@@ -41,7 +43,7 @@ float ImprovedControls::roundToThousandth(float value) {
 void ICEditorUI::activateRotationControl(CCObject* sender) {
     EditorUI::activateRotationControl(sender);
 
-    CCArray* arr;
+    CCArray* arr = nullptr;
     if (m_selectedObject && m_selectedObjects->count() == 0) {
         arr = CCArray::createWithObject(m_selectedObject);
     }
@@ -89,7 +91,7 @@ void ICEditorUI::activateTransformControl(cocos2d::CCObject* sender) {
 
 void ICEditorUI::angleChanged(float angle) {
     auto fields = m_fields.self();
-    CCPoint pivotPoint;
+    CCPoint pivotPoint{};
 
     CCArray* objs = nullptr;
     bool lockPos = static_cast<ICGJRotationControl*>(m_rotationControl)->isPositionLocked();
@@ -338,8 +340,8 @@ bool ICGJScaleControl::init() {
     m_sliderY->m_enabled = false;
     m_sliderXY->m_enabled = false;
 
-    fields->m_sliderX = ScaleSlider::create(
-        [this, fields] (ScaleSlider* sender, float value) {
+    fields->m_sliderX = tinker::ui::ScaleSlider::create(
+        [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
             auto scale = trueScaleFromValue(value);
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
@@ -354,8 +356,8 @@ bool ICGJScaleControl::init() {
     fields->m_sliderX->setPosition(m_sliderX->getPosition());
     addChild(fields->m_sliderX);
 
-    fields->m_sliderY = ScaleSlider::create(
-        [this, fields] (ScaleSlider* sender, float value) {
+    fields->m_sliderY = tinker::ui::ScaleSlider::create(
+        [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
             auto scale = trueScaleFromValue(value);
             if (fields->m_snapLock) {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
@@ -370,8 +372,8 @@ bool ICGJScaleControl::init() {
     fields->m_sliderY->setPosition(m_sliderY->getPosition());
     addChild(fields->m_sliderY);
 
-    fields->m_sliderXY = ScaleSlider::create(
-        [this, fields] (ScaleSlider* sender, float value) {
+    fields->m_sliderXY = tinker::ui::ScaleSlider::create(
+        [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
             auto scale = trueScaleFromValue(value);
 
             auto scaleX = trueScaleFromValue(fields->m_sliderX->getPercent());
@@ -504,7 +506,7 @@ bool ICGJScaleControl::init() {
 
     menu->addChild(fields->m_snapToggle);
 
-    fields->m_valueToggler = ValueToggler<float>::create([this, fields] (float value) {
+    fields->m_valueToggler = tinker::ui::ValueToggler<float>::create([this, fields] (float value) {
         fields->m_snapSize = value;
 
         fields->m_sliderX->updateSnap(1.f / value);
@@ -649,7 +651,7 @@ void ICGJScaleControl::updateSnapValues() {
 CCPoint ICGJScaleControl::getPivotLocation() {
     auto fields = m_fields.self();
 
-    CCPoint position;
+    CCPoint position{};
 
     if (!fields->m_objects || fields->m_objects->count() == 0) {
         if (fields->m_object) {
@@ -804,7 +806,7 @@ bool ICGJRotationControl::init() {
 
     menu->addChild(fields->m_snapToggle);
 
-    fields->m_valueToggler = ValueToggler<int>::create([this, fields] (float value) {
+    fields->m_valueToggler = tinker::ui::ValueToggler<int>::create([this, fields] (float value) {
         fields->m_snapSize = value;
     }, {1, 5, 10, 15, 18, 20, 24, 30}, 3);
     fields->m_valueToggler->setID("snap-values"_spr);

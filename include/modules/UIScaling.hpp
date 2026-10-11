@@ -21,8 +21,8 @@ class $module(UIScaling) {
     void setupSettings();
     void setupEvents();
 
-    static CCPoint getSafeOffset();
-    static CCPoint getSafeOffsetPause();
+    static cocos2d::CCPoint getSafeOffset();
+    static cocos2d::CCPoint getSafeOffsetPause();
     static float getScale();
     static float getToolbarScale();
     static float getPauseScale();
@@ -61,7 +61,7 @@ class $modify(UISEditorUI, EditorUI) {
 
 
     static void onModify(auto& self) {
-        (void) self.setHookPriorityPost("EditorUI::init", Priority::VeryLate);
+        (void) self.setHookPriorityPost("EditorUI::init", geode::Priority::VeryLate);
     }
 };
 

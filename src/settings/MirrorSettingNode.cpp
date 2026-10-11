@@ -81,7 +81,7 @@ public:
     };
 
 protected:
-    float m_width;
-    bool m_loaded;
-    SettingNodeV3* m_settingNode;
+    float m_width = 0.f;
+    bool m_loaded = false;
+    SettingNodeV3* m_settingNode = nullptr;
 };

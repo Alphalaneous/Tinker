@@ -1,5 +1,7 @@
 #include "modules/ZoomText.hpp"
 
+using namespace geode::prelude;
+
 bool ZoomText::onToggled(bool state) {
     if (state) {
         onEditor();

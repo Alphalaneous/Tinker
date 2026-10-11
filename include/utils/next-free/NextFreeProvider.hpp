@@ -6,8 +6,6 @@
 #include <concepts>
 #include <unordered_set>
 
-using namespace geode::prelude;
-
 class NextFreeSource {
 public:
     void setEditor(LevelEditorLayer* editor) {
@@ -21,7 +19,7 @@ public:
     virtual void setOffset(int offset) = 0;
 
 protected:
-    LevelEditorLayer* m_editorLayer;
+    LevelEditorLayer* m_editorLayer = nullptr;
 };
 
 class NextFreeProvider : public Singleton<NextFreeProvider> {
@@ -30,9 +28,9 @@ public:
 
     template<class T>
     requires std::derived_from<T, NextFreeSource>
-    Result<int> nextFree() {
+    geode::Result<int> nextFree() {
         if (!m_activeEditorLayer) {
-            return Err("Not in editor layer");
+            return geode::Err("Not in editor layer");
         }
         auto source = T();
         source.setEditor(m_activeEditorLayer);
@@ -42,13 +40,13 @@ public:
 
         for (int i = min; i <= source.getMax(); i++) {
             if (!used.contains(i)) {
-                return Ok(i);
+                return geode::Ok(i);
             }
         }
 
-        return Err("No free IDs");
+        return geode::Err("No free IDs");
     }
 
 protected:
-    LevelEditorLayer* m_activeEditorLayer;
+    LevelEditorLayer* m_activeEditorLayer = nullptr;
 };

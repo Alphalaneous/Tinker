@@ -6,7 +6,7 @@
 
 class $module(MusicCameraLock) {
     bool m_cameraLocked = false;
-    Ref<CCMenuItemToggler> m_toggler = nullptr;
+    geode::Ref<CCMenuItemToggler> m_toggler = nullptr;
 
     bool onToggled(bool state);
     void onEditor();
@@ -15,10 +15,10 @@ class $module(MusicCameraLock) {
 class $modify(MCLEditorUI, EditorUI) {
     $registerHooks(MusicCameraLock)
 
-    void showLayoutGenerator(CCNode* menu, bool show);
+    void showLayoutGenerator(cocos2d::CCNode* menu, bool show);
 
-    void onPlayback(CCObject* sender);
-    void onPlaytest(CCObject* sender);
+    void onPlayback(cocos2d::CCObject* sender);
+    void onPlaytest(cocos2d::CCObject* sender);
 
 };
 

@@ -9,6 +9,8 @@
 #include "utils/Constants.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ScheduleNode* ScheduleNode::create(geode::Function<void(float dt)> callback) {
@@ -173,7 +175,7 @@ bool Gizmo::initWithID(ZStringView ID) {
 }
 
 void Gizmo::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
-    matjson::Value propertyJson;
+    matjson::Value propertyJson{};
 
     GameObject::customObjectSetup(values, exists);
 
@@ -201,12 +203,12 @@ void Gizmo::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>&
 gd::string Gizmo::getSaveString(GJBaseGameLayer* layer) {
     auto saveString = GameObject::getSaveString(layer);
 
-    geode::utils::StringBuffer buffer;
+    geode::utils::StringBuffer<> buffer{};
 
     buffer.append(saveString);
     buffer.append(",400,{}", utils::base64::encode(m_gizmoID));
 
-    matjson::Value saved;
+    matjson::Value saved{};
     if (m_gizmoInterface) {
         saved = m_gizmoInterface->saveData();
     }
@@ -383,7 +385,7 @@ void GCCTouchDispatcher::touches(CCSet* touches, CCEvent* event, unsigned int in
 
 void GEditorPauseLayer::saveLevel() {
     auto oldObjects = m_editorLayer->m_objects;
-    std::vector<Ref<Gizmo>> gizmos;
+    std::vector<Ref<Gizmo>> gizmos{};
 
     m_editorLayer->m_objects = oldObjects->shallowCopy();
 
@@ -396,7 +398,7 @@ void GEditorPauseLayer::saveLevel() {
         }
     }
 
-    std::vector<std::string> arr;
+    std::vector<std::string> arr{};
     for (const auto& gizmo : gizmos) {
         auto origID = gizmo->m_objectID;
         gizmo->m_objectID = 0;
@@ -417,7 +419,7 @@ void GEditorPauseLayer::saveLevel() {
 void GLevelEditorLayer::createObjectsFromSetup(gd::string& setup) {
     auto saved = alpha::level_storage::getSavedValue<matjson::Value>(this, "gizmos");
     auto arrRes = saved.asArray();
-    StringBuffer<> strBuffer;
+    StringBuffer<> strBuffer{};
     
     if (arrRes) {
         auto arr = arrRes.unwrap();
@@ -466,7 +468,7 @@ bool GEditorUI::init(LevelEditorLayer* editorLayer) {
         bool selected = m_selectedObject || m_selectedObjects->count() != 0;
         bool canEdit = selected;
 
-        std::set<Gizmo*> gizmos;
+        std::set<Gizmo*> gizmos{};
 
         if (m_selectedObject) {
             auto gizmo = typeinfo_cast<Gizmo*>(m_selectedObject);
@@ -507,7 +509,7 @@ bool GEditorUI::init(LevelEditorLayer* editorLayer) {
 }
 
 void GEditorUI::editObject(cocos2d::CCObject* sender) {
-    std::set<Ref<Gizmo>> gizmos;
+    std::set<Ref<Gizmo>> gizmos{};
 
     if (m_selectedObject) {
         auto gizmo = typeinfo_cast<Gizmo*>(m_selectedObject);
@@ -533,7 +535,7 @@ void GEditorUI::editObject(cocos2d::CCObject* sender) {
 }
 
 void GEditorUI::editObjectSpecial(int type) {
-    std::set<Gizmo*> gizmos;
+    std::set<Gizmo*> gizmos{};
 
     if (m_selectedObject) {
         auto gizmo = typeinfo_cast<Gizmo*>(m_selectedObject);

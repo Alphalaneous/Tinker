@@ -2,6 +2,8 @@
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
 #include "utils/Color.hpp"
 
+using namespace geode::prelude;
+
 static std::unordered_map<int, ccColor4B> s_triggerColors = {
     {901, {255, 0, 255, 255}},
     {3006, {255, 0, 255, 255}},

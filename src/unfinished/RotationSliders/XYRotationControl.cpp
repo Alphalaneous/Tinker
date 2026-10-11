@@ -3,6 +3,8 @@
 #include "modules/ImprovedControls.hpp"
 #include "utils/String.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 XYRotationControl* XYRotationControl::create() {

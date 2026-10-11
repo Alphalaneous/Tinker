@@ -1,5 +1,7 @@
 #include "utils/DestroyListener.hpp"
 
+using namespace geode::prelude;
+
 DestroyListener::~DestroyListener() {
     if (m_destroyCallback) m_destroyCallback();
 }

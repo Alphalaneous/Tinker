@@ -4,7 +4,7 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(QuickExtras) {
-    CCMenuItemSpriteExtra* m_editExtrasBtn;
+    CCMenuItemSpriteExtra* m_editExtrasBtn = nullptr;
 
     void onEditor();
     void onEditExtras();

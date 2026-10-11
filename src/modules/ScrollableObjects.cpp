@@ -8,6 +8,8 @@
 #include "utils/Mod.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool ScrollableObjects::onSettingChanged(std::string_view key, const matjson::Value& value) {
     for (const auto& tab : alpha::editor_tabs::getAllTabs()) {
         auto bar = static_cast<SOEditButtonBar*>(tab->getNode());

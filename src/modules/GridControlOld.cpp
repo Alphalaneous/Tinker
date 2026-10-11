@@ -8,6 +8,8 @@
 #include <alphalaneous.editorsounds/include/API.hpp>
 #include "InputsHandler.hpp"
 
+using namespace geode::prelude;
+
 bool GridControlOld::onToggled(bool state) {
     float scale = UIScaling::getScale();
 
@@ -145,7 +147,6 @@ void GridControlOld::onEditor() {
 
     m_control->updateLayout();
     m_control->setID("grid-size-controls"_spr);
-
     
     addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
         updateUI(scale);

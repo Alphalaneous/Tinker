@@ -12,7 +12,7 @@ class $modify(FSHREditorUI, EditorUI) {
     $registerHooks(FixSlopeHitboxRender)
 
     struct Fields {
-        bool m_checkSlopes;
+        bool m_checkSlopes = false;
     };
 
     bool isSpecialSnapObject(int id);

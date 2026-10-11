@@ -1,6 +1,8 @@
 #include "nodes/FontContainer.hpp"
 #include "modules/ImprovedFontSelection.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 FontContainer* FontContainer::create(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer* fontLayer) {

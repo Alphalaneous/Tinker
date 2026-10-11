@@ -1,6 +1,8 @@
 #include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/DestroyListener.hpp"
 
+using namespace geode::prelude;
+
 void NextFreeProvider::setEditorLayer(LevelEditorLayer* editorLayer) {
     m_activeEditorLayer = editorLayer;
 

@@ -1,14 +1,16 @@
 #include "FixTextSplit.hpp"
 #include <Geode/utils/base64.hpp>
 
+using namespace geode::prelude;
+
 bool FixTextSplit::onToggled(bool state) {
     return true;
 }
 
 void FTSCustomizeObjectLayer::onBreakApart(cocos2d::CCObject* sender) {
-    std::vector<TextObjectAttributes> points;
+    std::vector<TextObjectAttributes> points{};
 
-    std::unordered_map<GameObject*, std::unordered_map<int, std::string>> objectAttributes;
+    std::unordered_map<GameObject*, std::unordered_map<int, std::string>> objectAttributes{};
 
     if (m_targetObject) {
         if (m_targetObject->m_objectID != 914) return;
@@ -48,7 +50,7 @@ void FTSCustomizeObjectLayer::onBreakApart(cocos2d::CCObject* sender) {
         }
     }
 
-    StringBuffer<> stringBuffer;
+    StringBuffer<> stringBuffer{};
 
     for (const auto& attr : points) {
         if (std::isspace(attr.c)) continue;
@@ -89,7 +91,7 @@ CCPoint getPoint(float x1, float x2, float x, float angleRadians) {
 }
 
 std::string FTSCustomizeObjectLayer::buildTextObject(const TextObjectAttributes& attributes, const std::unordered_map<int, std::string>& objectAttributes) {
-    StringBuffer<> stringBuffer;
+    StringBuffer<> stringBuffer{};
     
     bool first = true;
 

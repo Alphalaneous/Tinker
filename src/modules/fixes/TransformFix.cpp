@@ -1,6 +1,8 @@
 #include "modules/fixes/TransformFix.hpp"
 #include "utils/Mod.hpp"
 
+using namespace geode::prelude;
+
 bool TransformFix::onToggled(bool state) {
     return true;
 }

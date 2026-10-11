@@ -1,9 +1,7 @@
 #include "nodes/TextInput.hpp"
-#include "Geode/cocos/label_nodes/CCLabelBMFont.h"
-#include "Geode/cocos/robtop/keyboard_dispatcher/CCKeyboardDelegate.h"
-#include "Geode/loader/Log.hpp"
-#include <algorithm>
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+
+using namespace geode::prelude;
 
 namespace tinker::ui {
 
@@ -110,7 +108,7 @@ int TextInput::indexForPos(const CCPoint& pos) {
     auto world = convertToWorldSpace(pos);
     auto containerSpace = m_labelContainer->convertToNodeSpace(world);
 
-    geode::Label* label;
+    geode::Label* label = nullptr;
 
     for (int i = 0; i < m_countForLine.size(); i++) {
         label = m_labels[i];
@@ -155,7 +153,6 @@ int TextInput::indexForPos(const CCPoint& pos) {
         }
     }
 
-    log::info("here");
     return m_inputState.m_text.size();
 }
 
@@ -279,7 +276,7 @@ void TextInput::parse() {
 
     int lineIdx = 0;
 
-    bool lastNewline;
+    bool lastNewline = false;
 
     for (int i = 0; i < text.size(); i++) {
         auto c = text[i];
@@ -309,7 +306,7 @@ void TextInput::parse() {
         float kerning = kerningAmountForFirst(prev, c);
         float advance = 0.f;
 
-        tCCFontDefHashElement* element = NULL;
+        tCCFontDefHashElement* element = nullptr;
 
         unsigned int key = c;
         HASH_FIND_INT(m_fontConfig->m_pFontDefDictionary, &key, element);
@@ -455,7 +452,7 @@ void TextInput::clickEnded(alpha::dispatcher::TouchEvent* touch) {
 
 void TextInput::addLabel(std::string_view str) {
 
-    geode::Label* label;
+    geode::Label* label = nullptr;
     if (str.empty()) {
         label = geode::Label::create(" ", m_fontFile.c_str());
     }
@@ -504,7 +501,7 @@ void TextInput::insert(ZStringView text, bool undo) {
         return;
     }
 
-    std::string filtered;
+    std::string filtered = "";
 
     for (char c : text) {
         if (m_allowedChars.find(c) != std::string::npos) {

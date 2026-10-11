@@ -6,7 +6,6 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <alphalaneous.good_grid/include/DrawLayers.hpp>
-#include <alphalaneous.good_grid/include/DrawNode.hpp>
 #include "nodes/DurationControl.hpp"
 
 namespace tinker::ui {
@@ -33,7 +32,7 @@ class $module(DurationDrag) {
 class $modify(DDSetGroupIDLayer, SetGroupIDLayer) {
     $registerHooks(DurationDrag)
 
-    void onClose(CCObject* sender);
+    void onClose(cocos2d::CCObject* sender);
 };
 
 class $modify(DDEditorUI, EditorUI) {
@@ -54,5 +53,5 @@ class $modify(DDLevelEditorLayer, LevelEditorLayer) {
 class $modify(DDEditorPauseLayer, EditorPauseLayer) {
     $registerHooks(DurationDrag)
 
-    void onResume(CCObject* sender);
+    void onResume(cocos2d::CCObject* sender);
 };

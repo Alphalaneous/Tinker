@@ -13,22 +13,22 @@ class $modify(RICustomizeObjectLayer, CustomizeObjectLayer) {
 	$registerHooks(ReferenceImage);
 
 	struct Fields {
-		bool m_isImageObject;
+		bool m_isImageObject = false;
 	};
 
-	bool init(GameObject* object, CCArray* objectArray);
+	bool init(GameObject* object, cocos2d::CCArray* objectArray);
 	void setTextBtn();
-	void onSelectMode(CCObject* sender);
+	void onSelectMode(cocos2d::CCObject* sender);
 };
 
 class $modify(RITextGameObject, TextGameObject) {
 	$registerHooks(ReferenceImage);
 
 	struct Fields {
-		Ref<LazySprite> m_spr;
+		geode::Ref<geode::LazySprite> m_spr = nullptr;
 	};
 
-	void onImageFail(ZStringView icon, ZStringView text);
+	void onImageFail(geode::ZStringView icon, geode::ZStringView text);
 	void setAttributes();
 	void setupCustomSprite();
 	bool setupInitial(const std::string& path);
@@ -43,5 +43,5 @@ class $modify(RITextGameObject, TextGameObject) {
 class $modify(RIEditorUI, EditorUI) {
 	$registerHooks(ReferenceImage)
 
-	void onImport(CCObject* sender);
+	void onImport(cocos2d::CCObject* sender);
 };

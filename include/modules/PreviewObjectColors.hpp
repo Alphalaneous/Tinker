@@ -4,13 +4,13 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 
-class Group : public CCNode {};
+class Group : public cocos2d::CCNode {};
 
 class $module(PreviewObjectColors) {
-    Ref<CCNode> m_buttonContainer;
-    Ref<geode::Button> m_buttonForScroll;
+    geode::Ref<cocos2d::CCNode> m_buttonContainer = nullptr;
+    geode::Ref<geode::Button> m_buttonForScroll = nullptr;
 
-    bool m_callbacksAdded;
+    bool m_callbacksAdded = false;
 
     bool onToggled(bool state);
     void onEditor();
@@ -27,7 +27,7 @@ class $modify(POCEditorUI, EditorUI) {
     $registerHooks(PreviewObjectColors, true)
 
     struct Fields {
-        Ref<GameObject> m_defaultObject;
+        geode::Ref<GameObject> m_defaultObject = nullptr;
     };
 
     GameObject* createObject(int objectID, cocos2d::CCPoint position);

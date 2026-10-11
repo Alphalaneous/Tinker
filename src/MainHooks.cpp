@@ -15,6 +15,8 @@
 #include "utils/HijackCallback.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
+using namespace geode::prelude;
+
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
 
@@ -173,7 +175,7 @@ void MainEditorUI::checkEditorPosition(MainEditorUI::Fields* fields) {
 void MainEditorUI::checkModifierState(MainEditorUI::Fields* fields) {
     auto dispatcher = CCKeyboardDispatcher::get();
 
-    KeyboardModifier mods;
+    KeyboardModifier mods{};
 
     if (dispatcher->getShiftKeyPressed()) mods |= KeyboardModifier::Shift;
     if (dispatcher->getControlKeyPressed()) mods |= KeyboardModifier::Control;
@@ -422,7 +424,7 @@ class $classModify(UnloadedEditLevelLayer, EditLevelLayer) {
 $on_game(ModsLoaded) {
     if (!tinker::utils::mod::shouldLoadTinker()) return;
 
-    static std::vector<std::shared_ptr<ModuleBase>> modules;
+    static std::vector<std::shared_ptr<ModuleBase>> modules{};
     for (auto& [k, v] : ModuleRegistry::get()->m_modules) {
         auto& data = ModuleRegistry::get()->getData(k);
         if (data.isGlobal()) {

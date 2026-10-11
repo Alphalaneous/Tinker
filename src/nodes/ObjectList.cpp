@@ -2,6 +2,8 @@
 #include "nodes/ObjectItem.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 static constexpr std::array<int, 26> portalObjects = { 10, 11, 12, 13, 45, 46, 47, 99, 101, 111, 200, 201, 202, 203, 286, 287, 660, 745, 747, 749, 1331, 1334, 1933, 2064, 2902, 2926 };
@@ -64,7 +66,7 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
         Anchor::Center
     );
 
-    std::vector<std::pair<int, int>> pairs;
+    std::vector<std::pair<int, int>> pairs{};
     for (const auto& [k, v] : objects){
         pairs.push_back({k, v});
     }
@@ -75,7 +77,6 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
     });
 
     for (const auto& [k, v] : pairs){
-
         if (k == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
 
         if (sortOptions.sortType == SummarySortType::Portals  && std::find(portalObjects.begin(),  portalObjects.end(),  k) == portalObjects.end() ) continue;

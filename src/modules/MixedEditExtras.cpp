@@ -1,6 +1,8 @@
 #include "modules/MixedEditExtras.hpp"
 #include "utils/HijackCallback.hpp"
 
+using namespace geode::prelude;
+
 bool MixedEditExtras::onToggled(bool state) {
     return true;
 }
@@ -23,7 +25,7 @@ bool MEESetupObjectOptionsPopup::init(GameObject* object, cocos2d::CCArray* obje
 }
 
 void MEESetupObjectOptionsPopup::updateMixedToggles() {
-    CCArray* objects;
+    CCArray* objects = nullptr;
     if (m_gameObjects && m_gameObjects->count() > 0) {
         objects = m_gameObjects;
     }

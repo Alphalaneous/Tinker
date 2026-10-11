@@ -1,5 +1,7 @@
 #include "nodes/LabelListener.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 LabelListener* LabelListener::create(ZStringView text, ZStringView font, geode::Function<void(ZStringView text)> callback) {

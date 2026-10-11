@@ -1,5 +1,7 @@
 #include "nodes/ArtPreview.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 PreviewGameLayer* PreviewGameLayer::create(int background, int ground, int groundLine, int middleground) {

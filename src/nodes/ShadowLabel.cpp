@@ -1,6 +1,8 @@
 #include "nodes/ShadowLabel.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ShadowLabel* ShadowLabel::create(ZStringView text, ZStringView font) {

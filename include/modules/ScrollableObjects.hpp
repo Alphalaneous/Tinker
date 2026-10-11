@@ -8,8 +8,8 @@
 #include <alphalaneous.editortab_api/include/Tab.hpp>
 
 class $module(ScrollableObjects) {
-    bool m_shouldLoadBars;
-    bool m_callbacksAdded;
+    bool m_shouldLoadBars = false;
+    bool m_callbacksAdded = false;
 
     void onEditor();
     bool canScroll();
@@ -19,17 +19,17 @@ class $module(ScrollableObjects) {
     bool shouldLoadBars();
     void setLoadBars();
 
-    struct ScrollableObjectsToggledEvent final : Event<ScrollableObjectsToggledEvent, bool(bool state)> {
+    struct ScrollableObjectsToggledEvent final : geode::Event<ScrollableObjectsToggledEvent, bool(bool state)> {
         using Event::Event;
     };
 };
 
 class $modify(SOEditorUI, EditorUI) {
     struct Fields {
-        Ref<CCNode> m_groupsGotoMenu;
-        Ref<CCNode> m_groupsTogglesMenu;
-        Ref<CCMenuItemSpriteExtra> m_groupsGotoObjectsButton;
-        Ref<CCMenuItemSpriteExtra> m_groupsTogglesButton;
+        geode::Ref<CCNode> m_groupsGotoMenu = nullptr;
+        geode::Ref<CCNode> m_groupsTogglesMenu = nullptr;
+        geode::Ref<CCMenuItemSpriteExtra> m_groupsGotoObjectsButton = nullptr;
+        geode::Ref<CCMenuItemSpriteExtra> m_groupsTogglesButton = nullptr;
     };
 
     void updateCreateMenu(bool selectTab);
@@ -39,28 +39,28 @@ class $modify(SOEditButtonBar, EditButtonBar) {
     $registerHooks(ScrollableObjects, true)
 
     struct Fields {
-        Ref<CCNode> m_container;
-        Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer;
-        Ref<alpha::ui::AdvancedScrollBar> m_scrollBar;
-        Ref<CCMenu> m_objectsMenu;
-        Ref<CCMenu> m_extrasMenu;
-        Ref<CCNode> m_extrasMenuContainer;
+        geode::Ref<cocos2d::CCNode> m_container = nullptr;
+        geode::Ref<alpha::ui::AdvancedScrollLayer> m_scrollLayer = nullptr;
+        geode::Ref<alpha::ui::AdvancedScrollBar> m_scrollBar = nullptr;
+        geode::Ref<cocos2d::CCMenu> m_objectsMenu = nullptr;
+        geode::Ref<cocos2d::CCMenu> m_extrasMenu = nullptr;
+        geode::Ref<cocos2d::CCNode> m_extrasMenuContainer = nullptr;
 
-        Ref<CCSprite> m_separator;
-        Ref<ColumnLayout> m_extrasLayout;
+        geode::Ref<cocos2d::CCSprite> m_separator = nullptr;
+        geode::Ref<geode::ColumnLayout> m_extrasLayout = nullptr;
 
-        float m_widthOffset;
-        int m_rows;
-        int m_cols;
+        float m_widthOffset = 0.f;
+        int m_rows = 0;
+        int m_cols = 0;
 
-        bool m_initialized;
-        bool m_wasItemless;
-        bool m_hadAutoScale;
+        bool m_initialized = false;
+        bool m_wasItemless = false;
+        bool m_hadAutoScale = false;
 
-        std::unordered_map<float, std::vector<CCNode*>> m_columns;
-        std::set<Ref<CCNode>> m_visibleNodes;
+        std::unordered_map<float, std::vector<CCNode*>> m_columns{};
+        std::set<geode::Ref<cocos2d::CCNode>> m_visibleNodes{};
 
-        alpha::editor_tabs::Tab* m_tab;
+        alpha::editor_tabs::Tab* m_tab = nullptr;
     };
 
     void setupScrollable(alpha::editor_tabs::Tab* tab);
@@ -73,10 +73,10 @@ class $modify(SOEditButtonBar, EditButtonBar) {
     void createExtrasMenu();
     void addToExtrasMenu(CCMenuItemSpriteExtra* button);
     void removeFromExtrasMenu(CCMenuItemSpriteExtra* button);
-    void removeFromExtrasMenu(ZStringView ID);
+    void removeFromExtrasMenu(geode::ZStringView ID);
 
     static void _onModify(auto& self) {
-        (void) self.setHookPriority("EditButtonBar::loadFromItems", Priority::Replace);
+        (void) self.setHookPriority("EditButtonBar::loadFromItems", geode::Priority::Replace);
         (void) self.setHookPriorityBeforePost("EditButtonBar::create", "alphalaneous.editortab_api");
     }
 };

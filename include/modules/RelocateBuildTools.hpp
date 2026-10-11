@@ -4,14 +4,14 @@
 #include <Geode/modify/EditorPauseLayer.hpp>
 
 class $module(RelocateBuildTools) {
-    static StringMap<std::string> s_labelToIcon;
+    static geode::utils::StringMap<std::string> s_labelToIcon;
 
-    Ref<EditorPauseLayer> m_pauseLayer;
+    geode::Ref<EditorPauseLayer> m_pauseLayer = nullptr;
 
     void onEditor();
 
-    CCSprite* addIcon(CCNode* node, CCLabelBMFont* label);
-    void rebuildButtons(std::vector<Ref<CCNode>> nodes);
+    cocos2d::CCSprite* addIcon(cocos2d::CCNode* node, cocos2d::CCLabelBMFont* label);
+    void rebuildButtons(std::vector<geode::Ref<cocos2d::CCNode>> nodes);
     EditButtonBar* createBuildTools();
 };
 
@@ -26,5 +26,5 @@ class $modify(RBTEditorPauseLayer, EditorPauseLayer){
         (void) self.setHookPriority("EditorPauseLayer::onResume", -10000); 
     }
     
-    void onResume(CCObject* sender);
+    void onResume(cocos2d::CCObject* sender);
 };

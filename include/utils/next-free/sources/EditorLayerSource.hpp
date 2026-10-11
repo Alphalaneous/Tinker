@@ -8,8 +8,8 @@
 class EditorLayerSource : public NextFreeSource {
 public:
     virtual std::unordered_set<int> getUsedIDs() override {
-        std::unordered_set<int> used;
-        for (auto obj : CCArrayExt<GameObject*>(m_editorLayer->m_objects)) {
+        std::unordered_set<int> used{};
+        for (auto obj : m_editorLayer->m_objects->asExt<GameObject>()) {
             used.insert(obj->m_editorLayer);
             used.insert(obj->m_editorLayer2);
         }

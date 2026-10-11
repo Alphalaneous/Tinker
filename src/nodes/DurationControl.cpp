@@ -2,6 +2,8 @@
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 DurationControl* DurationControl::create() {
@@ -65,7 +67,7 @@ bool DurationControl::init() {
 }
 
 EffectGameObject* DurationControl::getEndObject() {
-    std::vector<EffectGameObject*> objects;
+    std::vector<EffectGameObject*> objects{};
     objects.reserve(m_objects.size());
 
     std::transform(
@@ -171,7 +173,7 @@ void DurationControl::showDurationButtons() {
 }
 
 void DurationControl::addObject(EffectGameObject* object) {
-    DurationSlider* slider = DurationSlider::create(object);
+    auto slider = DurationSlider::create(object);
     slider->setID("duration-slider"_spr);
     addChild(slider);
     m_objects[object] = slider;
@@ -232,7 +234,7 @@ void DurationControl::updateObjects(EditorUI* editorUI) {
         if (m_objects.size() > 1) {
 
             bool first = true;
-            int refChannel;
+            int refChannel = 0;
 
             for (auto& [k, v] : m_objects) {
                 if (first) {

@@ -1,6 +1,8 @@
 #include "module/ModuleBase.hpp"
 #include "MainHooks.hpp"
 
+using namespace geode::prelude;
+
 ListenerHandle* ModuleBase::addEventListenerInternal(std::string id, ListenerHandle handle) {
     auto wrap = std::make_unique<ListenerHandle>(std::move(handle));
     auto ret = wrap.get();

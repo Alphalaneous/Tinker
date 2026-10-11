@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Geode/loader/SettingV3.hpp>
 #include "settings/SettingsCache.hpp"
 #include "settings/SettingsQueueHandler.hpp"
 #include "utils/Settings.hpp"
@@ -7,8 +8,6 @@
 #include "utils/Mod.hpp"
 #include "module/ModuleLoader.hpp"
 #include "Events.hpp"
-
-using namespace geode::prelude;
 
 template <size_t S>
 constexpr bool operator==(
@@ -22,16 +21,16 @@ constexpr bool operator==(
 template <class T, geode::utils::string::ConstexprString Name, bool Global>
 struct ModuleCore : public ModuleBase {
 private:
-    static inline ModuleLoader<T> $apply;
+    static inline ModuleLoader<T> $apply{};
     static inline auto const $force = &$apply;
 
     static inline std::weak_ptr<T> $instance;
-    static inline matjson::Value $queuedSettings;
+    static inline matjson::Value $queuedSettings{};
 
 public:
     ~ModuleCore() {
         if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
-            log::debug("Destroyed: {}", Name.data());
+            geode::log::debug("Destroyed: {}", Name.data());
         }
     }
 
@@ -47,7 +46,7 @@ public:
         auto ret = std::make_shared<T>();
 
         if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
-            log::debug("Created: {}", Name.data());
+            geode::log::debug("Created: {}", Name.data());
         }
 
         $instance = ret;
@@ -82,16 +81,16 @@ public:
         static constexpr auto enabledKey =
             tinker::utils::string::concat<Name, "-enabled">();
 
-        static auto setting = Mod::get()->getSetting(enabledKey.data());
+        static auto setting = geode::Mod::get()->getSetting(enabledKey.data());
         if (!setting) {
             return false;
         }
 
         static bool settingEnabled = setting->shouldEnable();
 
-        static auto listener = listenForAllSettingChanges(
-            [] (std::string_view, std::shared_ptr<SettingV3> setting) {
-                auto settingValue = Mod::get()->getSetting(enabledKey.data());
+        static auto listener = geode::listenForAllSettingChanges(
+            [] (std::string_view, std::shared_ptr<geode::SettingV3> setting) {
+                auto settingValue = geode::Mod::get()->getSetting(enabledKey.data());
                 if (!settingValue) {
                     return;
                 }
@@ -126,9 +125,9 @@ public:
             tinker::utils::string::concat<Name, "-", key>();
 
         static auto setting =
-            Mod::get()->getSettingValue<S>(fullKey.data());
+            geode::Mod::get()->getSettingValue<S>(fullKey.data());
 
-        static auto listener = listenForSettingChanges<S>(
+        static auto listener = geode::listenForSettingChanges<S>(
             fullKey.data(),
             [] (S value) {
                 if (!EditorUI::get()) {
@@ -198,7 +197,7 @@ public:
             auto queued = value.unwrap();
 
             if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
-                log::debug("[{}]: {}", fullKey.data(), queued.dump(4));
+                geode::log::debug("[{}]: {}", fullKey.data(), queued.dump(4));
             }
 
             setting = queued.template as<S>().unwrapOrDefault();

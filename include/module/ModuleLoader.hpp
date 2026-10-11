@@ -2,8 +2,6 @@
 
 #include "module/ModuleRegistry.hpp"
 
-using namespace geode::prelude;
-
 template <class T>
 struct ModuleLoader {
     ModuleLoader() {

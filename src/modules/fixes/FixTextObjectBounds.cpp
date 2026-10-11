@@ -1,6 +1,8 @@
 #include "modules/fixes/FixTextObjectBounds.hpp"
 #include "modules/ReferenceImage.hpp"
 
+using namespace geode::prelude;
+
 bool FixTextObjectBounds::onToggled(bool state) {
     return true;
 }

@@ -2,6 +2,8 @@
 #include "MainHooks.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::constants::objects;
 
 std::unordered_map<int, std::string> AwesomeModifierIcons::s_textureMap = {

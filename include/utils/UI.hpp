@@ -5,8 +5,8 @@
 namespace tinker::utils::ui {
 
 struct AxisBounds {
-    float min;
-    float max;
+    float min = 0.f;
+    float max = 0.f;
 };
 
 enum class Axis {

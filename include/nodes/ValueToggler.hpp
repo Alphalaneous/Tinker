@@ -7,8 +7,6 @@
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <vector>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
 template<class T>
@@ -29,7 +27,7 @@ protected:
         m_values = std::move(values);
         m_idx = defaultIdx;
 
-        auto slice = NineSlice::create("button-empty.png"_spr);
+        auto slice = geode::NineSlice::create("button-empty.png"_spr);
 
         int precision = 0;
         float scale = 0.25f;
@@ -48,7 +46,7 @@ protected:
         if (!CCMenuItemSpriteExtra::init(slice, nullptr, nullptr, nullptr)) return false;
         setCascadeOpacityEnabled(true);
 
-        m_label = geode::Label::create(numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
+        m_label = geode::Label::create(geode::utils::numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
         m_label->setPosition(slice->getContentSize() / 2.f);
         m_label->setScale(scale);
 
@@ -66,12 +64,12 @@ protected:
         if constexpr (std::is_floating_point_v<T>) {
             precision = 2;
         }
-        m_label->setString(numToString<T>(m_values[m_idx], precision).c_str());
+        m_label->setString(geode::utils::numToString<T>(m_values[m_idx], precision).c_str());
     }
 
     void activate() override {
         CCMenuItemSpriteExtra::activate();
-        if (CCKeyboardDispatcher::get()->getAltKeyPressed()) {
+        if (cocos2d::CCKeyboardDispatcher::get()->getAltKeyPressed()) {
             m_idx--;
             if (m_idx < 0) {
                 m_idx = m_values.size() - 1;
@@ -89,9 +87,9 @@ protected:
     }
 
     int m_idx = 0;
-    geode::Label* m_label;
-    geode::Function<void(float)> m_callback;
-    std::vector<T> m_values;
+    geode::Label* m_label = nullptr;
+    geode::Function<void(float)> m_callback = nullptr;
+    std::vector<T> m_values{};
 };
 
 }

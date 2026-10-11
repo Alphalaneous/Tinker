@@ -11,8 +11,8 @@ class $modify(PCEditorUI, EditorUI) {
     $registerHooks(PlaytestConfirmation)
 
     struct Fields {
-        bool m_doPlaytest;
+        bool m_doPlaytest = false;
     };
 
-    void onPlaytest(CCObject* sender);
+    void onPlaytest(cocos2d::CCObject* sender);
 };

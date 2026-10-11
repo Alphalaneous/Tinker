@@ -7,27 +7,25 @@
 #include <Geode/binding/SelectFontLayer.hpp>
 #include <string>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class FontContainer : public CCLayerColor {
+class FontContainer : public cocos2d::CCLayerColor {
 public:
-    static FontContainer* create(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer* fontLayer);
+    static FontContainer* create(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer* fontLayer);
 
     void setVisible(bool visible);
     void toggle(bool toggle);
     int getFontID();
 
 protected:
-    bool init(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer* fontLayer);
+    bool init(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer* fontLayer);
 
-    int m_id;
-    SelectFontLayer* m_fontLayer;
-    geode::Label* m_label;
-    CCMenuItemToggler* m_toggle;
-    std::string m_text;
-    std::string m_fontFile;
+    int m_id = 0;
+    SelectFontLayer* m_fontLayer = nullptr;
+    geode::Label* m_label = nullptr;
+    CCMenuItemToggler* m_toggle = nullptr;
+    std::string m_text = "";
+    std::string m_fontFile = "";
 };
 
 }

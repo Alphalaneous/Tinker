@@ -1,6 +1,8 @@
 #include "modules/ObjectSummary.hpp"
 #include "nodes/ObjectPopup.hpp"
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool ObjectSummary::onToggled(bool state) {

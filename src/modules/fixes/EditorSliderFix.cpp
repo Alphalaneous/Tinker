@@ -1,5 +1,7 @@
 #include "modules/fixes/EditorSliderFix.hpp"
 
+using namespace geode::prelude;
+
 void EditorSliderFix::onEditor() {
     addEventListener(ObjectChangeEvent(), [this] (float lastObjectX) {
         m_lastObjectX = lastObjectX;

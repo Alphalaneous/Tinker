@@ -1,6 +1,8 @@
 #include "modules/MultiTextEdit.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 bool MultiTextEdit::onToggled(bool state) {
     return true;
 }

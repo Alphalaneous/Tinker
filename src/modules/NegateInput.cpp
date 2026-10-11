@@ -1,5 +1,7 @@
 #include "modules/NegateInput.hpp"
 
+using namespace geode::prelude;
+
 bool NegateInput::onToggled(bool state) {
     for (auto& node : m_activeNodes) {
         auto textInput = static_cast<NECCTextInputNode*>(node.data());

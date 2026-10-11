@@ -1,5 +1,7 @@
 #include "utils/HijackCallback.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::utils {
 
 HijackCallback* HijackCallback::create(Hijack method, SEL_MenuHandler originalSelector) {

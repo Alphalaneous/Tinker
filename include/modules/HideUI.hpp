@@ -4,8 +4,8 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(HideUI) {
-    Ref<CCMenuItemToggler> m_hideButton;
-    bool m_addedCallbacks;
+    geode::Ref<CCMenuItemToggler> m_hideButton = nullptr;
+    bool m_addedCallbacks = false;
     
     bool onToggled(bool state);
     void onEditor();
@@ -17,6 +17,6 @@ class $modify(HUIEditorUI, EditorUI) {
     void updateButtons();
     void updateCreateMenu(bool selectTab);
     void clickOnPosition(cocos2d::CCPoint position);
-    void toggleMode(CCObject* sender);
+    void toggleMode(cocos2d::CCObject* sender);
     void selectBuildTab(int tab);
 };

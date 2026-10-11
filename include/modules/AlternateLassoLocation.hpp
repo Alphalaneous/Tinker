@@ -5,9 +5,9 @@
 class $module(AlternateLassoLocation) {
     bool onToggled(bool state);
     void onEditor();
-    void onLasso(CCObject* sender);
+    void onLasso(cocos2d::CCObject* sender);
 
-    Ref<CCMenuItemToggler> m_originalToggler;
-    Ref<CCMenuItemToggler> m_newToggler;
+    geode::Ref<CCMenuItemToggler> m_originalToggler = nullptr;
+    geode::Ref<CCMenuItemToggler> m_newToggler = nullptr;
 
 };

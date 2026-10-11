@@ -15,8 +15,6 @@
 #include "settings/SettingNode.hpp"
 #include "settings/SettingsCache.hpp"
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
 class SettingsPopup : public geode::Popup {
@@ -31,19 +29,19 @@ protected:
     void applyUncommitted();
     void switchCategory();
     bool hasUncommitted();
-    CCMenu* createCategoryButton(ZStringView name, ZStringView id);
+    cocos2d::CCMenu* createCategoryButton(geode::ZStringView name, geode::ZStringView id);
 
-    std::string m_searchQuery;
-    std::string m_category;
-    bool m_loadingSettings;
-    StringMap<bool> m_categoryCollapsed;
-    geode::Label* m_titleLabel;
-    geode::TextInput* m_searchInput;
-    alpha::ui::AdvancedScrollLayer* m_settingScrollLayer;
-    alpha::ui::AdvancedScrollLayer* m_categoryScrollLayer;
-    std::vector<CCMenuItemSpriteExtra*> m_categoryButtons;
-    std::vector<Ref<tinker::settings::SettingNodeBase>> m_settingNodes;
-    std::unordered_map<Ref<tinker::settings::SettingNodeBase>, std::shared_ptr<SettingsCache::SettingInfo>> m_settingNodeMap;
+    std::string m_searchQuery = "";
+    std::string m_category = "";
+    bool m_loadingSettings = false;
+    geode::utils::StringMap<bool> m_categoryCollapsed{};
+    geode::Label* m_titleLabel = nullptr;
+    geode::TextInput* m_searchInput = nullptr;
+    alpha::ui::AdvancedScrollLayer* m_settingScrollLayer = nullptr;
+    alpha::ui::AdvancedScrollLayer* m_categoryScrollLayer = nullptr;
+    std::vector<CCMenuItemSpriteExtra*> m_categoryButtons{};
+    std::vector<geode::Ref<tinker::settings::SettingNodeBase>> m_settingNodes{};
+    std::unordered_map<geode::Ref<tinker::settings::SettingNodeBase>, std::shared_ptr<SettingsCache::SettingInfo>> m_settingNodeMap{};
 };
 
 }

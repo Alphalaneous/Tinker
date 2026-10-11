@@ -1,6 +1,8 @@
 #include "nodes/ToolbarTouch.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ToolbarTouch* ToolbarTouch::create() {

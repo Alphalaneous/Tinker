@@ -5,6 +5,8 @@
 #include "utils/String.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 void ReferenceImage::onEditor() {
     auto editor = getEditor();
 
@@ -47,7 +49,7 @@ void RICustomizeObjectLayer::onSelectMode(CCObject* sender) {
     auto fields = m_fields.self();
 
     if (sender->getTag() == 3 && fields->m_isImageObject) {
-        utils::file::FilePickOptions options;
+        utils::file::FilePickOptions options{};
         options.filters.push_back({"Images", {"*.png", "*.apng", "*.jpg", "*.jpeg", "*.jfif", "*.pjpeg", "*.pjp", "*.webp", "*.gif", "*.bmp", "*.jxl"}});
 
         async::spawn(
@@ -214,7 +216,7 @@ void RIEditorUI::onImport(CCObject* sender) {
 
             auto obj = m_selectedObject;
 
-            CCPoint pos;
+            CCPoint pos{};
 
             if (obj) {
                 pos = obj->getPosition();

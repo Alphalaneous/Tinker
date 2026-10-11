@@ -12,22 +12,22 @@
 
 namespace tinker::ui {
 
-class SaveAlert : public CCNodeRGBA {
+class SaveAlert : public cocos2d::CCNodeRGBA {
 public:
     static SaveAlert* create();
 
-    void setText(ZStringView text);
-    void setAlertColor(const ccColor3B& color);
+    void setText(geode::ZStringView text);
+    void setAlertColor(const cocos2d::ccColor3B& color);
     void show();
     void hide();
 protected:
     bool init() override;
 
-    CCSprite* m_saveIcon;
-    geode::NineSlice* m_container;
-    geode::Label* m_label;
-    alpha::ui::RenderNode* m_render;
-    std::string m_text;
+    cocos2d::CCSprite* m_saveIcon = nullptr;
+    geode::NineSlice* m_container = nullptr;
+    geode::Label* m_label = nullptr;
+    alpha::ui::RenderNode* m_render = nullptr;
+    std::string m_text = "";
 };
 
 }
@@ -52,8 +52,8 @@ class $module(SaveTools, true) {
     void skipLLMSave(bool skip);
     bool isSkipLLMSave();
 
-    bool m_creatingAutoSave;
-    bool m_skipLLMSave;
+    bool m_creatingAutoSave = false;
+    bool m_skipLLMSave = false;
 };
 
 class $modify(STGManager, GManager) {
@@ -74,7 +74,7 @@ class $modify(STLevelEditorLayer, LevelEditorLayer) {
 
     struct Fields {
         std::chrono::milliseconds m_lastAutosaveTime = std::chrono::milliseconds(0);
-        Ref<tinker::ui::SaveAlert> m_saveAlert;
+        geode::Ref<tinker::ui::SaveAlert> m_saveAlert;
     };
 
     void autoSaveUpdate(float dt);

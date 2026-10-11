@@ -7,6 +7,8 @@
 #include "nodes/ColorVisualButton.hpp"
 #include <alphalaneous.editortab_api/include/API.hpp>
 
+using namespace geode::prelude;
+
 using namespace tinker::ui;
 
 bool LiveColors::onToggled(bool state) {

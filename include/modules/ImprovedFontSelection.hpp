@@ -13,13 +13,13 @@ class $modify(IFSSelectFontLayer, SelectFontLayer) {
     $registerHooks(ImprovedFontSelection)
     
     struct Fields {
-        CCLabelBMFont* m_exampleLabel;
-        std::vector<tinker::ui::FontContainer*> m_fontContainers;
+        cocos2d::CCLabelBMFont* m_exampleLabel = nullptr;
+        std::vector<tinker::ui::FontContainer*> m_fontContainers{};
     };
 
     std::string fontForID(int id);
     bool init(LevelEditorLayer* layer);
     void updateFont(int id);
 
-    static ZStringView fontNameForID(int id);
+    static geode::ZStringView fontNameForID(int id);
 };

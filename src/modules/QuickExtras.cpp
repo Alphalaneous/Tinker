@@ -3,6 +3,8 @@
 #include "utils/Constants.hpp"
 #include <smjs.object-collab/include/object_collab_optional.hpp>
 
+using namespace geode::prelude;
+
 void QuickExtras::onEditor() {
     if (auto editorButtonsMenu = getEditor()->getChildByID("editor-buttons-menu")) {
         auto spr = CCSprite::create("edit_extras.png"_spr);

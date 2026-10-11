@@ -3,6 +3,8 @@
 #include <alphalaneous.editortab_api/include/API.hpp>
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 bool HideUI::onToggled(bool state) {
     if (state) {
         onEditor();

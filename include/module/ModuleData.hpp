@@ -5,14 +5,12 @@
 #include <memory>
 #include <vector>
 
-using namespace geode::prelude;
-
 class ModuleData {
 public:
     ModuleData();
     ~ModuleData();
 
-    std::vector<std::shared_ptr<Hook>>& getHooks();
+    std::vector<std::shared_ptr<geode::Hook>>& getHooks();
     void setOnEditorCallback(geode::Function<void()> callback);
     void setModuleEnabledCallback(geode::Function<bool()> callback);
 

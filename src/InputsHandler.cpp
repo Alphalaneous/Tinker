@@ -16,6 +16,8 @@
 #include "utils/UI.hpp"
 #include "utils/Settings.hpp"
 
+using namespace geode::prelude;
+
 using namespace alpha::prelude;
 
 namespace tinker::ui {
@@ -777,8 +779,8 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     bool playing = m_editorLayer->m_playbackMode == PlaybackMode::Playing;
 
     if (aboveToolbar) {
-        std::unordered_map<Gizmo*, std::set<CCTargetedTouchHandler*>> gizmoToHandlers;
-        std::map<ZLayer, std::vector<Gizmo*>> zLayerGizmos;
+        std::unordered_map<Gizmo*, std::set<CCTargetedTouchHandler*>> gizmoToHandlers{};
+        std::map<ZLayer, std::vector<Gizmo*>> zLayerGizmos{};
 
         auto handlers = CCTouchDispatcher::get()->m_pTargetedHandlers->asExt<CCTargetedTouchHandler>();
         for (int i = handlers.size() - 1; i >= 0; i--) {

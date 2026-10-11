@@ -10,7 +10,7 @@ class $modify(FACGJBaseGameLayer, GJBaseGameLayer) {
     $registerHooks(FixAreaCorruption)
 
     struct Fields {
-        bool m_skipAreaProcessing;
+        bool m_skipAreaProcessing = false;
     };
 
     void loadUpToPosition(float position, int order, int channel);

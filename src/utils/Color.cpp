@@ -1,6 +1,8 @@
 #include "utils/Color.hpp"
 #include "ccTypes.h"
 
+using namespace geode::prelude;
+
 namespace tinker::utils::color {
 
 cocos2d::ccColor3B getContrastingColor(const cocos2d::ccColor3B& color) {

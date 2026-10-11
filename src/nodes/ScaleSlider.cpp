@@ -1,6 +1,8 @@
 #include "nodes/ScaleSlider.hpp"
 #include "modules/ImprovedControls.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ScaleSlider* ScaleSlider::create(ScaleSliderCallback callback, CCNode* control) {
@@ -120,7 +122,7 @@ void ScaleSlider::setPercent(float value, bool skipCallback) {
 }
 
 CCSprite* ScaleSlider::getLargeTick() {
-    CCSprite* spr;
+    CCSprite* spr = nullptr;
     if (m_largeTicksRemaining == 0) {
         spr = CCSprite::create("slider-tick.png"_spr);
         m_largeTicks.push_back(spr);

@@ -3,15 +3,13 @@
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <Geode/utils/ZStringView.hpp>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class GIF : public CCSprite {
+class GIF : public cocos2d::CCSprite {
 public:
-    static GIF* create(ZStringView gif);
+    static GIF* create(geode::ZStringView gif);
 protected:
-    bool init(ZStringView gif);
+    bool init(geode::ZStringView gif);
 };
 
 }

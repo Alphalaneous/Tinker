@@ -1,5 +1,7 @@
 #include "modules/hIDe.hpp"
 
+using namespace geode::prelude;
+
 bool hIDe::onToggled(bool state) {
     return true;
 }

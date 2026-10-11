@@ -1,5 +1,7 @@
 #include "modules/CenteredToggles.hpp"
 
+using namespace geode::prelude;
+
 bool CenteredToggles::onToggled(bool state) {
     if (state) {
         onEditor();

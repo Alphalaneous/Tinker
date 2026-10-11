@@ -1,5 +1,7 @@
 #include "RotationSliders.hpp"
 
+using namespace geode::prelude;
+
 void RotationSliders::onEditor() {
     auto editorUI = static_cast<RSEditorUI*>(getEditor());
     auto fields = editorUI->m_fields.self();
@@ -84,7 +86,7 @@ void RSEditorUI::deactivateRotationXYControl() {
 }
 
 CCPoint RSEditorUI::getSelectionCenter() {
-    CCPoint position;
+    CCPoint position{};
 
     if (m_selectedObject) {
         position = m_selectedObject->getPosition();

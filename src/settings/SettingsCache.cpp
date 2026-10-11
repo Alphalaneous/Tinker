@@ -1,5 +1,7 @@
 #include "settings/SettingsCache.hpp"
 
+using namespace geode::prelude;
+
 const StringMap<SettingsCache::SettingCategory>& SettingsCache::getSettings() {
     return m_settings;
 }
@@ -20,7 +22,7 @@ void SettingsCache::loadSettings() {
 
     auto modjson = Mod::get()->getRuntimeInfo();
     auto& settings = modjson["settings"];
-    SettingCategory* lastCategory;
+    SettingCategory* lastCategory = nullptr;
 
     for (auto& [settingKey, v] : settings) {
         auto type = v["type"].asString().unwrapOr("unknown");

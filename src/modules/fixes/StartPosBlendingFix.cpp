@@ -1,5 +1,7 @@
 #include "modules/fixes/StartPosBlendingFix.hpp"
 
+using namespace geode::prelude;
+
 bool StartPosBlendingFix::onToggled(bool state) {
     return true;
 }

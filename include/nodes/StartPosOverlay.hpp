@@ -7,28 +7,26 @@
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/StartPosObject.hpp>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-    class StartPosOverlay : public CCNodeRGBA {
-    public:
-        static StartPosOverlay* create();
-        void setStartPos(StartPosObject* startPos);
-        void updateOverlay();
-        StartPosObject* getStartPos();
-        StartPosObject* getLastStartPos();
-        void checkDeletedObject(GameObject* object);
-        void reset();
+class StartPosOverlay : public cocos2d::CCNodeRGBA {
+public:
+    static StartPosOverlay* create();
+    void setStartPos(StartPosObject* startPos);
+    void updateOverlay();
+    StartPosObject* getStartPos();
+    StartPosObject* getLastStartPos();
+    void checkDeletedObject(GameObject* object);
+    void reset();
 
-    protected:
-        bool init() override;
-        void updatePos(float dt);
+protected:
+    bool init() override;
+    void updatePos(float dt);
 
-        geode::Button* m_button;
-        geode::NineSlice* m_background;
-        Ref<StartPosObject> m_startPos;
-        Ref<StartPosObject> m_lastStartPos;
-    };
+    geode::Button* m_button = nullptr;
+    geode::NineSlice* m_background = nullptr;
+    geode::Ref<StartPosObject> m_startPos = nullptr;
+    geode::Ref<StartPosObject> m_lastStartPos = nullptr;
+};
 
 }

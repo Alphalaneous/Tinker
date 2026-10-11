@@ -4,6 +4,8 @@
 #include "utils/next-free/sources/ColorSource.hpp"
 #include "nodes/NextFreeOffsetInput.hpp"
 
+using namespace geode::prelude;
+
 bool ImprovedColorPicker::onToggled(bool state) {
     return true;
 }
@@ -160,7 +162,7 @@ void ICPCustomizeObjectLayer::updateCustomColorLabels() {
     using namespace tinker::constants::color_channels;
     auto fields = m_fields.self();
 
-    std::string text;
+    std::string text = "";
     if (m_customColorChannel > 0 && m_customColorChannel < 1000) {
         text = utils::numToString(m_customColorChannel);
     }
@@ -303,7 +305,7 @@ std::vector<CCMenuItemSpriteExtra*> ICPCustomizeObjectLayer::getRecents() {
     auto compactUI = ImprovedColorPicker::getSetting<bool, "compact-ui">();
     int columnCount = compactUI ? 10 : 6;
     
-    std::vector<CCMenuItemSpriteExtra*> buttons;
+    std::vector<CCMenuItemSpriteExtra*> buttons{};
 
     auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(LevelEditorLayer::get(), "improved-color-picker/recents");
 
@@ -642,8 +644,8 @@ void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
         "improved-color-picker/recents"
     );
 
-    std::vector<int> recents;
-    std::set<int> recentsSet;
+    std::vector<int> recents{};
+    std::set<int> recentsSet{};
 
     recents.reserve(10);
 

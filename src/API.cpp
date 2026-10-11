@@ -7,12 +7,14 @@
 using namespace geode::prelude;
 
 namespace tinker::api {
-    namespace touch {
-        void blockPinch(bool block) {
-            auto editorUI = InputEditorUI::get();
-            if (!editorUI) return;
 
-            editorUI->blockPinch(block);
-        }
+namespace touch {
+    void blockPinch(bool block) {
+        auto editorUI = InputEditorUI::get();
+        if (!editorUI) return;
+
+        editorUI->blockPinch(block);
     }
+}
+
 }

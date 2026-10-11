@@ -4,6 +4,8 @@
 #include "utils/Mod.hpp"
 #include <spaghettdev.named-editor-groups/api/NIDManager.hpp>
 
+using namespace geode::prelude;
+
 bool ImprovedGroupView::onToggled(bool state) {
     return true;
 }
@@ -101,9 +103,9 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
         fields->m_scrollBar->removeFromParent();
     }
 
-    std::vector<ImprovedGroupView::GroupData> groupData;
-    std::map<int, int> allGroups;
-    std::map<int, int> allParentGroups;
+    std::vector<ImprovedGroupView::GroupData> groupData{};
+    std::map<int, int> allGroups{};
+    std::map<int, int> allParentGroups{};
 
     if (!m_targetObjects || m_targetObjects->count() == 0) {
         if (m_targetObject) {
@@ -208,7 +210,7 @@ void IGVSetGroupIDLayer::regenerateGroupView() {
         
         groupsMenu->addChild(button);
     }
-    CCSize contentSize;
+    CCSize contentSize{};
 
     if (groupsMenu->getChildrenCount() <= 10) {
         groupsMenu->setScale(1.f);
@@ -297,7 +299,7 @@ ImprovedGroupView::GroupData IGVSetGroupIDLayer::parseObjGroups(GameObject* obj)
     auto editor = LevelEditorLayer::get();
 
     int uuid = obj->m_uniqueID;
-    std::vector<int> parents;
+    std::vector<int> parents{};
 
     for (const auto& [k, v] : CCDictionaryExt<int, CCArray*>(editor->m_parentGroupIDs)) {
         if (k != uuid) continue;
@@ -306,7 +308,7 @@ ImprovedGroupView::GroupData IGVSetGroupIDLayer::parseObjGroups(GameObject* obj)
         }
     }
 
-    std::vector<int> groups;
+    std::vector<int> groups{};
 
     if (obj->m_groups) {
         groups = std::vector<int>{obj->m_groups->begin(), obj->m_groups->end()};
@@ -399,15 +401,15 @@ void IGVSetupSpawnPopup::updateRemapButtons(float dt) {
     auto objects = m_gameObject ? CCArray::createWithObject(m_gameObject) : m_gameObjects;
 
     struct RemapEntry {
-        int groupID;
-        int remapID;
+        int groupID = 0;
+        int remapID = 0;
 
         bool operator<(const RemapEntry& rhs) const {
             return std::tie(groupID, remapID) < std::tie(rhs.groupID, rhs.remapID);
         }
     };
 
-    std::map<RemapEntry, int> remapCounts;
+    std::map<RemapEntry, int> remapCounts{};
 
     for (auto obj : CCArrayExt<GameObject*>(objects)) {
         for (const auto& pair : static_cast<SpawnTriggerGameObject*>(obj)->m_remapObjects) {
@@ -571,7 +573,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
         fields->m_groupCountLabel->removeFromParent();
     }
 
-    std::vector<ChanceObject> chanceObjects;
+    std::vector<ChanceObject> chanceObjects{};
 
     auto obj = static_cast<RandTriggerGameObject*>(m_gameObject);
     auto totalChance = obj->getTotalChance();
@@ -594,7 +596,7 @@ void IGVSetupRandAdvTriggerPopup::updateGroupIDButtons() {
             sprite = "GJ_button_05.png";
         }
 
-        std::string label;
+        std::string label = "";
 
         if (obj.m_chance < 1) {
             label = fmt::format("{} - ?\n?%", obj.m_groupID);
@@ -780,7 +782,7 @@ void IGVSetupSequenceTriggerPopup::updateGroupIDButtons() {
 
     size_t count = object->m_chanceObjects.size();
 
-    int width;
+    int width = 0;
     float padding = 25.f;
 
     if (count <= 10 || tinker::utils::mod::getMod<"spaghettdev.named-editor-groups">()) {

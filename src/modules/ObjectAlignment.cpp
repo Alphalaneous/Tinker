@@ -3,6 +3,8 @@
 #include "utils/Objects.hpp"
 #include <alphalaneous.editorsounds/include/API.hpp>
 
+using namespace geode::prelude;
+
 bool ObjectAlignment::onToggled(bool state) {
     if (state) {
         onEditor();
@@ -80,11 +82,11 @@ bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Valu
 ObjectAlignment::SnapEdge ObjectAlignment::closestSnapEdge(CCRect bounds) {
     float snapDistance = getSetting<float, "snap-distance">();
 
-    std::optional<float> horizontalSource;
-    std::optional<float> horizontalTarget;
+    std::optional<float> horizontalSource = std::nullopt;
+    std::optional<float> horizontalTarget = std::nullopt;
 
-    std::optional<float> verticalSource;
-    std::optional<float> verticalTarget;
+    std::optional<float> verticalSource = std::nullopt;
+    std::optional<float> verticalTarget = std::nullopt;
 
     float closestHorizontalDist = FLT_MAX;
     float closestVerticalDist = FLT_MAX;
@@ -244,6 +246,7 @@ void ObjectAlignment::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTo
 void ObjectAlignment::onEditor() {
     auto editor = getEditor();
     auto editorLayer = getEditorLayer();
+    
     m_alignmentNode = CCDrawNode::create();
     m_alignmentNode->setID("object-align-draw"_spr);
     m_alignmentNode->m_bUseArea = false;

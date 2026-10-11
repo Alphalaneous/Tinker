@@ -6,6 +6,8 @@
 #include "utils/FakeEditorPauseLayer.hpp"
 #include "utils/Mod.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 SaveAlert* SaveAlert::create() {
@@ -246,7 +248,7 @@ void STEditorPauseLayer::saveLevel() {
 void STEditorPauseLayer::onExitNoSave(CCObject* sender) {
     createQuickPopup("Exit", "<cy>Exit</c> without saving? All unsaved changes will be <cr>lost</c>!\n<co>All auto-saved changes will also be discarded!</c>", "Cancel", "Exit", 300.f, [this] (auto alert, bool btn2) {
         if (btn2) {
-            std::error_code ec;
+            std::error_code ec{};
             std::filesystem::remove_all(SaveTools::getAutoSaveDir() / fmt::format("{}.gmd", EditorIDs::getID(m_editorLayer->m_level)), ec);
             onExitEditor(alert);
         }
@@ -286,7 +288,7 @@ void STLevelEditorLayer::autoSaveUpdate(float dt) {
         }
         auto seconds = std::chrono::duration_cast<std::chrono::seconds>(interval - fields->m_lastAutosaveTime).count() + 1;
 
-        std::string secondsText;
+        std::string secondsText = "";
         if (seconds == 1) {
             secondsText = "second";
         }

@@ -3,8 +3,8 @@
 #include "module/Module.hpp"
 
 class $module(LengthInEditor) {
-    geode::Label* m_timeLabel;
-    Ref<CCNode> m_lengthContainer;
+    geode::Label* m_timeLabel = nullptr;
+    geode::Ref<cocos2d::CCNode> m_lengthContainer = nullptr;
 
     void onEditor();
     bool onToggled(bool state);

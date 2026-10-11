@@ -5,6 +5,8 @@
 #include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ToggleContainer* ToggleContainer::create(EditorUI* editorUI) {

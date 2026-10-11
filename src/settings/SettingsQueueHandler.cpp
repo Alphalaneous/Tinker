@@ -1,21 +1,23 @@
 #include "settings/SettingsQueueHandler.hpp"
+#include <Geode/utils/StringBuffer.hpp>
 #include "settings/SettingsCache.hpp"
 
-void SettingsQueueHandler::addFeature(const std::string& name) {
-    m_features.push_back(std::move(name));
+using namespace geode::prelude;
+
+void SettingsQueueHandler::addFeature(geode::ZStringView name) {
+    m_features.push_back(name);
     queueShow();
 }
 
-void SettingsQueueHandler::addSetting(const std::string& name) {
-    m_settings.push_back(std::move(name));
+void SettingsQueueHandler::addSetting(geode::ZStringView name) {
+    m_settings.push_back(name);
     queueShow();
 }
 
 void SettingsQueueHandler::queueShow() {
     if (!m_queued) {
-        queueInMainThread([this] {
-
-            StringBuffer<> content;
+        geode::queueInMainThread([this] {
+            geode::utils::StringBuffer<> content{};
             content.append("### <cy>The following settings require the editor to be restarted to take effect.</c>\n");
             
             if (!m_features.empty()) {
@@ -32,7 +34,7 @@ void SettingsQueueHandler::queueShow() {
                     if (name == "Enabled") {
                         name = setting->category->name;
                     }
-                    utils::string::replaceIP(name, "Enable ", "");
+                    geode::utils::string::replaceIP(name, "Enable ", "");
                     content.append("- <c-dddddd>{}</c>\n", name);
                 }
             }
@@ -52,7 +54,7 @@ void SettingsQueueHandler::queueShow() {
                 }
             }
 
-            auto popup = MDPopup::create("Notice", content.str(), "Okay");
+            auto popup = geode::MDPopup::create("Notice", content.str(), "Okay");
             popup->show();
 
             m_queued = false;

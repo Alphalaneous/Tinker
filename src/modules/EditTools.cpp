@@ -2,42 +2,46 @@
 #include "utils/Constants.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 void EditTools::onEditor() {
-    auto fields = static_cast<ETEditorUI*>(getEditor())->m_fields.self();
+    auto editor = getEditor();
 
-    fields->m_centerObjectButton = getEditor()->getSpriteButton("center-object.png"_spr, menu_selector(ETEditorUI::onCenterObjects), nullptr, 0.9f);
+    auto fields = static_cast<ETEditorUI*>(editor)->m_fields.self();
+
+    fields->m_centerObjectButton = editor->getSpriteButton("center-object.png"_spr, menu_selector(ETEditorUI::onCenterObjects), nullptr, 0.9f);
     fields->m_centerObjectButton->setID("center-objects"_spr);
-    getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_centerObjectButton);
+    editor->m_editButtonBar->m_buttonArray->addObject(fields->m_centerObjectButton);
 
-    fields->m_centerCameraButton = getEditor()->getSpriteButton("center-camera.png"_spr, menu_selector(ETEditorUI::onCenterCamera), nullptr, 0.9f);
+    fields->m_centerCameraButton = editor->getSpriteButton("center-camera.png"_spr, menu_selector(ETEditorUI::onCenterCamera), nullptr, 0.9f);
     fields->m_centerCameraButton->setID("center-camera"_spr);
-    getEditor()->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
+    editor->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
 
-    fields->m_lockFlipPosButton = getEditor()->getSpriteButton("flip-position-lock.png"_spr, menu_selector(ETEditorUI::onLockFlipPos), nullptr, 0.9f);
+    fields->m_lockFlipPosButton = editor->getSpriteButton("flip-position-lock.png"_spr, menu_selector(ETEditorUI::onLockFlipPos), nullptr, 0.9f);
     fields->m_lockFlipPosButton->setID("lock-flip-pos"_spr);
 
     int pos = 0;
-    for (auto btn : getEditor()->m_editButtonBar->m_buttonArray->asExt()) {
+    for (auto btn : editor->m_editButtonBar->m_buttonArray->asExt()) {
         if (btn->getTag() == 22) break;
         pos++;
     }
 
-    getEditor()->m_editButtonBar->m_buttonArray->insertObject(fields->m_lockFlipPosButton, pos + 1);
+    editor->m_editButtonBar->m_buttonArray->insertObject(fields->m_lockFlipPosButton, pos + 1);
 
     auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
     auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
 
-    getEditor()->m_editButtonBar->reloadItems(cols, rows);
+    editor->m_editButtonBar->reloadItems(cols, rows);
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this, editor] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down & !repeat) {
-            static_cast<ETEditorUI*>(getEditor())->onCenterCamera(nullptr);
+            static_cast<ETEditorUI*>(editor)->onCenterCamera(nullptr);
         }
     });
 
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this, editor] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down) {
-            static_cast<ETEditorUI*>(getEditor())->onCenterObjects(nullptr);
+            static_cast<ETEditorUI*>(editor)->onCenterObjects(nullptr);
         }
     });
 }
@@ -175,14 +179,14 @@ void ETEditorUI::moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos) {
     using namespace tinker::constants::objects;
 
     for (auto object : objects->asExt<GameObject>()) {
-        CCPoint limitedPos = getLimitedPosition(object->getPosition() + deltaPos);
+        auto limitedPos = getLimitedPosition(object->getPosition() + deltaPos);
         object->setPosition(limitedPos);
         object->updateStartValues();
 
         m_editorLayer->reorderObjectSection(object);
 
         if (object->m_objectID == LinkedTeleportPortal) {
-            TeleportPortalObject* teleportObject = static_cast<TeleportPortalObject*>(object);
+            auto teleportObject = static_cast<TeleportPortalObject*>(object);
             if (teleportObject->m_orangePortal) {
                 m_editorLayer->reorderObjectSection(teleportObject->m_orangePortal);
             }

@@ -11,6 +11,8 @@
 #include "utils/String.hpp"
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 TooltipHover* TooltipHover::create() {
@@ -309,7 +311,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
     if (!item) return;
     if (item->m_objectID < 0) return;
 
-    std::string customObjectID;
+    std::string customObjectID = "";
     auto registryRes = object_collab::getOptionalRegister();
     if (registryRes) {
         auto registry = registryRes.unwrap();
@@ -317,7 +319,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         customObjectID = info.id;
     }
 
-    std::string name;
+    std::string name = "";
     if (item->m_objectID >= 100000000) {
         name = ObjectNames::get()->deduceFromID(customObjectID);
     }
@@ -347,7 +349,7 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
 
     float heightOffset = 0.f;
     if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
-        std::string str;
+        std::string str = "";
         if (item->m_objectID >= 100000000) {
             str = customObjectID;
         }

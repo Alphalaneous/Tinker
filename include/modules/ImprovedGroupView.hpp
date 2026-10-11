@@ -12,9 +12,9 @@ using namespace alpha::prelude;
 
 class $module(ImprovedGroupView) {
     struct GroupData {
-        std::vector<int> groups;
-        std::vector<int> parentGroups;
-        GameObject* object;
+        std::vector<int> groups{};
+        std::vector<int> parentGroups{};
+        GameObject* object = nullptr;
     };
 
     bool onToggled(bool state);
@@ -25,13 +25,13 @@ class $modify(IGVSetGroupIDLayer, SetGroupIDLayer) {
     $registerHooks(ImprovedGroupView, true)
 
     struct Fields {
-        AdvancedScrollLayer* m_scrollLayer;
-        AdvancedScrollBar* m_scrollBar;
-        geode::Label* m_groupCountLabel;
+        AdvancedScrollLayer* m_scrollLayer = nullptr;
+        AdvancedScrollBar* m_scrollBar = nullptr;
+        geode::Label* m_groupCountLabel = nullptr;
 
         int m_lastRemoved = 0;
-        std::unordered_map<std::string, short, geode::utils::StringHash, std::equal_to<>> m_namedIDs;
-        ListenerHandle m_listener;
+        std::unordered_map<std::string, short, geode::utils::StringHash, std::equal_to<>> m_namedIDs{};
+        geode::ListenerHandle m_listener{};
     };
 
     static void _onModify(auto& self) {
@@ -40,9 +40,9 @@ class $modify(IGVSetGroupIDLayer, SetGroupIDLayer) {
     
     bool init(GameObject* obj, cocos2d::CCArray* objs);
     void checkNamedIDs(float dt);
-    void onRemoveFromGroup2(CCObject* obj);
-    void onAddGroup2(CCObject* obj);
-    void onAddGroupParent2(CCObject* obj);
+    void onRemoveFromGroup2(cocos2d::CCObject* obj);
+    void onAddGroup2(cocos2d::CCObject* obj);
+    void onAddGroupParent2(cocos2d::CCObject* obj);
     void regenerateGroupView();
     ImprovedGroupView::GroupData parseObjGroups(GameObject* obj);
 };
@@ -53,9 +53,9 @@ class $modify(IGVSetupSpawnPopup, SetupSpawnPopup) {
     struct Fields {
         bool m_needsUpdate = true;
         int m_lastPage = 0;
-        AdvancedScrollLayer* m_scrollLayer;
-        AdvancedScrollBar* m_scrollBar;
-        geode::Label* m_groupCountLabel;
+        AdvancedScrollLayer* m_scrollLayer = nullptr;
+        AdvancedScrollBar* m_scrollBar = nullptr;
+        geode::Label* m_groupCountLabel = nullptr;
     };
 
     static void _onModify(auto& self) {
@@ -76,9 +76,9 @@ class $modify(IGVSetupRandAdvTriggerPopup, SetupRandAdvTriggerPopup) {
     }
 
     struct Fields {
-        AdvancedScrollLayer* m_scrollLayer;
-        AdvancedScrollBar* m_scrollBar;
-        geode::Label* m_groupCountLabel;
+        AdvancedScrollLayer* m_scrollLayer = nullptr;
+        AdvancedScrollBar* m_scrollBar = nullptr;
+        geode::Label* m_groupCountLabel = nullptr;
     };
 
     void updateGroupIDButtons();
@@ -92,8 +92,8 @@ class $modify(IGVSetupSequenceTriggerPopup, SetupSequenceTriggerPopup) {
     }
 
     struct Fields {
-        AdvancedScrollLayer* m_scrollLayer;
-        AdvancedScrollBar* m_scrollBar;
+        AdvancedScrollLayer* m_scrollLayer = nullptr;
+        AdvancedScrollBar* m_scrollBar = nullptr;
     };
 
     void updateGroupIDButtons();

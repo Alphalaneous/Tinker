@@ -12,8 +12,8 @@ class $modify(HDEditLevelLayer, EditLevelLayer){
     $registerHooks(hIDe, true)
 
     struct Fields {
-        CCLabelBMFont* m_label;
-        geode::Label* m_replacementLabel;
+        cocos2d::CCLabelBMFont* m_label = nullptr;
+        geode::Label* m_replacementLabel = nullptr;
         bool m_shouldSetVisibility = true;
     };
 

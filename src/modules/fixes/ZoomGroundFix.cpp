@@ -2,6 +2,8 @@
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
 
+using namespace geode::prelude;
+
 bool ZoomGroundFix::onToggled(bool state) {
 	return true;
 }
@@ -17,11 +19,11 @@ void ZGFGJBaseGameLayer::updateCameraBGArt(CCPoint position, float zoom) {
 
 	auto editorLayer = static_cast<LevelEditorLayer*>(static_cast<GJBaseGameLayer*>(this));
 
-	ccColor3B color1;
-	ccColor3B color2;
+	ccColor3B color1{};
+	ccColor3B color2{};
 
-	tinker::utils::objects::ColorData color1DataMG;
-	tinker::utils::objects::ColorData color2DataMG;
+	tinker::utils::objects::ColorData color1DataMG{};
+	tinker::utils::objects::ColorData color2DataMG{};
 
 	if (!editorLayer->m_previewMode) {
 		color1 = colors::DefaultGround;

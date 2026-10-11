@@ -8,10 +8,10 @@ class ColorAction;
 namespace tinker::utils::objects {
 
 struct ColorData {
-    cocos2d::ccColor3B color;
-    bool blending;
-    GLubyte opacity;
-    ColorAction* action;
+    cocos2d::ccColor3B color{};
+    bool blending = false;
+    GLubyte opacity = 0;
+    ColorAction* action = nullptr;
 };
 
 bool isColorable(GameObject* object);

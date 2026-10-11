@@ -5,30 +5,30 @@
 
 class $module(ObjectAlignment) {
     struct SnapEdge {
-        std::optional<float> horizontalSource;
-        std::optional<float> horizontalTarget;
+        std::optional<float> horizontalSource = std::nullopt;
+        std::optional<float> horizontalTarget = std::nullopt;
 
-        std::optional<float> verticalSource;
-        std::optional<float> verticalTarget;
+        std::optional<float> verticalSource = std::nullopt;
+        std::optional<float> verticalTarget = std::nullopt;
     };
 
-    SnapEdge closestSnapEdge(CCRect bounds);
-    CCRect getSelectedBounds();
+    SnapEdge closestSnapEdge(cocos2d::CCRect bounds);
+    cocos2d::CCRect getSelectedBounds();
 
-    bool onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next);
-    void onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
-    void onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
-    void onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next);
+    bool onTouchBegan(cocos2d::CCTouch* touch, geode::Function<bool(cocos2d::CCTouch* touch)> next);
+    void onTouchMoved(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
+    void onTouchEnded(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
+    void onTouchCancelled(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
 
     void onEditor();
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
-    bool m_alignActive;
-    bool m_alignToggled;
-    CCDrawNode* m_alignmentNode;
-    Ref<CCMenuItemToggler> m_toggler;
-    SnapEdge m_closestEdges;
+    bool m_alignActive = false;
+    bool m_alignToggled = false;
+    cocos2d::CCDrawNode* m_alignmentNode = nullptr;
+    geode::Ref<CCMenuItemToggler> m_toggler = nullptr;
+    SnapEdge m_closestEdges{};
 };
 
 class $modify(OALevelEditorLayer, LevelEditorLayer) {

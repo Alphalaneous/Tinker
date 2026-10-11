@@ -13,8 +13,8 @@ class $module(RepeatingEditorButtons) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
-    static void applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, ZStringView id);
-    static void recursivelySetRepeat(CCNode* node);
+    static void applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, geode::ZStringView id);
+    static void recursivelySetRepeat(cocos2d::CCNode* node);
 	static void setRepeatable(CCMenuItemSpriteExtra* item, bool repeatable);
 	static void forceNoRepeat(CCMenuItemSpriteExtra* item, bool force);
 };
@@ -23,9 +23,9 @@ class $modify(REBCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 	$registerHooks(RepeatingEditorButtons)
 
 	struct Fields {
-		bool m_isHolding;
-		bool m_repeatable;
-		bool m_forceNoRepeat;
+		bool m_isHolding = false;
+		bool m_repeatable = false;
+		bool m_forceNoRepeat = false;
 	};
 
 	void setRepeatable(bool repeatable);
@@ -42,7 +42,7 @@ class $modify(REBCustomizeObjectLayer, CustomizeObjectLayer) {
 };
 
 class $modify(REBEditButtonBar, EditButtonBar) {
-	void loadFromItems(CCArray* objects, int rows, int columns, bool keepPage);
+	void loadFromItems(cocos2d::CCArray* objects, int rows, int columns, bool keepPage);
 };
 
 class $modify(REBLevelSettingsLayer, LevelSettingsLayer) {

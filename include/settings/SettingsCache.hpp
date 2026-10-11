@@ -9,27 +9,25 @@
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
 
-using namespace geode::prelude;
-
 class SettingsCache : public Singleton<SettingsCache> {
 public:
     struct SettingCategory;
 
     struct SettingInfo {
-        std::string id;
-        std::string name;
-        std::string type;
-        SettingCategory* category;
+        std::string id = "";
+        std::string name = "";
+        std::string type = "";
+        SettingCategory* category = nullptr;
         bool hasEnableIf = false;
     };
 
     struct SettingCategory {
-        std::string name;
-        std::string id;
-        std::set<std::shared_ptr<SettingInfo>> settings;
+        std::string name = "";
+        std::string id = "";
+        std::set<std::shared_ptr<SettingInfo>> settings{};
 
-        bool weightedFuzzyMatch(ZStringView str, ZStringView kw, double weight, double& out) {
-            int score;
+        bool weightedFuzzyMatch(geode::ZStringView str, geode::ZStringView kw, double weight, double& out) {
+            int score = 0;
             if (fts::fuzzy_match(kw.c_str(), str.c_str(), score)) {
                 out = std::max(out, score * weight);
                 return true;
@@ -37,7 +35,7 @@ public:
             return false;
         }
 
-        bool matchSearch(std::shared_ptr<SettingInfo> info, ZStringView query) {
+        bool matchSearch(std::shared_ptr<SettingInfo> info, geode::ZStringView query) {
             if (info->type == "title") {
                 return true;
             }
@@ -55,13 +53,13 @@ public:
             return addToList;
         }
 
-        std::set<std::shared_ptr<SettingInfo>> settingsForSearch(ZStringView query) {
+        std::set<std::shared_ptr<SettingInfo>> settingsForSearch(geode::ZStringView query) {
             if (query.empty()) {
                 return settings;
             }
-            std::set<std::shared_ptr<SettingInfo>> set;
+            std::set<std::shared_ptr<SettingInfo>> set{};
 
-            std::shared_ptr<SettingInfo> title;
+            std::shared_ptr<SettingInfo> title = nullptr;
 
             for (auto& setting : settings) {
                 if (matchSearch(setting, query)) {
@@ -81,16 +79,16 @@ public:
         }
     };
 
-    const StringMap<SettingCategory>& getSettings();
-    const StringMap<std::shared_ptr<SettingInfo>>& getSettingsMap();
+    const geode::utils::StringMap<SettingCategory>& getSettings();
+    const geode::utils::StringMap<std::shared_ptr<SettingInfo>>& getSettingsMap();
     const std::vector<std::shared_ptr<SettingInfo>>& getSettingsList();
     const std::vector<SettingCategory*>& getCategoryList();
 
     void loadSettings();
 
 protected:
-    StringMap<SettingCategory> m_settings;
-    StringMap<std::shared_ptr<SettingInfo>> m_settingsMap;
-    std::vector<std::shared_ptr<SettingInfo>> m_settingsVec;
-    std::vector<SettingCategory*> m_categoryVec;
+    geode::utils::StringMap<SettingCategory> m_settings{};
+    geode::utils::StringMap<std::shared_ptr<SettingInfo>> m_settingsMap{};
+    std::vector<std::shared_ptr<SettingInfo>> m_settingsVec{};
+    std::vector<SettingCategory*> m_categoryVec{};
 };

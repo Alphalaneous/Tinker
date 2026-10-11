@@ -7,11 +7,9 @@
 #include "nodes/ScaleSlider.hpp"
 #include "nodes/ValueToggler.hpp"
 
-using namespace tinker::ui;
-
 class $module(ImprovedControls) {
-    static void addLabelToNode(CCNode* node, ZStringView text);
-    static void addLabelToToggle(CCMenuItemToggler* toggler, ZStringView text);
+    static void addLabelToNode(cocos2d::CCNode* node, geode::ZStringView text);
+    static void addLabelToToggle(CCMenuItemToggler* toggler, geode::ZStringView text);
 
     static float roundToThousandth(float value);
 
@@ -22,15 +20,15 @@ class $modify(ICEditorUI, EditorUI) {
     $registerHooks(ImprovedControls)
 
     struct Fields {
-        bool m_lockPosition;
+        bool m_lockPosition = false;
     };
 
     void activateTransformControl(cocos2d::CCObject* sender);
     void activateScaleControl(cocos2d::CCObject* sender);
     void deactivateScaleControl();
-    void activateRotationControl(CCObject* sender);
+    void activateRotationControl(cocos2d::CCObject* sender);
     void angleChanged(float angle);
-    void moveObject(GameObject* obj, CCPoint amount);
+    void moveObject(GameObject* obj, cocos2d::CCPoint amount);
     void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint);
     void scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove);
 
@@ -44,29 +42,29 @@ class $modify(ICGJScaleControl, GJScaleControl) {
 
     struct Fields {
         float m_snapSize = 1.f;
-        bool m_snapLock;
-        bool m_scaleLock;
-        bool m_scaleLockInternal;
+        bool m_snapLock = false;
+        bool m_scaleLock = false;
+        bool m_scaleLockInternal = false;
 
-        CCMenuItemToggler* m_snapToggle;
-        CCMenuItemToggler* m_scaleToggle;
-        TextInput* m_inputX;
-        TextInput* m_inputY;
-        TextInput* m_inputXY;
-        std::vector<TextInput*> m_inputs;
-        ValueToggler<float>* m_valueToggler;
+        CCMenuItemToggler* m_snapToggle = nullptr;
+        CCMenuItemToggler* m_scaleToggle = nullptr;
+        geode::TextInput* m_inputX = nullptr;
+        geode::TextInput* m_inputY = nullptr;
+        geode::TextInput* m_inputXY = nullptr;
+        std::vector<geode::TextInput*> m_inputs{};
+        tinker::ui::ValueToggler<float>* m_valueToggler = nullptr;
 
-        ScaleSlider* m_sliderX;
-        ScaleSlider* m_sliderY;
-        ScaleSlider* m_sliderXY;
+        tinker::ui::ScaleSlider* m_sliderX = nullptr;
+        tinker::ui::ScaleSlider* m_sliderY = nullptr;
+        tinker::ui::ScaleSlider* m_sliderXY = nullptr;
 
-        Ref<GameObject> m_object;
-        Ref<CCArray> m_objects;
+        geode::Ref<GameObject> m_object = nullptr;
+        geode::Ref<cocos2d::CCArray> m_objects = nullptr;
 
-        bool m_wasAdjusted;
+        bool m_wasAdjusted = false;
 
-        float m_lastScaleX;
-        float m_lastScaleY;
+        float m_lastScaleX = 0.f;
+        float m_lastScaleY = 0.f;
     };
 
     bool init();
@@ -77,15 +75,15 @@ class $modify(ICGJScaleControl, GJScaleControl) {
 
     float trueScaleFromValue(float value);
     float trueValueFromScale(float scale);
-    void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
+    void loadValues(GameObject* obj, cocos2d::CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
     void unfocus();
     void setBypass(bool bypass);
     void updateSnapValues();
     
-    CCPoint getPivotLocation();
+    cocos2d::CCPoint getPivotLocation();
 
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
-    void ccTouchMoved(CCTouch* touch, CCEvent* event);
+    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 };
 
 class $modify(ICGJRotationControl, GJRotationControl) {
@@ -95,31 +93,31 @@ class $modify(ICGJRotationControl, GJRotationControl) {
         float m_snapSize = 1.f;
         bool m_posLock = false;
         bool m_snapLock = false;
-        bool m_rotationLock;
-        bool m_rotationLockInternal;
+        bool m_rotationLock = false;
+        bool m_rotationLockInternal = false;
 
-        CCMenuItemToggler* m_posLockToggle;
-        CCMenuItemToggler* m_snapToggle;
-        CCMenuItemToggler* m_rotationToggle;
-        ValueToggler<int>* m_valueToggler;
-        TextInput* m_input;
-        CCNode* m_controlContainer;
-        Ref<CCArray> m_objects;
+        CCMenuItemToggler* m_posLockToggle = nullptr;
+        CCMenuItemToggler* m_snapToggle = nullptr;
+        CCMenuItemToggler* m_rotationToggle = nullptr;
+        tinker::ui::ValueToggler<int>* m_valueToggler = nullptr;
+        geode::TextInput* m_input = nullptr;
+        cocos2d::CCNode* m_controlContainer = nullptr;
+        geode::Ref<cocos2d::CCArray> m_objects = nullptr;
 
-        float m_lastRotation;
+        float m_lastRotation = 0.f;
     };
 
     bool init();
 
     void draw();
     bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
-    void ccTouchMoved(CCTouch* touch, CCEvent* event);
+    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void finishTouch();
 
     bool isPositionLocked();
-    CCPoint pointOnCircle(float degrees, float radius);
-    float angleOfPointOnCircle(CCPoint const& point) const;
+    cocos2d::CCPoint pointOnCircle(float degrees, float radius);
+    float angleOfPointOnCircle(cocos2d::CCPoint const& point) const;
     float getThumbValue() const;
-    void loadValues(CCArray* objects);
+    void loadValues(cocos2d::CCArray* objects);
     void setControlRotation(float degrees);
 };

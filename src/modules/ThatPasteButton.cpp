@@ -1,6 +1,8 @@
 #include "modules/ThatPasteButton.hpp"
 #include "utils/HijackCallback.hpp"
 
+using namespace geode::prelude;
+
 bool ThatPasteButton::onToggled(bool state) {
     if (state) {
         onEditor();

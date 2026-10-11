@@ -1,6 +1,8 @@
 #include "modules/ImprovedArtPicker.hpp"
 #include "nodes/SelectArtLayer.hpp"
 
+using namespace geode::prelude;
+
 bool ImprovedArtPicker::onToggled(bool state) {
     return true;
 }

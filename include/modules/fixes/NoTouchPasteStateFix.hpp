@@ -6,7 +6,7 @@
 class $module(NoTouchPasteStateFix) {
     bool onToggled(bool state);
 
-    void fixNoTouch(GameObject* object, CCArray* objects);
+    void fixNoTouch(GameObject* object, cocos2d::CCArray* objects);
 };
 
 class $modify(NTPSFEditorUI, EditorUI) {

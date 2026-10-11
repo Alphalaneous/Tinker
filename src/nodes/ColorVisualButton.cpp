@@ -1,6 +1,8 @@
 #include "nodes/ColorVisualButton.hpp"
 #include "nodes/ColorChannelSprite.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 ColorVisualButton* ColorVisualButton::create(EditorUI* editorUI) {

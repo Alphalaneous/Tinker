@@ -7,13 +7,13 @@ namespace tinker::ui {
 };
 
 class $module(ObjectTooltips) {
-    std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>> m_objectGroups;
-    tinker::ui::TooltipHover* m_hover;
-    bool m_addedCallbacks;
+    std::unordered_map<cocos2d::CCNode*, std::set<geode::Ref<CreateMenuItem>>> m_objectGroups{};
+    tinker::ui::TooltipHover* m_hover = nullptr;
+    bool m_addedCallbacks = false;
 
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
     
     void onEditor();
-    const std::unordered_map<CCNode*, std::set<Ref<CreateMenuItem>>>& getObjectGroups();
+    const std::unordered_map<cocos2d::CCNode*, std::set<geode::Ref<CreateMenuItem>>>& getObjectGroups();
 };

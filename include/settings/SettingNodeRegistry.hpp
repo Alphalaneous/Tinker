@@ -6,17 +6,15 @@
 #include <memory>
 #include "utils/Singleton.hpp"
 
-using namespace geode::prelude;
-
 namespace tinker::settings {
 
 class SettingNodeBase;
 
 struct SettingNodeRegistry : public Singleton<SettingNodeRegistry> {
 
-    StringMap<std::function<SettingNodeBase*(float, std::shared_ptr<SettingV3>)>> m_settingNodes;
+    geode::utils::StringMap<std::function<SettingNodeBase*(float, std::shared_ptr<geode::SettingV3>)>> m_settingNodes{};
 
-    static SettingNodeBase* create(ZStringView type, float width, std::shared_ptr<SettingV3> setting) {
+    static SettingNodeBase* create(geode::ZStringView type, float width, std::shared_ptr<geode::SettingV3> setting) {
         auto& nodes = SettingNodeRegistry::get()->m_settingNodes;
         auto iter = nodes.find(type);
         if (iter == nodes.end()) {

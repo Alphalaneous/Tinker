@@ -4,7 +4,7 @@
 #include <Geode/modify/EditorUI.hpp>
 
 class $module(AutoBuildHelper) {
-    CCMenuItemToggler* m_bhToggler;
+    CCMenuItemToggler* m_bhToggler = nullptr;
     bool m_autoBuildHelperEnabled = false;
 
     void onEditor();
@@ -18,11 +18,11 @@ class $module(AutoBuildHelper) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
-    void onToggleAutoBuildHelper(CCObject* sender);
+    void onToggleAutoBuildHelper(cocos2d::CCObject* sender);
 };
 
 class $modify(ABHEditorUI, EditorUI) {
     $registerHooks(AutoBuildHelper)
 
-    CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
+    cocos2d::CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
 };

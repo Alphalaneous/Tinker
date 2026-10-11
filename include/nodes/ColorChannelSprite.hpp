@@ -4,11 +4,9 @@
 #include <Geode/ui/Label.hpp>
 #include <string>
 
-using namespace geode::prelude;
-
 namespace tinker::ui {
 
-class ColorChannelSprite : public CCSprite {
+class ColorChannelSprite : public cocos2d::CCSprite {
 public:
     static ColorChannelSprite* create(int colorID, bool showLabel = true);
     void setSelected(bool selected);
@@ -27,18 +25,18 @@ public:
 protected:
     bool init(int colorID, bool showLabel);
 
-    geode::Label* m_copyLabel;
-    geode::Label* m_opacityLabel;
-    geode::Label* m_blendingLabel;
-    geode::Label* m_idLabel;
-    CCSprite* m_selectSpr;
+    geode::Label* m_copyLabel = nullptr;
+    geode::Label* m_opacityLabel = nullptr;
+    geode::Label* m_blendingLabel = nullptr;
+    geode::Label* m_idLabel = nullptr;
+    cocos2d::CCSprite* m_selectSpr = nullptr;
 
     bool m_enabled = true;
-    bool m_selected;
-    bool m_live;
-    GLubyte m_realOpacity;
+    bool m_selected = false;
+    bool m_live = false;
+    GLubyte m_realOpacity = 0;
 
-    int m_colorID;
+    int m_colorID = 0;
 };
 
 };

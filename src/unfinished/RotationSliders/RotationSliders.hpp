@@ -14,20 +14,20 @@ class $modify(RSEditorUI, EditorUI) {
     $registerHooks(RotationSliders)
 
     struct Fields {
-        Ref<CCMenuItemSpriteExtra> m_rotationXYControlsButton;
-        Ref<XYRotationControl> m_rotationXYControls;
+        geode::Ref<CCMenuItemSpriteExtra> m_rotationXYControlsButton = nullptr;
+        geode::Ref<XYRotationControl> m_rotationXYControls = nullptr;
     };
 
-    void activateRotationXYControl(CCObject* sender);
+    void activateRotationXYControl(cocos2d::CCObject* sender);
     void deactivateRotationXYControl();
 
     void updateButtons();
 
-    CCPoint getSelectionCenter();
+    cocos2d::CCPoint getSelectionCenter();
 
-    void activateScaleControl(CCObject* sender);
-    void activateTransformControl(CCObject* sender);
-    void activateRotationControl(CCObject* sender);
+    void activateScaleControl(cocos2d::CCObject* sender);
+    void activateTransformControl(cocos2d::CCObject* sender);
+    void activateRotationControl(cocos2d::CCObject* sender);
 
     /*void activateTransformControl(CCObject* sender);
     void selectAllWithDirection(bool left);

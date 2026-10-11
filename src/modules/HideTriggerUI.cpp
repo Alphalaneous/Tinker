@@ -1,5 +1,7 @@
 #include "modules/HideTriggerUI.hpp"
 
+using namespace geode::prelude;
+
 bool HideTriggerUI::onToggled(bool state) {
     return true;
 }

@@ -5,13 +5,15 @@
 namespace tinker::utils::color {
 
 struct RGB {
-    float r, g, b;
+    float r = 0.f;
+    float g = 0.f;
+    float b = 0.f;
 };
 
 struct HSV {
-    float h;
-    float s;
-    float v;
+    float h = 0.f;
+    float s = 0.f;
+    float v = 0.f;
 };
 
 cocos2d::ccColor3B getContrastingColor(const cocos2d::ccColor3B& color);

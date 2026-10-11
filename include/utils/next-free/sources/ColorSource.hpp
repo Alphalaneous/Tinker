@@ -9,7 +9,7 @@
 class ColorSource : public NextFreeSource {
 public:
     virtual std::unordered_set<int> getUsedIDs() override {
-        std::unordered_set<int> used;
+        std::unordered_set<int> used{};
         for (auto obj : m_editorLayer->m_objects->asExt<GameObject>()) {
             if (obj->m_detailColor) {
                 used.insert(obj->m_detailColor->m_colorID);
@@ -19,7 +19,7 @@ public:
             }
         }
         for (auto color : m_editorLayer->m_effectManager->getAllColorActions()->asExt<ColorAction>()) {
-            if (color->m_color != ccColor3B{255, 255, 255} || color->m_copyID != 0 || color->m_blending) {
+            if (color->m_color != cocos2d::ccColor3B{255, 255, 255} || color->m_copyID != 0 || color->m_blending) {
                 used.insert(color->m_colorID);
             }
         }
@@ -35,7 +35,7 @@ public:
     }
 
     virtual int getOffset() override {
-        auto saved = alpha::level_storage::getSaveContainer(m_editorLayer, Mod::get());
+        auto saved = alpha::level_storage::getSaveContainer(m_editorLayer, geode::Mod::get());
         auto res = saved.get("next-free-offset/color");
         if (!res) return getMin();
 

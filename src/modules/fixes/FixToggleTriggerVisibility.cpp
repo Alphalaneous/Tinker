@@ -1,6 +1,8 @@
 #include "modules/fixes/FixToggleTriggerVisibility.hpp"
 #include "utils/Constants.hpp"
 
+using namespace geode::prelude;
+
 void FTTVEffectGameObject::setOpacity(unsigned char opacity) {
     EffectGameObject::setOpacity(opacity);
     if (m_objectID == tinker::constants::objects::ToggleTrigger) {

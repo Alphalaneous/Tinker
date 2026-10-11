@@ -1,5 +1,7 @@
 #include "modules/fixes/FixIgnoreDamage.hpp"
 
+using namespace geode::prelude;
+
 bool FixIgnoreDamage::onToggled(bool state) {
     return true;
 }

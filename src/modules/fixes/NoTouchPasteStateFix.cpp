@@ -1,6 +1,8 @@
 #include "modules/fixes/NoTouchPasteStateFix.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
+using namespace geode::prelude;
+
 bool NoTouchPasteStateFix::onToggled(bool state) {
     return true;
 }

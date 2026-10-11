@@ -1,6 +1,8 @@
 #include "modules/RelocateBuildTools.hpp"
 #include <alphalaneous.editortab_api/include/API.hpp>
 
+using namespace geode::prelude;
+
 StringMap<std::string> RelocateBuildTools::s_labelToIcon = {
     {"Reset\nScroll", "ResetScroll"},
     {"Create\nLoop", "CreateLoop"},
@@ -65,7 +67,7 @@ void RelocateBuildTools::onEditor() {
 }
 
 CCSprite* RelocateBuildTools::addIcon(CCNode* node, CCLabelBMFont* label) {
-    std::string iconTexture;
+    std::string iconTexture = "";
 
     bool iconsOnly = false;
 
@@ -136,7 +138,7 @@ void RelocateBuildTools::rebuildButtons(std::vector<Ref<CCNode>> nodes) {
 
 EditButtonBar* RelocateBuildTools::createBuildTools() {
     
-    std::vector<Ref<CCNode>> nodes;
+    std::vector<Ref<CCNode>> nodes{};
 
     if (auto smallActionsMenu = m_pauseLayer->getChildByID("small-actions-menu")) {
         for (auto child : smallActionsMenu->getChildrenExt()) {

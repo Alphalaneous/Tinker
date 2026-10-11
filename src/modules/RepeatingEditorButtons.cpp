@@ -1,6 +1,8 @@
 #include "modules/RepeatingEditorButtons.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
+using namespace geode::prelude;
+
 bool RepeatingEditorButtons::onToggled(bool state) {
     if (state) {
         onEditor();

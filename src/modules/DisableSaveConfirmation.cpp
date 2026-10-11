@@ -2,6 +2,8 @@
 #include "MainHooks.hpp"
 #include "utils/HijackCallback.hpp"
 
+using namespace geode::prelude;
+
 bool DisableSaveConfirmation::onToggled(bool state) {
     if (!state) {
         removeEventListener("on-pause");

@@ -4,6 +4,8 @@
 #include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
 #include "utils/UI.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 NavigationControl* NavigationControl::create(EditorUI* editorUI) {
@@ -110,13 +112,12 @@ void NavigationControl::motionUpdate(float dt) {
     if (m_holdingJoystick && !m_movingControls) {
         float rawLen = m_joystickRawLen;
         if (rawLen > 1.f) {
-            CCPoint dir = m_joystickRawDelta / rawLen;
+            auto dir = m_joystickRawDelta / rawLen;
 
             float camRad = CC_DEGREES_TO_RADIANS(m_editorUI->m_editorLayer->m_gameState.m_cameraAngle);
             float cs = std::cosf(camRad);
             float sn = std::sinf(camRad);
-            CCPoint rotatedDir(dir.x * cs - dir.y * sn,
-                               dir.x * sn + dir.y * cs);
+            auto rotatedDir = CCPoint{dir.x * cs - dir.y * sn, dir.x * sn + dir.y * cs};
 
             float scale = m_editorUI->m_editorLayer->m_objectLayer->getScale();
             float zoomComp = std::powf(1.f / scale, 0.5f) * m_scale * 1.2f;
@@ -185,9 +186,9 @@ bool NavigationControl::clickBegan(TouchEvent* touch) {
 
     m_initialPoint = touch->getLocation();
 
-    CCPoint center = m_circle->getContentSize() / 2;
-    CCPoint pos = m_circle->convertToNodeSpace(touch->getLocation());
-    CCPoint delta = pos - center;
+    auto center = m_circle->getContentSize() / 2;
+    auto pos = m_circle->convertToNodeSpace(touch->getLocation());
+    auto delta = pos - center;
 
     if (alpha::utils::isPointInsideNode(this, touch->getLocation())) {
         m_touchActive = true;
@@ -235,11 +236,11 @@ bool NavigationControl::clickBegan(TouchEvent* touch) {
 }
 
 void NavigationControl::clickMoved(TouchEvent* touch) {
-    CCPoint center = m_circle->getContentSize() / 2;
-    CCPoint pos = m_circle->convertToNodeSpace(touch->getLocation());
+    auto center = m_circle->getContentSize() / 2;
+    auto pos = m_circle->convertToNodeSpace(touch->getLocation());
 
     if (m_holdingJoystick) {
-        CCPoint joystickPos = pos + m_joystickDragOffset;
+        auto joystickPos = pos + m_joystickDragOffset;
 
         auto dist = m_initialPoint.getDistanceSq(touch->getLocation());
         if (dist > 30 && m_waitingForMove) {
@@ -248,34 +249,32 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
         }
 
         if (m_movingControls) {
-            CCPoint world = m_circle->convertToWorldSpace(joystickPos);
+            auto world = m_circle->convertToWorldSpace(joystickPos);
             CCSize winSize = CCDirector::get()->getWinSize();
 
-            world.x = std::min(std::max(getScaledContentWidth() / 2 + 5, world.x),
-                               winSize.width - getScaledContentWidth() / 2 - 5);
-            world.y = std::min(std::max(getScaledContentHeight() / 2 + 5, world.y),
-                               winSize.height - getScaledContentHeight() / 2 - 5);
+            world.x = std::min(std::max(getScaledContentWidth() / 2 + 5, world.x), winSize.width - getScaledContentWidth() / 2 - 5);
+            world.y = std::min(std::max(getScaledContentHeight() / 2 + 5, world.y), winSize.height - getScaledContentHeight() / 2 - 5);
 
             setPosition(world);
         }
         else {
-            CCPoint rawDelta = joystickPos - center;
+            auto rawDelta = joystickPos - center;
             float rawLen = rawDelta.getLength();
 
             m_joystickRawDelta = rawDelta;
             m_joystickRawLen = rawLen;
 
-            CCPoint dir = rawDelta;
+            auto dir = rawDelta;
             if (rawLen > 0) dir /= rawLen;
 
             float range = m_circle->getContentWidth() / 2 - m_joystick->getScaledContentWidth() / 2;
-            CCPoint visualDelta = rawDelta;
+            auto visualDelta = rawDelta;
             if (rawLen > range) visualDelta = dir * range;
             m_joystick->setPosition(center + visualDelta);
         }
     }
     else if (m_holdingRotationHandle && CanvasRotate::isEnabled()) {
-        CCPoint delta = pos - center;
+        auto delta = pos - center;
         float touchAngle = std::atan2f(delta.y, delta.x);
         float angleRad = m_rotationDragOffset - touchAngle;
         float angleDeg = CC_RADIANS_TO_DEGREES(angleRad);
@@ -290,7 +289,7 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
         float nearestSnap = std::round(rotNode->m_unsnappedCameraAngle / snapIncrement) * snapIncrement;
         float diff = std::fabs(std::fmod(rotNode->m_unsnappedCameraAngle - nearestSnap + 180.f, 360.f) - 180.f);
 
-        float targetAngle;
+        float targetAngle = 0.f;
 
         if (!rotNode->m_isSnapped && diff < snapThreshold) {
             targetAngle = nearestSnap;
@@ -309,7 +308,7 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
         m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = targetAngle;
     }
     else {
-        CCPoint delta = pos - center;
+        auto delta = pos - center;
         float current = std::atan2f(delta.y, delta.x);
 
         float deltaAngle = current - m_lastTouchAngle;

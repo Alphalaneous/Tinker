@@ -6,5 +6,5 @@ class $module(CenteredToggles) {
     bool onToggled(bool state);
     void onEditor();
 
-    void setOffset(CCNode* node, float offset);
+    void setOffset(cocos2d::CCNode* node, float offset);
 };

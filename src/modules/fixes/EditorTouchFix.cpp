@@ -1,5 +1,7 @@
 #include "modules/fixes/EditorTouchFix.hpp"
 
+using namespace geode::prelude;
+
 bool EditorTouchFix::onToggled(bool state) {
     return true;
 }

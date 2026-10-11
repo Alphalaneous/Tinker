@@ -10,6 +10,8 @@
 #include "modules/ScrollableObjects.hpp"
 #include "misc/ObjectNames.hpp"
 
+using namespace geode::prelude;
+
 namespace tinker::ui {
 
 SearchField::~SearchField() {
@@ -101,12 +103,12 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
     }
     else {
         struct NameScore {
-            unsigned int id;
-            std::string name;
-            int score;
+            unsigned int id = 0;
+            std::string name = "";
+            int score = 0;
         };
 
-        std::vector<NameScore> nameScores;
+        std::vector<NameScore> nameScores{};
 
         auto queryWords = geode::utils::string::split(lower, " ");
         auto& items = static_cast<OSEditorUI*>(ObjectSearch::get()->getEditor())->m_fields->m_items;
@@ -143,8 +145,8 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
             }
         }
 
-        std::unordered_map<unsigned int, std::vector<ItemInformation>> sections;
-        std::vector<std::vector<ItemInformation>*> sectionsVec;
+        std::unordered_map<unsigned int, std::vector<ItemInformation>> sections{};
+        std::vector<std::vector<ItemInformation>*> sectionsVec{};
 
         if (!nameScores.empty()) {
             std::sort(nameScores.begin(), nameScores.end(), [&](const auto& a, const auto& b) {
