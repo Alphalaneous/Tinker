@@ -12,6 +12,6 @@ class $modify(FTOBTextGameObject, TextGameObject) {
 
     void fixBounds();
 
-    void customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists);
-    void updateTextObject(gd::string text, bool defaultFont);
+    void customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists);
+    void updateTextObject(std::string text, bool defaultFont);
 };

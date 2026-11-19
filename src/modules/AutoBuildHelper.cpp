@@ -1,7 +1,7 @@
 #include "modules/AutoBuildHelper.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "MainHooks.hpp"
-#include <alphalaneous.editorsounds/include/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 
 using namespace geode::prelude;
 
@@ -97,9 +97,9 @@ void AutoBuildHelper::showOnEditorUI() {
 
     m_bhToggler = CCMenuItemToggler::create(sprOff, sprOn, getEditor(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
-    alpha::editor_sounds::assignToMenuItem(m_bhToggler, "toolbar-toggles");
+    //alpha::editor_sounds::assignToMenuItem(m_bhToggler, "toolbar-toggles");
 
-    bool isToggled = Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false);
+    bool isToggled = getSaved<Save::Global, bool, "quick-toggle-on">();
 
     m_bhToggler->toggle(isToggled);
     m_autoBuildHelperEnabled = isToggled;
@@ -135,7 +135,7 @@ void AutoBuildHelper::showOnPause() {
 
     m_bhToggler = CCMenuItemToggler::create(autoBuildHelperSprOff, autoBuildHelperSprOn, EditorUI::get(), menu_selector(AutoBuildHelper::onToggleAutoBuildHelper));
     m_bhToggler->setID("auto-build-helper-button"_spr);
-    m_bhToggler->toggle(Mod::get()->getSavedValue<bool>("auto-build-helper-toggle", false));
+    m_bhToggler->toggle(getSaved<Save::Global, bool, "quick-toggle-on">());
     m_bhToggler->setZOrder(999);
 
     menu->addChild(m_bhToggler);
@@ -155,10 +155,10 @@ void AutoBuildHelper::onEditor() {
 void AutoBuildHelper::onToggleAutoBuildHelper(CCObject* sender) {
     auto toggler = static_cast<CCMenuItemToggler*>(sender);
     AutoBuildHelper::get()->m_autoBuildHelperEnabled = !toggler->isOn();
-    Mod::get()->setSavedValue("auto-build-helper-toggle", !toggler->isOn());
+    setSaved<Save::Global, "quick-toggle-on">(!toggler->isOn());
 }
 
-CCArray* ABHEditorUI::pasteObjects(gd::string str, bool withColor, bool noUndo) {
+CCArray* ABHEditorUI::pasteObjects(std::string str, bool withColor, bool noUndo) {
     auto ret = EditorUI::pasteObjects(str, withColor, noUndo);
 
     if (!withColor && !noUndo && AutoBuildHelper::get()->m_autoBuildHelperEnabled) {

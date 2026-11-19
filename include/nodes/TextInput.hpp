@@ -8,7 +8,7 @@
 #include <Geode/ui/Label.hpp>
 #include <Geode/utils/cocos.hpp>
 #include <Geode/utils/ZStringView.hpp>
-#include <alphalaneous.alphas-ui-pack/include/touch/TouchDelegate.hpp>
+#include <alphalaneous.alphas-ui-pack/touch/TouchDelegate.hpp>
 #include <memory>
 #include <string_view>
 #include <unordered_map>
@@ -64,9 +64,9 @@ protected:
 
     bool init(const cocos2d::CCSize& size, float textScale, geode::ZStringView font, geode::ZStringView placeholder);
 
-    bool clickBegan(alpha::dispatcher::TouchEvent* touch) override;
-	void clickMoved(alpha::dispatcher::TouchEvent* touch) override;
-	void clickEnded(alpha::dispatcher::TouchEvent* touch) override;
+    bool touchBegan(alpha::dispatcher::Touch* touch) override;
+	void touchMoved(alpha::dispatcher::Touch* touch) override;
+	void touchEnded(alpha::dispatcher::Touch* touch) override;
 
     int kerningAmountForFirst(unsigned short first, unsigned short second);
 

@@ -203,7 +203,7 @@ bool StatusBar::onToggled(bool state) {
     }
 
     getEditor()->runAction(CallFuncExt::create([this] {
-        UIScaling::get()->setScaling(false);
+        UIScaling::get()->setScaling();
     }));
 
     return true;
@@ -212,7 +212,7 @@ bool StatusBar::onToggled(bool state) {
 void StatusBar::onEditor() {
     auto editor = getEditor();
 
-    addEventListener("ui-scale", PreUIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", PreUIScaleUpdated(), [this] (float scale, bool scaleToolbars) {
         updateUI(scale);
     });
 

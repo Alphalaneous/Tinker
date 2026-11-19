@@ -1,8 +1,10 @@
 #include "modules/Gizmos/Gizmos.hpp"
 #include "InputsHandler.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <alphalaneous.level-storage-api/LevelStorageAPI.hpp>
 #include <Geode/utils/base64.hpp>
+#include <matjson.hpp>
 #include "modules/Gizmos/ColorChannelGizmo.hpp"
 #include "modules/Gizmos/TestGizmo.hpp"
 #include "nodes/LabelledToggle.hpp"
@@ -133,8 +135,8 @@ Gizmo* Gizmo::createWithID(ZStringView ID) {
 bool Gizmo::init() {
     if (!CCSpritePlus::init()) return false;
     commonSetup();
-    m_bUnkBool2 = true;
 
+    m_bDisableScheduling = true;
     m_addToNodeContainer = true;
     m_objectType = static_cast<GameObjectType>(-1);
     m_objectID = Gizmos::get()->getUnusedID();
@@ -174,7 +176,7 @@ bool Gizmo::initWithID(ZStringView ID) {
     return true;
 }
 
-void Gizmo::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
+void Gizmo::customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists) {
     matjson::Value propertyJson{};
 
     GameObject::customObjectSetup(values, exists);
@@ -200,7 +202,7 @@ void Gizmo::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>&
     }
 }
 
-gd::string Gizmo::getSaveString(GJBaseGameLayer* layer) {
+std::string Gizmo::getSaveString(GJBaseGameLayer* layer) {
     auto saveString = GameObject::getSaveString(layer);
 
     geode::utils::StringBuffer<> buffer{};
@@ -347,19 +349,10 @@ void GCCTouchDispatcher::touches(CCSet* touches, CCEvent* event, unsigned int in
         auto gizmo = node->getParentByType<Gizmo>();
         if (!gizmo) continue;
 
-        bool blockTouch = false;
         bool playing = LevelEditorLayer::get()->m_playbackMode == PlaybackMode::Playing;
 
-        auto firstTouch = static_cast<CCTouch*>(touches->anyObject());
-        if (firstTouch) {
-            auto mainPos = InputEditorUI::getTouchLocation(firstTouch);
-            if (mainPos.y <= tinker::utils::ui::getToolbarHeight()) {
-                blockTouch = true;
-            }
-        }
-
         auto editor = LevelEditorLayer::get();
-        if (!editor->validGroup(gizmo, false) || blockTouch || (playing && !gizmo->isInteractiveDuringPlaytest())) {
+        if (!editor->validGroup(gizmo, false) || (playing && !gizmo->isInteractiveDuringPlaytest())) {
             auto claimedTouches = handlers[i]->getClaimedTouches();
             if (claimedTouches) {
                 for (auto claimed : *claimedTouches->m_pSet) {
@@ -383,18 +376,18 @@ void GCCTouchDispatcher::touches(CCSet* touches, CCEvent* event, unsigned int in
     Gizmos::get()->m_removedDelegates.clear();
 }
 
-void GEditorPauseLayer::saveLevel() {
-    auto oldObjects = m_editorLayer->m_objects;
+bool GLevelEditorLayer::saveLevel() {
+    auto oldObjects = m_objects;
     std::vector<Ref<Gizmo>> gizmos{};
 
-    m_editorLayer->m_objects = oldObjects->shallowCopy();
+    m_objects = oldObjects->shallowCopy();
 
-    auto objects = m_editorLayer->m_objects->asExt<GameObject>();
+    auto objects = m_objects->asExt<GameObject>();
 
     for (int i = objects.size() - 1; i >= 0; i--) {
         if (auto gizmo = typeinfo_cast<Gizmo*>(objects[i])) {
             gizmos.push_back(gizmo);
-            m_editorLayer->m_objects->removeObjectAtIndex(i);
+            m_objects->removeObjectAtIndex(i);
         }
     }
 
@@ -402,22 +395,24 @@ void GEditorPauseLayer::saveLevel() {
     for (const auto& gizmo : gizmos) {
         auto origID = gizmo->m_objectID;
         gizmo->m_objectID = 0;
-        auto save = gizmo->getSaveString(m_editorLayer);
+        auto save = gizmo->getSaveString(this);
         auto saveView = std::string_view(save);
 
         arr.push_back(std::string(saveView.substr(4)));
         gizmo->m_objectID = origID;
     }
 
-    alpha::level_storage::setSavedValue(m_editorLayer, "gizmos", arr);
+    Gizmos::setSaved<Save::Level, "gizmos">(arr);
 
-    EditorPauseLayer::saveLevel();
+    auto ret = LevelEditorLayer::saveLevel();
 
-    m_editorLayer->m_objects = oldObjects;
+    m_objects = oldObjects;
+
+    return ret;
 }
 
-void GLevelEditorLayer::createObjectsFromSetup(gd::string& setup) {
-    auto saved = alpha::level_storage::getSavedValue<matjson::Value>(this, "gizmos");
+void GLevelEditorLayer::createObjectsFromSetup(std::string& setup) {
+    auto saved = Gizmos::getSaved<Save::Level, matjson::Value, "gizmos">();
     auto arrRes = saved.asArray();
     StringBuffer<> strBuffer{};
     
@@ -432,7 +427,7 @@ void GLevelEditorLayer::createObjectsFromSetup(gd::string& setup) {
     }
 
     // android sucks
-    gd::string newSetup = fmt::format("{}{}", setup, strBuffer);
+    std::string newSetup = fmt::format("{}{}", setup, strBuffer);
     LevelEditorLayer::createObjectsFromSetup(newSetup);
 }
 

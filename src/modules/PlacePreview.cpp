@@ -1,5 +1,6 @@
 #include "modules/PlacePreview.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCScene.h"
 #include "InputsHandler.hpp"
 #include "modules/CanvasRotate.hpp"
 #include "modules/GridControlOld.hpp"
@@ -60,12 +61,12 @@ void PlacePreview::onEditor() {
     m_hover = tinker::ui::PlacePreviewNode::create();
     editor->addChild(m_hover);
 
-    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+    addEventListener("switch-tab", alpha::editor_tabs::Tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
         if (!m_feedbackContainer) return;
         m_feedbackContainer->setVisible(inValidTab());
     });
 
-    addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+    addEventListener("switch-mode", alpha::editor_tabs::Mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
         if (!m_feedbackContainer) return;
         m_feedbackContainer->setVisible(inValidTab());
     });
@@ -104,13 +105,13 @@ bool PlacePreviewNode::init() {
     return true;
 }
 
-bool PlacePreviewNode::mouseEntered(TouchEvent* touch) {
+bool PlacePreviewNode::hoverEntered(Hover* touch) {
     return true;
 }
 
 void PlacePreviewNode::applyOffset(GameObject* object) {
     auto editor = EditorUI::get();
-    auto offset = editor->offsetForKey(object->m_objectID);
+    auto offset = offsetForKey(object->m_objectID);
 
     auto relativeOffset = GameToolbox::getRelativeOffset(object, offset);
     object->setPosition(object->getPosition() + relativeOffset);
@@ -118,7 +119,7 @@ void PlacePreviewNode::applyOffset(GameObject* object) {
 
 void PlacePreviewNode::removeOffset(GameObject* object) {
     auto editor = EditorUI::get();
-    auto offset = editor->offsetForKey(object->m_objectID);
+    auto offset = offsetForKey(object->m_objectID);
 
     auto relativeOffset = GameToolbox::getRelativeOffset(object, offset);
     object->setPosition(object->getPosition() - relativeOffset);
@@ -128,7 +129,7 @@ void PlacePreviewNode::update(float dt) {
     if (!m_hoverObject) return;
     auto editor = EditorUI::get();
 
-    auto editorPause = editor->m_editorLayer->getChildByType<EditorPauseLayer>(0);
+    auto editorPause = CCScene::get()->getChildByType<EditorPauseLayer>(0);
     bool hasPopup = editorPause || InputEditorUI::get()->hasActiveAlerts();
 
     if (!hasPopup) {
@@ -154,7 +155,7 @@ void PlacePreviewNode::update(float dt) {
             int cameraRot = static_cast<int>(std::round(editor->m_editorLayer->m_gameState.m_cameraAngle));
             float rotationValue = 0.f;
 
-            if (!CanvasRotate::get()->m_rotationNode->isAlignKeyDown()) {
+            if (!CanvasRotate::get()->isAlignKeyDown()) {
                 if (cameraRot < 45 || cameraRot >= 315) {
                     rotationValue = 0.f;
                 }
@@ -176,18 +177,18 @@ void PlacePreviewNode::update(float dt) {
             m_hoverObject->setRotation(rotationValue);
             applyOffset(m_hoverObject);
         }
-        #ifndef GEODE_IS_ANDROID32
+        /*#ifndef GEODE_IS_ANDROID32
         if (GridControlOld::isEnabled()) {
             auto mult = GridControlOld::get()->getGridMultiplier();
             m_hoverObject->updateCustomScaleX(m_hoverObject->m_pixelScaleX * mult);
             m_hoverObject->updateCustomScaleY(m_hoverObject->m_pixelScaleY * mult);
         }
-        #endif
+        #endif*/
     }
 }
 
 void PlacePreviewNode::showAtPos(const CCPoint& pos, const CCPoint& world) {
-    auto editor = EditorUI::get();
+    /*auto editor = EditorUI::get();
 
     auto basePos = editor->getGridSnappedPos(pos);
     auto offset = editor->offsetForKey(m_hoverObject->m_objectID);
@@ -209,10 +210,10 @@ void PlacePreviewNode::showAtPos(const CCPoint& pos, const CCPoint& world) {
     bool canBeShown = !exists && world.y > tinker::utils::ui::getToolbarHeight();
 
     m_objectVisible = canBeShown;
-    m_objectPos = objectPos;
+    m_objectPos = objectPos;*/
 }
 
-void PlacePreviewNode::mouseMoved(TouchEvent* touch) {
+void PlacePreviewNode::hoverMoved(Hover* touch) {
     if (!m_objectRender || !m_hoverObject) return;
 
     auto editor = EditorUI::get();

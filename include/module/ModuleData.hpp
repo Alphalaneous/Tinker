@@ -10,7 +10,7 @@ public:
     ModuleData();
     ~ModuleData();
 
-    std::vector<std::shared_ptr<geode::Hook>>& getHooks();
+    std::vector<geode::Hook*>& getHooks();
     void setOnEditorCallback(geode::Function<void()> callback);
     void setModuleEnabledCallback(geode::Function<bool()> callback);
 

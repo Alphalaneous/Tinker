@@ -8,12 +8,10 @@ class $module(FixSlopeHitboxRender) {
     bool onToggled(bool state);
 };
 
-class $modify(FSHREditorUI, EditorUI) {
+class $modify(FSHEditorUI, EditorUI) {
     $registerHooks(FixSlopeHitboxRender)
 
-    struct Fields {
-        bool m_checkSlopes = false;
-    };
-
-    bool isSpecialSnapObject(int id);
+    void refreshObject(GameObject* object);
+    void transformObject(GameObject* object, EditCommand command, bool noOffset);
+    GameObject* onCreateObject(int id);
 };

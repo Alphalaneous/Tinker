@@ -1,5 +1,6 @@
 #pragma once
 
+#include "alphalaneous.alphas-ui-pack/touch/Touch.hpp"
 #include "module/Module.hpp"
 #include <Geode/modify/LevelEditorLayer.hpp>
 
@@ -15,10 +16,8 @@ class $module(ObjectAlignment) {
     SnapEdge closestSnapEdge(cocos2d::CCRect bounds);
     cocos2d::CCRect getSelectedBounds();
 
-    bool onTouchBegan(cocos2d::CCTouch* touch, geode::Function<bool(cocos2d::CCTouch* touch)> next);
-    void onTouchMoved(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchEnded(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchCancelled(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
+    bool touchBegan(alpha::dispatcher::Touch* touch);
+    void touchMoved(alpha::dispatcher::Touch* touch);
 
     void onEditor();
     bool onToggled(bool state);
@@ -26,6 +25,7 @@ class $module(ObjectAlignment) {
 
     bool m_alignActive = false;
     bool m_alignToggled = false;
+
     cocos2d::CCDrawNode* m_alignmentNode = nullptr;
     geode::Ref<CCMenuItemToggler> m_toggler = nullptr;
     SnapEdge m_closestEdges{};

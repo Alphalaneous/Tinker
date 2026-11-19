@@ -1,5 +1,6 @@
 #include "modules/EditorGridCustomization.hpp"
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include <alphalaneous.good_grid/DrawLayers.hpp>
+#include "alphalaneous.good_grid/DrawLayers/CenterCross.hpp"
 #include "utils/Color.hpp"
 
 using namespace geode::prelude;
@@ -185,8 +186,12 @@ void EditorGridCustomization::revertColors() {
     auto effectLines = static_cast<alpha::grid::EffectLines*>(dgl->getChildByID("alphalaneous.good_grid/effect-lines"));
     auto audioLine = static_cast<alpha::grid::AudioLine*>(dgl->getChildByID("alphalaneous.good_grid/audio-line"));
     
-    effectLines->removePropertiesForObject("color-effect-lines"_spr);
-    audioLine->removePropertiesForTime("color-audio-line"_spr);
+    if (effectLines) {
+        effectLines->removePropertiesForObject("color-effect-lines"_spr);
+    }
+    if (audioLine) {
+        audioLine->removePropertiesForTime("color-audio-line"_spr);
+    }
 
     m_gridColor = alpha::grid::Grid::getDefaultGridColor();
     m_gridInvert = false;
@@ -200,7 +205,7 @@ void EditorGridCustomization::revertColors() {
 
     m_rainbowAudioLine = false;
 
-    m_positionLinesColor = alpha::grid::PositionLines::getDefaultHorizontalLineColor();
+    m_positionLinesColor = alpha::grid::CenterCross::getDefaultHorizontalLineColor();
 
     m_previewLockLineColor = alpha::grid::PreviewLockLine::getDefaultLineColor();
 
@@ -211,6 +216,8 @@ void EditorGridCustomization::setupGrid() {
     auto dgl = getEditorLayer()->m_drawGridLayer;
 
     auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
+    if (!grid) return;
+    
     if (m_gridInvert) {
         auto opacity = static_cast<GLubyte>(255 * m_gridInvertOpacity);
         grid->setGridColor({opacity, opacity, opacity, opacity, alpha::grid::blend::Invert});
@@ -224,6 +231,8 @@ void EditorGridCustomization::setupEffectLines() {
     auto dgl = getEditorLayer()->m_drawGridLayer;
 
     auto effectLines = static_cast<alpha::grid::EffectLines*>(dgl->getChildByID("alphalaneous.good_grid/effect-lines"));
+    if (!effectLines) return;
+    
     effectLines->setPropertiesForObject("color-effect-lines"_spr, [this] (alpha::grid::Color& color, float& x, EffectGameObject* object, float& lineWidth) {
         if (m_triggerBasedEffectLines) {
             auto it = s_triggerColors.find(object->m_objectID);
@@ -240,6 +249,8 @@ void EditorGridCustomization::setupAudioLine() {
     auto dgl = getEditorLayer()->m_drawGridLayer;
     
     auto audioLine = static_cast<alpha::grid::AudioLine*>(dgl->getChildByID("alphalaneous.good_grid/audio-line"));
+    if (!audioLine) return;
+    
     audioLine->setPropertiesForTime("color-audio-line"_spr, [this] (alpha::grid::Color& color, bool playback, float time, const cocos2d::CCPoint& position, float& lineWidth) {
         if (m_rainbowAudioLine) {
             static constexpr ccColor4B green = {0, 255, 0, 255};
@@ -253,7 +264,8 @@ void EditorGridCustomization::setupAudioLine() {
 
 void EditorGridCustomization::setupPositionLines() {
     auto dgl = getEditorLayer()->m_drawGridLayer;
-    auto positionLines = static_cast<alpha::grid::PositionLines*>(dgl->getChildByID("alphalaneous.good_grid/position-lines"));
+    auto positionLines = static_cast<alpha::grid::CenterCross*>(dgl->getChildByID("alphalaneous.good_grid/center-cross"));
+    if (!positionLines) return;
 
     positionLines->setHorizontalLineColor(m_positionLinesColor);
     positionLines->setVerticalLineColor(m_positionLinesColor);
@@ -262,6 +274,7 @@ void EditorGridCustomization::setupPositionLines() {
 void EditorGridCustomization::setupPreviewLockLine() {
     auto dgl = getEditorLayer()->m_drawGridLayer;
     auto previewLockLine = static_cast<alpha::grid::PreviewLockLine*>(dgl->getChildByID("alphalaneous.good_grid/preview-lock-line"));
+    if (!previewLockLine) return;
 
     previewLockLine->setLineColor(m_previewLockLineColor);
 }

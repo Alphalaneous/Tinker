@@ -4,7 +4,7 @@
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 
-namespace tinker::ui {
+/*namespace tinker::ui {
 
 class SizeContainer : public cocos2d::CCNode {
 public:
@@ -95,4 +95,4 @@ class $modify(AGCEditorUI, EditorUI) {
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
 
     void updateGridNodeSize();
-};
+};*/

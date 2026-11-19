@@ -8,7 +8,7 @@
 #include <Geode/binding/GJGroundLayer.hpp>
 #include <Geode/binding/GJMGLayer.hpp>
 #include <ccTypes.h>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 
 namespace tinker::ui {
 

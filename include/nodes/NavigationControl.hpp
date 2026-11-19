@@ -5,7 +5,7 @@
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <Geode/binding/EditorUI.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 
 using namespace alpha::prelude;
 
@@ -29,13 +29,13 @@ public:
     void enterHover();
     void leaveHover();
 
-    virtual bool clickBegan(TouchEvent* touch) override;
-    virtual void clickMoved(TouchEvent* touch) override;
-    virtual void clickEnded(TouchEvent* touch) override;
+    virtual bool touchBegan(Touch* touch) override;
+    virtual void touchMoved(Touch* touch) override;
+    virtual void touchEnded(Touch* touch) override;
 
-    virtual bool mouseEntered(TouchEvent* touch) override;
-    virtual void mouseMoved(TouchEvent* touch) override;
-    virtual void mouseExited(TouchEvent* touch) override;
+    virtual bool hoverEntered(Hover* touch) override;
+    virtual void hoverMoved(Hover* touch) override;
+    virtual void hoverExited(Hover* touch) override;
 
 protected:
     bool m_holdingJoystick = false;

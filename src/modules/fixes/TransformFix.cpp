@@ -1,5 +1,6 @@
 #include "modules/fixes/TransformFix.hpp"
 #include "utils/Mod.hpp"
+#include <Geode/binding/GameObject.hpp>
 
 using namespace geode::prelude;
 
@@ -12,6 +13,8 @@ void TFGJTransformControl::updateButtons(bool transform, bool skew) {
     auto shaders = editor->m_shaderLayer->m_state.m_usesShaders;
     editor->m_shaderLayer->m_state.m_usesShaders = false;
     editor->updateShaderLayer(0.f);
+
+GameObject a;
 
     GJTransformControl::updateButtons(transform, skew);
 

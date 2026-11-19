@@ -1,8 +1,11 @@
 #include "modules/MusicCameraLock.hpp"
+#include "Geode/loader/Log.hpp"
 #include "MainHooks.hpp"
 #include "modules/LengthInEditor.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/UI.hpp"
+#include <Geode/binding/EditorUI.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
 
 using namespace geode::prelude;
 
@@ -35,7 +38,7 @@ void MusicCameraLock::onEditor() {
 }
 
 void MCLEditorUI::showLayoutGenerator(CCNode* menu, bool show) {
-    show = show && MainEditorUI::get()->isUIVisible();
+    show = show && !MainEditorUI::get()->m_uiHidden;
 
     auto buildBtn = menu->getChildByID("profdragon.layoutgenerator/build-button");
     if (buildBtn) {
@@ -117,4 +120,11 @@ void MCLLevelEditorLayer::lockCamera(float dt) {
 
     m_objectLayer->setPosition(CCPoint{x, y});
     m_editorUI->updateSlider();
+}
+
+void MCLLevelEditorLayer::onStopPlaytest() {
+    LevelEditorLayer::onStopPlaytest();
+
+    auto playbackMenu = m_editorUI->getChildByID("playback-menu");
+    if (playbackMenu) playbackMenu->updateLayout();
 }

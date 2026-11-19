@@ -4,8 +4,6 @@
 #include <Geode/modify/EffectGameObject.hpp>
 
 class $module(AwesomeModifierIcons) {
-    void onEditor();
-
     static std::unordered_map<int, std::string> s_textureMap;
 };
 

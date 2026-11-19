@@ -24,7 +24,8 @@ bool ToolbarTouch::init() {
 }
 
 bool ToolbarTouch::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    return touch->getLocation().y <= tinker::utils::ui::getToolbarHeight(true);
+    //return touch->getLocation().y <= tinker::utils::ui::getToolbarHeight(true);
+    return false;
 }
 
 void ToolbarTouch::registerWithTouchDispatcher() {

@@ -1,6 +1,6 @@
 #include "modules/AlternateLassoLocation.hpp"
 #include "modules/TogglerOverflow.hpp"
-#include <alphalaneous.editorsounds/include/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 #include "utils/Mod.hpp"
 
 using namespace geode::prelude;
@@ -71,7 +71,7 @@ void AlternateLassoLocation::onEditor() {
     m_newToggler = CCMenuItemToggler::create(sprOn, sprOff, getEditor(), menu_selector(AlternateLassoLocation::onLasso));
     m_newToggler->setID("undefined0.lasso-select/lasso-button-toggler");
     m_newToggler->toggle(tinker::utils::mod::getMod<"undefined0.lasso-select">()->getSavedValue<bool>("use-lasso", true));
-    alpha::editor_sounds::assignToMenuItem(m_newToggler, "toolbar-toggles");
+    //alpha::editor_sounds::assignToMenuItem(m_newToggler, "toolbar-toggles");
 
     togglesMenu->addChild(m_newToggler);
     togglesMenu->updateLayout();

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Geode/ui/TextInput.hpp"
 #include "module/Module.hpp"
-#include <Geode/modify/SelectFontLayer.hpp>
+#include <Geode/modify/SelectFontLayer2.hpp>
 #include "nodes/FontContainer.hpp"
 
 class $module(ImprovedFontSelection) {
@@ -9,12 +10,13 @@ class $module(ImprovedFontSelection) {
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 };
 
-class $modify(IFSSelectFontLayer, SelectFontLayer) {
+class $modify(IFSSelectFontLayer2, SelectFontLayer2) {
     $registerHooks(ImprovedFontSelection)
     
     struct Fields {
-        cocos2d::CCLabelBMFont* m_exampleLabel = nullptr;
+        geode::TextInput* m_exampleLabel = nullptr;
         std::vector<tinker::ui::FontContainer*> m_fontContainers{};
+        int m_font;
     };
 
     std::string fontForID(int id);

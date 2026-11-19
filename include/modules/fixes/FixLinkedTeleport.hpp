@@ -31,6 +31,7 @@ class $modify(FLTEditorUI, EditorUI) {
 
     void editGroup(cocos2d::CCObject* sender);
     void editObjectSpecial(int type);
+
     void transformObject(GameObject* object, EditCommand command, bool noOffset);
     UndoObject* createUndoObject(UndoCommand command, bool addToList);
 };

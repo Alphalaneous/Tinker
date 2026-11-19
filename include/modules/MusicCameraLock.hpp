@@ -19,9 +19,11 @@ class $modify(MCLEditorUI, EditorUI) {
 
     void onPlayback(cocos2d::CCObject* sender);
     void onPlaytest(cocos2d::CCObject* sender);
-
 };
 
 class $modify(MCLLevelEditorLayer, LevelEditorLayer) {
+    $registerHooks(MusicCameraLock)
+
     void lockCamera(float dt);
+    void onStopPlaytest();
 };

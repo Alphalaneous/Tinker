@@ -1,10 +1,9 @@
 #pragma once
 
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <Geode/utils/cocos.hpp>
 #include "module/Module.hpp"
 #include <Geode/modify/LevelEditorLayer.hpp>
-#include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/GameObject.hpp>
 #include <Geode/modify/CCTouchDispatcher.hpp>
@@ -136,8 +135,8 @@ public:
 
     void onEditObject();
 
-    void customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) override;
-    gd::string getSaveString(GJBaseGameLayer* layer) override;
+    void customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists) override;
+    std::string getSaveString(GJBaseGameLayer* layer) override;
 
     void setRotation(float rotation) override;
 protected:
@@ -198,17 +197,13 @@ class $modify(GCCTouchDispatcher, cocos2d::CCTouchDispatcher) {
     void touches(cocos2d::CCSet* touches, cocos2d::CCEvent* event, unsigned int index);
 };
 
-class $modify(GEditorPauseLayer, EditorPauseLayer) {
-    $registerHooks(Gizmos)
-
-    void saveLevel();
-};
-
 class $modify(GLevelEditorLayer, LevelEditorLayer) {
     $registerHooks(Gizmos)
 
-    void createObjectsFromSetup(gd::string& setup);
+    void createObjectsFromSetup(std::string& setup);
     bool init(GJGameLevel* level, bool noUI);
+
+    bool saveLevel();
 };
 
 class $modify(GEditorUI, EditorUI) {

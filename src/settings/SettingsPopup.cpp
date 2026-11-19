@@ -8,7 +8,7 @@
 #include "utils/HijackCallback.hpp"
 #include "utils/Mod.hpp"
 #include <Geode/modify/SliderTouchLogic.hpp>
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
@@ -38,8 +38,10 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     if (useGeodeTheme) {
         auto circleButtonSprite = CircleButtonSprite::createWithSpriteFrameName("geode.loader/close.png", 0.8f, geode::CircleBaseColor::DarkPurple);
         circleButtonSprite->setScale(0.85f);
-        m_closeBtn->setSprite(circleButtonSprite);
+        m_closeBtn->setDisplayNode(circleButtonSprite);
     }
+
+    m_closeBtn->setZOrder(20000);
 
     constexpr float topOffset = 3.f;
     constexpr float bottomOffset = 3.f;
@@ -114,7 +116,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
     m_searchInput->setID("search-input"_spr);
     m_searchInput->setAnchorPoint({0.f, 0.f});
     m_searchInput->setScale(searchScale);
-    m_searchInput->setTextAlign(TextInputAlign::Left);
+    m_searchInput->setAlignment(Label::Alignment::Left);
     m_searchInput->setPosition({searchPadding, searchPadding});
     m_searchInput->getBGSprite()->setOpacity(45);
     m_searchInput->getBGSprite()->setColor(searchBGColor);
@@ -135,7 +137,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     auto clearBtn = geode::Button::createWithSpriteFrameName("GJ_longBtn07_001.png", [this] (auto sender) {
         m_searchInput->setString("");
-        m_searchInput->defocus();
+        m_searchInput->unfocus();
         m_searchQuery = "";
         loadSettingNodes(false);
     });
@@ -158,7 +160,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     settingsArea->addChild(m_settingScrollLayer);
 
-    auto settingScrollbar = alpha::ui::AdvancedScrollBar::create(m_settingScrollLayer, alpha::ui::ScrollOrientation::VERTICAL);
+    auto settingScrollbar = alpha::ui::AdvancedScrollBar::create(m_settingScrollLayer, alpha::ui::ScrollOrientation::Vertical);
     auto style = alpha::ui::RoundedScrollStyle();
     style.m_track = [] {
         auto track = alpha::ui::RoundedScrollTrack::create();
@@ -235,11 +237,6 @@ bool SettingsPopup::init(bool useGeodeTheme) {
         ->ignoreInvisibleChildren(false)
         ->setPadding({12.f, 5.f, 0.f, 5.f})
     );
-    #ifdef GEODE_IS_MOBILE
-    m_categoryScrollLayer->setScrollDelta(1.5f);
-    #else
-    m_categoryScrollLayer->setScrollDelta(1.f);
-    #endif
     m_categoryScrollLayer->setID("catgeory-scroll-layer"_spr);
 
     createCategoryButton("All Settings", "");
@@ -252,7 +249,7 @@ bool SettingsPopup::init(bool useGeodeTheme) {
 
     catgeoryScrollBG->addChild(m_categoryScrollLayer);
 
-    auto categoryScrollbar = alpha::ui::AdvancedScrollBar::create(m_categoryScrollLayer, alpha::ui::ScrollOrientation::VERTICAL);
+    auto categoryScrollbar = alpha::ui::AdvancedScrollBar::create(m_categoryScrollLayer, alpha::ui::ScrollOrientation::Vertical);
     categoryScrollbar->setStyle(style);
     categoryScrollbar->setPositionX(categoryScrollbar->getPositionX() - 14.f);
     categoryScrollbar->setContentWidth(10.f);
@@ -432,7 +429,7 @@ CCMenu* SettingsPopup::createCategoryButton(ZStringView name, ZStringView id) {
 
 void SettingsPopup::switchCategory() {
     m_searchInput->setString("");
-    m_searchInput->defocus();
+    m_searchInput->unfocus();
     m_searchQuery = "";
     
     for (auto btn : m_categoryButtons) {

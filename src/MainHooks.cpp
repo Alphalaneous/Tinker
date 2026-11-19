@@ -1,24 +1,32 @@
 #include "MainHooks.hpp"
 #include <Geode/binding/CCTextInputNode.hpp>
+#include <Geode/binding/EditLevelLayer.hpp>
+#include <Geode/binding/EditorUI.hpp>
 #include <Geode/ui/GeodeUI.hpp>
+#include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "Geode/ui/Layout.hpp"
+#include "Geode/ui/NineSlice.hpp"
+#include "Geode/ui/SimpleAxisLayout.hpp"
 #include "nodes/ShadowLabel.hpp"
 #include "module/ModuleRegistry.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
 #include "Events.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
 #include "../../include/UIScaling.hpp"
 #include "settings/SettingsPopup.hpp"
+#include "utils/Timestamp.hpp"
 #include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/UI.hpp"
 #include "utils/Mod.hpp"
 #include "utils/HijackCallback.hpp"
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
 bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     auto fields = m_fields.self();
+    auto timestamp = Timestamp("LevelEditorLayer::init");
 
     NextFreeProvider::get()->setEditorLayer(this);
 
@@ -34,7 +42,12 @@ bool MainLevelEditorLayer::init(GJGameLevel* level, bool noUI) {
     return true;
 }
 
-StringMap<std::shared_ptr<ModuleBase>>* MainLevelEditorLayer::getModules() {
+bool MainLevelEditorLayer::saveLevel() {
+    LevelSavedEvent().send();
+    return LevelEditorLayer::saveLevel();
+}
+
+StringMap<std::unique_ptr<ModuleBase>>* MainLevelEditorLayer::getModules() {
     return &m_fields->m_modules;
 }
 
@@ -67,9 +80,10 @@ MainEditorUI::Fields::~Fields() {
 
 bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
     auto fields = m_fields.self();
+    s_editorUI = this;
+    auto timestamp = Timestamp("EditorUI::init");
 
     if (!EditorUI::init(editorLayer)) return false;
-    s_editorUI = this;
 
     auto modules = static_cast<MainLevelEditorLayer*>(editorLayer)->getModules();
 
@@ -86,11 +100,6 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
         data.onEditor();
     }
 
-    if (ScrollableObjects::isEnabled()) {
-        ScrollableObjects::get()->setLoadBars();
-    }
-
-    UIScaling::get()->setScaling(true);
     EditorEnterEvent().send(this);
     updateButtons();
 
@@ -113,7 +122,6 @@ bool MainEditorUI::init(LevelEditorLayer* editorLayer) {
 
 void MainEditorUI::showUI(bool show) {
     EditorUI::showUI(show);
-    m_fields->m_uiVisible = show;
 
     ShowUIEvent().send(show);
     UpdateObjectLabel().send();
@@ -122,10 +130,6 @@ void MainEditorUI::showUI(bool show) {
 void MainEditorUI::updateObjectInfoLabel() {
     EditorUI::updateObjectInfoLabel();
     UpdateObjectLabel().send();
-}
-
-bool MainEditorUI::isUIVisible() {
-    return m_fields->m_uiVisible;
 }
 
 void MainLevelEditorLayer::mainUpdate(float dt) {
@@ -211,7 +215,7 @@ void MainEditorUI::updateButtons() {
 void MainEditorUI::deactivateScaleControl() {
     for (auto child : m_scaleControl->getChildrenExt()) {
         if (auto textInput = typeinfo_cast<geode::TextInput*>(child)) {
-            textInput->defocus();
+            textInput->unfocus();
         }
     }
     EditorUI::deactivateScaleControl();
@@ -266,50 +270,11 @@ void MainEditorUI::disableButton_(CreateMenuItem* button) {
 }
 
 void MainEditorUI::updateCreateMenu(bool selectTab) {
-    if (m_selectedMode != 2) {
-        m_createButtonBar->setVisible(false);
-        m_tabsMenu->setVisible(false);
-        return;
-    }
-
     if (m_selectedObjectIndex == 749) {
         m_selectedObjectIndex = 0;
     }
 
-    m_createButtonBar->setVisible(true);
-    m_tabsMenu->setVisible(true);
-
-    for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
-        enableButton_(item);
-    }
-
-    for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
-        enableButton_(item);
-    }
-
-    for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
-        if (item->m_objectID == m_selectedObjectIndex) {
-            disableButton_(item);
-            if (!selectTab) {
-                return;
-            }
-            selectBuildTab(item->m_tabIndex);
-            m_createButtonBar->goToPage(item->m_pageIndex);
-            return;
-        }
-    }
-
-    for (auto item : m_customObjectButtonArray->asExt<CreateMenuItem>()) {
-        if (item->m_objectID == m_selectedObjectIndex) {
-            disableButton_(item);
-            if (!selectTab) {
-                return;
-            }
-            selectBuildTab(item->m_tabIndex);
-            m_createButtonBar->goToPage(item->m_pageIndex);
-            return;
-        }
-    }
+    EditorUI::updateCreateMenu(selectTab);
 }
 
 void MainEditorUI::updateZoom(float zoom) {
@@ -369,39 +334,51 @@ bool MainEditorPauseLayer::init(LevelEditorLayer* layer) {
     s_editorPauseLayer = this;
     EditorPausedEvent().send(this);
 
-    auto guidelinesMenu = getChildByID("guidelines-menu");
-    if (!guidelinesMenu) return true;
+    auto settingsMenu = getChildByID("settings-menu");
+    if (!settingsMenu) return true;
 
-    auto spr = CCSprite::create("hammer-button.png"_spr);
+    auto bg = NineSlice::create("GJ_button_05.png");
+    bg->setContentSize({82.f, 26.f});
+    bg->setLayout(SimpleRowLayout::create()
+        ->setGap(4.f)
+        ->setMainAxisScaling(AxisScaling::Scale)
+        ->setCrossAxisScaling(AxisScaling::Scale)
+        ->setPadding({8.f, 4.f, 8.f, 6.f})
+    );
 
-    auto tinkerBtn = CCMenuItemExt::createSpriteExtra(spr, [] (auto sender) {
+    auto label = Label::create("Tinker", "bigFont.fnt");
+    label->setLimitLabelWidth(56.f, 0.5f, 0.01f);
+    bg->addChild(label);
+
+    auto icon = CCSprite::createWithSpriteFrameName("particle_196_001.png");
+    bg->addChild(icon);
+
+    bg->updateLayout();
+
+    icon->setPositionY(icon->getPositionY() - 1.f);
+
+    auto tinkerBtn = CCMenuItemExt::createSpriteExtra(bg, [] (auto sender) {
         tinker::ui::SettingsPopup::create(false)->show();
     });
     tinkerBtn->setZOrder(1000);
     tinkerBtn->setID("tinker-settings"_spr);
 
-    guidelinesMenu->addChild(tinkerBtn);
+    settingsMenu->addChild(tinkerBtn);
 
-    guidelinesMenu->updateLayout();
+    settingsMenu->updateLayout();
 
     auto versionLabel = tinker::ui::ShadowLabel::create(fmt::format("Tinker: {}", Mod::get()->getVersion().toVString()), "chatFont.fnt");
-    versionLabel->setAnchorPoint({1.f, 1.f});
+    versionLabel->setAnchorPoint({1.f, 0.f});
     versionLabel->setOpacity(125);
     versionLabel->setScale(0.4f);
     versionLabel->setID("version-label"_spr);
 
     auto winSize = CCDirector::get()->getWinSize();
-
-    versionLabel->setPosition(convertToNodeSpace({winSize.width - 2.f, winSize.height - 2.f}) - UIScaling::getSafeOffset());
+    versionLabel->setPosition(CCPoint{winSize.width - 5.f, 5.f} - UIScaling::getSafeOffsetPause());
 
     addChild(versionLabel);
 
     return true;
-}
-
-void MainEditorPauseLayer::saveLevel() {
-    LevelSavedEvent().send();
-    EditorPauseLayer::saveLevel();
 }
 
 class $classModify(UnloadedEditLevelLayer, EditLevelLayer) {
@@ -434,8 +411,8 @@ $on_game(ModsLoaded) {
 }
 
 $on_mod(Loaded) {
-    UIScaleUpdated().listen([] (float scale, bool scaleToolbars, bool fullReload) {
-        tinker::api::ui_scaling::UIScaleUpdated().send(scale, scaleToolbars, false);
+    UIScaleUpdated().listen([] (float scale, bool scaleToolbars) {
+        tinker::api::ui_scaling::UIScaleUpdated().send(scale, scaleToolbars);
     }).leak();
 
     PauseUIScaleUpdated().listen([] (EditorPauseLayer* pauseLayer, float scale) {

@@ -3,6 +3,7 @@
 #include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/next-free/sources/ColorSource.hpp"
 #include "nodes/NextFreeOffsetInput.hpp"
+#include <vector>
 
 using namespace geode::prelude;
 
@@ -307,7 +308,7 @@ std::vector<CCMenuItemSpriteExtra*> ICPCustomizeObjectLayer::getRecents() {
     
     std::vector<CCMenuItemSpriteExtra*> buttons{};
 
-    auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(LevelEditorLayer::get(), "improved-color-picker/recents");
+    auto saved = ImprovedColorPicker::getSaved<Save::Level, std::vector<int>, "recent-colors">();
 
     for (int i = 0; i < columnCount; i++) {
         int channel = -2;
@@ -509,11 +510,6 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     fields->m_colorList->setAnchorPoint({1.f, 1.f});
     fields->m_colorList->setID("color-list"_spr);
     fields->m_colorList->setPosition({bg->getPositionX() + bg->getContentWidth(), bg->getPositionY() + bg->getContentHeight() / 2.f});
-    #ifdef GEODE_IS_MOBILE
-    fields->m_colorList->setScrollDelta(1.5f);
-    #else
-    fields->m_colorList->setScrollDelta(1.f);
-    #endif
 
     float singleWidth = compactUI ? 21.2f : 28.5f;
     float singleHeight = compactUI ? 22.f : 29.3f;
@@ -570,7 +566,7 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     m_mainLayer->addChild(fields->m_colorList);
     m_colorTabNodes->addObject(fields->m_colorList);
 
-    auto scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_colorList, alpha::ui::ScrollOrientation::VERTICAL);
+    auto scrollBar = alpha::ui::AdvancedScrollBar::create(fields->m_colorList, alpha::ui::ScrollOrientation::Vertical);
     auto style = alpha::ui::RoundedScrollStyle();
     style.m_track = [] {
         auto track = alpha::ui::RoundedScrollTrack::create();
@@ -583,7 +579,6 @@ bool ICPCustomizeObjectLayer::init(GameObject* obj, CCArray* objs) {
     scrollBar->setContentSize({10.f, fields->m_colorList->getContentHeight() - 10.f});
     scrollBar->setPosition({fields->m_colorList->getPositionX() + scrollBar->getContentWidth() / 2.f - 8.f, scrollBar->getPositionY()});
     scrollBar->setZOrder(100);
-    scrollBar->setTouchPriority(fields->m_colorList->getTouchPriority() - 10.f);
     scrollBar->setID("color-list-scrollbar"_spr);
 
     m_mainLayer->addChild(scrollBar);
@@ -639,10 +634,7 @@ void ICPCustomizeObjectLayer::cull(cocos2d::CCNode* content, const cocos2d::CCPo
 void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
     auto fields = m_fields.self();
 
-    auto saved = alpha::level_storage::getSavedValue<std::vector<int>>(
-        LevelEditorLayer::get(),
-        "improved-color-picker/recents"
-    );
+    auto saved = ImprovedColorPicker::getSaved<Save::Level, std::vector<int>, "recent-colors">();
 
     std::vector<int> recents{};
     std::set<int> recentsSet{};
@@ -676,11 +668,7 @@ void ICPCustomizeObjectLayer::onClose(cocos2d::CCObject* sender) {
         }
     }
 
-    alpha::level_storage::setSavedValue(
-        LevelEditorLayer::get(),
-        "improved-color-picker/recents",
-        recents
-    );
+    ImprovedColorPicker::setSaved<Save::Level, "recent-colors">(recents);
 
     fields->m_colorList->removeFromParent();
 

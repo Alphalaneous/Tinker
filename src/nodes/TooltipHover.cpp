@@ -1,15 +1,17 @@
+
 #include "nodes/TooltipHover.hpp"
+
 #include "MainHooks.hpp"
+#include "InputsHandler.hpp"
 #include "misc/ObjectNames.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
 #include "modules/ObjectTooltips.hpp"
-#include "InputsHandler.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
-#include <smjs.object-collab/include/object_collab_optional.hpp>
 #include "utils/String.hpp"
 #include "utils/UI.hpp"
+#include <Geode/binding/EditButtonBar.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
 
 using namespace geode::prelude;
 
@@ -17,10 +19,12 @@ namespace tinker::ui {
 
 TooltipHover* TooltipHover::create() {
     auto ret = new TooltipHover();
+
     if (ret->init()) {
         ret->autorelease();
         return ret;
     }
+
     delete ret;
     return nullptr;
 }
@@ -35,17 +39,17 @@ bool TooltipHover::init() {
     m_tooltipBG->setAnchorPoint({0.5f, 0.f});
     m_tooltipBG->setScaleMultiplier(0.6f);
     m_tooltipBG->setOpacity(230);
-    m_tooltipBG->setVisible(false);
-    m_tooltipBG->setID("tooltip-background"_spr);
     m_tooltipBG->setScale(ObjectTooltips::getSetting<float, "scale">());
     m_tooltipBG->setCascadeOpacityEnabled(true);
+    m_tooltipBG->setVisible(false);
+    m_tooltipBG->setID("tooltip-background"_spr);
 
     addChild(m_tooltipBG);
 
     m_tooltipLabel = geode::Label::create("", "chatFont.fnt");
     m_tooltipLabel->setScale(0.5f);
-    m_tooltipLabel->setID("tooltip-label"_spr);
     m_tooltipLabel->setAnchorPoint({0.f, 1.f});
+    m_tooltipLabel->setID("tooltip-label"_spr);
 
     m_tooltipBG->addChild(m_tooltipLabel);
 
@@ -57,239 +61,287 @@ bool TooltipHover::init() {
 }
 
 void TooltipHover::addID() {
+    if (m_tooltipIDLabel) return;
+
     m_tooltipIDLabel = geode::Label::create("", "chatFont.fnt");
     m_tooltipIDLabel->setScale(0.4f);
-    m_tooltipIDLabel->setID("tooltip-id-label"_spr);
     m_tooltipIDLabel->setColor({0, 255, 0});
     m_tooltipIDLabel->setAnchorPoint({0.f, 0.f});
+    m_tooltipIDLabel->setID("tooltip-id-label"_spr);
 
     m_tooltipBG->addChild(m_tooltipIDLabel);
 }
 
 void TooltipHover::removeID() {
+    if (!m_tooltipIDLabel) return;
+
     m_tooltipIDLabel->removeFromParent();
     m_tooltipIDLabel = nullptr;
 }
 
 void TooltipHover::resetTooltip() {
-    #ifdef GEODE_IS_MOBILE
-    hideTooltip();
-    #else
-    m_tooltipBG->setVisible(false);
+    cancelTooltipHide();
+
     if (m_activeItem) {
-        scaleItem(m_activeItem, true);
         setButtonOpacity(m_activeItem, 255);
+        scaleItem(m_activeItem, true);
     }
-    #endif
+
     m_activeItem = nullptr;
+
+    m_tooltipBG->stopAllActions();
+    m_tooltipBG->setOpacity(230);
+    m_tooltipBG->setVisible(false);
+
+    m_clicking = false;
+    m_clickingOutside = false;
+}
+
+void TooltipHover::setActiveItem(CreateMenuItem* item) {
+    if (m_activeItem == item) return;
+
+    auto previous = m_activeItem;
+    m_activeItem = item;
+
+    if (previous) {
+        setButtonOpacity(previous, 255);
+        scaleItem(previous, true);
+    }
+
+    if (!item) {
+        hideTooltip();
+        return;
+    }
+
+    setButtonOpacity(item, m_clickingOutside ? 255 : 172);
+    showTooltip(item);
+}
+
+void TooltipHover::updateHoveredItem(CCPoint const& location) {
+    if (MainEditorPauseLayer::get() || InputEditorUI::get()->hasActiveAlerts()) {
+        setActiveItem(nullptr);
+        return;
+    }
+
+    auto item = getHoveredItem(location);
+
+    if (m_clickingOutside && item && item->getParentByType<EditButtonBar>()) {
+        item = nullptr;
+    }
+
+    setActiveItem(item);
+
+    if (m_activeItem) {
+#ifdef GEODE_IS_MOBILE
+        cancelTooltipHide();
+
+        m_tooltipBG->stopAllActions();
+        m_tooltipBG->setOpacity(220);
+#endif
+        updateTooltipPosition(m_activeItem);
+    }
+}
+
+CreateMenuItem* TooltipHover::getHoveredItem(CCPoint const& location) {
+    if (InputEditorUI::get()->isInDevtools()) {
+        return nullptr;
+    }
+
+    if (TogglerOverflow::isEnabled()) {
+        auto container = TogglerOverflow::get()->m_container;
+
+        if (nodeIsVisible(container) && alpha::utils::isPointInsideNode(container, location)) {
+            return nullptr;
+        }
+    }
+
+    if (auto groups = ObjectTooltips::get()->getObjectGroups(); !groups.empty()) {
+        for (auto const& [node, items] : groups) {
+            if (!nodeIsVisible(node) || !alpha::utils::isPointInsideNode(node, location)) {
+                continue;
+            }
+
+            return getHoveredObjectGroupItem(location);
+        }
+    }
+
+    return getHoveredEditorItem(location);
+}
+
+CreateMenuItem* TooltipHover::getHoveredObjectGroupItem(CCPoint const& location) {
+    for (auto const& [node, items] : ObjectTooltips::get()->getObjectGroups()) {
+        if (!nodeIsVisible(node) || !alpha::utils::isPointInsideNode(node, location)) {
+            continue;
+        }
+
+        for (auto item : items) {
+            if (nodeIsVisible(item) && alpha::utils::isPointInsideNode(item, location)) {
+                return item;
+            }
+        }
+
+        return nullptr;
+    }
+
+    return nullptr;
+}
+
+CreateMenuItem* TooltipHover::getHoveredEditorItem(CCPoint const& location) {
+    auto tab = alpha::editor_tabs::getCurrentTab();
+    if (!tab) return nullptr;
+
+    auto node = tab->getNode();
+    if (!node || !node->m_hasCreateItems) return nullptr;
+
+    if (ScrollableObjects::isEnabled()) {
+        auto bar = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(node));
+
+        auto fields = bar->m_fields.self();
+
+        if (!alpha::utils::isPointInsideNode(fields->m_scrollLayer, location)) {
+            return nullptr;
+        }
+
+        for (auto item : fields->m_visibleNodes) {
+            if (!nodeIsVisible(item) || !alpha::utils::isPointInsideNode(item, location)) {
+                continue;
+            }
+
+            return static_cast<CreateMenuItem*>(item.data());
+        }
+
+        return nullptr;
+    }
+
+    if (!node->m_buttonArray) return nullptr;
+
+    for (auto item : node->m_buttonArray->asExt<CreateMenuItem>()) {
+        if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) {
+            continue;
+        }
+
+        if (alpha::utils::isPointInsideNode(item, location)) {
+            return item;
+        }
+    }
+
+    return nullptr;
 }
 
 #ifdef GEODE_IS_DESKTOP
 
-bool TooltipHover::clickBegan(TouchEvent* touch) {
-    if (m_activeItem) {
-        m_tooltipBG->setVisible(false);
-    }
+bool TooltipHover::touchBegan(Touch* touch) {
     m_clicking = true;
-    if (touch->getLocation().y > tinker::utils::ui::getToolbarHeight()) {
-        m_clickingOutside = true;
-    }
+    m_clickingOutside = touch->getLocation().y > tinker::utils::ui::getToolbarHeight();
+
     return true;
 }
 
-void TooltipHover::clickEnded(TouchEvent* touch) {
+void TooltipHover::touchEnded(Touch* touch) {
     if (m_activeItem && m_activeItem->m_objectID > 0) {
+        updateTooltipPosition(m_activeItem);
         m_tooltipBG->setVisible(true);
-        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
-
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HeightOffset});
-        auto positionHere = convertToNodeSpace(positionWorld);
-
-        m_tooltipBG->setPosition(positionHere);
     }
+
     m_clicking = false;
     m_clickingOutside = false;
 }
 
-bool TooltipHover::mouseEntered(TouchEvent* touch) {
+void TooltipHover::touchCancelled(Touch* touch) {
+    resetTooltip();
+}
+
+bool TooltipHover::hoverEntered(Hover* touch) {
     return true;
 }
+
+void TooltipHover::hoverMoved(Hover* touch) {
+    updateHoveredItem(touch->getLocation());
+}
+
 #endif
 
 #ifdef GEODE_IS_MOBILE
-void TooltipHover::showTooltipWithTouch(TouchEvent* touch) 
-#else
-void TooltipHover::mouseMoved(TouchEvent* touch) 
-#endif
-{
-    bool shouldSkip = false;
 
-    auto origItem = m_activeItem;
-    if (origItem) setButtonOpacity(origItem, 255);
+bool TooltipHover::touchBegan(Touch* touch) {
+    m_clicking = true;
+    m_clickingOutside = touch->getLocation().y > tinker::utils::getToolbarHeight();
 
-    if (MainEditorPauseLayer::get() || InputEditorUI::get()->hasActiveAlerts()) return;
-    
-    if (TogglerOverflow::isEnabled()) {
-        auto node = TogglerOverflow::get()->m_container;
+    cancelTooltipHide();
 
-        if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
-            shouldSkip = true;
-            hideTooltip();
-            m_activeItem = nullptr;
-        }
-    }
+    updateHoveredItem(touch->getLocation());
 
-    if (InputEditorUI::get()->isInDevtools()) {
-        shouldSkip = true;
-        hideTooltip();
-        m_activeItem = nullptr;
-    }
+    return true;
+}
 
-    for (auto& [node, items] : ObjectTooltips::get()->getObjectGroups()) {
-        if (nodeIsVisible(node) && alpha::utils::isPointInsideNode(node, touch->getLocation())) {
-            shouldSkip = true;
+void TooltipHover::touchMoved(Touch* touch) {
+    updateHoveredItem(touch->getLocation());
+}
 
-            if (!items.contains(m_activeItem)) {
-                hideTooltip();
-                m_activeItem = nullptr;
-            }
-
-            for (auto item : items) {
-                if (!nodeIsVisible(item)) continue;
-                if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation())) {
-                    m_activeItem = item;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-
-    auto tab = alpha::editor_tabs::getCurrentTab();
-    if (!tab) return;
-
-    auto node = tab->getNode();
-    if (!node) return;
-
-    if (!node->m_hasCreateItems) return;
-
-    if (!shouldSkip) {
-        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !m_activeItem->getParentByType<EditButtonBar>() || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
-            m_activeItem = nullptr;
-        }
-
-        if (ScrollableObjects::isEnabled()) {
-            auto scrollEditButtonBar = static_cast<SOEditButtonBar*>(node);
-            auto soEbbFields = scrollEditButtonBar->m_fields.self();
-            bool inScrollBounds = alpha::utils::isPointInsideNode(soEbbFields->m_scrollLayer, touch->getLocation());
-            if (!inScrollBounds && m_activeItem) {
-                hideTooltip();
-                m_activeItem = nullptr;
-            }
-
-            if (inScrollBounds) {
-                for (auto item : soEbbFields->m_visibleNodes) {
-                    if (!nodeIsVisible(item)) continue;
-                    if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation()) && !m_clickingOutside) {
-                        m_activeItem = static_cast<CreateMenuItem*>(item.data());
-                        break;
-                    }
-                }
-            }
-        }
-        else {
-            for (auto item : node->m_buttonArray->asExt<CreateMenuItem>()) {
-                if (!item->getParentByType<EditButtonBar>() || !nodeIsVisible(item)) continue;
-                if (!m_activeItem && alpha::utils::isPointInsideNode(item, touch->getLocation()) && !m_clickingOutside) {
-                    m_activeItem = item;
-                    break;
-                }
-            }
-        }
-    }
-    else {
-        if (m_activeItem && (!nodeIsVisible(m_activeItem) || !alpha::utils::isPointInsideNode(m_activeItem, touch->getLocation()) || m_clickingOutside)) {
-            m_activeItem = nullptr;
-        }
-    }
+void TooltipHover::touchEnded(Touch* touch) {
+    m_clicking = false;
+    m_clickingOutside = false;
 
     if (m_activeItem) {
-        setButtonOpacity(m_activeItem, m_clickingOutside ? 255 : 172);
-        
-        #ifdef GEODE_IS_MOBILE
-        unschedule(schedule_selector(TooltipHover::scheduleHide));
-        m_tooltipBG->stopAllActions();
-        m_tooltipBG->setOpacity(220);
-
-        auto y = m_activeItem->getPositionY() + m_activeItem->getContentHeight() / 2.f;
-
-        auto positionWorld = m_activeItem->getParent()->convertToWorldSpace({m_activeItem->getPositionX(), y + HeightOffset});
-        auto positionHere = convertToNodeSpace(positionWorld);
-
-        m_tooltipBG->setPosition(positionHere);
-        #endif
-    }
-
-    #ifdef GEODE_IS_DESKTOP
-    if (origItem && m_activeItem != origItem) {
-        scaleItem(origItem, true);
-    }
-    #endif
-
-    if (m_activeItem && m_activeItem != origItem) {
-        showTooltip(m_activeItem);
-    }
-    if (!m_activeItem && origItem) {
-        hideTooltip();
+        scheduleOnce(
+            schedule_selector(TooltipHover::scheduleHide),
+            2.f
+        );
     }
 }
 
-#ifdef GEODE_IS_MOBILE
-bool TooltipHover::clickBegan(TouchEvent* touch) {
-    m_clicking = true;
-    if (touch->getLocation().y > tinker::utils::getToolbarHeight()) {
-        m_clickingOutside = true;
-    }
-    showTooltipWithTouch(touch);
-    return true;
-}
-
-void TooltipHover::clickEnded(TouchEvent* touch) {
-    m_clicking = false;
-    m_clickingOutside = false;
-    scheduleOnce(schedule_selector(TooltipHover::scheduleHide), 2.f);
-}
-
-void TooltipHover::clickMoved(TouchEvent* touch) {
-    showTooltipWithTouch(touch);
+void TooltipHover::touchCancelled(Touch* touch) {
+    resetTooltip();
 }
 
 void TooltipHover::scheduleHide(float dt) {
     hideTooltip();
 }
+
 #endif
 
+void TooltipHover::updateTooltipPosition(CreateMenuItem* item) {
+    if (!item) return;
+
+    auto parent = item->getParent();
+    if (!parent) return;
+
+    auto y = item->getPositionY() + item->getContentHeight() / 2.f;
+
+    auto worldPosition = parent->convertToWorldSpace({
+        item->getPositionX(),
+        y + HeightOffset
+    });
+
+    m_tooltipBG->setPosition(convertToNodeSpace(worldPosition));
+}
+
 void TooltipHover::setButtonOpacity(CreateMenuItem* item, GLubyte opacity) {
+    if (!item) return;
+
     auto buttonSprite = item->getChildByType<ButtonSprite>(0);
-    if (buttonSprite) {
-        auto spr = buttonSprite->getChildByType<CCSprite>(0);
-        if (spr) {
-            spr->setOpacity(opacity);
-        }
-    }
+    if (!buttonSprite) return;
+
+    auto sprite = buttonSprite->getChildByType<CCSprite>(0);
+    if (!sprite) return;
+
+    sprite->setOpacity(opacity);
 }
 
 void TooltipHover::resetScale(CreateMenuItem* item) {
     if (!item) return;
-    auto buttonSprite = item->getChildByType<ButtonSprite>(0);
-    if (buttonSprite) {
+
+    if (auto buttonSprite = item->getChildByType<ButtonSprite>(0)) {
         buttonSprite->stopAllActions();
         buttonSprite->setScale(1.f);
     }
+
     item->setUserFlag("scaled"_spr, false);
 }
 
 void TooltipHover::scaleItem(CreateMenuItem* item, bool down) {
+    if (!item) return;
+
     if (!ObjectTooltips::getSetting<bool, "hover-scale-enabled">()) {
         resetScale(item);
         return;
@@ -297,41 +349,50 @@ void TooltipHover::scaleItem(CreateMenuItem* item, bool down) {
 
     auto scaled = item->getUserFlag("scaled"_spr);
 
-    if (scaled == down) {
-        auto buttonSprite = item->getChildByType<ButtonSprite>(0);
-        if (buttonSprite) {
-            buttonSprite->stopAllActions();
-            buttonSprite->runAction(CCScaleTo::create(down ? 0.04f : 0.05f, down ? 1.f : 1.1f));
-            item->setUserFlag("scaled"_spr, !down);
-        }
-    }
+    if (scaled != down) return;
+
+    auto buttonSprite = item->getChildByType<ButtonSprite>(0);
+    if (!buttonSprite) return;
+
+    buttonSprite->stopAllActions();
+    buttonSprite->runAction(
+        CCScaleTo::create(
+            down ? 0.04f : 0.05f,
+            down ? 1.f : 1.1f
+        )
+    );
+
+    item->setUserFlag("scaled"_spr, !down);
 }
 
 void TooltipHover::showTooltip(CreateMenuItem* item) {
-    if (!item) return;
-    if (item->m_objectID < 0) return;
+    if (!item || item->m_objectID < 0) return;
 
+    auto parent = item->getParent();
+    if (!parent) return;
+
+    // TODO Add back object collab support.
     std::string customObjectID = "";
-    auto registryRes = object_collab::getOptionalRegister();
+    /*auto registryRes = object_collab::getOptionalRegister();
     if (registryRes) {
         auto registry = registryRes.unwrap();
         auto& info = registry[item->m_objectID];
         customObjectID = info.id;
-    }
+    }*/
 
     std::string name = "";
+
     if (item->m_objectID >= 100000000) {
         name = ObjectNames::get()->deduceFromID(customObjectID);
     }
     else {
         auto nameRes = ObjectNames::get()->getName(item->m_objectID);
-        if (!nameRes) {
-            if (auto obj = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
-                name = tinker::utils::string::capitalize(obj->getCString());
-            }
-        }
-        else {
+
+        if (nameRes) {
             name = nameRes.unwrap();
+        }
+        else if (auto objectName = typeinfo_cast<CCString*>(item->getUserObject("razoom.object_groups/OG-name"))) {
+            name = tinker::utils::string::capitalize(objectName->getCString());
         }
     }
 
@@ -339,90 +400,110 @@ void TooltipHover::showTooltip(CreateMenuItem* item) {
         name = fmt::format("Unnamed {}", item->m_objectID);
     }
 
-    auto y = item->getPositionY() + item->getContentHeight() / 2.f;
-    auto parent = item->getParent();
-    if (!parent) return;
-
-    auto positionWorld = parent->convertToWorldSpace({item->getPositionX(), y + HeightOffset});
-    auto positionHere = convertToNodeSpace(positionWorld);
     m_tooltipLabel->setString(name.c_str());
 
-    float heightOffset = 0.f;
-    if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
-        std::string str = "";
+    float idHeight = 0.f;
+
+    if (m_tooltipIDLabel) {
+        std::string id;
+
         if (item->m_objectID >= 100000000) {
-            str = customObjectID;
+            id = customObjectID;
         }
         else if (item->m_objectID != 0) {
-            str = numToString(item->m_objectID);
+            id = numToString(item->m_objectID);
         }
 
-        if (!str.empty()) {
-            m_tooltipIDLabel->setVisible(true);
-            m_tooltipIDLabel->setString(str.c_str());
-            heightOffset = m_tooltipIDLabel->getScaledContentHeight();
-        }
-        else {
-            m_tooltipIDLabel->setString("");
-            m_tooltipIDLabel->setVisible(false);
+        m_tooltipIDLabel->setVisible(!id.empty());
+        m_tooltipIDLabel->setString(id.c_str());
+
+        if (!id.empty()) {
+            idHeight = m_tooltipIDLabel->getScaledContentHeight();
         }
     }
 
-    m_tooltipBG->setPosition(positionHere);
+    constexpr float padding = 5.f;
 
-    float tooltipIDWidth = 0.f;
+    auto labelWidth = m_tooltipLabel->getScaledContentWidth();
+    auto labelHeight = m_tooltipLabel->getScaledContentHeight();
+
+    float idWidth = 0.f;
+
     if (m_tooltipIDLabel && m_tooltipIDLabel->isVisible()) {
-        tooltipIDWidth = m_tooltipIDLabel->getScaledContentWidth();
+        idWidth = m_tooltipIDLabel->getScaledContentWidth();
     }
-    
-    float padding = 5.f;
 
-    m_tooltipBG->setContentSize({std::max(m_tooltipLabel->getScaledContentWidth(), tooltipIDWidth) + padding * 2.f, m_tooltipLabel->getScaledContentHeight() + padding * 2.f + heightOffset});
+    m_tooltipBG->setContentSize({
+        std::max(labelWidth, idWidth) + padding * 2.f,
+        labelHeight + idHeight + padding * 2.f
+    });
+
     m_tooltipBG->setScale(UIScaling::getScale());
 
-    m_tooltipLabel->setPosition({padding, m_tooltipBG->getContentHeight() - padding});
+    m_tooltipLabel->setPosition({
+        padding,
+        m_tooltipBG->getContentHeight() - padding
+    });
 
-    if (ObjectTooltips::getSetting<bool, "show-object-id">() && m_tooltipIDLabel) {
-        m_tooltipIDLabel->setPosition({padding, padding});
+    if (m_tooltipIDLabel) {
+        m_tooltipIDLabel->setPosition({
+            padding,
+            padding
+        });
     }
 
-    #ifdef GEODE_IS_DESKTOP
-    if (!m_clicking) {
-        m_tooltipBG->setVisible(true);
-    }
+    updateTooltipPosition(item);
+
+#ifdef GEODE_IS_DESKTOP
+    m_tooltipBG->setVisible(true);
     scaleItem(item, false);
-    #else
+#else
     m_tooltipBG->stopAllActions();
     m_tooltipBG->setOpacity(220);
     m_tooltipBG->setVisible(true);
-    #endif
+#endif
 }
 
 void TooltipHover::hideTooltip() {
-    #ifdef GEODE_IS_DESKTOP
-    if (!m_clicking) {
-        m_tooltipBG->setVisible(false);
+#ifdef GEODE_IS_DESKTOP
+    m_tooltipBG->setVisible(false);
+#else
+    if (m_activeItem) {
+        setButtonOpacity(m_activeItem, 255);
     }
-    if (!m_activeItem) return;
 
-    scaleItem(m_activeItem, true);
-    #else
-    if (m_activeItem) setButtonOpacity(m_activeItem, 255);
-    m_tooltipBG->runAction(CCSequence::createWithTwoActions(CCFadeOut::create(0.2f), CallFuncExt::create([this] {
-        m_tooltipBG->setVisible(false);
-        m_activeItem = nullptr;
-    })));
-    #endif
+    m_tooltipBG->stopAllActions();
+
+    m_tooltipBG->runAction(
+        CCSequence::createWithTwoActions(
+            CCFadeOut::create(0.2f),
+            CallFuncExt::create([this] {
+                m_tooltipBG->setVisible(false);
+                m_activeItem = nullptr;
+            })
+        )
+    );
+#endif
+}
+
+void TooltipHover::cancelTooltipHide() {
+#ifdef GEODE_IS_MOBILE
+    unschedule(schedule_selector(TooltipHover::scheduleHide));
+#endif
 }
 
 void TooltipHover::onEnter() {
     CCNode::onEnter();
+
     CCTouchDispatcher::get()->addTargetedDelegate(this, -530, false);
 }
 
 void TooltipHover::onExit() {
-    CCNode::onExit();
+    resetTooltip();
+
     CCTouchDispatcher::get()->removeDelegate(this);
+
+    CCNode::onExit();
 }
 
 }

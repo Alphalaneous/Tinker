@@ -261,11 +261,6 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     m_popupData.m_colorList->setID("color-list"_spr);
     m_popupData.m_colorList->setZOrder(1);
     m_popupData.m_colorList->setPosition({bg->getPositionX() + bg->getContentWidth(), bg->getPositionY() + bg->getContentHeight() / 2.f});
-    #ifdef GEODE_IS_MOBILE
-    m_popupData.m_colorList->setScrollDelta(1.5f);
-    #else
-    m_popupData.m_colorList->setScrollDelta(1.f);
-    #endif
 
     float singleWidth = compactUI ? 21.2f : 28.5f;
     float singleHeight = compactUI ? 22.f : 29.3f;
@@ -321,7 +316,7 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
 
     popup->m_mainLayer->addChild(m_popupData.m_colorList);
 
-    auto scrollBar = alpha::ui::AdvancedScrollBar::create(m_popupData.m_colorList, alpha::ui::ScrollOrientation::VERTICAL);
+    auto scrollBar = alpha::ui::AdvancedScrollBar::create(m_popupData.m_colorList, alpha::ui::ScrollOrientation::Vertical);
     auto style = alpha::ui::RoundedScrollStyle();
     style.m_track = [] {
         auto track = alpha::ui::RoundedScrollTrack::create();
@@ -334,15 +329,14 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     scrollBar->setContentSize({10.f, m_popupData.m_colorList->getContentHeight() - 10.f});
     scrollBar->setPosition({m_popupData.m_colorList->getPositionX() + scrollBar->getContentWidth() / 2.f - 8.f, scrollBar->getPositionY()});
     scrollBar->setZOrder(100);
-    scrollBar->setTouchPriority(m_popupData.m_colorList->getTouchPriority() - 10.f);
     scrollBar->setID("color-list-scrollbar"_spr);
 
     popup->m_mainLayer->addChild(scrollBar);
 
     m_popupData.m_channelInput = geode::TextInput::create(50, "Num");
     m_popupData.m_channelInput->setPosition({size.width / 2.f + 210.f, size.height / 2.f});
-    m_popupData.m_channelInput->getInputNode()->m_placeholderColor = ccColor3B{120, 170, 240};
-    m_popupData.m_channelInput->getInputNode()->refreshLabel();
+    m_popupData.m_channelInput->setPlaceholderColor(ccColor4B{120, 170, 240, 200});
+    //m_popupData.m_channelInput->getInputNode()->refreshLabel();
     m_popupData.m_channelInput->setID("color-input"_spr);
     m_popupData.m_channelInput->setCallback([this] (auto text) {
         auto numRes = geode::utils::numFromString<int>(text);
@@ -357,8 +351,8 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     auto rowInput = geode::TextInput::create(50, "Rows");
     rowInput->setScale(0.65f);
     rowInput->setPosition({size.width - rowInput->getScaledContentWidth() / 2.f - 12.5f, rowInput->getScaledContentHeight() / 2.f + 10.f});
-    rowInput->getInputNode()->m_placeholderColor = ccColor3B{120, 170, 240};
-    rowInput->getInputNode()->refreshLabel();
+    rowInput->setPlaceholderColor(ccColor4B{120, 170, 240, 200});
+    //rowInput->getInputNode()->refreshLabel();
     rowInput->setID("row-input"_spr);
     rowInput->setString(numToString(m_rows));
     rowInput->setCallback([this] (auto text) {
@@ -397,7 +391,7 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     upArrow->setRotation(90.f);
     upArrow->setPosition({size.width / 2.f + 210.f, m_popupData.m_channelInput->boundingBox().getMaxY() + upArrow->getContentHeight() / 2.f + 4.f});
     upArrow->setID("channel-up-button"_spr);
-    RepeatingEditorButtons::setRepeatable(upArrow, true);
+    //RepeatingEditorButtons::setRepeatable(upArrow, true);
 
     popup->m_buttonMenu->addChild(upArrow);
 
@@ -408,7 +402,7 @@ void ColorChannelGizmo::setupEditPopup(geode::Popup* popup) {
     downArrow->setRotation(90.f);
     downArrow->setPosition({size.width / 2.f + 210.f, m_popupData.m_channelInput->boundingBox().getMinY() - downArrow->getContentHeight() / 2.f - 4.f});
     downArrow->setID("channel-down-button"_spr);
-    RepeatingEditorButtons::setRepeatable(downArrow, true);
+    //RepeatingEditorButtons::setRepeatable(downArrow, true);
 
     popup->m_buttonMenu->addChild(downArrow);
 

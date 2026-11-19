@@ -1,7 +1,7 @@
 #include "modules/DurationDrag.hpp"
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
-#include <alphalaneous.good_grid/include/API.hpp>
+#include <alphalaneous.good_grid/API.hpp>
 
 using namespace geode::prelude;
 

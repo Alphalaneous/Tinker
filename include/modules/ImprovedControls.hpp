@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Geode/ui/Button.hpp"
+#include "Geode/utils/ZStringView.hpp"
+#include "alphalaneous.alphas-ui-pack/nodes/MirrorNode.hpp"
 #include "module/Module.hpp"
 #include <Geode/modify/GJScaleControl.hpp>
 #include <Geode/modify/GJRotationControl.hpp>
@@ -11,7 +14,9 @@ class $module(ImprovedControls) {
     static void addLabelToNode(cocos2d::CCNode* node, geode::ZStringView text);
     static void addLabelToToggle(CCMenuItemToggler* toggler, geode::ZStringView text);
 
-    static float roundToThousandth(float value);
+    static float roundToPrecision(float value, int precision);
+    static int getPrecisionFromString(geode::ZStringView str);
+    static int getPrecisionFromFloat(float value);
 
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 };
@@ -27,10 +32,11 @@ class $modify(ICEditorUI, EditorUI) {
     void activateScaleControl(cocos2d::CCObject* sender);
     void deactivateScaleControl();
     void activateRotationControl(cocos2d::CCObject* sender);
-    void angleChanged(float angle);
-    void moveObject(GameObject* obj, cocos2d::CCPoint amount);
-    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint);
+    void angleChanged(float angle, bool lock);
     void scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove);
+
+    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint, bool lock);
+    void moveObject(GameObject* obj, cocos2d::CCPoint amount);
 
     void scaleXChanged(float scaleX, bool lock);
     void scaleYChanged(float scaleY, bool lock);
@@ -65,17 +71,22 @@ class $modify(ICGJScaleControl, GJScaleControl) {
 
         float m_lastScaleX = 0.f;
         float m_lastScaleY = 0.f;
+
+        int m_precision = 2;
     };
 
     bool init();
 
-    void updateLabelX(float scale);
-    void updateLabelY(float scale);
-    void updateLabelXY(float scale);
+    void updateScale(bool uiScale, bool scaleWithZoom, float modifier);
+    void updateUI(bool showRefresh);
+
+    void updatePrecision();
+    int getPrecision();
 
     float trueScaleFromValue(float value);
     float trueValueFromScale(float scale);
-    void loadValues(GameObject* obj, cocos2d::CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states);
+    void onApplyScale(cocos2d::CCObject* sender);
+    void loadValues(GameObject* obj, cocos2d::CCArray* objs, std::unordered_map<int, GameObjectEditorState>& states);
     void unfocus();
     void setBypass(bool bypass);
     void updateSnapValues();
@@ -91,12 +102,10 @@ class $modify(ICGJRotationControl, GJRotationControl) {
 
     struct Fields {
         float m_snapSize = 1.f;
-        bool m_posLock = false;
         bool m_snapLock = false;
         bool m_rotationLock = false;
         bool m_rotationLockInternal = false;
 
-        CCMenuItemToggler* m_posLockToggle = nullptr;
         CCMenuItemToggler* m_snapToggle = nullptr;
         CCMenuItemToggler* m_rotationToggle = nullptr;
         tinker::ui::ValueToggler<int>* m_valueToggler = nullptr;
@@ -104,7 +113,11 @@ class $modify(ICGJRotationControl, GJRotationControl) {
         cocos2d::CCNode* m_controlContainer = nullptr;
         geode::Ref<cocos2d::CCArray> m_objects = nullptr;
 
+        alpha::ui::MirrorNode* m_menuMirror = nullptr;
+        geode::Button* m_refreshButton = nullptr;
+
         float m_lastRotation = 0.f;
+        int m_precision = 2;
     };
 
     bool init();
@@ -114,7 +127,12 @@ class $modify(ICGJRotationControl, GJRotationControl) {
     void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
     void finishTouch();
 
-    bool isPositionLocked();
+    void updateScale(bool uiScale, float modifier);
+    void updateUI(bool showRefresh);
+
+    void updatePrecision();
+    int getPrecision();
+
     cocos2d::CCPoint pointOnCircle(float degrees, float radius);
     float angleOfPointOnCircle(cocos2d::CCPoint const& point) const;
     float getThumbValue() const;

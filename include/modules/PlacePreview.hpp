@@ -1,7 +1,7 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <Geode/modify/EditorUI.hpp>
 
 using namespace alpha::prelude;
@@ -21,8 +21,8 @@ protected:
     void showAtPos(const cocos2d::CCPoint& pos, const cocos2d::CCPoint& world);
     void updateObjectColor();
 
-    bool mouseEntered(TouchEvent* touch) override;
-    void mouseMoved(TouchEvent* touch) override;
+    bool hoverEntered(Hover* touch) override;
+    void hoverMoved(Hover* touch) override;
 
     void onEnter() override;
     void onExit() override;

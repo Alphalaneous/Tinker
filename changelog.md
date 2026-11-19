@@ -1,5 +1,6 @@
-# 1.1.9
+# 1.2.0-beta.1
 - <c-dddddd>Update to 2.209</c>
+- <c-dddddd>Too many bug fixes to count, I can't even remember</c>
 - <c-dddddd>Fix a vanilla crash that could happen when a text area lasts longer than the delegate</c>
 - <c-dddddd>Improve Scrollable Toolbars</c>
   - <c-dddddd>Better Performance</c>
@@ -13,6 +14,12 @@
 - <c-dddddd>Make UI Scaling and UI Safe Area sliders affect the UI live</c>
 - <c-dddddd>Remove BetterEdit compatibility changes and mark incompatible</c>
 - <c-dddddd>Pixel objects are now scaled properly in the Search tab</c>
+- <c-dddddd>Rework a ton of code</c>
+- <c-dddddd>Add a Selection Bounds after playtesting fix to Selection Fix</c>
+- <c-dddddd>Remove some redundant isColorable checks</c>
+- <c-dddddd>Add Rotation XY Controls</c>
+- <c-dddddd>Redesign Editor StartPos Switcher</c>
+- <c-dddddd>Add names to Improved Group View</c>
 
 # 1.1.8
 - <c-dddddd>Fix delete tab being unresponsive</c>

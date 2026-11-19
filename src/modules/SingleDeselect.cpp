@@ -93,7 +93,6 @@ void SDEditorUI::ccTouchEnded(CCTouch* touch, CCEvent* event) {
 
     if (swipeSelected && swipeDistance >= 20.f) return;
     if (m_selectedMode != 3 || !getKeyPressed() || (snapObject && editingObject)) return;
-    if (world.y < tinker::utils::ui::getToolbarHeight()) return;
 
     auto position = m_editorLayer->m_objectLayer->convertToNodeSpace(world);
     auto object = selectedObjectAtPosition(position);
@@ -118,7 +117,7 @@ bool SDEditorUI::getKeyPressed() {
     return SingleDeselect::get()->m_keyHeld && !SingleDeselect::get()->m_blockDeselect;
 }
 
-CCArray* SDEditorUI::pasteObjects(gd::string str, bool withColor, bool noUndo) {
+CCArray* SDEditorUI::pasteObjects(std::string str, bool withColor, bool noUndo) {
     SingleDeselect::get()->m_blockDeselect = true;
     auto ret = EditorUI::pasteObjects(str, withColor, noUndo);
     SingleDeselect::get()->m_blockDeselect = false;

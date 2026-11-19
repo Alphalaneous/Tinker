@@ -11,17 +11,17 @@ namespace tinker::ui {
 
 class FontContainer : public cocos2d::CCLayerColor {
 public:
-    static FontContainer* create(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer* fontLayer);
+    static FontContainer* create(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer2* fontLayer);
 
     void setVisible(bool visible);
     void toggle(bool toggle);
     int getFontID();
 
 protected:
-    bool init(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer* fontLayer);
+    bool init(int id, float width, geode::ZStringView text, geode::ZStringView fontFile, SelectFontLayer2* fontLayer);
 
     int m_id = 0;
-    SelectFontLayer* m_fontLayer = nullptr;
+    SelectFontLayer2* m_fontLayer = nullptr;
     geode::Label* m_label = nullptr;
     CCMenuItemToggler* m_toggle = nullptr;
     std::string m_text = "";

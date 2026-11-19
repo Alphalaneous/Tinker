@@ -6,7 +6,7 @@
 #define REGISTERMODULEHOOKSDECLARE(name, alt) \
 static void onModify(auto& self) { \
     for (const auto& [k, v] : self.m_hooks) { \
-        ModuleRegistry::get()->getData(name::getName()).getHooks().push_back(v); \
+        ModuleRegistry::get()->getData(name::getName()).getHooks().push_back(v.get()); \
         v->setAutoEnable(false); \
     } \
     alt; \

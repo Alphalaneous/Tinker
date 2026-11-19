@@ -1,7 +1,8 @@
 #include "nodes/SearchField.hpp"
+#include "Geode/ui/TextInput.hpp"
 #include "modules/StatusBar.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
-#include <smjs.object-collab/include/object_collab_optional.hpp>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
+//#include <smjs.object-collab/object_collab_optional.hpp>
 #define FTS_FUZZY_MATCH_IMPLEMENTATION
 #include <Geode/external/fts/fts_fuzzy_match.h>
 #include "utils/String.hpp"
@@ -31,16 +32,16 @@ ZStringView SearchField::nameForInfo(ItemInformation& item) {
     if (!item.name.empty()) return item.name;
 
     if (item.id >= 100000000) {
-        auto registryRes = object_collab::getOptionalRegister();
+        /*auto registryRes = object_collab::getOptionalRegister();
         if (registryRes) {
             auto registry = registryRes.unwrap();
             auto& info = registry[item.id];
 
             item.name = ObjectNames::get()->deduceFromID(info.id);
         }
-        else {
+        else {*/
             item.name = "Unknown";
-        }
+        //}
     }
     else {
         item.name = ObjectNames::get()->getName(item.id).unwrapOrDefault();
@@ -75,7 +76,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
                 if (info) arr->addObject(info.unwrap().item);
             }
             else {
-                auto registryRes = object_collab::getOptionalRegister();
+                /*auto registryRes = object_collab::getOptionalRegister();
                 if (registryRes) {
                     auto registry = registryRes.unwrap();
                     for (auto& [k, v] : registry) {
@@ -84,7 +85,7 @@ CCArray* SearchField::generateItemArrayForSearch(const std::string& search) {
                             if (info) arr->addObject(info.unwrap().item);
                         }
                     }
-                }
+                }*/
             }
         }
     }
@@ -198,10 +199,71 @@ bool SearchField::init(OSEditorUI* editorUI) {
     setContentSize({300.f, 45.f});
 
     m_searchInput = geode::TextInput::create(getContentWidth() - 55.f, "Search...");
-    m_searchInput->setDelegate(this);
     m_searchInput->setCommonFilter(CommonFilter::Any);
     m_searchInput->setPosition({6.f + m_searchInput->getContentWidth() / 2.f, getContentHeight() / 2.f});
     m_searchInput->setID("search-input"_spr);
+    m_searchInput->setCallback([this] (const std::string& str) {
+        m_searchInput->runAction(CallFuncExt::create([this, str] {
+            auto arr = generateItemArrayForSearch(str);
+
+            auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
+            auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
+
+            auto fields = m_editorUI->m_fields.self();
+
+            fields->m_searchBar->loadFromItems(arr, cols, rows, false);
+
+            float toolbarOffset = 0.f;
+            if (::StatusBar::isEnabled()) {
+                toolbarOffset = ::StatusBar::get()->m_toolbarOffset;
+            }
+            auto tab = m_editorUI->m_fields->m_searchBar;
+            tab->setPositionY(toolbarOffset);
+
+            #ifdef GEODE_IS_MOBILE
+            auto winSize = CCDirector::get()->getWinSize();
+
+            tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10.f);
+            #endif
+        }));
+    });
+
+    #ifdef GEODE_IS_MOBILE
+    m_searchInput->setKeyboardOffsetCallback([this] (float offset) {
+        m_yOffset = std::max(yOffset, tinker::utils::getToolbarHeight(false) + 15.f);
+    
+        runAction(CallFuncExt::create([this] {
+            setupTabOffset();
+        }));
+    }); 
+    #endif
+
+    m_searchInput->setFocusCallback([this] (geode::TextInput::FocusState state) {
+        if (state == geode::TextInput::FocusState::Focused) {
+            #ifdef GEODE_IS_MOBILE
+            m_inputFocused = true;
+
+            runAction(CallFuncExt::create([this] {
+                setupTabOffset();
+            }));
+
+            m_lockClose = true;
+            runAction(CallFuncExt::create([this] {
+                m_lockClose = false;
+            }));
+            #endif
+        }
+        else {
+            #ifdef GEODE_IS_MOBILE
+            runAction(CallFuncExt::create([this] {
+                if (!m_lockClose) {
+                    onClosed();
+                }
+                m_lockClose = false;
+            }));
+            #endif
+        }
+    });
 
     m_searchBG = geode::NineSlice::create("GJ_square02.png");
     m_searchBG->setAnchorPoint({0.f, 0.f});
@@ -240,8 +302,8 @@ bool SearchField::init(OSEditorUI* editorUI) {
     return true;
 }
 
-void SearchField::defocus() {
-    m_searchInput->defocus();
+void SearchField::unfocus() {
+    m_searchInput->unfocus();
 }
 
 void SearchField::focus() {
@@ -258,62 +320,10 @@ void SearchField::onExit() {
     CCTouchDispatcher::get()->removeDelegate(this);
 }
 
-bool SearchField::clickBegan(TouchEvent* touch) {
+bool SearchField::touchBegan(Touch* touch) {
     if (m_inputFocused) return true;
     if (!nodeIsVisible(this) || !alpha::utils::isPointInsideNode(this, touch->getLocation())) return false;
     return true;
-}
-
-void SearchField::textChanged(CCTextInputNode* node) {
-    m_searchInput->runAction(CallFuncExt::create([this, node] {
-        auto arr = generateItemArrayForSearch(node->getString());
-
-        auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-        auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-        auto fields = m_editorUI->m_fields.self();
-
-        fields->m_searchBar->loadFromItems(arr, cols, rows, false);
-
-        float toolbarOffset = 0.f;
-        if (::StatusBar::isEnabled()) {
-            toolbarOffset = ::StatusBar::get()->m_toolbarOffset;
-        }
-        auto tab = m_editorUI->m_fields->m_searchBar;
-        tab->setPositionY(toolbarOffset);
-
-        #ifdef GEODE_IS_MOBILE
-        auto winSize = CCDirector::get()->getWinSize();
-
-        tab->setPositionY(winSize.height - tab->getScaledContentHeight() - 10.f);
-        #endif
-    }));
-}
-
-void SearchField::textInputOpened(CCTextInputNode* node) {
-    #ifdef GEODE_IS_MOBILE
-    m_inputFocused = true;
-
-    runAction(CallFuncExt::create([this] {
-        setupTabOffset();
-    }));
-
-    m_lockClose = true;
-    runAction(CallFuncExt::create([this] {
-        m_lockClose = false;
-    }));
-    #endif
-}
-
-void SearchField::textInputClosed(CCTextInputNode* node) {
-    #ifdef GEODE_IS_MOBILE
-    runAction(CallFuncExt::create([this] {
-        if (!m_lockClose) {
-            onClosed();
-        }
-        m_lockClose = false;
-    }));
-    #endif
 }
 
 void SearchField::onClosed() {
@@ -339,16 +349,6 @@ void SearchField::onClosed() {
     m_tabBG->removeFromParent();
 
     tab->setZOrder(10);
-}
-
-void SearchField::textInputShouldOffset(CCTextInputNode* node, float yOffset) {
-    #ifdef GEODE_IS_MOBILE
-    m_yOffset = std::max(yOffset, tinker::utils::getToolbarHeight(false) + 15.f);
-   
-    runAction(CallFuncExt::create([this] {
-        setupTabOffset();
-    }));
-    #endif
 }
 
 void SearchField::setupTabOffset() {

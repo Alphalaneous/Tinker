@@ -4,7 +4,7 @@ using namespace geode::prelude;
 
 class ModuleData::Impl final {
 public:
-    std::vector<std::shared_ptr<geode::Hook>> m_hooks{};
+    std::vector<geode::Hook*> m_hooks{};
     geode::Function<void()> m_onEditor = nullptr;
     geode::Function<bool()> m_moduleEnabled = nullptr;
 
@@ -15,7 +15,7 @@ ModuleData::ModuleData() : m_impl(std::make_unique<Impl>()) {}
 
 ModuleData::~ModuleData() {}
 
-std::vector<std::shared_ptr<geode::Hook>>& ModuleData::getHooks() {
+std::vector<geode::Hook*>& ModuleData::getHooks() {
     return m_impl->m_hooks;
 }
 

@@ -4,7 +4,7 @@
 
 namespace tinker::api::ui_scaling {
 
-struct UIScaleUpdated final : geode::Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool topAlign)> {
+struct UIScaleUpdated final : geode::Event<UIScaleUpdated, bool(float scale, bool scaleToolbars)> {
     using Event::Event;
 };
 

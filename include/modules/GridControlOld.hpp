@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef GEODE_IS_ANDROID32
+/*#ifndef GEODE_IS_ANDROID32
 
 #include "module/Module.hpp"
 #include <Geode/modify/ObjectToolbox.hpp>
@@ -42,4 +42,4 @@ class $modify(GCLevelEditorLayer, LevelEditorLayer) {
     $registerHooks(GridControlOld)
 };
 
-#endif
+#endif*/

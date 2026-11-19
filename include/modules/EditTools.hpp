@@ -21,9 +21,9 @@ class $modify(ETEditorUI, EditorUI) {
 
     void objectMoved(GameObject* object);
     void moveObjects(cocos2d::CCArray* objects, cocos2d::CCPoint deltaPos);
-    void onCenterObjects(cocos2d::CCObject* sender);
-    void onCenterCamera(cocos2d::CCObject* sender);
-    void onLockFlipPos(cocos2d::CCObject* sender);
+    void onCenterObjects();
+    void onCenterCamera();
+    void onLockFlipPos();
     void transformObjectCall(EditCommand command);
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
     void updateButtons();

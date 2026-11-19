@@ -1,7 +1,7 @@
 #include "modules/QuickExtras.hpp"
 #include "modules/Gizmos/Gizmos.hpp"
 #include "utils/Constants.hpp"
-#include <smjs.object-collab/include/object_collab_optional.hpp>
+//#include <smjs.object-collab/object_collab_optional.hpp>
 
 using namespace geode::prelude;
 
@@ -16,15 +16,13 @@ void QuickExtras::onEditor() {
             m_editExtrasBtn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
                 onEditExtras();
             });
+            spr->setPosition({17.f, 16.4f});
 
-            m_editExtrasBtn->setContentSize({40.f, 40.f});
+            m_editExtrasBtn->setContentSize({37.f, 34.5f});
             m_editExtrasBtn->setOpacity(175);
             m_editExtrasBtn->setColor({166, 166, 166});
             m_editExtrasBtn->m_animationEnabled = false;
             m_editExtrasBtn->setID("edit-extras-button"_spr);
-
-            spr->setAnchorPoint({0.f, 0.f});
-            spr->setPosition({1.f, 0.f});
 
             editorButtonsMenu->addChild(m_editExtrasBtn);
             getEditor()->m_uiItems->addObject(m_editExtrasBtn);
@@ -37,11 +35,11 @@ void QuickExtras::onEditor() {
         bool selected = getEditor()->m_selectedObject || getEditor()->m_selectedObjects->count() != 0;
 
         if (!getSetting<bool, "always-show">()) {
-            auto registryRes = object_collab::getOptionalRegister();
+            //auto registryRes = object_collab::getOptionalRegister();
 
 
             bool isSpecial = static_cast<QEEditorUI*>(getEditor())->_editButton2Usable();
-            if (getEditor()->m_selectedObjects && getEditor()->m_selectedObjects->count() > 0) {
+            /*if (getEditor()->m_selectedObjects && getEditor()->m_selectedObjects->count() > 0) {
                 for (auto obj : getEditor()->m_selectedObjects->asExt<GameObject>()) {
                     if (obj->m_objectID >= 100000000) {
                         if (registryRes) {
@@ -65,7 +63,7 @@ void QuickExtras::onEditor() {
                         }
                     }
                 }
-            }
+            }*/
 
             if (isSpecial) {
                 auto spr = CCSprite::createWithSpriteFrameName("GJ_editObjBtn4_001.png");
@@ -74,14 +72,13 @@ void QuickExtras::onEditor() {
             else {
                 auto spr = CCSprite::create("edit_extras.png"_spr);
                 getEditor()->m_editSpecialBtn->setSprite(spr);
-                spr->setAnchorPoint({0.f, 0.f});
-                spr->setPosition({1.f, 0.f});
+
+                spr->setPosition({17.f, 16.4f});
             }
 
-            getEditor()->m_editSpecialBtn->setContentSize({40.f, 40.f});
+            getEditor()->m_editSpecialBtn->setContentSize({37.f, 34.5f});
             getEditor()->m_editSpecialBtn->setColor(selected ? ccColor3B{255, 255, 255} : ccColor3B{166, 166, 166});
             getEditor()->m_editSpecialBtn->setOpacity(selected ? 255 : 175);
-            getEditor()->m_editSpecialBtn->setEnabled(selected);
             getEditor()->m_editSpecialBtn->m_animationEnabled = selected;
 
             if (auto editorButtonsMenu = getEditor()->getChildByID("editor-buttons-menu")) {
@@ -99,8 +96,7 @@ void QuickExtras::onEditor() {
 
 void QuickExtras::onEditExtras() {
     if (getEditor()->m_selectedObject || getEditor()->m_selectedObjects->count() > 0) {
-        auto idLayer = SetGroupIDLayer::create(getEditor()->m_selectedObject, getEditor()->m_selectedObjects);
-        auto popup = SetupObjectOptionsPopup::create(getEditor()->m_selectedObject, getEditor()->m_selectedObjects, idLayer);
+        auto popup = SetupObjectOptionsPopup::create(getEditor()->m_selectedObject, getEditor()->m_selectedObjects);
         popup->show();
     }
 }

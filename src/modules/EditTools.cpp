@@ -1,47 +1,51 @@
 #include "modules/EditTools.hpp"
+#include <alphalaneous.editortab_api/API.hpp>
 #include "utils/Constants.hpp"
-#include "utils/UI.hpp"
+#include "utils/Objects.hpp"
 
 using namespace geode::prelude;
 
 void EditTools::onEditor() {
-    auto editor = getEditor();
+    auto mode = alpha::editor_tabs::getMode(alpha::editor_tabs::Edit);
+    if (!mode) return;
 
-    auto fields = static_cast<ETEditorUI*>(editor)->m_fields.self();
+    auto tab = mode->getTab("edit");
+    if (!tab) return;
 
-    fields->m_centerObjectButton = editor->getSpriteButton("center-object.png"_spr, menu_selector(ETEditorUI::onCenterObjects), nullptr, 0.9f);
+    auto node = tab->getNode();
+    if (!node) return;
+
+    auto editor = static_cast<ETEditorUI*>(getEditor());
+
+    auto fields = editor->m_fields.self();
+
+    fields->m_centerObjectButton = alpha::editor_tabs::createEditButton(CCSprite::create("center-object.png"_spr), 1, [this, editor] (auto sender) {
+        editor->onCenterObjects();
+    });
     fields->m_centerObjectButton->setID("center-objects"_spr);
-    editor->m_editButtonBar->m_buttonArray->addObject(fields->m_centerObjectButton);
+    node->addItem(fields->m_centerObjectButton);
 
-    fields->m_centerCameraButton = editor->getSpriteButton("center-camera.png"_spr, menu_selector(ETEditorUI::onCenterCamera), nullptr, 0.9f);
+    fields->m_centerCameraButton = alpha::editor_tabs::createEditButton(CCSprite::create("center-camera.png"_spr), 1, [this, editor] (auto sender) {
+        editor->onCenterCamera();
+    });
     fields->m_centerCameraButton->setID("center-camera"_spr);
-    editor->m_editButtonBar->m_buttonArray->addObject(fields->m_centerCameraButton);
+    node->addItem(fields->m_centerCameraButton);
 
-    fields->m_lockFlipPosButton = editor->getSpriteButton("flip-position-lock.png"_spr, menu_selector(ETEditorUI::onLockFlipPos), nullptr, 0.9f);
+    fields->m_lockFlipPosButton = alpha::editor_tabs::createEditButton(CCSprite::create("flip-position-lock.png"_spr), 1, [this, editor] (auto sender) {
+        editor->onLockFlipPos();
+    });
     fields->m_lockFlipPosButton->setID("lock-flip-pos"_spr);
-
-    int pos = 0;
-    for (auto btn : editor->m_editButtonBar->m_buttonArray->asExt()) {
-        if (btn->getTag() == 22) break;
-        pos++;
-    }
-
-    editor->m_editButtonBar->m_buttonArray->insertObject(fields->m_lockFlipPosButton, pos + 1);
-
-    auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-    auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-    editor->m_editButtonBar->reloadItems(cols, rows);
+    node->addItem(fields->m_lockFlipPosButton);
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-camera-to-object-keybind"), [this, editor] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down & !repeat) {
-            static_cast<ETEditorUI*>(editor)->onCenterCamera(nullptr);
+            static_cast<ETEditorUI*>(editor)->onCenterCamera();
         }
     });
 
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "EditTools-object-to-camera-keybind"), [this, editor] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         if (down) {
-            static_cast<ETEditorUI*>(editor)->onCenterObjects(nullptr);
+            static_cast<ETEditorUI*>(editor)->onCenterObjects();
         }
     });
 }
@@ -202,20 +206,17 @@ void ETEditorUI::moveObjects(CCArray* objects, cocos2d::CCPoint deltaPos) {
     ObjectMovedEvent().send();
 }
 
-void ETEditorUI::onCenterObjects(CCObject* sender) {
+void ETEditorUI::onCenterObjects() {
     auto arr = CCArray::create();
     if (m_selectedObjects) arr->addObjectsFromArray(m_selectedObjects);
     if (m_selectedObject) arr->addObject(m_selectedObject);
 
     if (arr->count() == 0) return;
 
-    auto winSize = CCDirector::get()->getWinSize();
-
     auto center = getGroupCenter(arr, false);
+    auto camCenter = tinker::utils::objects::getCameraCenter();
 
-    auto camCenter = m_editorLayer->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
-    CCPoint snapped = getGridSnappedPos(camCenter);
-
+    auto snapped = getGridSnappedPos(camCenter);
     auto offset = snapped - center;
 
     m_editorLayer->addToUndoList(UndoObject::createWithTransformObjects(arr, UndoCommand::Transform), false);
@@ -232,23 +233,13 @@ void ETEditorUI::onCenterObjects(CCObject* sender) {
     m_rotationControl->setPosition(snapped);
 }
 
-void ETEditorUI::onCenterCamera(CCObject* sender) {
-    auto arr = CCArray::create();
-    if (m_selectedObjects) arr->addObjectsFromArray(m_selectedObjects);
-    if (m_selectedObject) arr->addObject(m_selectedObject);
-
-    if (arr->count() == 0) return;
-
-    auto winSize = CCDirector::get()->getWinSize();
-
-    auto center = getGroupCenter(arr, false);
-    m_editorLayer->m_objectLayer->setPosition(-(center * m_editorLayer->m_objectLayer->getScale()) + winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
-
-    auto pos = m_editorLayer->m_objectLayer->convertToWorldSpace(center);
-
-    playCircleAnim(pos, 50.f, 0.8f);
-
-    updateSlider();
+void ETEditorUI::onCenterCamera() {
+    if (m_selectedObjects) {
+        tinker::utils::objects::moveCameraToObjects(m_selectedObjects);
+    }
+    else if (m_selectedObject) {
+        tinker::utils::objects::moveCameraToObject(m_selectedObject);
+    }
 }
 
 void ETEditorUI::transformObjectCall(EditCommand command) {
@@ -271,7 +262,7 @@ void ETEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
     EditorUI::moveObject(object, offset);
 }
 
-void ETEditorUI::onLockFlipPos(CCObject* sender) {
+void ETEditorUI::onLockFlipPos() {
     auto fields = m_fields.self();
     fields->m_flipPosLocked = !fields->m_flipPosLocked;
     

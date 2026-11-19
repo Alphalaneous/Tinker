@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/loader/SettingV3.hpp>
+#include <matjson.hpp>
 #include "settings/SettingsCache.hpp"
 #include "settings/SettingsQueueHandler.hpp"
 #include "utils/Settings.hpp"
@@ -8,6 +10,8 @@
 #include "utils/Mod.hpp"
 #include "module/ModuleLoader.hpp"
 #include "Events.hpp"
+#include <alphalaneous.level-storage-api/LevelStorageAPI.hpp>
+#include <memory>
 
 template <size_t S>
 constexpr bool operator==(
@@ -18,13 +22,18 @@ constexpr bool operator==(
            std::equal(a.begin(), a.end(), b.begin());
 }
 
+enum class Save {
+    Global,
+    Level
+};
+
 template <class T, geode::utils::string::ConstexprString Name, bool Global>
 struct ModuleCore : public ModuleBase {
 private:
     static inline ModuleLoader<T> $apply{};
     static inline auto const $force = &$apply;
 
-    static inline std::weak_ptr<T> $instance;
+    static inline T* $instance;
     static inline matjson::Value $queuedSettings{};
 
 public:
@@ -42,14 +51,14 @@ public:
         return Name.data();
     }
 
-    static std::shared_ptr<T> create() {
-        auto ret = std::make_shared<T>();
+    static std::unique_ptr<T> create() {
+        std::unique_ptr<T> ret = std::make_unique<T>();
 
         if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
             geode::log::debug("Created: {}", Name.data());
         }
 
-        $instance = ret;
+        $instance = ret.get();
 
         auto& data = ModuleRegistry::get()->getData(getName());
         auto enabled = isEnabled();
@@ -70,16 +79,15 @@ public:
         return ret;
     }
 
-    static std::shared_ptr<T> get() {
-        return $instance.lock();
+    static T* get() {
+        return $instance;
     }
 
     static bool isEnabled() {
         if (!tinker::utils::mod::shouldLoadTinker()) return false;
         if constexpr (Name == "UIScaling") return true;
 
-        static constexpr auto enabledKey =
-            tinker::utils::string::concat<Name, "-enabled">();
+        static constexpr auto enabledKey = tinker::utils::string::concat<Name, "-enabled">();
 
         static auto setting = geode::Mod::get()->getSetting(enabledKey.data());
         if (!setting) {
@@ -112,20 +120,54 @@ private:
     static void hookToggle() {
         auto enabled = isEnabled();
 
-        for (const auto& hook :
-             ModuleRegistry::get()->getData(getName()).getHooks()) {
+        for (const auto& hook : ModuleRegistry::get()->getData(getName()).getHooks()) {
             (void) hook->toggle(enabled);
         }
     }
 
 public:
-    template <class S, geode::utils::string::ConstexprString key>
-    static const S& getSetting() {
-        static constexpr auto fullKey =
-            tinker::utils::string::concat<Name, "-", key>();
+    template <Save Location, class S, geode::utils::string::ConstexprString Key>
+    static S getSaved(S defaultValue = S{}) {
+        static constexpr auto fullKey = tinker::utils::string::concat<Name, "/", Key>();
 
-        static auto setting =
-            geode::Mod::get()->getSettingValue<S>(fullKey.data());
+        if constexpr (Location == Save::Global) {
+            static auto saved = geode::Mod::get()->getSavedValue<S>(fullKey.data(), defaultValue);
+
+            static auto listener = SaveValueChangedEvent().listen([] (const matjson::Value& value) {
+                auto valueRes = value.as<S>();
+                if (!valueRes) return;
+
+                saved = valueRes.unwrap();
+            }).leak();
+
+            return saved;
+        }
+        if constexpr (Location == Save::Level) {
+            auto container = alpha::level_storage::getSaveContainer(LevelEditorLayer::get(), geode::Mod::get());
+            if (!container.contains(fullKey.data())) {
+                return defaultValue;
+            }
+
+            return alpha::level_storage::getSavedValue<S>(LevelEditorLayer::get(), fullKey.data());
+        }
+    }
+
+    template <Save Location, geode::utils::string::ConstexprString Key, class S>
+    static void setSaved(S value) {
+        static constexpr auto fullKey = tinker::utils::string::concat<Name, "/", Key>();
+        if constexpr (Location == Save::Global) {
+            geode::Mod::get()->setSavedValue<S>(fullKey.data(), value);
+            SaveValueChangedEvent().send(value);
+        }
+        else if constexpr (Location == Save::Level) {
+            alpha::level_storage::setSavedValue(LevelEditorLayer::get(), fullKey.data(), value);
+        }
+    }
+
+    template <class S, geode::utils::string::ConstexprString Key>
+    static const S& getSetting() {
+        static constexpr auto fullKey = tinker::utils::string::concat<Name, "-", Key>();
+        static auto setting = geode::Mod::get()->getSettingValue<S>(fullKey.data());
 
         static auto listener = geode::listenForSettingChanges<S>(
             fullKey.data(),
@@ -157,7 +199,7 @@ public:
                     }
 
                     if (!handled) {
-                        $queuedSettings[key.data()] = value;
+                        $queuedSettings[Key.data()] = value;
                         SettingsQueueHandler::get()
                             ->addFeature(fullKey.data());
                         return;
@@ -172,13 +214,13 @@ public:
                 bool handled = false;
 
                 if constexpr (requires {
-                    base->onSettingChanged(key.data(), value);
+                    base->onSettingChanged(Key.data(), value);
                 }) {
-                    handled = base->onSettingChanged(key.data(), value);
+                    handled = base->onSettingChanged(Key.data(), value);
                 }
 
                 if (enabled && !handled) {
-                    $queuedSettings[key.data()] = value;
+                    $queuedSettings[Key.data()] = value;
                     SettingsQueueHandler::get()
                         ->addSetting(fullKey.data());
                     return;
@@ -189,7 +231,7 @@ public:
         );
 
         static auto exitListener = EditorExitEvent().listen([] {
-            auto value = $queuedSettings.get(key.data());
+            auto value = $queuedSettings.get(Key.data());
             if (!value) {
                 return;
             }
@@ -211,7 +253,7 @@ public:
                 hookToggle();
             }
 
-            $queuedSettings.erase(key.data());
+            $queuedSettings.erase(Key.data());
         });
 
         return setting;

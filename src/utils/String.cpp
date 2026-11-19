@@ -55,10 +55,11 @@ std::vector<std::string> split(std::string_view str, std::string_view delimiter,
 }
 
 std::string floatToString(float num, int precision) {
-    double scale = std::pow(10.0, precision);
-    auto rounded = std::round(num * scale) / scale;
+    // unsure if I should trim zeros, for now I wont since rob no longer does
+    //double scale = std::pow(10.0, precision);
+    //auto rounded = std::round(num * scale) / scale;
 
-    return geode::utils::numToString(rounded);
+    return geode::utils::numToString(num, precision);
 }
 
 }

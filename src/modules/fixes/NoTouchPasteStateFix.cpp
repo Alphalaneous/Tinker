@@ -1,5 +1,5 @@
 #include "modules/fixes/NoTouchPasteStateFix.hpp"
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 
 using namespace geode::prelude;
 

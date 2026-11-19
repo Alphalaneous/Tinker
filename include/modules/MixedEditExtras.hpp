@@ -10,7 +10,7 @@ class $module(MixedEditExtras) {
 class $modify(MEESetupObjectOptionsPopup, SetupObjectOptionsPopup) {
     $registerHooks(MixedEditExtras)
 
-    bool init(GameObject* object, cocos2d::CCArray* objects, SetGroupIDLayer* layer);
+    bool init(GameObject* object, cocos2d::CCArray* objects);
     void updateMixedToggles();
 
     template <class T>

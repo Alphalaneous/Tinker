@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Geode/loader/Event.hpp>
-#include <Geode/loader/Dispatch.hpp>
+#include <Geode/loader/EventExport.hpp>
 
 #define MY_MOD_ID "alphalaneous.tinker"
 
@@ -26,10 +26,4 @@ namespace tinker::api {
             }
         ).leak();
     }
-
-    namespace touch {
-        inline void blockPinch(bool block)
-        GEODE_EVENT_EXPORT_NORES(&blockPinch, (block));
-    };
-
 };

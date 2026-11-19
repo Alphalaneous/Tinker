@@ -705,13 +705,13 @@ bool HoverObjectNode::hoveringObjects() {
     return m_active;
 }
 
-bool HoverObjectNode::mouseEntered(TouchEvent* touch) {
+bool HoverObjectNode::hoverEntered(Hover* hover) {
     return true;
 }
 
-void HoverObjectNode::mouseMoved(TouchEvent* touch) {
+void HoverObjectNode::hoverMoved(Hover* hover) {
     auto editorUI = EditorUI::get();
-    auto objectSpace = editorUI->m_editorLayer->m_objectLayer->convertToNodeSpace(touch->getLocation());
+    auto objectSpace = editorUI->m_editorLayer->m_objectLayer->convertToNodeSpace(hover->getLocation());
 
     onHoverObjects(objectSpace);
     m_lastPos = objectSpace;

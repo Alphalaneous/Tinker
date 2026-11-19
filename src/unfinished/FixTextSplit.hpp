@@ -3,7 +3,7 @@
 #include "module/Module.hpp"
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 
-class $module(FixTextSplit) {
+/*class $module(FixTextSplit) {
     bool onToggled(bool state);
 };
 
@@ -20,3 +20,4 @@ class $modify(FTSCustomizeObjectLayer, CustomizeObjectLayer) {
 
     std::string buildTextObject(const TextObjectAttributes& attributes, const std::unordered_map<int, std::string>& objectAttributes);
 };
+*/

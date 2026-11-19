@@ -8,10 +8,10 @@ bool FixTextObjectBounds::onToggled(bool state) {
 }
 
 void FTOBTextGameObject::fixBounds() {
-    if (ReferenceImage::isEnabled()) {
+    /*if (ReferenceImage::isEnabled()) {
         auto ref = static_cast<RITextGameObject*>(static_cast<TextGameObject*>(this));
         if (ref->isReferenceImage()) return;
-    }
+    }*/
     
     m_width = getContentWidth();
     m_height = getContentHeight();
@@ -23,12 +23,12 @@ void FTOBTextGameObject::fixBounds() {
     editorUI->updateTransformControl();
 }
 
-void FTOBTextGameObject::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
+void FTOBTextGameObject::customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists) {
     TextGameObject::customObjectSetup(values, exists);
     fixBounds();
 }
 
-void FTOBTextGameObject::updateTextObject(gd::string text, bool defaultFont) {
+void FTOBTextGameObject::updateTextObject(std::string text, bool defaultFont) {
     TextGameObject::updateTextObject(text, defaultFont);
     fixBounds();
 }

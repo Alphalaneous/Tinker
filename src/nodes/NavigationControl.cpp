@@ -1,7 +1,7 @@
 #include "nodes/NavigationControl.hpp"
 #include "modules/JoystickNavigation.hpp"
 #include "modules/CanvasRotate.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
 #include "utils/UI.hpp"
 
 using namespace geode::prelude;
@@ -66,12 +66,12 @@ bool NavigationControl::init(EditorUI* editorUI) {
     updateControl(CanvasRotate::isEnabled());
 
     if (JoystickNavigation::s_resetPosition) {
-        Mod::get()->setSavedValue("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-        Mod::get()->setSavedValue("nav-joystick-pos-y", tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
+        JoystickNavigation::setSaved<Save::Global, "position-x">(80.f + getScaledContentWidth() / 2.f);
+        JoystickNavigation::setSaved<Save::Global, "position-y">(tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2.f + 20.f);
     }
 
-    auto posX = Mod::get()->getSavedValue<float>("nav-joystick-pos-x", 80 + getScaledContentWidth() / 2);
-    auto posY = Mod::get()->getSavedValue<float>("nav-joystick-pos-y", tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2 + 20);
+    auto posX = JoystickNavigation::getSaved<Save::Global, float, "position-x">(80.f + getScaledContentWidth() / 2.f);
+    auto posY = JoystickNavigation::getSaved<Save::Global, float, "position-y">(tinker::utils::ui::getToolbarHeight(false) + getScaledContentHeight() / 2.f + 20.f);
 
     CCSize winSize = CCDirector::get()->getWinSize();
 
@@ -181,7 +181,7 @@ void NavigationControl::enterHover() {
     }
 }
 
-bool NavigationControl::clickBegan(TouchEvent* touch) {
+bool NavigationControl::touchBegan(Touch* touch) {
     if (!nodeIsVisible(this)) return false;
 
     m_initialPoint = touch->getLocation();
@@ -235,7 +235,7 @@ bool NavigationControl::clickBegan(TouchEvent* touch) {
     return false;
 }
 
-void NavigationControl::clickMoved(TouchEvent* touch) {
+void NavigationControl::touchMoved(Touch* touch) {
     auto center = m_circle->getContentSize() / 2;
     auto pos = m_circle->convertToNodeSpace(touch->getLocation());
 
@@ -279,33 +279,35 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
         float angleRad = m_rotationDragOffset - touchAngle;
         float angleDeg = CC_RADIANS_TO_DEGREES(angleRad);
 
-        auto rotNode = CanvasRotate::get()->m_rotationNode;
+        auto canvasRotate = CanvasRotate::get();
 
         const float snapIncrement = 45.0f;
         const float snapThreshold = 2.0f;
         const float unsnapThreshold = 5.0f;
 
-        rotNode->m_unsnappedCameraAngle = angleDeg;
-        float nearestSnap = std::round(rotNode->m_unsnappedCameraAngle / snapIncrement) * snapIncrement;
-        float diff = std::fabs(std::fmod(rotNode->m_unsnappedCameraAngle - nearestSnap + 180.f, 360.f) - 180.f);
+        canvasRotate->m_unsnappedCameraAngle = angleDeg;
+        float nearestSnap = std::round(canvasRotate->m_unsnappedCameraAngle / snapIncrement) * snapIncrement;
+        float diff = std::fabs(std::fmod(canvasRotate->m_unsnappedCameraAngle - nearestSnap + 180.f, 360.f) - 180.f);
 
         float targetAngle = 0.f;
 
-        if (!rotNode->m_isSnapped && diff < snapThreshold) {
+        if (!canvasRotate->m_isSnapped && diff < snapThreshold) {
             targetAngle = nearestSnap;
-            rotNode->m_isSnapped = true;
+            canvasRotate->m_isSnapped = true;
         }
-        else if (rotNode->m_isSnapped && diff < unsnapThreshold) {
+        else if (canvasRotate->m_isSnapped && diff < unsnapThreshold) {
             targetAngle = nearestSnap;
         }
         else {
-            targetAngle = rotNode->m_unsnappedCameraAngle;
-            rotNode->m_isSnapped = false;
+            targetAngle = canvasRotate->m_unsnappedCameraAngle;
+            canvasRotate->m_isSnapped = false;
         }
 
-        rotNode->m_smoothedCameraAngle = targetAngle;
-        rotNode->m_rotation = targetAngle;
+        canvasRotate->m_smoothedCameraAngle = targetAngle;
+        canvasRotate->m_rotation = targetAngle;
         m_editorUI->m_editorLayer->m_gameState.m_cameraAngle = targetAngle;
+
+        EditorRotationEvent().send(targetAngle);
     }
     else {
         auto delta = pos - center;
@@ -320,12 +322,12 @@ void NavigationControl::clickMoved(TouchEvent* touch) {
     }
 }
 
-void NavigationControl::clickEnded(TouchEvent* touch) {
+void NavigationControl::touchEnded(Touch* touch) {
     auto inside = alpha::utils::isPointInsideNode(this, touch->getLocation());
 
     if (m_holdingRotationHandle) {
         if (CanvasRotate::isEnabled()) {
-            CanvasRotate::get()->m_rotationNode->realign();
+            CanvasRotate::get()->realign();
         }
     }
 
@@ -342,8 +344,8 @@ void NavigationControl::clickEnded(TouchEvent* touch) {
         m_activeScale = CCScaleTo::create(0.1f, 1.1f * m_scale);
         runAction(m_activeScale);
 
-        Mod::get()->setSavedValue("nav-joystick-pos-x", getPositionX());
-        Mod::get()->setSavedValue("nav-joystick-pos-y", getPositionY());
+        JoystickNavigation::setSaved<Save::Global, "position-x">(getPositionX());
+        JoystickNavigation::setSaved<Save::Global, "position-y">(getPositionY());
     }
     else {
         if (m_circle) {
@@ -372,17 +374,17 @@ void NavigationControl::clickEnded(TouchEvent* touch) {
     m_joystickRawLen = 0.f;
 }
 
-bool NavigationControl::mouseEntered(TouchEvent* touch) {
+bool NavigationControl::hoverEntered(Hover* touch) {
     if (!nodeIsVisible(this)) return false;
-    if (LevelEditorLayer::get()->getChildByType<EditorPauseLayer>(0)) return false;
+    if (cocos2d::CCScene::get()->getChildByType<EditorPauseLayer>(0)) return false;
     enterHover();
     return true;
 }
 
-void NavigationControl::mouseMoved(TouchEvent* touch) {
+void NavigationControl::hoverMoved(Hover* touch) {
 }
 
-void NavigationControl::mouseExited(TouchEvent* touch) {
+void NavigationControl::hoverExited(Hover* touch) {
     if (!m_touchActive) {
         leaveHover();
     }

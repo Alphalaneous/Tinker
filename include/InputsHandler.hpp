@@ -8,91 +8,6 @@
 #include <Geode/loader/Priority.hpp>
 #include "utils/Mod.hpp"
 
-namespace tinker::ui {
-
-class TouchForward : public cocos2d::CCLayer {
-public:
-    using Next = geode::Function<bool(cocos2d::CCTouch*)>;
-
-    struct TouchHook {
-        int priority = 0;
-        geode::Function<bool()> enabled = nullptr;
-        geode::Function<bool(cocos2d::CCTouch*, geode::Function<bool(cocos2d::CCTouch*)>)> beganCallback = nullptr;
-        geode::Function<void(cocos2d::CCTouch*, geode::Function<void(cocos2d::CCTouch*)>)> movedCallback = nullptr;
-        geode::Function<void(cocos2d::CCTouch*, geode::Function<void(cocos2d::CCTouch*)>)> endedCallback = nullptr;
-        geode::Function<void(cocos2d::CCTouch*, geode::Function<void(cocos2d::CCTouch*)>)> cancelledCallback = nullptr;
-    };
-
-    static TouchForward* create(EditorUI* editorUI);
-    static TouchForward* get();
-
-    template<class T>
-    void registerTouch(int priority) {
-        m_touchHooks.push_back(TouchHook{priority, 
-            [] -> bool {
-                return T::isEnabled();
-            },
-            [] (cocos2d::CCTouch* touch, geode::Function<bool(cocos2d::CCTouch*)> next) -> bool {
-                return T::get()->onTouchBegan(touch, std::move(next));
-            },
-            [] (cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch*)> next) {
-                T::get()->onTouchMoved(touch, std::move(next));
-            },
-            [] (cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch*)> next) {
-                T::get()->onTouchEnded(touch, std::move(next));
-            },
-            [] (cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch*)> next) {
-                T::get()->onTouchCancelled(touch, std::move(next));
-            },
-        });
-
-        std::sort(m_touchHooks.begin(), m_touchHooks.end(), 
-            [] (const auto& a, const auto& b) {
-                return a.priority > b.priority;
-            }
-        );
-    }
-
-    template<class CallbackGetter, class FinalCall>
-    decltype(auto) dispatch(size_t i, cocos2d::CCTouch* touch, CallbackGetter&& getCallback, FinalCall&& finalCall) {
-        std::vector<TouchHook*> enabledHooks{};
-        
-        for (auto& hook : m_touchHooks) {
-            if (hook.enabled()) {
-                enabledHooks.push_back(&hook);
-            }
-        }
-        
-        if (i == enabledHooks.size()) {
-            return finalCall(touch);
-        }
-
-        return getCallback(*enabledHooks[i]) (touch,
-            [this, i, &getCallback, &finalCall] (cocos2d::CCTouch* touch) -> decltype(auto) {
-                return dispatch(i + 1, touch, getCallback, finalCall);
-            }
-        );
-    }
-
-    void registerWithTouchDispatcher() override;
-
-    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
-    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
-    void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
-    void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
-
-    void cancelAllTouches();
-protected:
-
-    bool init(EditorUI* editorUI);
-
-    bool m_skipErase = false;
-    std::vector<TouchHook> m_touchHooks{};
-    std::unordered_set<geode::Ref<cocos2d::CCTouch>> m_touches{};
-    EditorUI* m_editorUI = nullptr;
-};
-}
-
 #ifdef GEODE_IS_MOBILE
 class $modify(InputAppDelegate, AppDelegate) {
     static void onModify(auto& self) {
@@ -154,7 +69,6 @@ class $modify(InputEditorUI, EditorUI) {
         float m_initialScale = 1.f;
         cocos2d::CCPoint m_touchMidPoint{};
 
-        bool m_blockPinching = false;
         bool m_isPinching = false;
         float m_lastAngle = 0.f;
 
@@ -162,7 +76,7 @@ class $modify(InputEditorUI, EditorUI) {
         cocos2d::CCTargetedTouchDelegate* m_touchedGizmoChild = nullptr;
         GameObject* m_activeGizmoTouch = nullptr;
 
-        tinker::ui::TouchForward* m_forward = nullptr;
+        //tinker::ui::TouchForward* m_forward = nullptr;
     };
 
     static bool isEnabled() {
@@ -170,8 +84,8 @@ class $modify(InputEditorUI, EditorUI) {
     }
 
     bool init(LevelEditorLayer* editorLayer);
-    void onScroll();
-    void scrollWheel(float y, float x);
+    bool onScroll();
+    bool scrollWheel(float y, float x);
 
     void addActiveAlert(CCNode* alert);
     void removeActiveAlert(CCNode* alert);
@@ -183,21 +97,14 @@ class $modify(InputEditorUI, EditorUI) {
 
     bool isNaturalScrollEnabled();
 
-    static cocos2d::CCPoint getTouchLocation(cocos2d::CCTouch* touch);
-
     bool tryCancelGizmo(cocos2d::CCTouch* touch);
 
-    bool onTouchBegan(cocos2d::CCTouch* touch, geode::Function<bool(cocos2d::CCTouch* touch)> next);
-    void onTouchMoved(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchEnded(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchCancelled(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    
+    bool handleAction(int action, bool down, double timestamp);
+
     void blockPause();
     void unblockPause();
     cocos2d::CCPoint getRealMousePos();
     bool isInDevtools();
-
-    void blockPinch(bool block);
 
     CCMenuItemSpriteExtra* getEditButtonByTag(int tag);
 

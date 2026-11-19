@@ -5,7 +5,7 @@ using namespace geode::prelude;
 
 namespace tinker::ui {
 
-FontContainer* FontContainer::create(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer* fontLayer) {
+FontContainer* FontContainer::create(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer2* fontLayer) {
     auto ret = new FontContainer();
     if (ret->init(id, width, text, fontFile, fontLayer)) {
         ret->autorelease();
@@ -15,7 +15,7 @@ FontContainer* FontContainer::create(int id, float width, ZStringView text, ZStr
     return nullptr;
 }
 
-bool FontContainer::init(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer* fontLayer) {
+bool FontContainer::init(int id, float width, ZStringView text, ZStringView fontFile, SelectFontLayer2* fontLayer) {
     GLubyte opacity = (id % 2 == 0) ? 50 : 0;
     if (!CCLayerColor::initWithColor({0, 0, 0, opacity})) return false;
 
@@ -36,11 +36,11 @@ bool FontContainer::init(int id, float width, ZStringView text, ZStringView font
     menu->setID("main-menu"_spr);
 
     m_toggle = CCMenuItemExt::createTogglerWithFrameName("GJ_selectSongOnBtn_001.png", "GJ_selectSongBtn_001.png", 0.5f, [this] (auto sender) {
-        static_cast<IFSSelectFontLayer*>(m_fontLayer)->updateFont(getFontID());
+        static_cast<IFSSelectFontLayer2*>(m_fontLayer)->updateFont(getFontID());
     });
     m_toggle->setID("use-toggle"_spr);
 
-    if (fontLayer->m_font == id) {
+    if (static_cast<IFSSelectFontLayer2*>(fontLayer)->m_fields->m_font == id) {
         m_toggle->toggle(true);
     }
 

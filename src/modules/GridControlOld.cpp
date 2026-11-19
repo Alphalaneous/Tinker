@@ -1,11 +1,11 @@
-#ifndef GEODE_IS_ANDROID32
+/*#ifndef GEODE_IS_ANDROID32
 
 #include "modules/GridControlOld.hpp"
 #include "modules/RepeatingEditorButtons.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "modules/UIScaling.hpp"
 #include "utils/UI.hpp"
-#include <alphalaneous.editorsounds/include/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 #include "InputsHandler.hpp"
 
 using namespace geode::prelude;
@@ -148,7 +148,7 @@ void GridControlOld::onEditor() {
     m_control->updateLayout();
     m_control->setID("grid-size-controls"_spr);
     
-    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars) {
         updateUI(scale);
     });
 
@@ -196,7 +196,7 @@ void GridControlOld::onEditor() {
         Mod::get()->setSavedValue<bool>("grid-scale-toggle", m_gridScaleToggled);
     });
     m_toggler->setID("grid-scale-button"_spr);
-    alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
+    //alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
 
     if (getSetting<bool, "show-grid-scale-toggle">()) {
         bool isToggled = Mod::get()->getSavedValue<bool>("grid-scale-toggle", false);
@@ -296,4 +296,4 @@ float GCObjectToolbox::gridNodeSizeForKey(int id) {
     return size * mult;
 }
 
-#endif
+#endif*/

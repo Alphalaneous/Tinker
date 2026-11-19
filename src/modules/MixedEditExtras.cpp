@@ -7,8 +7,8 @@ bool MixedEditExtras::onToggled(bool state) {
     return true;
 }
 
-bool MEESetupObjectOptionsPopup::init(GameObject* object, cocos2d::CCArray* objects, SetGroupIDLayer* layer) {
-    if (!SetupObjectOptionsPopup::init(object, objects, layer)) return false;
+bool MEESetupObjectOptionsPopup::init(GameObject* object, cocos2d::CCArray* objects) {
+    if (!SetupObjectOptionsPopup::init(object, objects)) return false;
 
     updateMixedToggles();
 

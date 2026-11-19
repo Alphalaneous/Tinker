@@ -2,13 +2,12 @@
 
 #include "module/Module.hpp"
 #include <Geode/modify/EditButtonBar.hpp>
-#include <Geode/modify/EditorOptionsLayer.hpp>
+#include <Geode/modify/GameSettingsLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/Tab.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <alphalaneous.editortab_api/api/Tab.hpp>
 
 class $module(ScrollableObjects) {
-    bool m_shouldLoadBars = false;
     bool m_callbacksAdded = false;
 
     void onEditor();
@@ -16,8 +15,7 @@ class $module(ScrollableObjects) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
-    bool shouldLoadBars();
-    void setLoadBars();
+    void initializeTab(alpha::editor_tabs::Tab* tab);
 
     struct ScrollableObjectsToggledEvent final : geode::Event<ScrollableObjectsToggledEvent, bool(bool state)> {
         using Event::Event;
@@ -25,6 +23,8 @@ class $module(ScrollableObjects) {
 };
 
 class $modify(SOEditorUI, EditorUI) {
+    $registerHooks(ScrollableObjects)
+
     struct Fields {
         geode::Ref<CCNode> m_groupsGotoMenu = nullptr;
         geode::Ref<CCNode> m_groupsTogglesMenu = nullptr;
@@ -32,11 +32,13 @@ class $modify(SOEditorUI, EditorUI) {
         geode::Ref<CCMenuItemSpriteExtra> m_groupsTogglesButton = nullptr;
     };
 
+    bool init(LevelEditorLayer* editorLayer);
+    void addInitializedEvent();
     void updateCreateMenu(bool selectTab);
 };
 
 class $modify(SOEditButtonBar, EditButtonBar) {
-    $registerHooks(ScrollableObjects, true)
+    $registerHooks(ScrollableObjects)
 
     struct Fields {
         geode::Ref<cocos2d::CCNode> m_container = nullptr;
@@ -47,11 +49,9 @@ class $modify(SOEditButtonBar, EditButtonBar) {
         geode::Ref<cocos2d::CCNode> m_extrasMenuContainer = nullptr;
 
         geode::Ref<cocos2d::CCSprite> m_separator = nullptr;
-        geode::Ref<geode::ColumnLayout> m_extrasLayout = nullptr;
 
         float m_widthOffset = 0.f;
-        int m_rows = 0;
-        int m_cols = 0;
+        unsigned int m_cols = 0;
 
         bool m_initialized = false;
         bool m_wasItemless = false;
@@ -59,13 +59,14 @@ class $modify(SOEditButtonBar, EditButtonBar) {
 
         std::unordered_map<float, std::vector<CCNode*>> m_columns{};
         std::set<geode::Ref<cocos2d::CCNode>> m_visibleNodes{};
+        std::set<geode::Ref<cocos2d::CCNode>> m_nextVisibleNodes{};
 
         alpha::editor_tabs::Tab* m_tab = nullptr;
     };
 
     void setupScrollable(alpha::editor_tabs::Tab* tab);
     void revertScrollable();
-    void loadItems(int rows);
+    void loadItems();
     void updateBar();
 
     void cull(SOEditButtonBar::Fields* fields, float x);
@@ -74,17 +75,10 @@ class $modify(SOEditButtonBar, EditButtonBar) {
     void addToExtrasMenu(CCMenuItemSpriteExtra* button);
     void removeFromExtrasMenu(CCMenuItemSpriteExtra* button);
     void removeFromExtrasMenu(geode::ZStringView ID);
-
-    static void _onModify(auto& self) {
-        (void) self.setHookPriority("EditButtonBar::loadFromItems", geode::Priority::Replace);
-        (void) self.setHookPriorityBeforePost("EditButtonBar::create", "alphalaneous.editortab_api");
-    }
 };
 
-class $modify(SOEditorOptionsLayer, EditorOptionsLayer) {
+class $modify(SOGameSettingsLayer, GameSettingsLayer) {
     $registerHooks(ScrollableObjects)
 
-    void onButtonRows(cocos2d::CCObject* sender);
-    void onClose(cocos2d::CCObject* sender);
-    void setupOptions();
+    static GameSettingsLayer* create(GJBaseGameLayer* p0, int p1);
 };

@@ -1,10 +1,13 @@
 #include "modules/ImprovedLayers.hpp"
+#include "Events.hpp"
+#include "Geode/loader/Log.hpp"
 #include "InputsHandler.hpp"
+#include "ccTypes.h"
 #include "modules/UIScaling.hpp"
 #include "nodes/LabelListener.hpp"
 #include "utils/next-free/NextFreeProvider.hpp"
 #include "utils/next-free/sources/EditorLayerSource.hpp"
-#include <alphalaneous.editorsounds/include/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 
 using namespace geode::prelude;
 
@@ -28,6 +31,7 @@ bool ImprovedLayers::onToggled(bool state) {
         }
 
         m_labelListener = nullptr;
+        removeEventListener("ui-scale");
 
         revertLayerMenu();
     }
@@ -37,7 +41,6 @@ bool ImprovedLayers::onToggled(bool state) {
 void ImprovedLayers::onEditor() {
     auto editor = getEditor();
 
-    // temporary BetterEdit compat
     editor->runAction(CallFuncExt::create([this, editor] {
         cleanupLayerMenu();
 
@@ -67,7 +70,7 @@ void ImprovedLayers::onEditor() {
         m_nextFreeBtn->setScale(0.8f);
         m_nextFreeBtn->m_baseScale = 0.8f;
 
-        alpha::editor_sounds::assignToMenuItem(m_nextFreeBtn, "next-page");
+        //alpha::editor_sounds::assignToMenuItem(m_nextFreeBtn, "next-page");
 
         editor->m_uiItems->addObject(m_nextFreeBtn);
 
@@ -96,10 +99,17 @@ void ImprovedLayers::onEditor() {
             layerMenu->addChild(m_nextFreeBtn);
 
             layerMenu->updateLayout();
+            layerMenu->setAnchorPoint({1.f, 0.5f});
 
             auto winSize = CCDirector::get()->getWinSize();
-            layerMenu->setPositionX(winSize.width - layerMenu->getScaledContentWidth() / 2.f - 6.f * UIScaling::getScale() - UIScaling::getSafeOffset().x);
+            layerMenu->setPositionX(winSize.width - 6.f * UIScaling::getScale() - UIScaling::getSafeOffset().x);
         }
+
+        addEventListener("ui-scale", UIScaleUpdated(), [layerMenu] (float scale, bool scaleToolbars) {
+            if (!layerMenu) return;
+            auto winSize = CCDirector::get()->getWinSize();
+            layerMenu->setPositionX(winSize.width - 6.f * UIScaling::getScale() - UIScaling::getSafeOffset().x);
+        });
     }));
 }
 
@@ -117,18 +127,6 @@ void ImprovedLayers::cleanupLayerMenu() {
 
     m_oldLabel->removeFromParent();
     editor->m_uiItems->removeObject(m_oldLabel);
-
-    for (auto child : editor->getChildrenExt()) {
-        auto input = typeinfo_cast<TextInput*>(child);
-        if (input && input->getInputNode()->m_caption == "Z") {
-            input->defocus();
-            // cuz it still accepts input lol
-            input->setPosition({99999, 99999});
-            input->removeFromParent();
-
-            editor->m_uiItems->removeObject(input);
-        }
-    }
 
     auto layerMenu = editor->getChildByID("layer-menu");
     if (layerMenu) {
@@ -162,6 +160,7 @@ void ImprovedLayers::revertLayerMenu() {
 
     if (layerMenu) {
         layerMenu->setContentSize(m_oldMenuSize);
+        layerMenu->setAnchorPoint({0.5f, 0.5f});
 
         auto layout = static_cast<RowLayout*>(layerMenu->getLayout());
         layout->setAutoScale(true);
@@ -211,6 +210,7 @@ void ImprovedLayers::revertLayerMenu() {
     editor->m_layerNextBtn->setColor({255, 255, 255});
 
     editor->m_goToBaseBtn->setVisible(!isBase);
+    editor->m_layerPlusBtn->setVisible(isBase);
 
     m_oldLabel = nullptr;
     m_oldLayerLockButton = nullptr;
@@ -219,6 +219,11 @@ void ImprovedLayers::revertLayerMenu() {
 
 void ILEditorUI::onLockLayer(CCObject* sender) {
     EditorUI::onLockLayer(sender);
+    ImprovedLayers::get()->updateDisplay();
+}
+
+void ILEditorUI::updateGroupIDLabel() {
+    EditorUI::updateGroupIDLabel();
     ImprovedLayers::get()->updateDisplay();
 }
 
@@ -242,6 +247,8 @@ void LayerInput::updateDisplay() {
     auto editor = EditorUI::get();
 
     auto isBase = editor->m_editorLayer->m_currentLayer == -1;
+    auto isBaseOr0 = isBase || editor->m_editorLayer->m_currentLayer == 0;
+
     auto isMax = editor->m_editorLayer->m_currentLayer == EditorLayerSource().getMax();
 
     auto layerLocking = GameManager::get()->getGameVariable(GameVar::LayerLocking);
@@ -260,13 +267,13 @@ void LayerInput::updateDisplay() {
     else {
         spr = CCSpriteGrayscale::createWithSpriteFrameName("GJ_lock_open_001.png");
         spr->setScale(0.4f);
-        if (isBase) {
+        if (isBaseOr0) {
             spr->setOpacity(127);
         }
         offset = CCPoint{0.f, 1.f};
     }
 
-    m_lockBtn->setEnabled(!isBase);
+    m_lockBtn->setEnabled(!isBaseOr0);
 
     auto oldSpr = m_lockSprContainer->getChildByType<CCSprite>();
     if (oldSpr) {
@@ -284,8 +291,9 @@ void LayerInput::updateDisplay() {
     spr->setAnchorPoint({0.5f, 0.5f});
     spr->setPosition(m_lockSprContainer->getContentSize() / 2.f + offset);
 
-    m_input->getInputNode()->m_textColor = isLocked ? ccColor3B{255, 200, 90} : ccColor3B{255, 255, 255};
-    m_input->getInputNode()->refreshLabel();
+    m_input->setTextColor(isLocked ? ccColor4B{255, 200, 90, 255} : ccColor4B{255, 255, 255, 255});
+
+    //m_input->getInputNode()->refreshLabel();
 
     if (layerLocking) {
         xOffset = 1.5f;
@@ -324,6 +332,7 @@ void LayerInput::updateDisplay() {
     editor->m_layerNextBtn->setColor(isMax ? ccColor3B{166, 166, 166} : ccColor3B{255, 255, 255});
 
     editor->m_goToBaseBtn->setVisible(!isBase);
+    editor->m_layerPlusBtn->setVisible(false);
 
     m_lastLayerLockState = layerLocking;
 }
@@ -342,7 +351,7 @@ bool LayerInput::init() {
     m_input->setScale(0.74f);
     m_input->getBGSprite()->setVisible(false);
     m_input->setID("layer-text-input"_spr);
-    m_input->getInputNode()->setMaxLabelWidth(26.f);
+    //m_input->getInputNode()->setMaxLabelWidth(26.f);
 
     addChild(m_input);
 

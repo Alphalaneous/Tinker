@@ -1,25 +1,74 @@
 #include "modules/ReferenceImage.hpp"
+#include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "alphalaneous.editortab_api/api/Editor.hpp"
 #include "modules/RepeatingEditorButtons.hpp"
 #include <Geode/utils/base64.hpp>
 #include <Geode/utils/async.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+#include <asp/fs/Path.hpp>
 #include "utils/String.hpp"
 #include "utils/UI.hpp"
 
 using namespace geode::prelude;
 
 void ReferenceImage::onEditor() {
+    auto mode = alpha::editor_tabs::getMode(alpha::editor_tabs::Edit);
+    if (!mode) return;
+
+    auto tab = mode->getTab("edit");
+    if (!tab) return;
+
+    auto node = tab->getNode();
+    if (!node) return;
+
     auto editor = getEditor();
 
-    auto btn = getEditor()->getSpriteButton("image-btn.png"_spr, menu_selector(RIEditorUI::onImport), nullptr, 0.9f);
+    auto btn = alpha::editor_tabs::createEditButton(CCSprite::create("image-btn.png"_spr), 1, [this, editor] (auto sender) {
+        utils::file::FilePickOptions options;
+        options.filters.push_back({"Images", {"*.png", "*.apng", "*.jpg", "*.jpeg", "*.jfif", "*.pjpeg", "*.pjp", "*.webp", "*.gif", "*.bmp", "*.jxl"}});
+
+        async::spawn(
+            utils::file::pick(file::PickMode::OpenFile, options),
+            [this, editor](Result<std::optional<asp::fs::Path>> result) {
+                if (!result.isOk()) return;
+                auto opt = result.unwrap();
+                if (!opt) return;
+
+                auto path = opt.value();
+
+                auto obj = editor->m_selectedObject;
+
+                CCPoint pos{};
+
+                if (obj) {
+                    pos = obj->getPosition();
+                }
+                else {
+                    auto winSize = CCDirector::get()->getWinSize();
+                    auto localPosAR = editor->m_editorLayer->m_objectLayer->convertToNodeSpaceAR(winSize / 2.f);
+                    pos = CCPoint{localPosAR.x, localPosAR.y + tinker::utils::ui::getToolbarHeight()};
+                }
+
+                std::string objStr = fmt::format("1,914,2,{},3,{},31,{}", pos.x, pos.y, utils::base64::encode("image:" + utils::base64::encode(path.string())));
+                auto objects = editor->pasteObjects(objStr, true, true);
+                
+                for (auto obj : objects->asExt<GameObject*>()) {
+                    obj->m_positionX = pos.x;
+                    obj->m_positionY = pos.y;
+
+                    obj->setPosition(pos);
+                }
+
+                editor->updateButtons();
+                editor->updateObjectInfoLabel();
+            }
+        );
+    });
+
     btn->setID("reference-import"_spr);
     RepeatingEditorButtons::forceNoRepeat(btn, true);
 
-    editor->m_editButtonBar->m_buttonArray->addObject(btn);
-
-    auto cols = GameManager::get()->getIntGameVariable(GameVar::EditorButtonsPerRow);
-    auto rows = GameManager::get()->getIntGameVariable(GameVar::EditorButtonRows);
-
-    editor->m_editButtonBar->reloadItems(cols, rows);
+    node->addItem(btn);
 }
 
 bool RICustomizeObjectLayer::init(GameObject* object, CCArray* objectArray) {
@@ -54,14 +103,14 @@ void RICustomizeObjectLayer::onSelectMode(CCObject* sender) {
 
         async::spawn(
             utils::file::pick(file::PickMode::OpenFile, options),
-            [this](Result<std::optional<std::filesystem::path>> result) {
+            [this](Result<std::optional<asp::fs::Path>> result) {
                 if (!result.isOk()) return;
                 auto opt = result.unwrap();
                 if (!opt) return;
 
                 auto path = opt.value();
                 if (auto textObject = typeinfo_cast<TextGameObject*>(m_targetObject)) {
-                    textObject->updateTextObject("image:" + utils::base64::encode(utils::string::pathToString(path)), false);
+                    textObject->updateTextObject("image:" + utils::base64::encode(path.string()), false);
                 }
             }
         );
@@ -154,13 +203,9 @@ void RITextGameObject::setupImage(const std::string& path) {
         auto decodedRes = utils::base64::decodeString(path);
         if (!decodedRes) return;
 
-        auto u16Res = utils::string::utf8ToUtf16(decodedRes.unwrap());
-        if (!u16Res) return;
+        asp::fs::Path decoded = decodedRes.unwrap();
 
-        std::filesystem::path decoded = u16Res.unwrap();
-        std::error_code err;
-
-        if (std::filesystem::exists(decoded, err) && !std::filesystem::is_directory(decoded, err)) {
+        if (decoded.exists() && !decoded.isDir()) {
             fields->m_spr = LazySprite::create({60.f, 60.f}, true);
             fields->m_spr->setZOrder(1);
             fields->m_spr->setPosition(getContentSize() / 2.f);
@@ -190,55 +235,13 @@ void RITextGameObject::setupImage(const std::string& path) {
     }
 }
 
-void RITextGameObject::customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists) {
+void RITextGameObject::customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists) {
     TextGameObject::customObjectSetup(values, exists);
     setupCustomSprite();
 }
 
-void RITextGameObject::updateTextObject(gd::string text, bool defaultFont) {
+void RITextGameObject::updateTextObject(std::string text, bool defaultFont) {
     TextGameObject::updateTextObject(text, defaultFont);
     if (!LevelEditorLayer::get()) return;
     setupCustomSprite();
-}
-
-void RIEditorUI::onImport(CCObject* sender) {
-    utils::file::FilePickOptions options;
-    options.filters.push_back({"Images", {"*.png", "*.apng", "*.jpg", "*.jpeg", "*.jfif", "*.pjpeg", "*.pjp", "*.webp", "*.gif", "*.bmp", "*.jxl"}});
-
-    async::spawn(
-        utils::file::pick(file::PickMode::OpenFile, options),
-        [this](Result<std::optional<std::filesystem::path>> result) {
-            if (!result.isOk()) return;
-            auto opt = result.unwrap();
-            if (!opt) return;
-
-            auto path = opt.value();
-
-            auto obj = m_selectedObject;
-
-            CCPoint pos{};
-
-            if (obj) {
-                pos = obj->getPosition();
-            }
-            else {
-                auto winSize = CCDirector::get()->getWinSize();
-                auto localPosAR = m_editorLayer->m_objectLayer->convertToNodeSpaceAR(winSize / 2.f);
-                pos = CCPoint{localPosAR.x, localPosAR.y + tinker::utils::ui::getToolbarHeight()};
-            }
-
-            std::string objStr = fmt::format("1,914,2,{},3,{},31,{}", pos.x, pos.y, utils::base64::encode("image:" + utils::base64::encode(utils::string::pathToString(path))));
-            auto objects = pasteObjects(objStr, true, true);
-            
-            for (auto obj : objects->asExt<GameObject*>()) {
-                obj->m_positionX = pos.x;
-                obj->m_positionY = pos.y;
-
-                obj->setPosition(pos);
-            }
-
-            updateButtons();
-            updateObjectInfoLabel();
-        }
-    );
 }

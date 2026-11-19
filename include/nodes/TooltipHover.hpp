@@ -5,7 +5,7 @@
 #include <Geode/ui/NineSlice.hpp>
 #include <Geode/utils/cocos.hpp>
 #include <Geode/binding/CreateMenuItem.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 
 using namespace alpha::prelude;
 
@@ -28,16 +28,17 @@ protected:
     bool init() override;
 
     #ifdef GEODE_IS_DESKTOP
-    bool mouseEntered(TouchEvent* touch) override;
-    void mouseMoved(TouchEvent* touch) override;
+    bool hoverEntered(Hover* touch) override;
+    void hoverMoved(Hover* touch) override;
     #endif
 
-    bool clickBegan(TouchEvent* touch) override;
-    void clickEnded(TouchEvent* touch) override;
+    bool touchBegan(Touch* touch) override;
+    void touchEnded(Touch* touch) override;
+    void touchCancelled(Touch* touch) override;
 
     #ifdef GEODE_IS_MOBILE
-    void clickMoved(TouchEvent* touch) override;
-    void showTooltipWithTouch(TouchEvent* touch);
+    void touchMoved(Touch* touch) override;
+    void showTooltipWithTouch(Touch* touch);
     void scheduleHide(float dt);
     #endif
 
@@ -52,6 +53,15 @@ protected:
     void scaleItem(CreateMenuItem* item, bool down);
 
     void setButtonOpacity(CreateMenuItem* item, GLubyte opacity);
+
+    CreateMenuItem* getHoveredItem(cocos2d::CCPoint const& location);
+    CreateMenuItem* getHoveredObjectGroupItem(cocos2d::CCPoint const& location);
+    CreateMenuItem* getHoveredEditorItem(cocos2d::CCPoint const& location);
+
+    void updateHoveredItem(cocos2d::CCPoint const& location);
+    void setActiveItem(CreateMenuItem* item);
+    void updateTooltipPosition(CreateMenuItem* item);
+    void cancelTooltipHide();
 
     bool m_clicking = false;
     bool m_clickingOutside = false;

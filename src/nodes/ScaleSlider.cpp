@@ -1,4 +1,5 @@
 #include "nodes/ScaleSlider.hpp"
+#include "Geode/loader/Log.hpp"
 #include "modules/ImprovedControls.hpp"
 
 using namespace geode::prelude;
@@ -26,7 +27,8 @@ bool ScaleSlider::init(ScaleSliderCallback callback, CCNode* control) {
             if (m_skipCallback) return;
 
             if (auto scaleControl = typeinfo_cast<GJScaleControl*>(m_control)) {
-                auto scale = static_cast<ICGJScaleControl*>(scaleControl)->trueValueFromScale(value);
+                auto scale = static_cast<ICGJScaleControl*>(scaleControl)->trueScaleFromValue(value);
+
                 if (scale > 0.97f && scale < 1.03f) {
                     value = static_cast<ICGJScaleControl*>(scaleControl)->trueValueFromScale(1);
                 }

@@ -13,7 +13,7 @@
 #include <Geode/utils/ZStringView.hpp>
 #include <Geode/utils/cocos.hpp>
 #include "nodes/ColorChannelSprite.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <unordered_map>
 #include <vector>
 #include "ArtPreview.hpp"

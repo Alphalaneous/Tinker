@@ -218,8 +218,8 @@ bool nodesIntersect(cocos2d::CCNode* a, cocos2d::CCNode* b) {
 }
 
 float getToolbarHeight(bool checkVisible) {
-    if (MainEditorUI::get() && checkVisible && !MainEditorUI::get()->isUIVisible()) {
-        return 0;
+    if (MainEditorUI::get() && checkVisible && MainEditorUI::get()->m_uiHidden) {
+        return 0.f;
     }
     float toolbarOffset = 0.f;
     float height = tinker::constants::ToolbarHeight;

@@ -1,7 +1,7 @@
 #include "modules/TogglerOverflow.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/API.hpp>
-#include <alphalaneous.editorsounds/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 #include "modules/StatusBar.hpp"
 #include "modules/UIScaling.hpp"
 
@@ -97,10 +97,10 @@ bool ToggleContainer::init(EditorUI* editorUI) {
     m_expandButton = geode::Button::createWithNode(arrowContainer, [this] (auto sender) {
         show(!m_expanded);
         if (!m_expanded) {
-            alpha::editor_sounds::playSound("grid-increase");
+            //alpha::editor_sounds::playSound("grid-increase");
         }
         else {
-            alpha::editor_sounds::playSound("grid-decrease");
+            //alpha::editor_sounds::playSound("grid-decrease");
         }
     });
     m_expandButton->setZOrder(1);
@@ -203,7 +203,7 @@ void ToggleContainer::updateContainer(bool addBack) {
             node->setScale(1);
             if (auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 btn->m_baseScale = 1.f;
-                alpha::editor_sounds::assignToMenuItem(btn, "toolbar-toggles");
+                //alpha::editor_sounds::assignToMenuItem(btn, "toolbar-toggles");
             }
         }
 
@@ -346,7 +346,7 @@ void TogglerOverflow::onEditor() {
     editor->addChild(m_container);
     editor->m_uiItems->addObject(m_container);
 
-    addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars) {
         float realScale = 1.f;
         if (scaleToolbars) {
             realScale = scale;
@@ -362,7 +362,7 @@ void TogglerOverflow::onEditor() {
         m_container->updateContainer();
     });
 
-    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+    addEventListener("switch-tab", alpha::editor_tabs::Tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
         if (!m_container) return;
         m_container->setVisible(show && tab->getID() != "michael.sculptorv4/sculptor");
     });

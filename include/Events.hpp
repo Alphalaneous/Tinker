@@ -9,6 +9,7 @@
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/loader/Event.hpp>
 #include <Geode/utils/Keyboard.hpp>
+#include <matjson.hpp>
 
 struct EditorEnterEvent final : geode::Event<EditorEnterEvent, bool(EditorUI* editorUI)> {
     using Event::Event;
@@ -86,11 +87,11 @@ struct AlertsActiveEvent final : geode::Event<AlertsActiveEvent, bool()> {
     using Event::Event;
 };
 
-struct PreUIScaleUpdated final : geode::Event<PreUIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
+struct PreUIScaleUpdated final : geode::Event<PreUIScaleUpdated, bool(float scale, bool scaleToolbars)> {
     using Event::Event;
 };
 
-struct UIScaleUpdated final : geode::Event<UIScaleUpdated, bool(float scale, bool scaleToolbars, bool fullReload)> {
+struct UIScaleUpdated final : geode::Event<UIScaleUpdated, bool(float scale, bool scaleToolbars)> {
     using Event::Event;
 };
 
@@ -99,5 +100,9 @@ struct PauseUIScaleUpdated final : geode::Event<PauseUIScaleUpdated, bool(Editor
 };
 
 struct LostFocusEvent final : geode::Event<LostFocusEvent, bool()> {
+    using Event::Event;
+};
+
+struct SaveValueChangedEvent final : geode::Event<SaveValueChangedEvent, bool(const matjson::Value& value)> {
     using Event::Event;
 };

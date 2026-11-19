@@ -52,7 +52,7 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
     );
 
     m_list = AdvancedScrollLayer::create({ size.width - 10.f, size.height});
-    m_list->setLayout(
+    m_list->getContentLayer()->setLayout(
         RowLayout::create()
             ->setAxisAlignment(AxisAlignment::Center)
             ->setGrowCrossAxis(true)
@@ -88,10 +88,10 @@ bool ObjectList::init(const std::map<int, int>& objects, SortOptions sortOptions
         auto item = ObjectItem::create(k, v);
         item->setID(fmt::format("object-{}", k));
 
-        m_list->addChild(item);
+        m_list->getContentLayer()->addChild(item);
     }
 
-    m_list->updateLayout();
+    m_list->getContentLayer()->updateLayout();
 
     return true;
 }

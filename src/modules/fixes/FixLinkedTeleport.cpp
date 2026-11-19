@@ -150,6 +150,7 @@ void FLTEditorUI::editObjectSpecial(int type) {
     EditorUI::editObjectSpecial(type);
 }
 
+
 void FLTEditorUI::transformObject(GameObject* object, EditCommand command, bool noOffset) {
     if (object->m_objectID == tinker::constants::objects::LinkedTeleportPortal) {
         auto child = static_cast<TeleportPortalObject*>(object)->m_orangePortal;

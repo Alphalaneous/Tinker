@@ -27,7 +27,7 @@ void ObjectNames::checkNames(bool ignoreVersion) {
             auto version = numRes.unwrap();
 
             if (version > checkVersion() || ignoreVersion) {
-                Mod::get()->setSavedValue("object-names-version", version);
+                Mod::get()->setSavedValue("ObjectNames/version", version);
                 downloadNames();
             }
             else {
@@ -51,10 +51,9 @@ void ObjectNames::loadNames(ZStringView names) {
 }
 
 void ObjectNames::loadNamesFromFile() {
-    std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-    std::error_code err{};
+    auto objectNames = Mod::get()->getSaveDir() / "objects.csv";
 
-    if (!std::filesystem::exists(objectNames, err)) {
+    if (!objectNames.exists()) {
         downloadNames();
         return;
     }
@@ -75,10 +74,9 @@ void ObjectNames::downloadNames() {
         req.get("https://raw.githubusercontent.com/Alphalaneous/GDObjectNames/refs/heads/main/objects.csv"),
         [this] (web::WebResponse value) {
             if (value.error()) {
-                std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
-                std::error_code err{};
+                auto objectNames = Mod::get()->getSaveDir() / "objects.csv";
 
-                if (!std::filesystem::exists(objectNames, err)) return;
+                if (!objectNames.exists()) return;
                 
                 auto namesRes = utils::file::readString(objectNames);
                 if (!namesRes) return;
@@ -90,7 +88,7 @@ void ObjectNames::downloadNames() {
             auto strRes = value.string();
             if (!strRes) return;
 
-            std::filesystem::path objectNames = Mod::get()->getSaveDir() / "objects.csv";
+            auto objectNames = Mod::get()->getSaveDir() / "objects.csv";
             auto writeRes = utils::file::writeString(objectNames, strRes.unwrap());
             if (!writeRes) {
                 log::error("Failed to write object names");
@@ -135,14 +133,13 @@ const std::unordered_map<unsigned int, std::string>& ObjectNames::getNames() {
 }
 
 int ObjectNames::checkVersion() {
-    return Mod::get()->getSavedValue<unsigned int>("object-names-version", 0);
+    return Mod::get()->getSavedValue<unsigned int>("ObjectNames/version", 0);
 }
 
 $on_game(Loaded) {
-    std::filesystem::path objectNames = Mod::get()->getResourcesDir() / "objects.csv";
-    std::error_code err{};
+    auto objectNames = Mod::get()->getResourcesDir() / "objects.csv";
 
-    if (std::filesystem::exists(objectNames, err)) {
+    if (objectNames.exists()) {
         auto namesRes = utils::file::readString(objectNames);
         if (!namesRes) return;
 

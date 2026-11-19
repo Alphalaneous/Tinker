@@ -1,6 +1,6 @@
 #include "modules/ImprovedEditTab.hpp"
 #include "MainHooks.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
 #include "modules/EditTools.hpp"
 #include "modules/RepeatingEditorButtons.hpp"
 #include "modules/UIScaling.hpp"
@@ -9,7 +9,7 @@
 
 using namespace geode::prelude;
 
-namespace tinker::ui {
+/*namespace tinker::ui {
 
 ButtonContainer* ButtonContainer::create() {
     auto ret = new ButtonContainer();
@@ -104,7 +104,7 @@ void ButtonContainer::onExit() {
     CCTouchDispatcher::get()->removeDelegate(this);
 }
 
-bool ButtonContainer::clickBegan(alpha::dispatcher::TouchEvent* touch) {
+bool ButtonContainer::touchBegan(alpha::dispatcher::Touch* touch) {
     if (!nodeIsVisible(this)) return false;
 
     if (!alpha::utils::isPointInsideNode(this, touch->getLocation())) {
@@ -249,8 +249,8 @@ bool EditControls::init(CCArray* buttons, const CCSize& size) {
 
     arrowContainer->addChild(centerButton);
     
-
-    /*auto flipXButton = createButton("edit_flipXBtn_001.png", 1.f, [] (auto sender) {
+////// COMMENT OUT
+    auto flipXButton = createButton("edit_flipXBtn_001.png", 1.f, [] (auto sender) {
         EditorUI::get()->transformObjectCall(EditCommand::FlipX);
     }, false);
     flipXButton->setPosition(arrowContainer->getContentSize() / 2.f);
@@ -262,7 +262,8 @@ bool EditControls::init(CCArray* buttons, const CCSize& size) {
     }, false);
     flipYButton->setPosition(arrowContainer->getContentSize() / 2.f);
 
-    arrowContainer->addChild(flipYButton);*/
+    arrowContainer->addChild(flipYButton);
+//////
 
     addChild(arrowContainer);
 
@@ -721,4 +722,4 @@ void IETEditButtonBar::loadFromItems(cocos2d::CCArray* objects, int cols, int ro
     addChild(container);
 
     container->updateButtons();
-}
+}*/

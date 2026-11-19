@@ -1,8 +1,8 @@
 #pragma once
 
-#include "alphalaneous.good_grid/include/Color.hpp"
+#include "alphalaneous.good_grid/Color.hpp"
 #include "module/Module.hpp"
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include <alphalaneous.good_grid/DrawLayers.hpp>
 
 class $module(EditorGridCustomization) {
     bool onToggled(bool state);

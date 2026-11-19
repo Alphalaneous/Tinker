@@ -13,6 +13,8 @@ class $module(RepeatingEditorButtons) {
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
 
+    void handleEditTab();
+
     static void applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, geode::ZStringView id);
     static void recursivelySetRepeat(cocos2d::CCNode* node);
 	static void setRepeatable(CCMenuItemSpriteExtra* item, bool repeatable);
@@ -50,12 +52,12 @@ class $modify(REBLevelSettingsLayer, LevelSettingsLayer) {
 };
 
 class $modify(REBConfigureValuePopup, ConfigureValuePopup) {
-    bool init(ConfigureValuePopupDelegate* delegate, float value, float minimum, float maximum, gd::string title, gd::string description, int type);
+    bool init(ConfigureValuePopupDelegate* delegate, float value, float minimum, float maximum, std::string title, std::string description, int type);
 };
 
 class $modify(REBSetupTriggerPopup, SetupTriggerPopup) {
-    bool init(EffectGameObject* trigger, cocos2d::CCArray* triggers, float width, float height, int background);
+    bool init(EffectGameObject* trigger, cocos2d::CCArray* triggers, float width, float height, int background, float p5);
     void createEasingControls(cocos2d::CCPoint position, float scale, int page, int group);
-    void createCustomEasingControls(gd::string text, cocos2d::CCPoint position, float scale, int typeProperty, int rateProperty, int page, int group);
-    cocos2d::CCArray* createValueControlAdvanced(int property, gd::string label, cocos2d::CCPoint position, float scale, bool noSlider, InputValueType valueType, int length, bool arrows, float sliderMin, float sliderMax, int page, int group, GJInputStyle inputStyle, int decimalPlaces, bool allowDisable);
+    void createCustomEasingControls(std::string text, cocos2d::CCPoint position, float scale, int typeProperty, int rateProperty, int page, int group);
+    cocos2d::CCArray* createValueControlAdvanced(int property, std::string label, cocos2d::CCPoint position, float scale, bool noSlider, InputValueType valueType, int length, bool arrows, float sliderMin, float sliderMax, int page, int group, GJInputStyle inputStyle, int decimalPlaces, bool allowDisable);
 };

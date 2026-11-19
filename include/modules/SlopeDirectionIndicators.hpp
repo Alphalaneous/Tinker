@@ -1,7 +1,7 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <alphalaneous.good_grid/include/DrawGridBase.hpp>
+#include <alphalaneous.good_grid/DrawGridBase.hpp>
 
 namespace tinker::ui {
 

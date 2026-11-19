@@ -1,5 +1,8 @@
 #include "nodes/StartPosOverlay.hpp"
-#include "modules/StartPosTools.hpp"
+#include "Events.hpp"
+#include "modules/StartPosSwitcher.hpp"
+#include "modules/UIScaling.hpp"
+#include <Geode/binding/EditorUI.hpp>
 
 using namespace geode::prelude;
 
@@ -33,22 +36,37 @@ bool StartPosOverlay::init() {
     m_background->setContentSize(getContentSize());
     m_background->setPosition(getContentSize() / 2.f);
     m_background->setID("background"_spr);
+    m_background->setLayout(SimpleRowLayout::create()
+        ->setMainAxisScaling(AxisScaling::Fit)
+        ->setCrossAxisScaling(AxisScaling::Fit)
+        ->setGap(5.f)
+        ->setPadding({3.f, 3.f, 3.f, 3.f})
+    );
 
     addChild(m_background);
 
-    m_button = geode::Button::createWithSpriteFrameName("GJ_playEditorBtn_001.png", [this] (auto sender) {
-        auto levelEditorLayer = static_cast<SPTLevelEditorLayer*>(LevelEditorLayer::get());
-        levelEditorLayer->setActiveStartPos(m_lastStartPos);
-        levelEditorLayer->startSwitcher(false);
-        auto editorUI = static_cast<SPTEditorUI*>(levelEditorLayer->m_editorUI);
-        editorUI->m_fields->m_currentlyPlaying = true;
-        levelEditorLayer->m_editorUI->onPlaytest(sender);
+    auto playButton = geode::Button::createWithSpriteFrameName("GJ_playEditorBtn_001.png", [this] (auto sender) {
+        StartPosSwitcher::get()->playFrom(m_startPos);
     });
-    m_button->setScale(0.8f);
-    m_button->setID("playtest-button"_spr);
+    playButton->setScale(0.8f);
+    playButton->setID("playtest-button"_spr);
 
-    m_background->addChild(m_button);
-    m_button->setPosition(getContentSize() / 2.f);
+    m_background->addChild(playButton);
+
+    m_activeStartPosToggle = geode::Toggler::createWithStandardSprites(0.9f, [this] (geode::Toggler* sender, bool isToggled) {
+        auto switcher = StartPosSwitcher::get();
+        if (!isToggled) {
+            switcher->m_startPosContainer->setStartPos(nullptr);
+            return;
+        }
+        switcher->m_startPosContainer->setStartPos(m_startPos);
+    });
+
+    m_activeStartPosToggle->setID("active-startpos-toggle"_spr);
+
+    m_background->addChild(m_activeStartPosToggle);
+
+    m_background->updateLayout();
 
     return true;
 }
@@ -62,6 +80,8 @@ void StartPosOverlay::setStartPos(StartPosObject* startPos) {
 }
 
 void StartPosOverlay::updateOverlay() {
+    m_activeStartPosToggle->setToggled(m_startPos == StartPosSwitcher::get()->m_startPosContainer->getStartPos());
+
     if (!m_startPos) {
         setVisible(false);
         return;
@@ -72,7 +92,7 @@ void StartPosOverlay::updateOverlay() {
 void StartPosOverlay::updatePos(float dt) {
     if (!m_startPos) return;
     setPosition({m_startPos->getPositionX(), m_startPos->boundingBox().getMaxY() + 3.f});
-    setScale(0.8f / LevelEditorLayer::get()->m_objectLayer->getScale());
+    setScale((0.8f * UIScaling::getScale()) / LevelEditorLayer::get()->m_objectLayer->getScale());
 }
 
 void StartPosOverlay::checkDeletedObject(GameObject* object) {

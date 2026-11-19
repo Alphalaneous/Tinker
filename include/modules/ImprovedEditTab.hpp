@@ -1,11 +1,11 @@
 #pragma once
 
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/EditButtonBar.hpp>
 
-namespace tinker::ui {
+/*namespace tinker::ui {
 
 class ButtonContainer : public geode::NineSlice, public alpha::dispatcher::TouchDelegate {
 public:
@@ -21,7 +21,7 @@ protected:
     void onEnter() override;
     void onExit() override;
 
-	bool clickBegan(alpha::dispatcher::TouchEvent* touch) override;
+	bool touchBegan(alpha::dispatcher::Touch* touch) override;
 
     bool m_active = false;
     geode::Button* m_showButton = nullptr;
@@ -116,4 +116,4 @@ class $modify(IETEditButtonBar, EditButtonBar) {
     static void _onModify(auto& self) {
         (void) self.setHookPriorityAfterPost("EditButtonBar::loadFromItems", "alphalaneous.editortab_api");
     }
-};
+};*/

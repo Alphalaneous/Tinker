@@ -22,6 +22,6 @@ class $modify(SDEditorUI, EditorUI) {
 	void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 	bool getKeyPressed();
 
-    cocos2d::CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
+    cocos2d::CCArray* pasteObjects(std::string str, bool withColor, bool noUndo);
 };
 

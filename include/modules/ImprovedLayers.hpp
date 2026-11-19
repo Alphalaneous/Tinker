@@ -50,4 +50,5 @@ class $modify(ILEditorUI, EditorUI) {
     $registerHooks(ImprovedLayers)
 
     void onLockLayer(cocos2d::CCObject* sender);
+    void updateGroupIDLabel();
 };

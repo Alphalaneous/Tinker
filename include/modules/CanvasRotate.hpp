@@ -1,7 +1,7 @@
 #pragma once
 
+#include "alphalaneous.alphas-ui-pack/touch/Touch.hpp"
 #include "module/Module.hpp"
-#include "nodes/RotationNode.hpp"
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/CCTextInputNode.hpp>
@@ -10,39 +10,33 @@ namespace tinker::ui {
     class RotationNode;
 }
 
-class RotateTouch {
-public:
-    RotateTouch(cocos2d::CCTouch* touch);
-    ~RotateTouch();
-protected:
-    cocos2d::CCTouch* m_touch = nullptr;
-
-    cocos2d::CCPoint m_startPoint{};
-    cocos2d::CCPoint m_point{};
-    cocos2d::CCPoint m_prevPoint{};
-};
-
 class $module(CanvasRotate) {
-    tinker::ui::RotationNode* m_rotationNode = nullptr;
-    std::unordered_map<geode::Ref<cocos2d::CCTouch>, cocos2d::CCPoint> m_preTransformTouch{};
-    bool m_dontRotate = false;
-    cocos2d::CCPoint m_world{};
-    bool m_inQuickMove = false;
     geode::Ref<geode::Label> m_statusLabel = nullptr;
+    geode::Ref<alpha::dispatcher::Touch> m_activeTouch = nullptr;
+
+    bool m_rotateDragging = false;
+    bool m_isSnapped = false;
+    bool m_alignKeyDown = false;
+
+    float m_rotation = 0.f;
+    float m_unsnappedCameraAngle = 0.f;
+    float m_smoothedCameraAngle = 0.f;
+
+    cocos2d::CCPoint m_lastPos{};
 
     void onEditor();
     void setupStatus();
     bool isLassoActive();
     bool isRotating();
 
-    cocos2d::CCPoint getPreTransformPoint(cocos2d::CCTouch* touch);
+    bool touchBegan(alpha::dispatcher::Touch* touch);
+    void touchMoved(alpha::dispatcher::Touch* touch);
+    void touchEnded(alpha::dispatcher::Touch* touch);
 
-    bool isEditorUITouch(cocos2d::CCTouch* touch);
+    void updateCanvasRotation(float deltaAngle);
 
-    bool onTouchBegan(cocos2d::CCTouch* touch, geode::Function<bool(cocos2d::CCTouch* touch)> next);
-    void onTouchMoved(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchEnded(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
-    void onTouchCancelled(cocos2d::CCTouch* touch, geode::Function<void(cocos2d::CCTouch* touch)> next);
+    bool isAlignKeyDown();
+    void realign();
 
     bool onToggled(bool state);
     bool onSettingChanged(std::string_view key, const matjson::Value& value);
@@ -62,13 +56,12 @@ class $modify(CREditorUI, EditorUI) {
     };
 
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
-    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint);
+    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint, bool lock);
     void doPasteObjects(bool withColor);
-    void onCreateObject(int id);
+    GameObject* onCreateObject(int id);
+
     GameObject* createObject(int objectID, cocos2d::CCPoint position);
-    void clickOnPosition(cocos2d::CCPoint pos);
-    void triggerSwipeMode();
-    cocos2d::CCSprite* spriteFromObjectString(gd::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent);
+    cocos2d::CCSprite* spriteFromObjectString(std::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent);
     
 };
 
@@ -76,9 +69,6 @@ class $modify(CRLevelEditorLayer, LevelEditorLayer) {
     $registerHooks(CanvasRotate);
 
     void onStopPlaytest();
-    cocos2d::CCArray* objectsAtPosition(cocos2d::CCPoint position);
-    cocos2d::CCArray* objectsInRect(cocos2d::CCRect rect, bool ignoreLayerCheck);
-	OBB2D* rotatedOBB2D(GameObject* object, cocos2d::CCPoint pivot, float degrees);
     void updateSliderRotation(float dt);
 };
 

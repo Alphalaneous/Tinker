@@ -6,6 +6,7 @@
 #include <Geode/utils/cocos.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/StartPosObject.hpp>
+#include <Geode/ui/Toggler.hpp>
 
 namespace tinker::ui {
 
@@ -23,7 +24,7 @@ protected:
     bool init() override;
     void updatePos(float dt);
 
-    geode::Button* m_button = nullptr;
+    geode::Toggler* m_activeStartPosToggle = nullptr;
     geode::NineSlice* m_background = nullptr;
     geode::Ref<StartPosObject> m_startPos = nullptr;
     geode::Ref<StartPosObject> m_lastStartPos = nullptr;

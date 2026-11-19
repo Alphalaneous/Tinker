@@ -5,7 +5,7 @@
 #include "utils/UI.hpp"
 #include "utils/Constants.hpp"
 #include "nodes/ColorVisualButton.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
 
 using namespace geode::prelude;
 
@@ -48,7 +48,7 @@ void LiveColors::onEditor() {
 
     getEditorLayer()->schedule(schedule_selector(LCLevelEditorLayer::checkColors), 1.f / 60.f);
 
-    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this] (float scale, bool scaleToolbars) {
         updateUI(scale);
     });
     
@@ -149,5 +149,5 @@ void LCLevelEditorLayer::checkColors(float dt) {
         heightOffset += m_editorUI->m_tabsMenu->getScaledContentHeight();
     }
 
-    module->m_colorsMenu->setPositionY((MainEditorUI::get()->isUIVisible() ? heightOffset : 0.f) + 2.5f * UIScaling::getScale());
+    module->m_colorsMenu->setPositionY((!MainEditorUI::get()->m_uiHidden ? heightOffset : 0.f) + 2.5f * UIScaling::getScale());
 }

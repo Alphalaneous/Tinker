@@ -1,5 +1,7 @@
 #include "modules/RepeatingEditorButtons.hpp"
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include "alphalaneous.editortab_api/api/Editor.hpp"
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
@@ -46,9 +48,14 @@ void REBCCMenuItemSpriteExtra::forceNoRepeat(bool force) {
 void REBCCMenuItemSpriteExtra::checkHold(float dt) {
     auto fields = m_fields.self();
     fields->m_isHolding = true;
+    auto scale = getScale();
+    setScale(m_baseScale);
     (m_pListener->*m_pfnSelector)(this);
-    if (!m_animationEnabled) {
+    if (!m_animationEnabled || !m_bEnabled) {
         setScale(m_baseScale);
+    }
+    else {
+        setScale(scale);
     }
 }
 
@@ -89,21 +96,14 @@ void RepeatingEditorButtons::onEditor() {
     auto editor = getEditor();
 
     editor->runAction(CallFuncExt::create([this, editor] {
-        for (auto node : editor->m_editButtonBar->m_buttonArray->asExt()) {
-            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
-            if (!btn) continue;
+        handleEditTab();
 
-            RepeatingEditorButtons::setRepeatable(btn, true);
-        }
-
-        auto editorTabNavMenu = editor->getChildByID("alphalaneous.editortab_api/tabs-navigation-menu");
-        if (editorTabNavMenu) {
-            recursivelySetRepeat(editorTabNavMenu);
-        }
-
-        auto customEditMenu = editor->getChildByID("hjfod.betteredit/custom-move-menu");
-        if (customEditMenu) {
-            recursivelySetRepeat(customEditMenu);
+        auto buildTabsMenu = editor->getChildByID("build-tabs-menu");
+        if (buildTabsMenu) {
+            auto navMenu = buildTabsMenu->getChildByID("alphalaneous.editortab_api/navigation-menu");
+            if (navMenu) {
+                recursivelySetRepeat(navMenu);
+            }
         }
     }));
 
@@ -117,19 +117,9 @@ void RepeatingEditorButtons::onEditor() {
         recursivelySetRepeat(zoomMenu);
     }
 
-    for (auto child : editor->getChildrenExt()) {
-        auto bar = typeinfo_cast<EditButtonBar*>(child);
-        if (!bar) continue;
-
-        auto menu = bar->getChildByType<CCMenu>(0);
-        if (menu) {
-            auto leftBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(0);
-            auto rightBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(1);
-
-            RepeatingEditorButtons::setRepeatable(leftBtn, true);
-            RepeatingEditorButtons::setRepeatable(rightBtn, true);
-        }
-    }
+    addEventListener("move-menu-event", alpha::editor_tabs::SetupMoveMenuEvent(), [this] (alpha::editor_tabs::Tab* editTab) {
+        handleEditTab();
+    });
 
     addEventListener("group-id-layer-event", SetGroupIDLayerOpenedEvent(), [this] (SetGroupIDLayer* setGroupIDLayer, GameObject* obj, CCArray* objs) {
         applyRepeatIfExist(setGroupIDLayer, "add-group-id-next-button");
@@ -145,6 +135,31 @@ void RepeatingEditorButtons::onEditor() {
         applyRepeatIfExist(setGroupIDLayer, "channel-next-button");
         applyRepeatIfExist(setGroupIDLayer, "channel-prev-button");
     });
+}
+
+void RepeatingEditorButtons::handleEditTab() {
+    auto editor = getEditor();
+
+    if (editor->m_editButtonBar) {
+        for (auto node : editor->m_editButtonBar->m_buttonArray->asExt()) {
+            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+            if (!btn) continue;
+
+            RepeatingEditorButtons::setRepeatable(btn, true);
+        }
+    }
+
+#ifndef GEODE_IS_MOBILE
+    if (editor->m_dpadMoveNode) {
+        auto dpadMenu = editor->m_dpadMoveNode->getChildByID("dpad-menu");
+        for (auto node : dpadMenu->getChildrenExt()) {
+            auto btn = typeinfo_cast<CCMenuItemSpriteExtra*>(node);
+            if (!btn) continue;
+
+            RepeatingEditorButtons::setRepeatable(btn, true);
+        }
+    }
+#endif
 }
 
 void RepeatingEditorButtons::applyRepeatIfExist(SetGroupIDLayer* setGroupIDLayer, ZStringView id) {
@@ -169,19 +184,17 @@ void RepeatingEditorButtons::recursivelySetRepeat(CCNode* node) {
 void REBEditButtonBar::loadFromItems(CCArray* objects, int rows, int columns, bool keepPage) {
     EditButtonBar::loadFromItems(objects, rows, columns, keepPage);
 
-    runAction(CallFuncExt::create([this] {
-        auto menu = getChildByType<CCMenu>(0);
-        if (menu) {
-            auto leftBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(0);
-            auto rightBtn = menu->getChildByType<CCMenuItemSpriteExtra*>(1);
+    auto arrowsMenu = getChildByID("arrows-menu");
+    if (arrowsMenu) {
+        auto leftBtn = static_cast<CCMenuItemSpriteExtra*>(arrowsMenu->getChildByID("left-button"));
+        auto rightBtn = static_cast<CCMenuItemSpriteExtra*>(arrowsMenu->getChildByID("right-button"));
 
-            RepeatingEditorButtons::setRepeatable(leftBtn, true);
-            RepeatingEditorButtons::setRepeatable(rightBtn, true);
-        }
-    }));
+        RepeatingEditorButtons::setRepeatable(leftBtn, true);
+        RepeatingEditorButtons::setRepeatable(rightBtn, true);
+    }
 }
 
-bool REBConfigureValuePopup::init(ConfigureValuePopupDelegate* delegate, float value, float minimum, float maximum, gd::string title, gd::string description, int type) {
+bool REBConfigureValuePopup::init(ConfigureValuePopupDelegate* delegate, float value, float minimum, float maximum, std::string title, std::string description, int type) {
     if (!ConfigureValuePopup::init(delegate, value, minimum, maximum, title, description, type)) return false;
 
     auto leftBtn = typeinfo_cast<CCMenuItemSpriteExtra*>(m_buttonMenu->getChildByTag(0));
@@ -216,8 +229,8 @@ bool REBLevelSettingsLayer::init(LevelSettingsObject* object, LevelEditorLayer* 
     return true;
 }
 
-bool REBSetupTriggerPopup::init(EffectGameObject* trigger, cocos2d::CCArray* triggers, float width, float height, int background) {
-    if (!SetupTriggerPopup::init(trigger, triggers, width, height, background)) return false;
+bool REBSetupTriggerPopup::init(EffectGameObject* trigger, cocos2d::CCArray* triggers, float width, float height, int background, float p5) {
+    if (!SetupTriggerPopup::init(trigger, triggers, width, height, background, p5)) return false;
 
     addOnEnterCallback([this] {
         RepeatingEditorButtons::setRepeatable(m_prevButton, true);
@@ -241,7 +254,7 @@ void REBSetupTriggerPopup::createEasingControls(cocos2d::CCPoint position, float
     }
 }
 
-void REBSetupTriggerPopup::createCustomEasingControls(gd::string text, cocos2d::CCPoint position, float scale, int typeProperty, int rateProperty, int page, int group) {
+void REBSetupTriggerPopup::createCustomEasingControls(std::string text, cocos2d::CCPoint position, float scale, int typeProperty, int rateProperty, int page, int group) {
     auto before = m_buttonMenu->getChildren()->shallowCopy();
     SetupTriggerPopup::createCustomEasingControls(text, position, scale, typeProperty, rateProperty, page, group);
     auto after = m_buttonMenu->getChildren()->shallowCopy();
@@ -255,7 +268,7 @@ void REBSetupTriggerPopup::createCustomEasingControls(gd::string text, cocos2d::
     }
 }
 
-cocos2d::CCArray* REBSetupTriggerPopup::createValueControlAdvanced(int property, gd::string label, cocos2d::CCPoint position, float scale, bool noSlider, InputValueType valueType, int length, bool arrows, float sliderMin, float sliderMax, int page, int group, GJInputStyle inputStyle, int decimalPlaces, bool allowDisable) {
+cocos2d::CCArray* REBSetupTriggerPopup::createValueControlAdvanced(int property, std::string label, cocos2d::CCPoint position, float scale, bool noSlider, InputValueType valueType, int length, bool arrows, float sliderMin, float sliderMax, int page, int group, GJInputStyle inputStyle, int decimalPlaces, bool allowDisable) {
     auto ret = SetupTriggerPopup::createValueControlAdvanced(property, label, position, scale, noSlider, valueType, length, arrows, sliderMin, sliderMax, page, group, inputStyle, decimalPlaces, allowDisable);
 
     if (arrows) {

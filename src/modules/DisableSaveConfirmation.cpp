@@ -35,7 +35,7 @@ void DisableSaveConfirmation::setHijack(EditorPauseLayer* pauseLayer) {
         auto saveBtn = static_cast<CCMenuItemSpriteExtra*>(resumeMenu->getChildByID("save-button"));
         tinker::utils::hijackButton(saveBtn, [pauseLayer] (std::function<void(CCObject* sender)> orig, CCObject* sender) {
             if (DisableSaveConfirmation::isEnabled()) {
-                pauseLayer->saveLevel();
+                pauseLayer->m_editorLayer->saveLevel();
                 Notification::create("Level Saved!", NotificationIcon::Success)->show();
             }
             else {

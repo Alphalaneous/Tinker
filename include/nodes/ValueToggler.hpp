@@ -21,36 +21,43 @@ public:
         delete ret;
         return nullptr;
     }
+
+    geode::NineSlice* getBackground() {
+        return m_background;
+    }
+
 protected:
     bool init(geode::Function<void(float)> callback, std::vector<T> values, size_t defaultIdx) {
         m_callback = std::move(callback);
         m_values = std::move(values);
         m_idx = defaultIdx;
 
-        auto slice = geode::NineSlice::create("button-empty.png"_spr);
+        m_background = geode::NineSlice::create("button-empty.png"_spr);
 
         int precision = 0;
         float scale = 0.25f;
         if constexpr (std::is_floating_point_v<T>) {
-            slice->setContentSize({35.f, 20.f});
+            m_background->setContentSize({35.f, 20.f});
             precision = 2;
             scale = 0.3f;
         }
         else {
-            slice->setContentSize({20.f, 20.f});
+            m_background->setContentSize({20.f, 20.f});
         }
 
-        slice->setScaleMultiplier(0.6f);
-        slice->setCascadeOpacityEnabled(true);
+        m_background->setScaleMultiplier(0.6f);
+        m_background->setID("button-background"_spr);
+        m_background->setCascadeOpacityEnabled(true);
 
-        if (!CCMenuItemSpriteExtra::init(slice, nullptr, nullptr, nullptr)) return false;
+        if (!CCMenuItemSpriteExtra::init(m_background, nullptr, nullptr, nullptr)) return false;
         setCascadeOpacityEnabled(true);
 
         m_label = geode::Label::create(geode::utils::numToString<T>(m_values[m_idx], precision).c_str(), "bigFont.fnt");
-        m_label->setPosition(slice->getContentSize() / 2.f);
+        m_label->setPosition(m_background->getContentSize() / 2.f);
+        m_label->setID("value-label"_spr);
         m_label->setScale(scale);
 
-        slice->addChild(m_label);
+        m_background->addChild(m_label);
 
         setOpacity(127);
         setEnabled(false);
@@ -88,6 +95,7 @@ protected:
 
     int m_idx = 0;
     geode::Label* m_label = nullptr;
+    geode::NineSlice* m_background = nullptr;
     geode::Function<void(float)> m_callback = nullptr;
     std::vector<T> m_values{};
 };

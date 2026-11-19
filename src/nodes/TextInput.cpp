@@ -1,5 +1,7 @@
 #include "nodes/TextInput.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include "Geode/ui/TextInput.hpp"
+#include <Geode/binding/CCTextInputNode.hpp>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
 
 using namespace geode::prelude;
 
@@ -419,7 +421,7 @@ bool TextInput::canDetachWithIME() {
     return true;
 }
 
-bool TextInput::clickBegan(alpha::dispatcher::TouchEvent* touch) {
+bool TextInput::touchBegan(alpha::dispatcher::Touch* touch) {
     if (!nodeIsVisible(this) || !alpha::utils::isPointInsideNode(this, touch->getLocation())) {
         unfocus();
         return false;
@@ -439,14 +441,14 @@ bool TextInput::clickBegan(alpha::dispatcher::TouchEvent* touch) {
     return true;
 }
 
-void TextInput::clickMoved(alpha::dispatcher::TouchEvent* touch) {
+void TextInput::touchMoved(alpha::dispatcher::Touch* touch) {
     m_inputState.m_selectEnd = indexForPos(convertToNodeSpace(touch->getLocation()));
 
     m_inputState.m_selecting = m_inputState.m_selectEnd != m_inputState.m_selectStart;
     updateSelect();
 }
 
-void TextInput::clickEnded(alpha::dispatcher::TouchEvent* touch) {
+void TextInput::touchEnded(alpha::dispatcher::Touch* touch) {
 
 }
 

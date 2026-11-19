@@ -3,6 +3,7 @@
 
 using namespace geode::prelude;
 
+/*
 bool FixTextSplit::onToggled(bool state) {
     return true;
 }
@@ -129,4 +130,4 @@ std::string FTSCustomizeObjectLayer::buildTextObject(const TextObjectAttributes&
     stringBuffer.append(";");
 
     return stringBuffer.str();
-}
+}*/

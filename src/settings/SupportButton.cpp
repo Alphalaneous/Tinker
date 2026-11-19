@@ -1,6 +1,6 @@
 #include "settings/SupportButton.hpp"
 #include "nodes/GIF.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
 
 using namespace geode::prelude;
 

@@ -5,7 +5,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include <alphalaneous.good_grid/DrawLayers.hpp>
 #include "nodes/DurationControl.hpp"
 
 namespace tinker::ui {

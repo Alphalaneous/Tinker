@@ -1,5 +1,9 @@
 #include "modules/ImprovedFontSelection.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include "Geode/ui/Label.hpp"
+#include "Geode/ui/TextInput.hpp"
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <string>
 
 using namespace geode::prelude;
 
@@ -11,8 +15,8 @@ bool ImprovedFontSelection::onSettingChanged(std::string_view key, const matjson
     return true;
 }
 
-bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
-    if (!SelectFontLayer::init(layer)) return false;
+bool IFSSelectFontLayer2::init(LevelEditorLayer* layer) {
+    if (!SelectFontLayer2::init(layer)) return false;
     
     m_mainLayer->setContentSize({400.f, 290.f});
     m_mainLayer->setPosition(getContentSize() / 2.f);
@@ -49,18 +53,36 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
 
     leftBG->addChild(sideShadow);
 
-    getChildByType<CCLabelBMFont>(0)->setVisible(false);
-    getChildByType<CCLabelBMFont>(1)->setVisible(false);
+    auto list = m_mainLayer->getChildByType<GJCommentListLayer>();
+    if (list) {
+        list->setVisible(false);
+        // robs scroll bs messes with it even if not visible
+        list->setPosition({FLT_MAX, FLT_MAX});
+    }
+
+    auto oldTitle = m_mainLayer->getChildByType<CCLabelBMFont>();
+    if (oldTitle) {
+        oldTitle->setVisible(false);
+    }
+
+    auto oldCloseBtn = m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>();
+    if (oldCloseBtn) {
+        oldCloseBtn->setVisible(false);
+    }
 
     m_buttonMenu->setContentSize(m_mainLayer->getContentSize());
     m_buttonMenu->setPosition(m_mainLayer->getContentSize() / 2.f);
     m_buttonMenu->ignoreAnchorPointForPosition(false);
 
-    m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>(0)->setPosition({m_buttonMenu->getContentWidth() / 2.f + m_mainLayer->getContentWidth() / 4.f - 5.f - centerOffset / 2.f, 25.f});
-    m_buttonMenu->getChildByType<InfoAlertButton>(0)->setPosition({20.f, m_buttonMenu->getContentHeight() - 20.f});
+    auto okBtnSpr = ButtonSprite::create("OK", 40, 0, 0.8f, true, "goldFont.fnt", "GJ_button_01.png", 30.f);
+    auto okBtn = geode::Button::createWithNode(okBtnSpr, [this] (auto sender) {
+        keyBackClicked();
+    });
 
-    m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>(2)->setVisible(false);
-    m_buttonMenu->getChildByType<CCMenuItemSpriteExtra>(3)->setVisible(false);
+    okBtn->setPosition({m_mainLayer->getContentWidth() / 2.f + m_mainLayer->getContentWidth() / 4.f - 5.f - centerOffset / 2.f, 27.f});
+    okBtn->setID("ok-button"_spr);
+
+    m_mainLayer->addChild(okBtn);
 
     auto title = geode::Label::create("Select Font", "goldFont.fnt");
     title->setPosition({m_mainLayer->getContentWidth() / 2.f + m_mainLayer->getContentWidth() / 4.f - centerOffset / 2.f, m_mainLayer->getContentHeight() - 20.f});
@@ -70,43 +92,22 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
 
     auto fields = m_fields.self();
 
-    auto labelContainer = CCNode::create();
-    labelContainer->setContentSize({m_mainLayer->getContentWidth() / 2.f - 30.f - centerOffset, m_mainLayer->getContentHeight() - 110.f});
-    labelContainer->setAnchorPoint({0.f, 1.f});
-    labelContainer->setPosition({15.f, m_mainLayer->getContentHeight() - 45.f});
-    labelContainer->setLayout(SimpleRowLayout::create()
-        ->setMainAxisScaling(AxisScaling::ScaleDown)
-        ->setCrossAxisScaling(AxisScaling::ScaleDown)
-        ->setMinRelativeScale(0.1f)
-    );
-    labelContainer->setID("label-container"_spr);
+    fields->m_font = layer->m_levelSettings->m_fontIndex;
 
-    fields->m_exampleLabel = CCLabelBMFont::create("The quick brown fox jumps over the lazy dog!", fontForID(m_font).c_str());
-    fields->m_exampleLabel->setScale(0.6f);
-    fields->m_exampleLabel->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
-    fields->m_exampleLabel->setWidth(labelContainer->getContentWidth());
+    auto previewStr = ImprovedFontSelection::getSaved<Save::Global, std::string, "preview-text">("The quick brown fox jumps over the lazy dog!");
+
+    fields->m_exampleLabel = geode::TextInput::createMultiline({m_mainLayer->getContentWidth() / 2.f - 55.f, m_mainLayer->getContentHeight() - 30.f}, "Enter Text...", fontForID(fields->m_font).c_str());
+    fields->m_exampleLabel->setFontScale(0.5f);
+    fields->m_exampleLabel->setPlaceholderScale(0.5f);
+    fields->m_exampleLabel->setCallback([this] (const std::string& str) {
+        ImprovedFontSelection::setSaved<Save::Global, "preview-text">(str);
+    });
+    fields->m_exampleLabel->setString(previewStr);
     fields->m_exampleLabel->setAnchorPoint({0.f, 1.f});
-    fields->m_exampleLabel->setPosition({0.f, labelContainer->getContentHeight()});
+    fields->m_exampleLabel->setPosition({14.f, m_mainLayer->getContentHeight() - 15.f});
     fields->m_exampleLabel->setID("preview-label"_spr);
 
-    labelContainer->addChild(fields->m_exampleLabel);
-    m_mainLayer->addChild(labelContainer);
-
-    labelContainer->updateLayout();
-
-    auto textInput = geode::TextInput::create(m_mainLayer->getContentWidth() / 2.f - 30.f - centerOffset, "Preview", "chatFont.fnt");
-    textInput->setString(fields->m_exampleLabel->getString());
-    textInput->setCallback([fields] (const std::string& str) {
-        fields->m_exampleLabel->setString(str.c_str());
-        fields->m_exampleLabel->getParent()->updateLayout();
-    });
-
-    textInput->setCommonFilter(CommonFilter::Any);
-    textInput->setAnchorPoint({0.f, 0.f});
-    textInput->setPosition({15.f, 15.f});
-    textInput->setID("preview-input"_spr);
-
-    m_mainLayer->addChild(textInput);
+    m_mainLayer->addChild(fields->m_exampleLabel);
 
     auto scrollBG = CCLayerColor::create({0, 0, 0, 100});
     scrollBG->ignoreAnchorPointForPosition(false);
@@ -158,7 +159,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
 
     scrollBG->addChild(scrollLayer);
 
-    auto scrollbar = alpha::ui::AdvancedScrollBar::create(scrollLayer, alpha::ui::ScrollOrientation::VERTICAL);
+    auto scrollbar = alpha::ui::AdvancedScrollBar::create(scrollLayer, alpha::ui::ScrollOrientation::Vertical);
     auto style = alpha::ui::RoundedScrollStyle();
     style.m_track = [] {
         auto track = alpha::ui::RoundedScrollTrack::create();
@@ -175,7 +176,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     scrollBG->addChild(scrollbar);
 
     for (auto fontContainer : fields->m_fontContainers) {
-        if (fontContainer->getFontID() == m_font) {
+        if (fontContainer->getFontID() == fields->m_font) {
             scrollLayer->setScrollY(scrollLayer->getContentLayer()->getContentHeight() - fontContainer->getPositionY() - scrollLayer->getContentHeight() / 2.f);
             break;
         }
@@ -184,7 +185,7 @@ bool IFSSelectFontLayer::init(LevelEditorLayer* layer) {
     return true;
 }
 
-std::string IFSSelectFontLayer::fontForID(int id) {
+std::string IFSSelectFontLayer2::fontForID(int id) {
     std::stringstream fntFile;
 
     if (id == 0) {
@@ -204,7 +205,7 @@ std::string IFSSelectFontLayer::fontForID(int id) {
     return fntFile.str();
 }
 
-ZStringView IFSSelectFontLayer::fontNameForID(int id) {
+ZStringView IFSSelectFontLayer2::fontNameForID(int id) {
     static constexpr std::array fontNames = {
         "Pusab", "TRS Million",
         "SF Distant Galaxy", "Relish Gargler", "Early GameBoy", "Good Dog",
@@ -227,17 +228,22 @@ ZStringView IFSSelectFontLayer::fontNameForID(int id) {
     return fontNames[id];
 }
 
-void IFSSelectFontLayer::updateFont(int id) {
+void IFSSelectFontLayer2::updateFont(int id) {
     auto fields = m_fields.self();
-    fields->m_exampleLabel->setFntFile(fontForID(id).c_str());
-    fields->m_exampleLabel->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
+    auto font = fontForID(id);
+
+    fields->m_exampleLabel->getPlaceholderLabel()->setFont(font);
+    fields->m_exampleLabel->getContentLabel()->setFont(font);
+    fields->m_exampleLabel->setFontScale(0.5f);
+    fields->m_exampleLabel->setPlaceholderScale(0.5f);
+
     fields->m_exampleLabel->getParent()->updateLayout();
 
     for (auto fontContainer : fields->m_fontContainers) {
         fontContainer->toggle(fontContainer->getFontID() == id);
     }
-    m_font = id;
+    fields->m_font = id;
 
-    GameManager::get()->m_levelEditorLayer->updateLevelFont(m_font);
+    GameManager::get()->m_levelEditorLayer->updateLevelFont(fields->m_font);
     EditorUI::get()->resetSelectedObjectsColor();
 }

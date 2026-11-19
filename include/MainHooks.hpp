@@ -8,6 +8,7 @@
 #include <Geode/modify/CCTouchDispatcher.hpp>
 #include <Geode/modify/CCTextInputNode.hpp>
 #include <Geode/modify/ButtonSprite.hpp>
+#include <memory>
 #include "module/ModuleBase.hpp"
 #include "utils/Mod.hpp"
 
@@ -25,14 +26,16 @@ class $modify(MainLevelEditorLayer, LevelEditorLayer) {
     }
 
     struct Fields {
-        geode::utils::StringMap<std::shared_ptr<ModuleBase>> m_modules{};
+        geode::utils::StringMap<std::unique_ptr<ModuleBase>> m_modules{};
     };
 
     bool init(GJGameLevel* level, bool noUI);
     void mainUpdate(float dt);
     
-    geode::utils::StringMap<std::shared_ptr<ModuleBase>>* getModules();
+    geode::utils::StringMap<std::unique_ptr<ModuleBase>>* getModules();
     void forEachModule(geode::Function<void(ModuleBase*)> moduleCallback);
+
+    bool saveLevel();
 
     static MainLevelEditorLayer* get();
 };
@@ -45,7 +48,6 @@ class $modify(MainEditorUI, EditorUI) {
         int m_lastObjectCount = 0;
         int m_lastActiveObjectCount = 0;
         bool m_wasPlatformer = false;
-        bool m_uiVisible = true;
         bool m_moveEventLocked = false;
         cocos2d::CCPoint m_lastPosition{};
         geode::KeyboardModifier m_lastModifier{};
@@ -84,7 +86,6 @@ class $modify(MainEditorUI, EditorUI) {
     void enableButton_(CreateMenuItem* button);
     void disableButton_(CreateMenuItem* button);
 
-    bool isUIVisible();
     static MainEditorUI* get();
 };
 
@@ -127,7 +128,6 @@ class $modify(MainEditorPauseLayer, EditorPauseLayer) {
 
     static EditorPauseLayer* get();
     bool init(LevelEditorLayer* layer);
-    void saveLevel();
 };
 
 class $modify(FixCCTextInputNode, CCTextInputNode) {

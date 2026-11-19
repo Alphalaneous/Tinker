@@ -3,7 +3,7 @@
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
 #include "utils/UI.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
 
 using namespace geode::prelude;
 
@@ -48,8 +48,6 @@ bool DurationThumb::init(CCNode* parent, EffectGameObject* object, ThumbType thu
         m_thumbSpr = CCSprite::create("drag-bar.png"_spr);
         m_thumbContainer->setContentSize(m_thumbSpr->getScaledContentSize() + CCSize{0.1f, 18.f});
     }
-
-    //todo make overlapping work
 
     setContentSize(m_thumbSpr->getScaledContentSize());
     setAnchorPoint({0.5f, 0.5f});
@@ -267,9 +265,10 @@ void DurationThumb::update(float dt) {
             }
         }
         setVisible(duration >= 0.f);
-    } 
-    else if (m_object->m_isDirty) {
+    }
+    else if (m_object->m_bPositionDirty || m_object->m_bTransformDirty) {
         m_dragging = false;
+        select(false);
     }
 
     bool overlap = tinker::utils::ui::nodesIntersect(m_thumbSpr, m_object);

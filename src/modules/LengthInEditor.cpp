@@ -94,7 +94,7 @@ void LengthInEditor::onEditor() {
         m_timeLabel->setString(getTime(getEditorLayer()->getLastObjectX()).c_str());
     });
 
-    addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars, bool fullReload) {
+    addEventListener("ui-scale", UIScaleUpdated(), [this, editor] (float scale, bool scaleToolbars) {
         editor->runAction(CallFuncExt::create([this, scale] {
             updateUI(scale);
         }));

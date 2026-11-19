@@ -2,7 +2,7 @@
 
 #include <Geode/binding/ColorAction.hpp>
 #include <ccTypes.h>
-#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
+#include <alphalaneous.level-storage-api/LevelStorageAPI.hpp>
 #include <unordered_set>
 #include "utils/next-free/NextFreeProvider.hpp"
 

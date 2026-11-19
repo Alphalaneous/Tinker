@@ -1,4 +1,6 @@
 #include "modules/fixes/FixSlopeHitboxRender.hpp"
+#include <Geode/Enums.hpp>
+#include <Geode/binding/EditorUI.hpp>
 
 using namespace geode::prelude;
 
@@ -6,40 +8,19 @@ bool FixSlopeHitboxRender::onToggled(bool state) {
     return true;
 }
 
-bool FSHREditorUI::isSpecialSnapObject(int id) {
-    switch (id) {
-        case 2896:
-        case 2897:
-        case 1338:
-        case 673:
-        case 1341:
-        case 1344:
-        case 1743:
-        case 1745:
-        case 1747:
-        case 1749:
-        case 1906:
-        case 294:
-        case 326:
-        case 349:
-        case 289:
-        case 709:
-        case 711:
-        case 726:
-        case 728:
-        case 321:
-        case 331:
-        case 343:
-        case 353:
-        case 337:
-        case 483:
-        case 492:
-        case 651:
-        case 886:
-        case 299:
-        case 309:
-        case 315:
-            return true;
+void FSHEditorUI::refreshObject(GameObject* object) {
+    if (object && object->m_objectType == GameObjectType::Slope) {
+        moveObject(object, {0.f, 0.f});
     }
-    return EditorUI::isSpecialSnapObject(id);
+}
+
+void FSHEditorUI::transformObject(GameObject* object, EditCommand command, bool noOffset) {
+    EditorUI::transformObject(object, command, noOffset);
+    refreshObject(object);
+}
+
+GameObject* FSHEditorUI::onCreateObject(int id) {
+    auto ret = EditorUI::onCreateObject(id);
+    refreshObject(ret);
+    return ret;
 }

@@ -151,15 +151,9 @@ bool SelectArtLayer::init(LevelEditorLayer* editorLayer, LevelSettingsLayer* lev
         ->ignoreInvisibleChildren(false)
     );
     m_scrollLayer->setID("scroll-layer"_spr);
-    #ifdef GEODE_IS_MOBILE
-    m_scrollLayer->setScrollDelta(1.5f);
-    #else
-    m_scrollLayer->setScrollDelta(1.f);
-    #endif
-
     m_scrollBG->addChild(m_scrollLayer);
 
-    auto scrollbar = alpha::ui::AdvancedScrollBar::create(m_scrollLayer, alpha::ui::ScrollOrientation::VERTICAL);
+    auto scrollbar = alpha::ui::AdvancedScrollBar::create(m_scrollLayer, alpha::ui::ScrollOrientation::Vertical);
     auto style = alpha::ui::RoundedScrollStyle();
     style.m_track = [] {
         auto track = alpha::ui::RoundedScrollTrack::create();

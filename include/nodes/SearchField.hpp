@@ -11,7 +11,7 @@
 #include <Geode/binding/CreateMenuItem.hpp>
 #include <Geode/cocos/base_nodes/CCNode.h>
 #include <Geode/binding/TextInputDelegate.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <string>
 
 using namespace alpha::prelude;
@@ -20,7 +20,7 @@ class OSEditorUI;
 
 namespace tinker::ui {
 
-class SearchField : public cocos2d::CCNode, public TouchDelegate, public TextInputDelegate {
+class SearchField : public cocos2d::CCNode, public TouchDelegate {
 public:
     struct ItemInformation {
         geode::Ref<CreateMenuItem> item = nullptr;
@@ -36,19 +36,14 @@ public:
     void onEnter() override;
     void onExit() override;
 
-    void textInputShouldOffset(CCTextInputNode* node, float yOffset) override;
-    void textInputOpened(CCTextInputNode* node) override;
-    void textInputClosed(CCTextInputNode* node) override;
-    void textChanged(CCTextInputNode* node) override;
-
     void onClosed();
 
-    void defocus();
+    void unfocus();
     void focus();
 
     void setupTabOffset();
 
-    virtual bool clickBegan(TouchEvent* touch) override;
+    virtual bool touchBegan(Touch* touch) override;
 
     geode::ZStringView nameForInfo(ItemInformation& item);
     cocos2d::CCArray* generateItemArrayForSearch(const std::string& search);

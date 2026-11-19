@@ -1,5 +1,17 @@
 #include "modules/ImprovedControls.hpp"
-#include <alphalaneous.alphas-ui-pack/include/Utils.hpp>
+#include <Geode/binding/EditorUI.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <algorithm>
+#include <alphalaneous.alphas-ui-pack/Utils.hpp>
+#include "Events.hpp"
+#include "Geode/cocos/touch_dispatcher/CCTouchDispatcher.h"
+#include "Geode/loader/Log.hpp"
+#include "Geode/ui/Button.hpp"
+#include "Geode/ui/TextInput.hpp"
+#include "Geode/utils/general.hpp"
+#include "alphalaneous.alphas-ui-pack/nodes/MirrorNode.hpp"
+#include "modules/ImprovedGroupView.hpp"
+#include "modules/UIScaling.hpp"
 #include "utils/Constants.hpp"
 #include "utils/String.hpp"
 
@@ -19,25 +31,90 @@ void ImprovedControls::addLabelToToggle(CCMenuItemToggler* toggler, ZStringView 
 }
 
 bool ImprovedControls::onSettingChanged(std::string_view key, const matjson::Value& value) {
+    auto editor = getEditor();
+    auto state = value.asBool().unwrapOrDefault();
+
+    auto scaleControl = static_cast<ICGJScaleControl*>(editor->m_scaleControl);
+    auto rotateControl = static_cast<ICGJRotationControl*>(editor->m_rotationControl);
+
     if (key == "slider-bypass") {
-        static_cast<ICGJScaleControl*>(getEditor()->m_scaleControl)->setBypass(value.asBool().unwrapOrDefault());
+        scaleControl->setBypass(state);
         return true;
     }
     if (key == "custom-scale-min-max" || key == "scale-min" || key == "scale-max") {
-        static_cast<ICGJScaleControl*>(getEditor()->m_scaleControl)->updateSnapValues();
+        scaleControl->updateSnapValues();
         return true;
     }
+    if (key == "use-refresh-button") {
+        rotateControl->updateUI(state);
+        scaleControl->updateUI(state);
+        return true;
+    }
+    if (key == "follow-ui-scale") {
+        float controlScale = ImprovedControls::getSetting<float, "control-scale">();
+
+        rotateControl->updateScale(state, controlScale);
+        scaleControl->updateScale(state, ImprovedControls::getSetting<bool, "scale-with-zoom">(), controlScale);
+        return true;
+    }
+    if (key == "control-scale") {
+        bool followUIScale = ImprovedControls::getSetting<bool, "follow-ui-scale">();
+        float controlScale = value.asFloat().unwrapOrDefault();
+
+        rotateControl->updateScale(followUIScale, controlScale);
+        scaleControl->updateScale(followUIScale, ImprovedControls::getSetting<bool, "scale-with-zoom">(), controlScale);
+        return true;
+    }
+
     return false;
 }
 
-float ImprovedControls::roundToThousandth(float value) {
+float ImprovedControls::roundToPrecision(float value, int precision) {
+    if (precision == -1) {
+        return value;
+    }
+
+    float base = std::pow(10.f, precision);
+
     if (value < 0.f) {
-        value = std::ceil(value * 1000.f - 0.5f);
+        value = std::ceil(value * base - 0.5f);
     }
     else {
-        value = std::floor(value * 1000.f + 0.5f);
+        value = std::floor(value * base + 0.5f);
     }
-    return value / 1000.f;
+    return value / base;
+}
+
+// I always want at least 2 points of precision :3
+int ImprovedControls::getPrecisionFromString(geode::ZStringView str) {
+    auto dotPos = str.view().find('.');
+    
+    if (dotPos == std::string_view::npos) {
+        return 2;
+    }
+    
+    return std::max(static_cast<int>(str.length() - dotPos - 1), 2);
+}
+
+std::string toShortestExactString(float value) {
+    std::array<char, 64> buffer;
+
+    auto [end, ec] = std::to_chars(
+        buffer.data(),
+        buffer.data() + buffer.size(),
+        value
+    );
+
+    return ec == std::errc{} ? std::string(buffer.data(), end) : "";
+}
+
+int ImprovedControls::getPrecisionFromFloat(float value) {
+    std::string str = toShortestExactString(value);
+    size_t dotPos = str.find('.');
+    if (dotPos == std::string::npos) {
+        return 2;
+    }
+    return std::max(static_cast<int>(str.length() - dotPos - 1), 2);
 }
 
 void ICEditorUI::activateRotationControl(CCObject* sender) {
@@ -89,12 +166,10 @@ void ICEditorUI::activateTransformControl(cocos2d::CCObject* sender) {
     EditorUI::activateTransformControl(sender);
 }
 
-void ICEditorUI::angleChanged(float angle) {
-    auto fields = m_fields.self();
+void ICEditorUI::angleChanged(float angle, bool lock) {
     CCPoint pivotPoint{};
 
     CCArray* objs = nullptr;
-    bool lockPos = static_cast<ICGJRotationControl*>(m_rotationControl)->isPositionLocked();
 
     if (m_selectedObject && m_selectedObjects->count() == 0) {
         bool usesTeleportOwner = false;
@@ -135,33 +210,31 @@ void ICEditorUI::angleChanged(float angle) {
 
         auto orig = first->getRotation();
         
-        fields->m_lockPosition = lockPos;
         if (controlFields->m_rotationLock) {
             if (angle == 0.f) angle = 0.0001f;
-            rotateObjects(objs, -controlFields->m_lastRotation + angle, pivotPoint);
+            rotateObjects(objs, -controlFields->m_lastRotation + angle, pivotPoint, lock);
         }
         else {
-            rotateObjects(objs, -orig + angle, pivotPoint);
+            rotateObjects(objs, -orig + angle, pivotPoint, lock);
         }
-        fields->m_lockPosition = false;
 
         controlFields->m_lastRotation = angle;
     }
 }
 
-void ICEditorUI::rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint) {
+void ICEditorUI::rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint, bool lock) {
     auto control = static_cast<ICGJRotationControl*>(m_rotationControl);
 
     if (control->m_fields->m_rotationLock) {
-        EditorUI::rotateObjects(objects, rotation, pivotPoint);
+        EditorUI::rotateObjects(objects, rotation, pivotPoint, lock);
 
         auto fields = m_fields.self();
         fields->m_lockPosition = true;
-        EditorUI::rotateObjects(objects, -rotation, pivotPoint);
+        EditorUI::rotateObjects(objects, -rotation, pivotPoint, lock);
         fields->m_lockPosition = false;
     }
     else {
-        EditorUI::rotateObjects(objects, rotation, pivotPoint);
+        EditorUI::rotateObjects(objects, rotation, pivotPoint, lock);
     }
 }
 
@@ -172,11 +245,9 @@ void ICEditorUI::moveObject(GameObject* obj, CCPoint amount) {
 }
 
 void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float scaleY, cocos2d::CCPoint pivotPoint, ObjectScaleType type, bool lockMove) {
-    bool lockScale = false;
-
     auto control = static_cast<ICGJScaleControl*>(m_scaleControl);
     auto fields = control->m_fields.self();
-    lockScale = control->m_fields->m_scaleLock;
+    bool lockScale = fields->m_scaleLock;
 
     float startScaleX = control->m_valueX;
     float startScaleY = control->m_valueY;
@@ -186,22 +257,27 @@ void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float sca
 
     if (lastScaleX == 0) lastScaleX = scaleX;
     if (lastScaleY == 0) lastScaleY = scaleY;
-    
+
     if (!lockScale) {
         for (auto obj : CCArrayExt<GameObject, false>(objects)) {
             if (obj->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) continue;
 
             const auto& state = m_objectEditorStates[obj->m_uniqueID];
 
+            auto precision = static_cast<ICGJScaleControl*>(m_scaleControl)->getPrecision();
+            if (!m_scaleControl->isVisible()) {
+                precision = -1;
+            }
+
             if (type != ObjectScaleType::Y) {
-                float newScaleX = ImprovedControls::roundToThousandth(scaleX * state.m_scaleX);
+                float newScaleX = ImprovedControls::roundToPrecision(scaleX * state.m_scaleX, precision);
 
                 if (newScaleX == 0) return;
                 if (newScaleX * obj->m_pixelScaleX == obj->m_scaleX) return;
                 if (type == ObjectScaleType::X) continue;
             }
 
-            float newScaleY = ImprovedControls::roundToThousandth(scaleY * state.m_scaleY);
+            float newScaleY = ImprovedControls::roundToPrecision(scaleY * state.m_scaleY, precision);
 
             if (newScaleY == 0) return;
             if (newScaleY * obj->m_pixelScaleY == obj->m_scaleY) return;
@@ -248,13 +324,24 @@ void ICEditorUI::scaleObjects(cocos2d::CCArray* objects, float scaleX, float sca
                 
                 if (type != ObjectScaleType::Y) {
                     relative.x *= newScaleX / obj->m_scaleX;
-                    obj->updateCustomScaleX(newScaleX);
 
+                    obj->m_fScaleX = 0.f;
+                    obj->m_scaleX = newScaleX;
+                    obj->m_customScaleX = newScaleX;
+                    obj->setRScaleX(1.f);
+                    obj->m_isDirty = true;
+                    obj->m_isObjectRectDirty = true;
                 }
 
                 if (type != ObjectScaleType::X) {
                     relative.y *= newScaleY / obj->m_scaleY;
-                    obj->updateCustomScaleY(newScaleY);
+                    
+                    obj->m_fScaleY = 0.f;
+                    obj->m_scaleY = newScaleY;
+                    obj->m_customScaleY = newScaleY;
+                    obj->setRScaleY(1.f);
+                    obj->m_isDirty = true;
+                    obj->m_isObjectRectDirty = true; 
                 }
             }
         }
@@ -276,14 +363,32 @@ void ICEditorUI::scaleXChanged(float scaleX, bool lock) {
     if (m_selectedObject) {
         if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) return;
         if (static_cast<ICGJScaleControl*>(m_scaleControl)->m_fields->m_scaleLock) return;
+        float newScaleX = scaleX * m_selectedObject->m_pixelScaleX;
+
+        m_selectedObject->m_fScaleX = 0.f;
+        m_selectedObject->m_scaleX = newScaleX;
+        m_selectedObject->m_customScaleX = newScaleX;
+        m_selectedObject->setRScaleX(1.f);
+        m_selectedObject->m_isDirty = true;
+        m_selectedObject->m_isObjectRectDirty = true;
+        return;
     }
     EditorUI::scaleXChanged(scaleX, lock);
 }
 
 void ICEditorUI::scaleYChanged(float scaleY, bool lock) {
-    if (m_selectedObject && m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) {
+    if (m_selectedObject) {
         if (m_selectedObject->m_objectID == tinker::constants::objects::LinkedOrangeTeleportPortal) return;
         if (static_cast<ICGJScaleControl*>(m_scaleControl)->m_fields->m_scaleLock) return;
+        float newScaleY = scaleY * m_selectedObject->m_pixelScaleY;
+
+        m_selectedObject->m_fScaleY = 0.f;
+        m_selectedObject->m_scaleY = newScaleY;
+        m_selectedObject->m_customScaleY = newScaleY;
+        m_selectedObject->setRScaleY(1.f);
+        m_selectedObject->m_isDirty = true;
+        m_selectedObject->m_isObjectRectDirty = true; 
+        return;
     }
     EditorUI::scaleYChanged(scaleY, lock);
 }
@@ -309,7 +414,7 @@ float ICGJScaleControl::trueScaleFromValue(float value) {
         }
     }
 
-    return ImprovedControls::roundToThousandth((upperBound - lowerBound) * value + lowerBound);
+    return ImprovedControls::roundToPrecision((upperBound - lowerBound) * value + lowerBound, getPrecision());
 }
 
 float ICGJScaleControl::trueValueFromScale(float scale) {
@@ -336,9 +441,17 @@ bool ICGJScaleControl::init() {
     m_sliderY->setVisible(false);
     m_sliderXY->setVisible(false);
 
+    m_scaleXInput->setVisible(false);
+    m_scaleYInput->setVisible(false);
+    m_scaleInput->setVisible(false);
+
     m_sliderX->m_enabled = false;
     m_sliderY->m_enabled = false;
     m_sliderXY->m_enabled = false;
+
+    auto scaleXYContainer = getChildByID("scale-xy-container");
+    auto scaleXContainer = getChildByID("scale-x-container");
+    auto scaleYContainer = getChildByID("scale-y-container");
 
     fields->m_sliderX = tinker::ui::ScaleSlider::create(
         [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
@@ -347,14 +460,15 @@ bool ICGJScaleControl::init() {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
             if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
-            updateLabelX(scale);
-            fields->m_inputX->setString(tinker::utils::string::floatToString(scale, 3));
+
+            fields->m_inputX->setString(tinker::utils::string::floatToString(scale, getPrecision()));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
+    fields->m_sliderX->setScale(0.8f);
     fields->m_sliderX->setID("scale-x-slider"_spr);
     fields->m_sliderX->setPosition(m_sliderX->getPosition());
-    addChild(fields->m_sliderX);
+    scaleXContainer->addChild(fields->m_sliderX);
 
     fields->m_sliderY = tinker::ui::ScaleSlider::create(
         [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
@@ -363,14 +477,15 @@ bool ICGJScaleControl::init() {
                 scale = std::roundf(scale / fields->m_snapSize) * fields->m_snapSize;
             }
             if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
-            updateLabelY(scale);
-            fields->m_inputY->setString(tinker::utils::string::floatToString(scale, 3));
+
+            fields->m_inputY->setString(tinker::utils::string::floatToString(scale, getPrecision()));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
+    fields->m_sliderY->setScale(0.8f);
     fields->m_sliderY->setID("scale-y-slider"_spr);
     fields->m_sliderY->setPosition(m_sliderY->getPosition());
-    addChild(fields->m_sliderY);
+    scaleYContainer->addChild(fields->m_sliderY);
 
     fields->m_sliderXY = tinker::ui::ScaleSlider::create(
         [this, fields] (tinker::ui::ScaleSlider* sender, float value) {
@@ -392,71 +507,76 @@ bool ICGJScaleControl::init() {
             }
             if (m_delegate) m_delegate->scaleXYChanged(scaleX * baseScale, scaleY * baseScale, m_scaleLocked);
 
-            updateLabelXY(scale);
-            fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, 3));
+            fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, getPrecision()));
             sender->setValue(trueValueFromScale(scale), true);
         }, this
     );
+    fields->m_sliderXY->setScale(0.8f);
     fields->m_sliderXY->setID("scale-slider"_spr);
     fields->m_sliderXY->setPosition(m_sliderXY->getPosition());
-    addChild(fields->m_sliderXY);
-
-    m_scaleXLabel->setPositionX(-20.f);
-    m_scaleYLabel->setPositionX(-20.f);
-    m_scaleLabel->setPositionX(-22.f);
+    scaleXYContainer->addChild(fields->m_sliderXY);
 
     setBypass(ImprovedControls::getSetting<bool, "slider-bypass">());
 
     fields->m_inputX = TextInput::create(50.f, "Num");
     fields->m_inputX->setScale(0.8f);
     fields->m_inputX->setID("scale-x-input"_spr);
-    fields->m_inputX->setPosition(40.f, m_scaleXLabel->getPositionY());
-    fields->m_inputX->getBGSprite()->setScaleMultiplier(2.3f);
+    fields->m_inputX->setPosition(m_scaleXInput->getPosition());
+    fields->m_inputX->getBGSprite()->setScaleMultiplier(1.2f);
     fields->m_inputX->setCommonFilter(CommonFilter::Float);
     fields->m_inputX->setCallback([this, fields] (auto const& str) {
+        if (ImprovedControls::getSetting<bool, "use-refresh-button">()) return;
+
         auto scaleRes = numFromString<float>(str);
         if (!scaleRes) return;
-
         auto scale = scaleRes.unwrap();
+
         if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
-        updateLabelX(scale);
         fields->m_sliderX->setPercent(trueValueFromScale(scale), true);
+
+        updatePrecision();
     });
-    addChild(fields->m_inputX);
+    scaleXContainer->addChild(fields->m_inputX);
 
     fields->m_inputY = TextInput::create(50.f, "Num");
     fields->m_inputY->setScale(0.8f);
     fields->m_inputY->setID("scale-y-input"_spr);
-    fields->m_inputY->setPosition(40.f, m_scaleYLabel->getPositionY());
-    fields->m_inputY->getBGSprite()->setScaleMultiplier(2.3f);
+    fields->m_inputY->setPosition(m_scaleYInput->getPosition());
+    fields->m_inputY->getBGSprite()->setScaleMultiplier(1.2f);
     fields->m_inputY->setCommonFilter(CommonFilter::Float);
     fields->m_inputY->setCallback([this, fields] (auto const& str) {
+        if (ImprovedControls::getSetting<bool, "use-refresh-button">()) return;
+
         auto scaleRes = numFromString<float>(str);
         if (!scaleRes) return;
-
         auto scale = scaleRes.unwrap();
+
         if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
-        updateLabelY(scale);
         fields->m_sliderY->setPercent(trueValueFromScale(scale), true);
+
+        updatePrecision();
     });
-    addChild(fields->m_inputY);
+    scaleYContainer->addChild(fields->m_inputY);
 
     fields->m_inputXY = TextInput::create(50.f, "Num");
     fields->m_inputXY->setScale(0.8f);
     fields->m_inputXY->setID("scale-input"_spr);
-    fields->m_inputXY->setPosition(28.f, m_scaleLabel->getPositionY());
-    fields->m_inputXY->getBGSprite()->setScaleMultiplier(2.3f);
+    fields->m_inputXY->setPosition(m_scaleInput->getPosition());
+    fields->m_inputXY->getBGSprite()->setScaleMultiplier(1.2f);
     fields->m_inputXY->setCommonFilter(CommonFilter::Float);
     fields->m_inputXY->setCallback([this, fields] (auto const& str) {
+        if (ImprovedControls::getSetting<bool, "use-refresh-button">()) return;
+
         auto scaleRes = numFromString<float>(str);
         if (!scaleRes) return;
         auto scale = scaleRes.unwrap();
 
         if (m_delegate) m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
-        updateLabelXY(scale);
         fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
+
+        updatePrecision();
     });
-    addChild(fields->m_inputXY);
+    scaleXYContainer->addChild(fields->m_inputXY);
 
     m_scaleLockButton->setScale(0.8f);
     m_scaleLockButton->m_baseScale = 0.8f;
@@ -465,7 +585,7 @@ bool ICGJScaleControl::init() {
     ImprovedControls::addLabelToNode(m_scaleLockButton->getNormalImage(), "Pos");
 
     auto menu = m_scaleLockButton->getParent();
-    menu->setContentSize({50.f, 80.f});
+    menu->setContentSize({50.f, 35.f});
     menu->setLayout(SimpleRowLayout::create()
         ->setGap(3.f)
         ->setMainAxisScaling(AxisScaling::Grow)
@@ -564,7 +684,7 @@ bool ICGJScaleControl::init() {
         if (fields->m_wasAdjusted) return;
 
         for (auto child : getChildrenExt()) {
-            child->setPositionY(child->getPositionY() + 40.f);
+            child->setPositionY(child->getPositionY() + 20.f);
         }
 
         fields->m_wasAdjusted = true;
@@ -575,12 +695,90 @@ bool ICGJScaleControl::init() {
     });
 
     addEventListener(EditorZoomEvent(), [this, fields] (float zoom) {
-        if (ImprovedControls::getSetting<bool, "scale-with-zoom">()) {
-            setScale(1.f / zoom);
-        }
+        if (!ImprovedControls::getSetting<bool, "scale-with-zoom">()) return;
+
+        updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), true, ImprovedControls::getSetting<float, "control-scale">());
     });
 
+    addEventListener(UIScaleUpdated(), [this, fields] (float scale, bool scaleToolbars) {
+        if (!ImprovedControls::getSetting<bool, "follow-ui-scale">()) return;
+
+        updateScale(true, ImprovedControls::getSetting<bool, "scale-with-zoom">(), ImprovedControls::getSetting<float, "control-scale">());
+    });
+
+    updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), ImprovedControls::getSetting<bool, "scale-with-zoom">(), ImprovedControls::getSetting<float, "control-scale">());
+
     return true;
+}
+
+void ICGJScaleControl::updateScale(bool uiScale, bool scaleWithZoom, float modifier) {
+    auto zoom = scaleWithZoom ? LevelEditorLayer::get()->m_objectLayer->getScale() : 1.f;
+    auto scale = (uiScale ? UIScaling::getScale() : 1.f) * modifier;
+
+    setScale((1.f / zoom) * scale);
+}
+
+void ICGJScaleControl::updateUI(bool showRefresh) {
+    auto fields = m_fields.self();
+
+    m_applyScaleButton->setVisible(showRefresh);
+    m_applyScaleXButton->setVisible(showRefresh);
+    m_applyScaleYButton->setVisible(showRefresh);
+
+    auto xPos = showRefresh ? 75.f : 90.f;
+
+    m_scaleLabel->setPositionX(xPos);
+    m_scaleXLabel->setPositionX(xPos);
+    m_scaleYLabel->setPositionX(xPos);
+
+    fields->m_inputXY->setPositionX(xPos + fields->m_inputXY->getScaledContentWidth() / 2.f + 10.f);
+    fields->m_inputX->setPositionX(xPos + fields->m_inputX->getScaledContentWidth() / 2.f + 10.f);
+    fields->m_inputY->setPositionX(xPos + fields->m_inputY->getScaledContentWidth() / 2.f + 10.f);
+
+    m_applyScaleButton->setPositionX(fields->m_inputXY->boundingBox().getMaxX() + m_applyScaleButton->getScaledContentWidth() / 2.f + 10.f);
+    m_applyScaleXButton->setPositionX(fields->m_inputX->boundingBox().getMaxX() + m_applyScaleXButton->getScaledContentWidth() / 2.f + 10.f);
+    m_applyScaleYButton->setPositionX(fields->m_inputY->boundingBox().getMaxX() + m_applyScaleYButton->getScaledContentWidth() / 2.f + 10.f);
+}
+
+void ICGJScaleControl::updatePrecision() {
+    auto fields = m_fields.self();
+
+    if (m_senderTag == 45) {
+        fields->m_precision = ImprovedControls::getPrecisionFromString(fields->m_inputXY->getString());
+    }
+    else {
+        auto precisionX = ImprovedControls::getPrecisionFromString(fields->m_inputX->getString());
+        auto precisionY = ImprovedControls::getPrecisionFromString(fields->m_inputY->getString());
+
+        if (fields->m_inputX->isFocused()) {
+            float scaleY = trueScaleFromValue(fields->m_sliderY->getValue());
+
+            precisionY = ImprovedControls::getPrecisionFromFloat(scaleY);
+        }
+        if (fields->m_inputY->isFocused()) {
+            float scaleX = trueScaleFromValue(fields->m_sliderY->getValue());
+
+            precisionX = ImprovedControls::getPrecisionFromFloat(scaleX);
+        }
+
+        fields->m_precision = std::max(precisionX, precisionY);
+
+        if (!fields->m_inputX->isFocused()) {
+            float scaleX = trueScaleFromValue(fields->m_sliderX->getValue());
+
+            fields->m_inputX->setString(tinker::utils::string::floatToString(scaleX, getPrecision()));
+        }
+        if (!fields->m_inputY->isFocused()) {
+            float scaleY = trueScaleFromValue(fields->m_sliderY->getValue());
+
+            fields->m_inputY->setString(tinker::utils::string::floatToString(scaleY, getPrecision()));
+        }
+    }
+}
+
+int ICGJScaleControl::getPrecision() {
+    auto fields = m_fields.self();
+    return fields->m_precision;
 }
 
 void ICGJScaleControl::setBypass(bool bypass) {
@@ -588,45 +786,6 @@ void ICGJScaleControl::setBypass(bool bypass) {
     fields->m_sliderX->setSliderBypass(bypass);
     fields->m_sliderY->setSliderBypass(bypass);
     fields->m_sliderXY->setSliderBypass(bypass);
-}
-
-void ICGJScaleControl::updateLabelX(float scale) {
-    GJScaleControl::updateLabelX(scale);
-    auto fields = m_fields.self();
-    fields->m_inputX->setVisible(m_scaleXLabel->isVisible());
-    fields->m_sliderX->setVisible(m_scaleXLabel->isVisible());
-    fields->m_sliderX->setEnabled(m_scaleXLabel->isVisible());
-    m_sliderX->setVisible(false);
-    if (m_scaleXLabel->isVisible()) {
-        m_scaleXLabel->setString("Scale X:");
-        m_scaleXLabel->setScale(0.5f);
-    }
-}
-
-void ICGJScaleControl::updateLabelY(float scale) {
-    GJScaleControl::updateLabelY(scale);
-    auto fields = m_fields.self();
-    fields->m_inputY->setVisible(m_scaleYLabel->isVisible());
-    fields->m_sliderY->setVisible(m_scaleYLabel->isVisible());
-    fields->m_sliderY->setEnabled(m_scaleYLabel->isVisible());
-    m_sliderY->setVisible(false);
-    if (m_scaleYLabel->isVisible()) {
-        m_scaleYLabel->setString("Scale Y:");
-        m_scaleYLabel->setScale(0.5f);
-    }
-}
-
-void ICGJScaleControl::updateLabelXY(float scale) {
-    GJScaleControl::updateLabelXY(scale);
-    auto fields = m_fields.self();
-    fields->m_inputXY->setVisible(m_scaleLabel->isVisible());
-    fields->m_sliderXY->setVisible(m_scaleLabel->isVisible());
-    fields->m_sliderXY->setEnabled(m_scaleLabel->isVisible());
-    m_sliderXY->setVisible(false);
-    if (m_scaleLabel->isVisible()) {
-        m_scaleLabel->setString("Scale:");
-        m_scaleLabel->setScale(0.5f);
-    }
 }
 
 void ICGJScaleControl::updateSnapValues() {
@@ -666,7 +825,46 @@ CCPoint ICGJScaleControl::getPivotLocation() {
     return position;
 }
 
-void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states) {
+void ICGJScaleControl::onApplyScale(cocos2d::CCObject* sender) {
+    auto fields = m_fields.self();
+
+    switch (sender->getTag()) {
+        case 0: {
+            auto scaleRes = numFromString<float>(fields->m_inputX->getString());
+            if (!scaleRes) return;
+            auto scale = scaleRes.unwrap();
+
+            if (m_delegate) m_delegate->scaleXChanged(scale, m_scaleLocked);
+            fields->m_sliderX->setPercent(trueValueFromScale(scale), true);
+            break;
+        }
+        case 1: {
+            auto scaleRes = numFromString<float>(fields->m_inputY->getString());
+            if (!scaleRes) return;
+            auto scale = scaleRes.unwrap();
+
+            if (m_delegate) m_delegate->scaleYChanged(scale, m_scaleLocked);
+            fields->m_sliderY->setPercent(trueValueFromScale(scale), true);
+            break;
+        }
+        case 2: {
+            auto scaleRes = numFromString<float>(fields->m_inputXY->getString());
+            if (!scaleRes) return;
+            auto scale = scaleRes.unwrap();
+
+            if (m_delegate) m_delegate->scaleXYChanged(scale, scale, m_scaleLocked);
+            fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+
+    updatePrecision();
+}
+
+void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, std::unordered_map<int, GameObjectEditorState>& states) {
     GJScaleControl::loadValues(obj, objs, states);
     auto fields = m_fields.self();
 
@@ -698,17 +896,47 @@ void ICGJScaleControl::loadValues(GameObject* obj, CCArray* objs, gd::unordered_
         scale = m_valueY;
     }
 
-    fields->m_sliderX->setPercent(trueValueFromScale(m_valueX), true);
-    fields->m_sliderY->setPercent(trueValueFromScale(m_valueY), true);
-    fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
+    bool isXY = m_senderTag == 45;
 
-    fields->m_inputX->setString(tinker::utils::string::floatToString(m_valueX, 3));
-    fields->m_inputY->setString(tinker::utils::string::floatToString(m_valueY, 3));
-    fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, 3));
+    if (isXY) {
+        fields->m_precision = ImprovedControls::getPrecisionFromFloat(scale);
 
-    updateLabelX(m_valueX);
-    updateLabelY(m_valueY);
-    updateLabelXY(scale);
+        fields->m_sliderXY->setPercent(trueValueFromScale(scale), true);
+        fields->m_inputXY->setString(tinker::utils::string::floatToString(scale, getPrecision()));
+    }
+    else {
+        auto precisionX = ImprovedControls::getPrecisionFromFloat(m_valueX);
+        auto precisionY = ImprovedControls::getPrecisionFromFloat(m_valueY);
+
+        fields->m_precision = std::max(precisionX, precisionY);
+
+        fields->m_sliderX->setPercent(trueValueFromScale(m_valueX), true);
+        fields->m_sliderY->setPercent(trueValueFromScale(m_valueY), true);
+
+        fields->m_inputX->setString(tinker::utils::string::floatToString(m_valueX, getPrecision()));
+        fields->m_inputY->setString(tinker::utils::string::floatToString(m_valueY, getPrecision()));
+    }
+
+    m_sliderXY->setVisible(false);
+    m_scaleInput->setVisible(false);
+
+    m_sliderX->setVisible(false);
+    m_scaleXInput->setVisible(false);
+
+    m_sliderY->setVisible(false);
+    m_scaleYInput->setVisible(false);
+
+    fields->m_sliderXY->setVisible(isXY);
+    fields->m_inputXY->setVisible(isXY);
+
+    fields->m_sliderX->setVisible(!isXY);
+    fields->m_inputX->setVisible(!isXY);
+
+    fields->m_sliderY->setVisible(!isXY);
+    fields->m_inputY->setVisible(!isXY);
+
+    updateUI(ImprovedControls::getSetting<bool, "use-refresh-button">());
+    updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), ImprovedControls::getSetting<bool, "scale-with-zoom">(), ImprovedControls::getSetting<float, "control-scale">());
 }
 
 bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
@@ -716,12 +944,8 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
     auto fields = m_fields.self();
 
     for (auto input : fields->m_inputs) {
-        if (nodeIsVisible(input) && alpha::utils::isPointInsideNode(input, touch->getLocation())) {
-            input->getInputNode()->ccTouchBegan(touch, event);
-            return true;
-        }
-        else {
-            input->defocus();
+        if (!nodeIsVisible(input) || !alpha::utils::isPointInsideNode(input, touch->getLocation())) {
+            input->unfocus();
         }
     }
 
@@ -731,7 +955,7 @@ bool ICGJScaleControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* e
 void ICGJScaleControl::unfocus() {
     auto fields = m_fields.self();
     for (auto input : fields->m_inputs) {
-        input->defocus();
+        input->unfocus();
     }
 }
 
@@ -747,36 +971,57 @@ float ICGJRotationControl::angleOfPointOnCircle(CCPoint const& point) const {
     return std::atan2f(point.y, point.x) * (180.f / M_PI);
 }
 
-bool ICGJRotationControl::isPositionLocked() {
-    return m_fields->m_posLock;
-}
-
 bool ICGJRotationControl::init() {
     if (!GJRotationControl::init()) return false;
     auto fields = m_fields.self();
-
+    
     fields->m_controlContainer = CCNode::create();
+    fields->m_controlContainer->setID("controls-container"_spr);
     addChild(fields->m_controlContainer);
 
-    auto menu = CCMenu::create();
+    auto menu = getChildByID("lock-position-menu");
     menu->setContentSize({50.f, 80.f});
-    menu->setAnchorPoint({0.f, 0.5f});
-    menu->setID("lock-menu"_spr);
+    menu->setAnchorPoint({0.5f, 0.5f});
     menu->setLayout(SimpleRowLayout::create()
         ->setGap(3.f)
         ->setMainAxisScaling(AxisScaling::Grow)
     );
 
-    fields->m_posLockToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
-        fields->m_posLock = !sender->isToggled();
-    });
-    ImprovedControls::addLabelToToggle(fields->m_posLockToggle, "Pos");
-    fields->m_posLockToggle->setID("pos-lock"_spr);
-    fields->m_posLockToggle->setUserFlag("dulak.whoaddedthis/dont-notify");
-    fields->m_posLockToggle->m_onButton->setUserFlag("dulak.whoaddedthis/dont-notify");
-    fields->m_posLockToggle->m_offButton->setUserFlag("dulak.whoaddedthis/dont-notify");
+    auto rotationInputContainer = getChildByID("rotation-input-container");
+    if (rotationInputContainer) {
+        rotationInputContainer->setVisible(false);
+    }
 
-    menu->addChild(fields->m_posLockToggle);
+    fields->m_menuMirror = alpha::ui::MirrorNode::create(menu);
+    fields->m_menuMirror->showOriginal(false);
+    fields->m_menuMirror->setPosition(menu->getPosition());
+    fields->m_menuMirror->setAnchorPoint({0.f, 0.5f});
+    fields->m_menuMirror->setID("lock-position-menu-mirror"_spr);
+
+    fields->m_controlContainer->addChild(fields->m_menuMirror);
+
+    fields->m_refreshButton = geode::Button::createWithSpriteFrameName("GJ_updateBtn_001.png", [this, fields] (auto sender) {
+        auto angleRes = numFromString<float>(fields->m_input->getString());
+        if (!angleRes) return;
+        
+        auto angle = angleRes.unwrap();
+        if (m_delegate) {
+            m_delegate->angleChangeBegin();
+            m_delegate->angleChanged(angle, m_rotationLocked);
+            m_delegate->angleChangeEnded();
+        }
+
+        updatePrecision();
+        setControlRotation(angle);
+    });
+    fields->m_refreshButton->setID("refresh-rotation-button"_spr);
+    fields->m_refreshButton->setScale(0.4f);
+
+    fields->m_controlContainer->addChild(fields->m_refreshButton);
+
+    m_lockRotationButton->setScale(0.8f);
+    m_lockRotationButton->m_baseScale = 0.8f;
+    ImprovedControls::addLabelToNode(m_lockRotationButton->getNormalImage(), "Pos");
 
     fields->m_rotationToggle = CCMenuItemExt::createTogglerWithFrameName("warpLockOnBtn_001.png", "warpLockOffBtn_001.png", 0.8f, [this, fields] (auto sender) {
         fields->m_rotationLock = !sender->isToggled();
@@ -813,7 +1058,7 @@ bool ICGJRotationControl::init() {
 
     menu->addChild(fields->m_valueToggler);
 
-    menu->setPosition(80.f, 35.f);
+    fields->m_menuMirror->setPosition({80.f, 35.f});
     menu->updateLayout();
 
     addEventListener(ModifierEvent(), [this, fields] (KeyboardModifier modifier, KeyboardModifier lastModifier) {
@@ -832,10 +1077,9 @@ bool ICGJRotationControl::init() {
         fields->m_snapToggle->setEnabled(!(modifier & KeyboardModifier::Shift));
 
         if (changed(KeyboardModifier::Control)) {
-            fields->m_posLockToggle->setEnabled(true);
-            fields->m_posLockToggle->toggleWithCallback(!fields->m_posLockToggle->isToggled());
-            fields->m_posLockToggle->m_onButton->setScale(1.f);
-            fields->m_posLockToggle->m_offButton->setScale(1.f);
+            m_lockRotationButton->setEnabled(true);
+            onToggleLockRotation(nullptr);
+            m_lockRotationButton->setScale(0.8f);
         }
 
         if (changed(KeyboardModifier::Alt)) {
@@ -847,29 +1091,32 @@ bool ICGJRotationControl::init() {
             }
         }
 
-        fields->m_posLockToggle->setEnabled(!(modifier & KeyboardModifier::Control));
+        m_lockRotationButton->setEnabled(!(modifier & KeyboardModifier::Control));
     });
-
-    fields->m_controlContainer->addChild(menu);
     
     fields->m_input = TextInput::create(50.f, "Num");
     fields->m_input->setScale(0.8f);
     fields->m_input->setID("angle-input"_spr);
-    fields->m_input->setPosition(menu->getPositionX() + menu->getScaledContentWidth() / 2.f, 0.f);
-    fields->m_input->getBGSprite()->setScaleMultiplier(2.3f);
+    fields->m_input->setPosition(fields->m_menuMirror->getPositionX() + fields->m_menuMirror->getScaledContentWidth() / 2.f, 0.f);
+    fields->m_input->getBGSprite()->setScaleMultiplier(1.2f);
     fields->m_input->setCommonFilter(CommonFilter::Float);
     fields->m_input->setCallback([this] (auto const& str) {
+        if (ImprovedControls::getSetting<bool, "use-refresh-button">()) return;
+
         auto angleRes = numFromString<float>(str);
         if (!angleRes) return;
 
+        updatePrecision();
+        
         auto angle = angleRes.unwrap();
         if (m_delegate) {
             m_delegate->angleChangeBegin();
-            m_delegate->angleChanged(angle);
+            m_delegate->angleChanged(angle, m_rotationLocked);
             m_delegate->angleChangeEnded();
         }
         setControlRotation(angle);
     });
+
     fields->m_controlContainer->addChild(fields->m_input);
 
     addEventListener(EditorRotationEvent(), [this, fields] (float rotation) {
@@ -879,6 +1126,18 @@ bool ICGJRotationControl::init() {
         m_controlSprite->setRotation(-rotation);
     });
 
+    addEventListener(EditorZoomEvent(), [this, fields] (float zoom) {        
+        updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), ImprovedControls::getSetting<float, "control-scale">());
+    });
+
+    addEventListener(UIScaleUpdated(), [this, fields] (float scale, bool scaleToolbars) {
+        if (!ImprovedControls::getSetting<bool, "follow-ui-scale">()) return;
+
+        updateScale(true, ImprovedControls::getSetting<float, "control-scale">());
+    });
+
+    updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), ImprovedControls::getSetting<float, "control-scale">());
+
     return true;
 }
 
@@ -887,12 +1146,8 @@ bool ICGJRotationControl::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent
 
     auto fields = m_fields.self();
 
-    if (nodeIsVisible(fields->m_input) && alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
-        fields->m_input->getInputNode()->ccTouchBegan(touch, event);
-        return true;
-    }
-    else {
-        fields->m_input->defocus();
+    if (!nodeIsVisible(fields->m_input) || !alpha::utils::isPointInsideNode(fields->m_input, touch->getLocation())) {
+        fields->m_input->unfocus();
     }
 
     return ret;
@@ -913,13 +1168,16 @@ void ICGJRotationControl::ccTouchMoved(CCTouch* touch, CCEvent* event) {
         m_controlSprite->setPosition(pointOnCircle(-angle, 60.f));
     }
 
-    if (m_delegate) m_delegate->angleChanged(angle);
-    fields->m_input->setString(tinker::utils::string::floatToString(angle, 3));
+    angle = ImprovedControls::roundToPrecision(angle, getPrecision());
+
+    if (m_delegate) m_delegate->angleChanged(angle, m_rotationLocked);
+
+    fields->m_input->setString(tinker::utils::string::floatToString(angle, getPrecision()));
 }
 
 void ICGJRotationControl::finishTouch() {
     auto fields = m_fields.self();
-    fields->m_input->defocus();
+    fields->m_input->unfocus();
     GJRotationControl::finishTouch();
 }
 
@@ -936,6 +1194,42 @@ void ICGJRotationControl::draw() {
         float len = isBigTick ? 2.5f : 5.f;
         ccDrawLine(pointOnCircle(angle, 60.f - len), pointOnCircle(angle, 60.f + len));
     }
+}
+
+void ICGJRotationControl::updateScale(bool uiScale, float modifier) {
+    auto zoom =  LevelEditorLayer::get()->m_objectLayer->getScale();
+    auto scale = (uiScale ? UIScaling::getScale() : 1.f) * modifier;
+
+    setScale((1.f / zoom) * scale);
+}
+
+void ICGJRotationControl::updateUI(bool showRefresh) {
+    auto fields = m_fields.self();
+
+    fields->m_refreshButton->setVisible(showRefresh);
+
+    float offset = 0.f;
+    if (showRefresh) {
+        offset = fields->m_refreshButton->getScaledContentWidth() / 2.f + 2.f;
+    }
+
+    auto menu = fields->m_rotationToggle->getParent();
+    menu->updateLayout();
+
+    fields->m_menuMirror->resetFBO();
+
+    fields->m_input->setPosition(fields->m_menuMirror->getPositionX() + fields->m_menuMirror->getScaledContentWidth() / 2.f - offset, 0.f);
+    fields->m_refreshButton->setPosition({fields->m_input->boundingBox().getMaxX() + 6.f + fields->m_refreshButton->getScaledContentWidth() / 2.f, fields->m_input->getPositionY()});
+}
+
+void ICGJRotationControl::updatePrecision() {
+    auto fields = m_fields.self();
+    fields->m_precision = ImprovedControls::getPrecisionFromString(fields->m_input->getString());
+}
+
+int ICGJRotationControl::getPrecision() {
+    auto fields = m_fields.self();
+    return fields->m_precision;
 }
 
 void ICGJRotationControl::loadValues(CCArray* objects) {
@@ -955,26 +1249,28 @@ void ICGJRotationControl::loadValues(CCArray* objects) {
     }
 
     bool oneObject = objects->count() == 1;
-
     if (oneObject) {
         fields->m_rotationLock = false;
     }
     else {
         fields->m_rotationLock = fields->m_rotationLockInternal;
     }
+
     fields->m_rotationToggle->setVisible(!oneObject);
 
-    auto menu = fields->m_posLockToggle->getParent();
-    menu->updateLayout();
-
-    fields->m_input->setPosition(menu->getPositionX() + menu->getScaledContentWidth() / 2.f, 0.f);
+    updateUI(ImprovedControls::getSetting<bool, "use-refresh-button">());
 
     if (!parent) parent = objects->asExt<GameObject>()[0];
     if (!parent) return;
     
     auto rot = parent->getRotation();
+
+    fields->m_precision = ImprovedControls::getPrecisionFromFloat(rot);
+
     setControlRotation(rot);
-    fields->m_input->setString(tinker::utils::string::floatToString(rot, 3));
+    fields->m_input->setString(tinker::utils::string::floatToString(rot, getPrecision()));
+
+    updateScale(ImprovedControls::getSetting<bool, "follow-ui-scale">(), ImprovedControls::getSetting<float, "control-scale">());
 }
 
 float ICGJRotationControl::getThumbValue() const {

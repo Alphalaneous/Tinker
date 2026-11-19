@@ -1,9 +1,11 @@
 #include "utils/Objects.hpp"
+#include <Geode/binding/EditorUI.hpp>
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <Geode/utils/function.hpp>
 #include "MainHooks.hpp"
 #include "utils/Constants.hpp"
+#include "utils/UI.hpp"
 #include <Geode/binding/GJBaseGameLayer.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
@@ -13,66 +15,9 @@ using namespace geode::prelude;
 namespace tinker::utils::objects {
 
 bool isColorable(GameObject* object) {
-    using namespace tinker::constants::objects;
-
-    static const std::unordered_set<int> allowedIDs = {
-        TeleportOrb, 
-        ToggleOrb
-    };
-
-    static const std::unordered_set<int> disallowedIDs = {
-        ForceBlock, 
-        ForceCircle, 
-        KeyframePoint, 
-        CameraGuide, 
-        CollisionBlock, 
-        BPMTrigger, 
-        PlayerTouchToggle, 
-        OrangeTeleportPortal
-    };
-
-    static const std::unordered_set<GameObjectType> disallowedTypes = {
-        GameObjectType::YellowJumpPad,
-        GameObjectType::PinkJumpPad,
-        GameObjectType::RedJumpPad,
-        GameObjectType::GravityPad,
-        GameObjectType::SpiderPad,
-        GameObjectType::SpiderOrb,
-        GameObjectType::YellowJumpRing,
-        GameObjectType::PinkJumpRing,
-        GameObjectType::RedJumpRing,
-        GameObjectType::GravityRing,
-        GameObjectType::GreenRing,
-        GameObjectType::DropRing,
-        GameObjectType::DashRing,
-        GameObjectType::GravityDashRing,
-        GameObjectType::NormalGravityPortal,
-        GameObjectType::InverseGravityPortal,
-        GameObjectType::GravityTogglePortal,
-        GameObjectType::CubePortal,
-        GameObjectType::ShipPortal,
-        GameObjectType::UfoPortal,
-        GameObjectType::BallPortal,
-        GameObjectType::WavePortal,
-        GameObjectType::RobotPortal,
-        GameObjectType::SpiderPortal,
-        GameObjectType::SwingPortal,
-        GameObjectType::NormalMirrorPortal,
-        GameObjectType::InverseMirrorPortal,
-        GameObjectType::MiniSizePortal,
-        GameObjectType::RegularSizePortal,
-        GameObjectType::DualPortal,
-        GameObjectType::SoloPortal,
-        GameObjectType::TeleportPortal,
-        GameObjectType::SecretCoin,
-        GameObjectType::UserCoin
-    };
-
-    if (allowedIDs.contains(object->m_objectID)) return true;
-    if (disallowedIDs.contains(object->m_objectID)) return false;
-    if (object->isTrigger() || object->isSpeedObject()) return false;
-    if (disallowedTypes.contains(object->m_objectType)) return false;
-
+    if (object->m_classType == GameObjectClassType::Effect) {
+        return object->m_customColorType == 0 ? object->m_maybeNotColorable : object->m_customColorType == 1;
+    }
     return true;
 }
 
@@ -115,8 +60,6 @@ void setGameObjectColor(GameObject* obj, std::optional<cocos2d::ccColor3B> baseC
     using namespace tinker::constants;
     using namespace tinker::constants::objects;
     
-    if (!isColorable(obj)) return;
-
     auto anim = geode::cast::typeinfo_cast<AnimatedGameObject*>(obj);
     auto enhanced = geode::cast::typeinfo_cast<EnhancedGameObject*>(obj);
 
@@ -229,8 +172,6 @@ void setGameObjectColor(GameObject* obj, std::optional<cocos2d::ccColor3B> baseC
 void updateGameObjectColor(GameObject* obj) {
     using namespace tinker::constants;
     
-    if (!isColorable(obj)) return;
-
     std::optional<cocos2d::ccColor3B> baseColor = std::nullopt;
     std::optional<cocos2d::ccColor3B> detailColor = std::nullopt;
 
@@ -269,13 +210,16 @@ void updateGameObjectColor(GameObject* obj) {
 void updateCreateButtonColor(cocos2d::CCNode* btn, int color1ID, int color2ID, const cocos2d::ccHSVValue& hsv1, const cocos2d::ccHSVValue& hsv2) {
     using namespace tinker::constants;
     
-    auto btnSprite = btn->getChildByType<ButtonSprite>(0);
+    auto btnSprite = btn->getChildByType<ButtonSprite>();
     if (!btnSprite) return;
 
     auto obj = btnSprite->getChildByType<GameObject>();
     if (!obj) return;
 
-    if (!isColorable(obj)) return;
+    if (obj->m_classType == GameObjectClassType::Effect) {
+        bool colorable = obj->m_customColorType == 0 ? obj->m_maybeNotColorable : obj->m_customColorType == 1;
+        if (!colorable) return;
+    }
 
     std::optional<cocos2d::ccColor3B> baseColor = std::nullopt;
     std::optional<cocos2d::ccColor3B> detailColor = std::nullopt;
@@ -583,6 +527,44 @@ geode::Result<std::pair<cocos2d::CCPoint, cocos2d::CCPoint>> getCenter() {
     };
 
     return geode::Ok(std::make_pair(startCenter, past));
+}
+
+cocos2d::CCPoint getCameraCenter() {
+    auto editor = LevelEditorLayer::get();
+    auto winSize = CCDirector::get()->getWinSize();
+
+    return editor->m_objectLayer->convertToNodeSpace(winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
+}
+
+// todo fix camera centering to account for camera rotation
+void moveCameraToPos(cocos2d::CCPoint position, bool showCircle) {
+    auto editor = LevelEditorLayer::get();
+    auto winSize = CCDirector::get()->getWinSize();
+
+    editor->m_objectLayer->setPosition(-(position * editor->m_objectLayer->getScale()) + winSize / 2.f + CCPoint{0.f, tinker::utils::ui::getToolbarHeight() / 2.f});
+
+    if (showCircle) {
+        auto pos = editor->m_objectLayer->convertToWorldSpace(position);
+
+        editor->m_editorUI->playCircleAnim(pos, 50.f, 0.8f);
+        editor->m_editorUI->updateSlider();
+    }
+}
+
+void moveCameraToObject(GameObject* object, bool showCircle) {
+    if (!object) return;
+
+    moveCameraToPos(object->getPosition(), showCircle);
+}
+
+void moveCameraToObjects(cocos2d::CCArray* objects, bool showCircle) {
+    if (!objects) return;
+    if (objects->count() == 0) return;
+
+    auto editor = EditorUI::get();
+    auto center = editor->getGroupCenter(objects, false);
+
+    moveCameraToPos(center, showCircle);
 }
 
 }

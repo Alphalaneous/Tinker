@@ -5,8 +5,8 @@
 #include "nodes/LazyColorRow.hpp"
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 #include <Geode/modify/ColorChannelSprite.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <alphalaneous.level-storage-api/LevelStorageAPI.hpp>
 
 class $module(ImprovedColorPicker) {
     bool onToggled(bool state);

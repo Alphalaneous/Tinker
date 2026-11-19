@@ -8,7 +8,7 @@
 #include <Geode/utils/StringMap.hpp>
 #include <Geode/utils/ZStringView.hpp>
 #include <Geode/utils/cocos.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>

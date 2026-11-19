@@ -6,10 +6,11 @@ using namespace geode::prelude;
 namespace tinker::ui {
 
 bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
-  
     m_editorLayer = levelEditorLayer;
 
     if (!Popup::init(400.f, 275.f, "GJ_square01.png")) return false;
+
+    m_noElasticity = true;
 
     setCloseButtonSpr(
         CircleButtonSprite::createWithSpriteFrameName(
@@ -19,7 +20,7 @@ bool ObjectPopup::init(LevelEditorLayer* levelEditorLayer) {
     );
 
     setTitle("Object Summary");
-    m_title->limitLabelWidth(m_mainLayer->getContentSize().width - 50.f, 0.7f, 0.1f);
+    m_title->setLimitLabelWidth(m_mainLayer->getContentSize().width - 50.f, 0.7f, 0.1f);
     m_title->setID("title"_spr);
 
     m_uniqueLabel = geode::Label::create("0 unique objects", "bigFont.fnt");

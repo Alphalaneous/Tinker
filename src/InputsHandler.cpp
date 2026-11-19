@@ -1,5 +1,6 @@
 #include "InputsHandler.hpp"
 #include "Events.hpp"
+#include "alphalaneous.alphas-ui-pack/Utils.hpp"
 #include "modules/BetterSelect.hpp"
 #include "modules/ObjectAlignment.hpp"
 #include "modules/CanvasRotate.hpp"
@@ -7,111 +8,21 @@
 #include "modules/Gizmos/Gizmos.hpp"
 #include "actions/CCCallbackAction.hpp"
 #include "actions/CCValueTo.hpp"
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
-#include <alphalaneous.editortab_api/include/API.hpp>
-#include <geode.devtools/include/API.hpp>
+#include <Geode/binding/EditorCommandsPopup.hpp>
+#include <Geode/binding/EditorUI.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+//#include <geode.devtools/API.hpp>
 #include "nodes/ToolbarTouch.hpp"
 #include "utils/Mod.hpp"
+#include "utils/Timestamp.hpp"
 #include "utils/UI.hpp"
 #include "utils/Settings.hpp"
 
 using namespace geode::prelude;
 
 using namespace alpha::prelude;
-
-namespace tinker::ui {
-
-TouchForward* TouchForward::create(EditorUI* editorUI) {
-    auto ret = new TouchForward();
-    if (ret->init(editorUI)) {
-        ret->autorelease();
-        return ret;
-    }
-    delete ret;
-    return nullptr;
-}
-
-TouchForward* TouchForward::get() {
-    return InputEditorUI::get()->m_fields->m_forward;
-}
-
-bool TouchForward::init(EditorUI* editorUI) {
-    m_editorUI = editorUI;
-    setZOrder(50);
-    setTouchEnabled(true);
-    setID("touch-forward"_spr);
-
-    editorUI->addOnEnterCallback([this] {
-        CCTouchDispatcher::get()->removeDelegate(m_editorUI);
-    });
-
-    registerTouch<CanvasRotate>(3);
-    registerTouch<ObjectAlignment>(2);
-    registerTouch<InputEditorUI>(1);
-
-    return true;
-}
-
-void TouchForward::registerWithTouchDispatcher() {
-    CCTouchDispatcher::get()->addTargetedDelegate(this, 0, true);
-}
-
-bool TouchForward::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    m_touches.insert(touch);
-
-    return dispatch(0, touch,
-        [] (auto& h) -> auto& { return h.beganCallback; },
-        [this] (CCTouch* t) {
-            return m_editorUI->ccTouchBegan(t, nullptr);
-        }
-    );
-}
-
-void TouchForward::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    dispatch(0, touch,
-        [] (auto& h) -> auto& { return h.movedCallback; },
-        [this] (CCTouch* t) {
-            return m_editorUI->ccTouchMoved(t, nullptr);
-        }
-    );
-}
-
-void TouchForward::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    m_touches.erase(touch);
-
-    dispatch(0, touch,
-        [] (auto& h) -> auto& { return h.endedCallback; },
-        [this] (CCTouch* t) {
-            return m_editorUI->ccTouchEnded(t, nullptr);
-        }
-    );
-}
-
-void TouchForward::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    if (!m_skipErase) {
-        m_touches.erase(touch);
-    }
-
-    dispatch(0, touch,
-        [] (auto& h) -> auto& { return h.cancelledCallback; },
-        [this] (CCTouch* t) {
-            return m_editorUI->ccTouchCancelled(t, nullptr);
-        }
-    );
-}
-
-void TouchForward::cancelAllTouches() {
-    for (const auto& touch : m_touches) {
-        if (!touch) continue;
-        m_skipErase = true;
-        ccTouchCancelled(touch, nullptr);
-        m_skipErase = false;
-    }
-    m_touches.clear();
-}
-
-}
 
 #ifdef GEODE_IS_MOBILE
 void InputAppDelegate::applicationDidEnterBackground() {
@@ -140,182 +51,10 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
 
     addEventListener(ScrollWheelEvent(), [this, fields](double x, double y) {
         fields->m_scroll = CCPoint{static_cast<float>(x), static_cast<float>(y)};
-        onScroll();
+        //onScroll();
     });
     addEventListener(KeybindSettingPressedEvent(Mod::get(), "ScrollableObjects-speed-modifier-key"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
         fields->m_tabModifierHeld = down;
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-extras"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (auto popup = CCScene::get()->getChildByType<SetupObjectOptionsPopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else {
-            if (m_selectedObject || m_selectedObjects->count() > 0) {
-                auto idLayer = SetGroupIDLayer::create(m_selectedObject, m_selectedObjects);
-                auto popup = SetupObjectOptionsPopup::create(m_selectedObject, m_selectedObjects, idLayer);
-                popup->show();
-            }
-        }
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-object"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (auto popup = CCScene::get()->getChildByType<CustomizeObjectLayer>(0)) {
-            popup->keyBackClicked();
-        }
-        else {
-            editObject(nullptr);
-        }
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-group"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (auto popup = CCScene::get()->getChildByType<SetGroupIDLayer>(0)) {
-            popup->keyBackClicked();
-        }
-        else {
-            editGroup(nullptr);
-        }
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-go-to-layer"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        onGoToLayer(nullptr);
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-cycle-color-overlay"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-
-        if (!m_selectedObject && m_selectedObjects->count() == 0) {
-            closeLiveColorSelect();
-            closeLiveHSVSelect();
-            return;
-        }
-
-        auto tag = m_editHSVBtn->getTag();
-        if (tag == 1) {
-            editHSV();
-        }
-        else {
-            if (m_hsvOverlay) {
-                closeLiveHSVSelect();
-            }
-            else {
-                editColor();
-            }
-        }
-        updateEditColorButton();
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-edit-special"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (auto popup = CCScene::get()->getChildByType<SetupSmartBlockLayer>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<SetItemIDLayer>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<EditGameObjectPopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<SetupInteractObjectPopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<SetupRotatePopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<SetupGradientPopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<SetupAnimSettingsPopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else if (auto popup = CCScene::get()->getChildByType<CreateParticlePopup>(0)) {
-            popup->keyBackClicked();
-        }
-        else {
-            editObjectSpecial(0);
-        }
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-copy-values"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        onCopyState(nullptr);
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-state"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        onPasteState(nullptr);
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-paste-color"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        onPasteColor(nullptr);
-    });
-    
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-scale"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        activateScaleControl(getEditButtonByTag(29));
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-scale-xy"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        activateScaleControl(getEditButtonByTag(30));
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-show-warp"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        activateTransformControl(getEditButtonByTag(31));
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-left"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::HalfLeft);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-right"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::HalfRight);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-up"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::HalfUp);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-half-down"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::HalfDown);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-left"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::BigLeft);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-right"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::BigRight);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-up"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::BigUp);
-    });
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-move-obj-big-down"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down) return;
-        moveObjectCall(EditCommand::BigDown);
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
-            auto dummy = CCNode::create();
-            onStopPlaytest(dummy);
-            onPlaytest(dummy);
-        }
-    });
-
-    addEventListener(KeybindSettingPressedEvent(Mod::get(), "Keybinds-restart-from-beginning"), [this, fields] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
-        if (!down || repeat) return;
-        if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
-            auto dummy = CCNode::create();
-            dummy->setTag(1);
-            onStopPlaytest(dummy);
-            onPlaytest(dummy);
-        }
     });
 
     addEventListener(KeyboardInputEvent(enumKeyCodes::KEY_LeftShift), [this] (KeyboardInputData& data) {
@@ -334,26 +73,29 @@ bool InputEditorUI::init(LevelEditorLayer* editorLayer) {
         editorLayer->m_objectLayer->setPosition({130, tinker::utils::ui::getToolbarHeight() / 2.f});
     }
 
-    fields->m_forward = tinker::ui::TouchForward::create(this);
-    editorLayer->addChild(fields->m_forward);
 
-    auto toolbarTouch = tinker::ui::ToolbarTouch::create();
+    /*auto toolbarTouch = tinker::ui::ToolbarTouch::create();
     toolbarTouch->setZOrder(1);
     toolbarTouch->setID("toolbar-touch"_spr);
 
-    addChild(toolbarTouch);
+    addChild(toolbarTouch);*/
 
     return true;
 }
 
-void InputEditorUI::blockPinch(bool block) {
-    auto fields = m_fields.self();
-    if (block) {
-        fields->m_touch1 = nullptr;
-        fields->m_touch2 = nullptr;
-        fields->m_isPinching = false;
+bool InputEditorUI::handleAction(int action, bool down, double timestamp) {
+    if (down && m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
+        switch (action) {
+            case 10010: {
+                onStopPlaytest(nullptr);
+                onPlaytest(nullptr);
+                return true;
+            }
+            default: break;
+        }
     }
-    fields->m_blockPinching = block;
+
+    return EditorUI::handleAction(action, down, timestamp);
 }
 
 CCMenuItemSpriteExtra* InputEditorUI::getEditButtonByTag(int tag) {
@@ -421,25 +163,26 @@ CCPoint InputEditorUI::getRealMousePos() {
     #endif
 }
 
+// TODO FIX DEVTOOLS
 bool InputEditorUI::isInDevtools() {
-    return getMousePos() == getRealMousePos() && devtools::isOpen();
+    return false; //getMousePos() == getRealMousePos() && devtools::isOpen();
 }
 
-void InputEditorUI::onScroll() {
+bool InputEditorUI::onScroll() {
     auto quickVolume = CCScene::get()->getChildByID("hjfod.quick-volume-controls/overlay");
     if (quickVolume) {
         auto scale9 = quickVolume->getChildByType<CCScale9Sprite>(0);
-        if (scale9->getOpacity() != 0) return;
+        if (scale9->getOpacity() != 0) return false;
     }
-    auto editorPause = m_editorLayer->getChildByType<EditorPauseLayer>(0);
-    if (editorPause) return;
+    auto editorPause = CCScene::get()->getChildByType<EditorPauseLayer>(0);
+    if (editorPause) return false;
 
     auto fields = m_fields.self();
     float x = fields->m_scroll.x;
     float y = fields->m_scroll.y;
 
     if (fields->m_scroll.equals({0.f, 0.f})) {
-        return;
+        return false;
     }
 
     #ifdef GEODE_IS_MACOS
@@ -453,21 +196,29 @@ void InputEditorUI::onScroll() {
 
     for (auto alert : fields->m_activeAlerts) {
         if (alert && alert->getParentByType<CCScene>() && nodeIsVisible(alert)) {
-            return;
+            return false;
         }
     }
 
-    if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return;
+    if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) return false;
 
     auto mousePos = getMousePos();
-    if (isInDevtools()) return;
+
+    if (m_dpadMoveNode) {
+        auto scrollNode = m_dpadMoveNode->getChildByID("alphalaneous.editortab_api/edit-button-scroll-layer");
+        if (scrollNode) {
+            if (nodeIsVisible(scrollNode) && isPointInsideNode(scrollNode, mousePos)) return false;
+        }
+    }
+
+    if (isInDevtools()) return false;
     
     if (mousePos.y < tinker::utils::ui::getToolbarHeight()) {
         auto currentTab = alpha::editor_tabs::getCurrentTab();
         if (currentTab) {
             auto node = currentTab->getNode();
             if (node && node->getUserFlag("disable-editor-scroll"_spr)) {
-                return;
+                return false;
             }
         }
     }
@@ -477,16 +228,16 @@ void InputEditorUI::onScroll() {
         if (!parent) continue;
 
         if (nodeIsVisible(parent) && isPointInsideNode(parent, mousePos)) {
-            return;
+            return false;
         }
     }
 
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll()) {
-        return;
+        return false;
     }
 
     if (BetterSelect::isEnabled() && BetterSelect::get()->hoveringObjects()) {
-        return;
+        return false;
     }
 
     if (CCKeyboardDispatcher::get()->getShiftKeyPressed()) {
@@ -558,25 +309,25 @@ void InputEditorUI::onScroll() {
 
             if (tinker::utils::settings::get<bool, "zoom-to-cursor">()) {
                 auto mousePos = tinker::utils::ui::rotatePointAroundPivot(getMousePos(), winSize / 2.f, m_editorLayer->m_gameState.m_cameraAngle);
-                if (mousePos.equals({0.f, 0.f})) return;
+                if (mousePos.equals({0.f, 0.f})) return true;
                 
                 auto prevPos = layer->convertToNodeSpace(mousePos);
             
-                if (fields->m_targetScale == 0.f) return;
+                if (fields->m_targetScale == 0.f) return true;
                 updateZoom(fields->m_targetScale);
 
                 auto newPos = layer->convertToWorldSpace(prevPos);
                 layer->setPosition(layer->getPosition() + mousePos - newPos);
             }
             else {
-                if (fields->m_targetScale == 0.f) return;
+                if (fields->m_targetScale == 0.f) return true;
                 updateZoom(fields->m_targetScale);
             }
             m_swipeStart = layer->convertToWorldSpace(fields->m_startSwipe);
             constrainGameLayerPosition();
             updateSlider();
         }
-        return;
+        return true;
     }
     if (fields->m_scale) layer->stopAction(fields->m_scale);
     fields->m_activeZoom = false;
@@ -631,6 +382,8 @@ void InputEditorUI::onScroll() {
         constrainGameLayerPosition();
         updateSlider();
     }
+
+    return true;
 }
 
 void InputLevelEditorLayer::checkScrolling(float dt) {
@@ -686,7 +439,7 @@ void InputEditorUI::removeActiveInput(CCTextInputNode* input) {
     fields->m_allTextInputs.erase(input);
 }
 
-void InputEditorUI::scrollWheel(float y, float x) {
+bool InputEditorUI::scrollWheel(float y, float x) {
     auto fields = m_fields.self();
 
     bool stillEditorScroll = false;
@@ -702,17 +455,17 @@ void InputEditorUI::scrollWheel(float y, float x) {
 
     for (auto alert : fields->m_activeAlerts) {
         if (alert && alert->getParentByType<CCScene>() && nodeIsVisible(alert)) {
-            return;
+            return false;
         }
     }
 
     if (isInDevtools()) {
-        return;
+        return false;
     }
 
-    auto editorPause = m_editorLayer->getChildByType<EditorPauseLayer>(0);
+    auto editorPause = CCScene::get()->getChildByType<EditorPauseLayer>(0);
     if (editorPause) {
-        return;
+        return false;
     }
 
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll() && !stillEditorScroll) {
@@ -728,25 +481,20 @@ void InputEditorUI::scrollWheel(float y, float x) {
                 // only allow scroll to propagate through the editor, not itself
                 if (barFields->m_scrollLayer) {
                     barFields->m_scrollLayer->setVerticalScrollWheel(true);
-                    barFields->m_scrollLayer->scroll(0.f, y * multiplier * (invertScroll ? -1 : 1));
+                    barFields->m_scrollLayer->scrollWheel(y * multiplier * (invertScroll ? -1 : 1), 0.f);
                     barFields->m_scrollLayer->setVerticalScrollWheel(false);
                 }
             }
         }
         fields->m_scrollFromEditor = 0.f;
-        return;
+        return true;
     }
     fields->m_scrollFromEditor = y;
+    return onScroll();
+    //return EditorUI::scrollWheel(y, x);
 }
 
-CCPoint InputEditorUI::getTouchLocation(CCTouch* touch) {
-    if (CanvasRotate::isEnabled()) {
-        return CanvasRotate::get()->getPreTransformPoint(touch);
-    }
-    return touch->getLocation();
-}
-
-bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
+/*bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
     auto fields = m_fields.self();
     
     if (CanvasRotate::isEnabled() && CanvasRotate::get()->isRotating()) {
@@ -863,7 +611,7 @@ bool InputEditorUI::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* t
     }
 
     return next(touch);
-}
+}*/
 
 bool InputEditorUI::tryCancelGizmo(CCTouch* touch) {
     auto fields = m_fields.self();
@@ -877,7 +625,7 @@ bool InputEditorUI::tryCancelGizmo(CCTouch* touch) {
     return false;
 }
 
-void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
+/*void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
 
     if (fields->m_inGizmo) {
@@ -942,9 +690,9 @@ void InputEditorUI::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* t
     if (!fields->m_isPinching) {
         next(touch);
     }
-}
+}*/
 
-void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
+/*void InputEditorUI::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
     auto fields = m_fields.self();
 
     if (fields->m_inGizmo) {
@@ -984,7 +732,7 @@ void InputEditorUI::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouc
     }
 
     onTouchEnded(touch, std::move(next));
-}
+}*/
 
 void InputEditorUI::onPause(cocos2d::CCObject* sender) {
     if (!m_fields->m_blockPause) {
@@ -1059,7 +807,7 @@ class $baseModify(BlockingFLAlertLayer, FLAlertLayer) {
         auto editor = InputEditorUI::get();
         if (!editor) return;
 
-        if (typeinfo_cast<ColorSelectLiveOverlay*>(this) || typeinfo_cast<HSVLiveOverlay*>(this)) {
+        if (typeinfo_cast<ColorSelectLiveOverlay*>(this) || typeinfo_cast<HSVLiveOverlay*>(this) || typeinfo_cast<EditorWindowPopup*>(this)) {
             return;
         }
 

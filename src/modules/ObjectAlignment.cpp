@@ -1,7 +1,12 @@
 #include "modules/ObjectAlignment.hpp"
+#include "Geode/loader/Log.hpp"
+#include "alphalaneous.alphas-ui-pack/touch/Touch.hpp"
+#include "alphalaneous.editor-touch-api/EditorTouch.hpp"
+#include "alphalaneous.editor-touch-api/Events.hpp"
+#include "module/ModuleCore.hpp"
 #include "modules/TogglerOverflow.hpp"
 #include "utils/Objects.hpp"
-#include <alphalaneous.editorsounds/include/API.hpp>
+//#include <alphalaneous.editorsounds/API.hpp>
 
 using namespace geode::prelude;
 
@@ -11,6 +16,9 @@ bool ObjectAlignment::onToggled(bool state) {
     }
     else {
         removeEventListener("align-modifier-event");
+        removeEventListener("start-touch");
+        removeEventListener("move-touch");
+
         getEditorLayer()->unschedule(schedule_selector(OALevelEditorLayer::updateAlignmentDraw));
 
         if (m_alignmentNode) {
@@ -57,7 +65,7 @@ bool ObjectAlignment::onSettingChanged(std::string_view key, const matjson::Valu
             menu->updateLayout();
         }
         else {
-            m_alignToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
+            m_alignToggled = getSaved<Save::Global, bool, "quick-toggle-on">();
             if (!m_toggler) return true;
             
             auto menu = editor->getChildByID("toolbar-toggles-menu");
@@ -193,54 +201,16 @@ CCRect ObjectAlignment::getSelectedBounds() {
     return {};
 }
 
-bool ObjectAlignment::onTouchBegan(CCTouch* touch, geode::Function<bool(CCTouch* touch)> next) {
+bool ObjectAlignment::touchBegan(alpha::dispatcher::Touch* touch) {
     m_closestEdges = {};
-    return next(touch);
+    return true;
 }
 
-void ObjectAlignment::onTouchMoved(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
-    next(touch);
+void ObjectAlignment::touchMoved(alpha::dispatcher::Touch* touch) {
     auto editor = getEditor();
-    if (editor->m_snapObject) {
-        m_closestEdges = closestSnapEdge(getSelectedBounds());
-    }
-}
+    if (!editor->m_snapObjectExists || !editor->m_continuousSnap || !editor->m_snapObject) return;
 
-void ObjectAlignment::onTouchEnded(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
-    auto editor = getEditor();
-    if (!editor->m_snapObject || (!m_alignActive && !m_alignToggled)) {
-        next(touch);
-        return;
-    }
-
-    float deltaX = 0.f;
-    if (m_closestEdges.horizontalTarget) {
-        deltaX = m_closestEdges.horizontalTarget.value() - m_closestEdges.horizontalSource.value();
-    }
-
-    float deltaY = 0.f;
-    if (m_closestEdges.verticalTarget) {
-        deltaY = m_closestEdges.verticalTarget.value() - m_closestEdges.verticalSource.value();
-    }
-
-    if (deltaX != 0.f || deltaY != 0.f) {
-        editor->m_snapObjectExists = false;
-    }
-
-    next(touch);
-
-    if (editor->m_selectedObjects->count() == 0) {
-        editor->moveObject(editor->m_selectedObject, {deltaX, deltaY});
-    } 
-    else {
-        for (auto obj : CCArrayExt<GameObject, false>(editor->m_selectedObjects)) {
-            editor->moveObject(obj, {deltaX, deltaY});
-        }
-    }
-}
-
-void ObjectAlignment::onTouchCancelled(CCTouch* touch, geode::Function<void(CCTouch* touch)> next) {
-    next(touch);
+    m_closestEdges = closestSnapEdge(getSelectedBounds());
 }
 
 void ObjectAlignment::onEditor() {
@@ -279,13 +249,13 @@ void ObjectAlignment::onEditor() {
 
     m_toggler = CCMenuItemExt::createToggler(sprOn, sprOff, [this] (CCMenuItemToggler* toggler) {
         m_alignToggled = !toggler->isToggled();
-        Mod::get()->setSavedValue<bool>("object-alignment-toggle", m_alignToggled);
+        setSaved<Save::Global, "quick-toggle-on">(m_alignToggled);
     });
     m_toggler->setID("object-align-button"_spr);
-    alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
+    //alpha::editor_sounds::assignToMenuItem(m_toggler, "toolbar-toggles");
 
     if (getSetting<bool, "show-toggle">()) {
-        bool isToggled = Mod::get()->getSavedValue<bool>("object-alignment-toggle", false);
+        bool isToggled = getSaved<Save::Global, bool, "quick-toggle-on">();
 
         m_toggler->toggle(isToggled);
         m_alignToggled = isToggled;
@@ -295,6 +265,49 @@ void ObjectAlignment::onEditor() {
         menu->updateLayout();
     }
     editor->m_uiItems->addObject(m_toggler);
+
+    addEventListener("snap-free-move-object", alpha::editor_touch::events::SnapFreeMoveObject(), [this, editor] (bool& ret, cocos2d::CCTouch* touch, cocos2d::CCPoint& offset) {
+        if (!m_alignActive && !m_alignToggled) return ListenerResult::Propagate;
+        
+        if (!editor->m_snapObjectExists || !editor->m_continuousSnap || !editor->m_snapObject) {
+            return ListenerResult::Propagate;
+        }
+
+        m_closestEdges = closestSnapEdge(getSelectedBounds());
+
+        float deltaX = 0.f;
+        if (m_closestEdges.horizontalTarget) {
+            deltaX = m_closestEdges.horizontalTarget.value() - m_closestEdges.horizontalSource.value();
+        }
+
+        float deltaY = 0.f;
+        if (m_closestEdges.verticalTarget) {
+            deltaY = m_closestEdges.verticalTarget.value() - m_closestEdges.verticalSource.value();
+        }
+
+        if (deltaX == 0.f && deltaY == 0.f) {
+            return ListenerResult::Propagate;
+        }
+
+        if (editor->m_selectedObjects->count() == 0) {
+            editor->moveObject(editor->m_selectedObject, {deltaX, deltaY});
+        } 
+        else {
+            for (auto obj : CCArrayExt<GameObject, false>(editor->m_selectedObjects)) {
+                editor->moveObject(obj, {deltaX, deltaY});
+            }
+        }
+
+        return ListenerResult::Stop;
+    }, -1);
+
+    addEventListener("start-touch", alpha::editor_touch::TouchBegin(), [this] (alpha::editor_touch::TouchAction& ret, alpha::dispatcher::Touch* touch) {
+        ret = touchBegan(touch);
+    });
+
+    addEventListener("move-touch", alpha::editor_touch::TouchMoved(), [this] (alpha::dispatcher::Touch* touch) {
+        touchMoved(touch);
+    });
 }
 
 void OALevelEditorLayer::updateAlignmentDraw(float dt) {

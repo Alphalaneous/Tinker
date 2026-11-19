@@ -1,7 +1,7 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/AppDelegate.hpp>
 
@@ -45,8 +45,8 @@ public:
 protected:
 
     bool init() override;
-    bool mouseEntered(TouchEvent* touch) override;
-    void mouseMoved(TouchEvent* touch) override;
+    bool hoverEntered(Hover* hover) override;
+    void hoverMoved(Hover* hover) override;
 
     void onEnter() override;
     void onExit() override;

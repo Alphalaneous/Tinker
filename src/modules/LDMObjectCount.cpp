@@ -34,6 +34,8 @@ void LDMObjectCount::revertLabel(EditorPauseLayer* pauseLayer) {
     if (split.empty()) return;
 
     objectCountLabel->setString(split[0].c_str());
+
+    infoMenu->updateLayout();
 }
 
 void LDMObjectCount::setLabel(EditorPauseLayer* pauseLayer) {
@@ -55,4 +57,6 @@ void LDMObjectCount::setLabel(EditorPauseLayer* pauseLayer) {
         objectCountLabel->getString(), ldmCount,
         getEditorLayer()->m_objects->count() ? static_cast<int>(100.f * ldmCount / getEditorLayer()->m_objects->count()) : 0
     ).c_str());
+
+    infoMenu->updateLayout();
 }

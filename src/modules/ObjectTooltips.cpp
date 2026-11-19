@@ -1,6 +1,6 @@
 #include "modules/ObjectTooltips.hpp"
-#include <alphalaneous.editortab_api/include/API.hpp>
-#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+#include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 #include "nodes/TooltipHover.hpp"
 
 using namespace geode::prelude;
@@ -46,11 +46,11 @@ void ObjectTooltips::onEditor() {
     getEditor()->addChild(m_hover);
     getEditor()->m_uiItems->addObject(m_hover);
 
-    addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+    addEventListener("switch-tab", alpha::editor_tabs::Tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
         if (m_hover) m_hover->resetTooltip();
     });
 
-    addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+    addEventListener("switch-mode", alpha::editor_tabs::Mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
         if (m_hover) m_hover->resetTooltip();
     });
 

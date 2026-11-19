@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#include <alphalaneous.alphas-ui-pack/include/API.hpp>
+#include <alphalaneous.alphas-ui-pack/API.hpp>
 #include "settings/SettingNode.hpp"
 
 using namespace geode::prelude;
@@ -24,7 +24,7 @@ public:
 
     void updateState() override {
         if (!m_settingNode) return;
-        m_settingNode->updateState2(nullptr);
+        m_settingNode->updateState(nullptr);
     }
 
     void commit() override {

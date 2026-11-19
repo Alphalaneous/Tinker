@@ -1,8 +1,10 @@
 #include "modules/PreviewObjectColors.hpp"
+#include "module/ModuleCore.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/UIScaling.hpp"
-#include <alphalaneous.level-storage-api/include/LevelStorageAPI.hpp>
-#include <alphalaneous.editortab_api/include/API.hpp>
+#include <alphalaneous.level-storage-api/LevelStorageAPI.hpp>
+#include <alphalaneous.editortab_api/API.hpp>
+#include <string>
 #include "utils/Constants.hpp"
 #include "utils/Objects.hpp"
 #include "utils/UI.hpp"
@@ -27,11 +29,13 @@ bool PreviewObjectColors::onToggled(bool state) {
         static_cast<POCLevelEditorLayer*>(getEditorLayer())->updateObjectColors(0);
         getEditorLayer()->unschedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
 
-        for (auto child : getEditor()->getChildrenExt()) {
-            if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
-                if (!bar->m_hasCreateItems || bar->m_tabIndex == 13) continue;
-                auto soBar = static_cast<SOEditButtonBar*>(bar);
-                soBar->removeFromExtrasMenu("color-preview"_spr);
+        if (ScrollableObjects::isEnabled()) {
+            for (auto child : getEditor()->getChildrenExt()) {
+                if (auto bar = typeinfo_cast<EditButtonBar*>(child)) {
+                    if (!bar->m_hasCreateItems || bar->m_tabIndex == 13) continue;
+                    auto soBar = static_cast<SOEditButtonBar*>(bar);
+                    soBar->removeFromExtrasMenu("color-preview"_spr);
+                }
             }
         }
         removeEventListener("scrollable-toggled");
@@ -47,7 +51,7 @@ bool PreviewObjectColors::onToggled(bool state) {
 }
 
 void PreviewObjectColors::onEditor() {
-    auto savedObj = alpha::level_storage::getSavedValue<std::string>(getEditorLayer(), "color-object");
+    auto savedObj = getSaved<Save::Level, std::string, "color-object-string">();
 
     auto editorUI = static_cast<POCEditorUI*>(getEditor());
     auto fields = editorUI->m_fields.self();
@@ -66,7 +70,7 @@ void PreviewObjectColors::onEditor() {
     fields->m_defaultObject->m_baseColor->m_defaultColorID = 0;
     fields->m_defaultObject->m_detailColor->m_defaultColorID = 0;
 
-    getEditorLayer()->schedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
+    editorUI->m_editorLayer->schedule(schedule_selector(POCLevelEditorLayer::updateObjectColors));
 
     setupButton(ScrollableObjects::isEnabled());
 
@@ -77,7 +81,7 @@ void PreviewObjectColors::onEditor() {
     addEventListener("level-saved-event", LevelSavedEvent(), [this] {
         auto editorUI = static_cast<POCEditorUI*>(getEditor());
         auto fields = editorUI->m_fields.self();
-        alpha::level_storage::setSavedValue(getEditorLayer(), "color-object", std::string(fields->m_defaultObject->getSaveString(getEditorLayer())));
+        setSaved<Save::Level, "color-object-string">(fields->m_defaultObject->getSaveString(getEditorLayer()));
     });
 }
 
@@ -140,7 +144,7 @@ void PreviewObjectColors::setupButton(bool scrollable) {
             m_buttonContainer->setPosition({x - 3.f * scale, tinker::utils::ui::getToolbarHeight(false) - 4.f * scale});
         };
 
-        addEventListener("ui-scale", UIScaleUpdated(), [this, uiScale] (float scale, bool scaleToolbars, bool fullReload) {
+        addEventListener("ui-scale", UIScaleUpdated(), [this, uiScale] (float scale, bool scaleToolbars) {
             float trueScale = 1.f;
             if (scaleToolbars) {
                 trueScale = scale;
@@ -150,12 +154,12 @@ void PreviewObjectColors::setupButton(bool scrollable) {
 
         uiScale(UIScaling::getScale());
 
-        addEventListener("switch-tab", alpha::editor_tabs::tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
+        addEventListener("switch-tab", alpha::editor_tabs::Tab::SwitchTabEvent(), [this] (alpha::editor_tabs::Tab* tab, bool show) {
             if (!m_buttonForScroll) return;
             setButtonVisible(m_buttonForScroll);
         });
 
-        addEventListener("switch-mode", alpha::editor_tabs::mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
+        addEventListener("switch-mode", alpha::editor_tabs::Mode::SwitchModeEvent(), [this] (alpha::editor_tabs::Mode* mode, bool show) {
             if (!m_buttonForScroll) return;
             setButtonVisible(m_buttonForScroll);
         });

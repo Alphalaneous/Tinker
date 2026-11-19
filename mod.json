@@ -1,31 +1,25 @@
 {
-	"geode": "5.10.1",
+	"geode": "6.0.0-alpha.2",
 	"gd": {
-		"win": "2.2081",
-		"android": "2.2081",
-		"mac": "2.2081",
-		"ios": "2.2081"
+		"win": "2.2091",
+		"android": "2.2091",
+		"mac": "2.2091",
+		"ios": "2.2091"
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.1.9",
+	"version": "v1.2.0-beta.1",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
 		"geode.node-ids": "v1.23.3",
 		"alphalaneous.good_grid": "v2.0.0",
-		"alphalaneous.alphas_geode_utils": "v1.2.4",
-		"alphalaneous.alphas-ui-pack": "v1.4.6",
+		"alphalaneous.alphas_geode_utils": "v1.3.0",
+		"alphalaneous.alphas-ui-pack": "v1.5.0",
 		"alphalaneous.editortab_api": "v3.0.0",
-		"alphalaneous.level-storage-api": "v1.0.0",
-		"alk.better-touch-prio": "v1.0.16",
+		"alphalaneous.level-storage-api": "v1.1.0",
+		"alphalaneous.editor-touch-api": "v1.0.0",
 		"prevter.imageplus": "v1.1.1",
-		"hjfod.gmd-api": "v1.5.0",
-		"cvolton.level-id-api": "v2.0.0",
-		"spaghettdev.named-editor-groups": {
-			"version": "v2.4.1",
-            "required": false
-		},
 		"razoom.object_groups": {
 			"version": "v2.1.9",
 			"required": false
@@ -47,11 +41,6 @@
 		"hjfod.betteredit": ">=v6.0.0"
 	},
 	"resources": {
-		"spritesheets": {
-			"EditButtonSheet": [
-				"resources/EditButtonSheet/*.png"
-			]
-		},
 		"sprites": [
 			"resources/*.png"
 		],
@@ -97,14 +86,6 @@
 			"name": "Enable Advanced Grid Controls",
 			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale."
 		},
-		"ImprovedEditTab-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Alternate Edit Tab Styles",
-			"description": "Choose different edit tab styles.",
-			"enable-if": "saved:wip-features",
-			"enable-if-description": "This feature is not complete yet and is coming in a future update."
-		},
 		"ImprovedFontSelection-enabled": {
 			"type": "bool",
 			"default": true,
@@ -122,6 +103,12 @@
 			"default": true,
 			"name": "Enable Improved Style Picker",
 			"description": "Show backgrounds, grounds, and middlegrounds in one popup with a preview of what you have selected."
+		},
+		"ImprovedNotifications-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable Animated Notifications",
+			"description": "Show a animated notification popup on the top center instead of a green one on the top left."
 		},
 		"LDMObjectCount-enabled": {
 			"type": "bool",
@@ -176,12 +163,6 @@
 			"default": true,
 			"name": "Enable Toggler Overflow Menu",
 			"description": "If there are more than 4 togglers shown in the bottom right menu, hide them and show extras in an overflow menu instead."
-		},
-		"ZoomText-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Zoom Text",
-			"description": "Show a label with your current zoom as you zoom."
 		},
 		"scrolling-title": {
 			"type": "title",
@@ -324,12 +305,6 @@
 			"name": "NaN/Infinity crash fix",
 			"description": "Fixes a vanilla crash when objects are positioned at NaN or Infinity."
 		},
-		"FixAreaCorruption-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Area Trigger Corruption fix",
-			"description": "Fixes a vanilla bug where area trigger state gets broken when using start positions."
-		},
 		"CenteredObjectButtons-enabled": {
 			"type": "bool",
 			"default": true,
@@ -467,6 +442,12 @@
 			"name": "Hide IDs in the Edit Level screen",
 			"description": "Hide IDs in Edit Level screen, hold shift to show them."
 		},
+		"LazyLoadedObjectButtons-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Lazy Loaded Object Buttons",
+			"description": "Load the object buttons only when they are made visible. Improves editor load times."
+		},
 		"MusicCameraLock-enabled": {
 			"type": "bool",
 			"default": true,
@@ -550,12 +531,6 @@
 			"type": "bool",
 			"default": false
 		},
-		"AwesomeModifierIcons-move-f-block": {
-			"name": "Move F block",
-			"description": "Move the F block to be next to the other modifier blocks rather than separated by the force blocks.",
-			"type": "bool",
-			"default": true
-		},
 		"CanvasRotate-title": {
 			"type": "title",
 			"name": "Editor Rotation"
@@ -602,27 +577,6 @@
 			"type": "keybind",
 			"default": ["Alt+'"],
 			"category": "editor"
-		},
-		"CleanPause-title": {
-			"type": "title",
-			"name": "Clean Pause"
-		},
-		"CleanPause-description": {
-			"type": "info",
-			"description": "Change the editor pause menu to match the in level one more. Add volume sliders",
-			"color": "#000000"
-		},
-		"CleanPause-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled"
-		},
-		"CleanPause-blur-behind": {
-			"type": "bool",
-			"default": false,
-			"name": "Blur Behind",
-			"enable-if": "loaded:thesillydoggo.blur-api",
-			"enable-if-description": "This feature requires the Blur API mod."
 		},
 		"CustomToolbarBackground-title": {
 			"type": "title",
@@ -688,32 +642,6 @@
 			"default": ["M"],
 			"category": "editor"
 		},
-		"HideUI-title": {
-			"type": "title",
-			"name": "Hide UI"
-		},
-		"HideUI-description": {
-			"type": "info",
-			"description": "Add a button to hide the editor UI.",
-			"color": "#000000"
-		},
-		"HideUI-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled"
-		},
-		"HideUI-hide-all": {
-			"type": "bool",
-			"default": true,
-			"name": "Hide All",
-			"description": "Hide the playtest and pause buttons as well."
-		},
-		"HideUI-toggle-ui-keybind": {
-			"name": "Toggle UI Keybind",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
 		"ImprovedColorPicker-title": {
 			"type": "title",
 			"name": "Improved Color Picker"
@@ -765,10 +693,32 @@
 			"default": true,
 			"name": "Enabled"
 		},
+		"ImprovedControls-use-refresh-button": {
+			"type": "bool",
+			"default": false,
+			"name": "Use refresh button",
+			"description": "Show a refresh button that sets the value rather than the value updating live when typing in an input."
+		},
+		"ImprovedControls-follow-ui-scale": {
+			"type": "bool",
+			"default": true,
+			"name": "Follow UI Scale"
+		},
+		"ImprovedControls-control-scale": {
+			"type": "float",
+			"default": 1,
+			"name": "Control Scale",
+			"description": "The UI scale of the scale and rotate controls. If \"Follow UI Scale\" is enabled, it will be relative to that.",
+			"min": 0.1,
+			"max": 2,
+			"control": {
+				"arrows": false
+			}
+		},
 		"ImprovedControls-scale-with-zoom": {
 			"type": "bool",
 			"default": true,
-			"name": "Keep Scale Controls scale with Zoom"
+			"name": "Scale Controls scale with Zoom"
 		},
 		"ImprovedControls-slider-bypass": {
 			"type": "bool",
@@ -797,6 +747,42 @@
 				"arrows": false
 			}
 		},
+		"RotationControl-title": {
+			"type": "title",
+			"name": "Rotation XY Controls"
+		},
+		"RotationControl-description": {
+			"type": "info",
+			"description": "Rotate objects on the X and Y axis independently.",
+			"color": "#000000"
+		},
+		"RotationControl-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled"
+		},
+		"RotationControl-use-refresh-button": {
+			"type": "bool",
+			"default": false,
+			"name": "Use refresh button",
+			"description": "Show a refresh button that sets the value rather than the value updating live when typing in an input."
+		},
+		"RotationControl-follow-ui-scale": {
+			"type": "bool",
+			"default": true,
+			"name": "Follow UI Scale"
+		},
+		"RotationControl-control-scale": {
+			"type": "float",
+			"default": 1,
+			"name": "Control Scale",
+			"description": "The UI scale of the and rotation XY controls. If \"Follow UI Scale\" is enabled, it will be relative to that.",
+			"min": 0.1,
+			"max": 2,
+			"control": {
+				"arrows": false
+			}
+		},
 		"ImprovedGroupView-title": {
 			"type": "title",
 			"name": "Improved Group View"
@@ -817,6 +803,12 @@
             "type": "bool",
             "default": false
         },
+		"ImprovedGroupView-hover-animation": {
+			"name": "Hover Animation",
+			"description": "Hovering over groups will scale the button slightly and darken it.",
+            "type": "bool",
+            "default": true
+		},
 		"JoystickNavigation-title": {
 			"type": "title",
 			"name": "Joystick Navigation"
@@ -1028,31 +1020,6 @@
 			"name": "Preview Opacity",
 			"platforms": ["desktop"]
 		},
-		"RelocateBuildTools-title": {
-			"type": "title",
-			"name": "Relocate Build Tools"
-		},
-		"RelocateBuildTools-description": {
-			"type": "info",
-			"description": "Relocate the build tools from the editor pause menu to the edit menu.",
-			"color": "#000000"
-		},
-		"RelocateBuildTools-enabled": {
-			"type": "bool",
-			"default": false,
-			"name": "Enabled"
-		},
-		"RelocateBuildTools-icons": {
-			"name": "Icons",
-			"description": "Icons for the Build Tools Buttons.",
-			"type": "string",
-			"default": "Icons & Text",
-			"one-of": [
-				"Icons & Text",
-				"Icons Only",
-				"None"
-			]
-		},
 		"RepeatingEditorButtons-title": {
 			"type": "title",
 			"name": "Repeating Buttons"
@@ -1166,40 +1133,6 @@
 			"name": "Show Object Info",
 			"description": "Show object info above the select picker."
 		},
-		"SaveTools-title": {
-			"type": "title",
-			"name": "Save Tools"
-		},
-		"SaveTools-description": {
-			"type": "info",
-			"description": "Auto saving and quick saving.",
-			"color": "#000000"
-		},
-		"SaveTools-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enabled"
-		},
-		"SaveTools-quick-save": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Quick Save",
-			"description": "Save levels to a file when saving in level to speed up saving. The level will still be normally saved when the game closes."
-		},
-		"SaveTools-auto-save-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Auto Save",
-			"description": "Automatically save your level at an interval."
-		},
-		"SaveTools-auto-save-interval": {
-			"type": "int",
-			"default": 10,
-			"min": 1,
-			"max": 60,
-			"name": "Auto Save Interval (minutes)",
-			"description": "Time between each auto save."
-		},
 		"SingleDeselect-title": {
 			"type": "title",
 			"name": "Single Deselect"
@@ -1221,34 +1154,21 @@
 			"default": ["P"],
 			"category": "editor"
 		},
-		"StartPosTools-title": {
+		"StartPosSwitcher-title": {
 			"type": "title",
-			"name": "Start Position Tools"
+			"name": "Start Position Switcher"
 		},
-		"StartPosTools-description": {
+		"StartPosSwitcher-description": {
 			"type": "info",
-			"description": "Better start position tools.",
+			"description": "An editor start position switcher in the view mode.",
 			"color": "#000000"
 		},
-		"StartPosTools-enabled": {
+		"StartPosSwitcher-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled",
-			"description": "Show an overlay above start positions when selected with a button to playtest from it."
+			"name": "Enabled"
 		},
-		"StartPosTools-start-pos-switcher": {
-			"type": "bool",
-			"default": true,
-			"name": "Start Pos Switcher",
-			"description": "Navigate through every start pos in the editor."
-		},
-		"StartPosTools-skip-disabled": {
-			"type": "bool",
-			"default": false,
-			"name": "Skip Disabled Start Positions in Switcher",
-			"description": "Only be able to switch to start positions that are enabled."
-		},
-		"StartPosTools-auto-hide-switcher": {
+		"StartPosSwitcher-auto-hide-switcher": {
 			"type": "bool",
 			"default": {
 				"win": true,
@@ -1258,23 +1178,6 @@
 			},
 			"name": "Auto Hide Switcher",
 			"description": "Hide the switcher when not being used."
-		},
-		"StartPosTools-prev-start-pos": {
-			"name": "Previous Start Pos",
-			"type": "keybind",
-			"default": ["Q"],
-			"category": "editor"
-		},
-		"StartPosTools-next-start-pos": {
-			"name": "Next Start Pos",
-			"type": "keybind",
-			"default": ["E"],
-			"category": "editor"
-		},
-		"StartPosTools-hide-no-start-pos-button": {
-			"type": "bool",
-			"default": false,
-			"name": "Hide Playtest without Start Pos button"
 		},
 		"ThatPasteButton-title": {
 			"type": "title",
@@ -1473,139 +1376,6 @@
 			"description": "Extra keybinds for navigating the editor.",
 			"color": "#000000"
 		},
-		"Keybinds-edit-object": {
-			"name": "Edit Object",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-edit-group": {
-			"name": "Edit Group",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-edit-special": {
-			"name": "Edit Special",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-edit-extras": {
-			"name": "Edit Extras",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-copy-values": {
-			"name": "Copy Values",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-paste-state": {
-			"name": "Paste State",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-go-to-layer": {
-			"name": "Go to Layer",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-cycle-color-overlay": {
-			"name": "Cycle HSV/Color Overlay",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-paste-color": {
-			"name": "Paste Color",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-restart": {
-			"name": "Playtest Restart",
-			"type": "keybind",
-			"default": ["R"],
-			"category": "editor"
-		},
-		"Keybinds-restart-from-beginning": {
-			"name": "Playtest Restart without Start Positions",
-			"type": "keybind",
-			"description": "Restart level from beginning, ignoring start positions. Only works with Start Pos Tools enabled.",
-			"default": ["Ctrl+R"],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-half-left": {
-			"name": "Move Object Half Left",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-half-right": {
-			"name": "Move Object Half Right",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-half-up": {
-			"name": "Move Object Half Up",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-half-down": {
-			"name": "Move Object Half Down",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-big-left": {
-			"name": "Move Object Big Left",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-big-right": {
-			"name": "Move Object Big Right",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-big-up": {
-			"name": "Move Object Big Up",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-move-obj-big-down": {
-			"name": "Move Object Big Down",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-show-scale": {
-			"name": "Show Scale Controls",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-show-scale-xy": {
-			"name": "Show Scale XY Controls",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
-		"Keybinds-show-warp": {
-			"name": "Show Warp Controls",
-			"type": "keybind",
-			"default": [],
-			"category": "editor"
-		},
 		"Keybinds-exit-pause-menu": {
 			"name": "Exit Pause Menu",
 			"type": "keybind",
@@ -1638,7 +1408,6 @@
 	"api": {
 		"include": [
 			"include/API.hpp",
-			"include/ImprovedGroupView.hpp",
 			"include/UIScaling.hpp"
 		]
 	}

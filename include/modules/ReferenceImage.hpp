@@ -1,7 +1,6 @@
 #pragma once
 
 #include "module/Module.hpp"
-#include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/TextGameObject.hpp>
 #include <Geode/modify/CustomizeObjectLayer.hpp>
 
@@ -34,14 +33,8 @@ class $modify(RITextGameObject, TextGameObject) {
 	bool setupInitial(const std::string& path);
 	void setupImage(const std::string& path);
 	void setupImageBackwardsCompat(const std::string& path);
-    void customObjectSetup(gd::vector<gd::string>& values, gd::vector<void*>& exists);
-	void updateTextObject(gd::string text, bool defaultFont);
+    void customObjectSetup(std::vector<std::string>& values, std::vector<void*>& exists);
+	void updateTextObject(std::string text, bool defaultFont);
 
 	bool isReferenceImage();
-};
-
-class $modify(RIEditorUI, EditorUI) {
-	$registerHooks(ReferenceImage)
-
-	void onImport(cocos2d::CCObject* sender);
 };

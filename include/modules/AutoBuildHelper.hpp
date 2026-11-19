@@ -24,5 +24,5 @@ class $module(AutoBuildHelper) {
 class $modify(ABHEditorUI, EditorUI) {
     $registerHooks(AutoBuildHelper)
 
-    cocos2d::CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo);
+    cocos2d::CCArray* pasteObjects(std::string str, bool withColor, bool noUndo);
 };

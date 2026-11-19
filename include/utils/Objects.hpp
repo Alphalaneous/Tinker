@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/cocos/base_nodes/CCNode.h>
 
@@ -33,5 +34,13 @@ cocos2d::CCPoint getEndPos(EffectGameObject* object);
 EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const cocos2d::CCPoint& unitRefDir);
 
 geode::Result<std::pair<cocos2d::CCPoint, cocos2d::CCPoint>> getCenter();
+
+cocos2d::CCPoint getCameraCenter();
+
+void moveCameraToPos(cocos2d::CCPoint position, bool showCircle = true);
+
+void moveCameraToObject(GameObject* object, bool showCircle = true);
+
+void moveCameraToObjects(cocos2d::CCArray* objects, bool showCircle = true);
 
 }

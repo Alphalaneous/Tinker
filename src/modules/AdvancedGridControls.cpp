@@ -1,10 +1,10 @@
 #include "modules/AdvancedGridControls.hpp"
 #include "MainHooks.hpp"
-#include <alphalaneous.good_grid/include/DrawLayers.hpp>
+#include <alphalaneous.good_grid/DrawLayers.hpp>
 
 using namespace geode::prelude;
 
-namespace tinker::ui {
+/*namespace tinker::ui {
 
 SizeContainer* SizeContainer::create(ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback) {
     auto ret = new SizeContainer();
@@ -381,6 +381,8 @@ void GridSizePopup::setupOffsetPage() {
     auto spr = ButtonSprite::create("To Object");
     spr->setScale(0.5f);
 
+    // TODO FIX OFFSETFORKEY
+
     m_alignBtn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
         auto editor = MainEditorUI::get();
         if (!editor->m_selectedObject) return;
@@ -518,6 +520,8 @@ void AdvancedGridControls::onEditor() {
         tinker::ui::GridSizePopup::create()->show();
     });
 
+    editorUI->m_uiItems->addObject(btn);
+
     settingsMenu->addChild(btn);
     settingsMenu->updateLayout();
 
@@ -646,4 +650,4 @@ void AGCEditorUI::updateGridNodeSize() {
     grid->overrideGridSize(CCSize{control->m_gridX * mult, control->m_gridY * mult});
 
     dgl->m_gridSize = 0.01f;
-}
+}*/
