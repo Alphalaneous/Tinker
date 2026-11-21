@@ -117,7 +117,7 @@ void InputEditorUI::cancelAllTextInputs() {
 #include "utils/MacUtils.hpp"
 
 bool InputEditorUI::isNaturalScrollEnabled() {
-    if (!tinker::utils::getSetting<bool, "ignore-natural-scrolling">()) return false;
+    if (!tinker::utils::settings::get<bool, "ignore-natural-scrolling">()) return false;
     CFPropertyListRef value =
         CFPreferencesCopyAppValue(
             CFSTR("com.apple.swipescrolldirection"),

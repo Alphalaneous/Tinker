@@ -265,7 +265,7 @@ void TooltipHover::hoverMoved(Hover* touch) {
 
 bool TooltipHover::touchBegan(Touch* touch) {
     m_clicking = true;
-    m_clickingOutside = touch->getLocation().y > tinker::utils::getToolbarHeight();
+    m_clickingOutside = touch->getLocation().y > tinker::utils::ui::getToolbarHeight();
 
     cancelTooltipHide();
 
