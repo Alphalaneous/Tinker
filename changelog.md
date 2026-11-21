@@ -1,4 +1,5 @@
 # 1.2.0-beta.1
+- <c-dddddd>CURRENTLY DOES NOT SUPPORT IOS</c>
 - <c-dddddd>Update to 2.209</c>
 - <c-dddddd>Too many bug fixes to count, I can't even remember</c>
 - <c-dddddd>Fix a vanilla crash that could happen when a text area lasts longer than the delegate</c>
