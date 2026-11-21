@@ -10,6 +10,8 @@
 
 <c-dddddd>Please report any bugs or crashes on the mod's [GitHub Issues](https://github.com/Alphalaneous/Tinker/issues) page.</c> 
 
+<c-dddddd>**View the full feature list [here](https://alphalaneous.dev/tinker)!**</c>
+
 ---
 
 *Support banner art by [yoxnol](https://twitter.com/yoxnol)*

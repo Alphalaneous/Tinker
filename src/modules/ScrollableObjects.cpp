@@ -1,9 +1,5 @@
 #include "modules/ScrollableObjects.hpp"
 #include "MainHooks.hpp"
-#include <Geode/binding/GameSettingsLayer.hpp>
-#include "modules/ObjectSearch.hpp"
-#include <Geode/binding/EditButtonBar.hpp>
-#include <Geode/binding/EditorUI.hpp>
 #include <alphalaneous.editortab_api/API.hpp>
 #include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 //#include <razoom.object_groups/ObjectFoundEvent.hpp>
@@ -200,6 +196,9 @@ bool ScrollableObjects::canScroll() {
     if (mode == alpha::editor_tabs::Delete && tab == "delete") {
         return true;
     }
+    if (mode == alpha::editor_tabs::View && tab == "start-pos-switcher"_spr) {
+        return true;
+    }
 
     auto mousePos = getMousePos();
     if (mousePos.y < tinker::utils::ui::getToolbarHeight()) {
@@ -251,6 +250,13 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
         scrollLayer->setScrollX(nodePos.x - scrollLayer->getContentWidth() / 2, true);
     }
 }
+
+/*
+* TODO check if there is a bug where objects are left on another parent, I had a bug that would indicate that
+* but no longer can replicate it
+*/
+
+// TODO scrolling stops working when toggling scrollable toolbar on when it was initially disabled
 
 void SOEditButtonBar::setupScrollable(alpha::editor_tabs::Tab* tab) {
     auto fields = m_fields.self();

@@ -1,5 +1,5 @@
 {
-	"geode": "6.0.0-alpha.2",
+	"geode": "6.0.0-beta.1",
 	"gd": {
 		"win": "2.2091",
 		"android": "2.2091",
@@ -13,12 +13,12 @@
 	"description": "Editor Revamped",
 	"dependencies": {
 		"geode.node-ids": "v1.23.3",
-		"alphalaneous.good_grid": "v2.0.0",
-		"alphalaneous.alphas_geode_utils": "v1.3.0",
-		"alphalaneous.alphas-ui-pack": "v1.5.0",
-		"alphalaneous.editortab_api": "v3.0.0",
-		"alphalaneous.level-storage-api": "v1.1.0",
-		"alphalaneous.editor-touch-api": "v1.0.0",
+		"alphalaneous.good_grid": "v2.0.0-beta.1",
+		"alphalaneous.alphas_geode_utils": "v1.3.0-beta.1",
+		"alphalaneous.alphas-ui-pack": "v1.5.0-beta.1",
+		"alphalaneous.editortab_api": "v3.0.0-beta.1",
+		"alphalaneous.level-storage-api": "v1.1.0-beta.1",
+		"alphalaneous.editor-touch-api": "v1.0.0-beta.1",
 		"prevter.imageplus": "v1.1.1",
 		"razoom.object_groups": {
 			"version": "v2.1.9",

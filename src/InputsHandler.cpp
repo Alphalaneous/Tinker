@@ -1,22 +1,16 @@
 #include "InputsHandler.hpp"
 #include "Events.hpp"
-#include "alphalaneous.alphas-ui-pack/Utils.hpp"
 #include "modules/BetterSelect.hpp"
-#include "modules/ObjectAlignment.hpp"
-#include "modules/CanvasRotate.hpp"
 #include "modules/ScrollableObjects.hpp"
 #include "modules/Gizmos/Gizmos.hpp"
 #include "actions/CCCallbackAction.hpp"
 #include "actions/CCValueTo.hpp"
-#include <Geode/binding/EditorCommandsPopup.hpp>
-#include <Geode/binding/EditorUI.hpp>
 #include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
 #include <alphalaneous.alphas-ui-pack/API.hpp>
 #include <alphalaneous.editortab_api/API.hpp>
 //#include <geode.devtools/API.hpp>
 #include "nodes/ToolbarTouch.hpp"
 #include "utils/Mod.hpp"
-#include "utils/Timestamp.hpp"
 #include "utils/UI.hpp"
 #include "utils/Settings.hpp"
 
@@ -468,6 +462,7 @@ bool InputEditorUI::scrollWheel(float y, float x) {
         return false;
     }
 
+    // TODO cleanup, use Editor Tab API
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll() && !stillEditorScroll) {
         for (auto child : getChildrenExt()) {
             if (!nodeIsVisible(child)) continue;
