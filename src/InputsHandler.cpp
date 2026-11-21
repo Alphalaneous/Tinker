@@ -26,7 +26,6 @@ void InputAppDelegate::applicationDidEnterBackground() {
         return;
     }
 
-    tinker::ui::TouchForward::get()->cancelAllTouches();
     LostFocusEvent().send();
     AppDelegate::applicationDidEnterBackground();
 }
