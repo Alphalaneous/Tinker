@@ -230,7 +230,7 @@ bool SearchField::init(OSEditorUI* editorUI) {
 
     #ifdef GEODE_IS_MOBILE
     m_searchInput->setKeyboardOffsetCallback([this] (float offset) {
-        m_yOffset = std::max(yOffset, tinker::utils::ui::getToolbarHeight(false) + 15.f);
+        m_yOffset = std::max(offset, tinker::utils::ui::getToolbarHeight(false) + 15.f);
     
         runAction(CallFuncExt::create([this] {
             setupTabOffset();
