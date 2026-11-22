@@ -1,3 +1,6 @@
+# 1.2.0-beta.2
+- <c-dddddd>Remove Android support due to broken class members</c>
+
 # 1.2.0-beta.1
 - <c-dddddd>CURRENTLY DOES NOT SUPPORT MACOS AND IOS</c>
 
