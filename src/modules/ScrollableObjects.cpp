@@ -256,8 +256,6 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
 * but no longer can replicate it
 */
 
-// TODO scrolling stops working when toggling scrollable toolbar on when it was initially disabled
-
 void SOEditButtonBar::setupScrollable(alpha::editor_tabs::Tab* tab) {
     auto fields = m_fields.self();
 

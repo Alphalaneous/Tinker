@@ -1,5 +1,14 @@
 # 1.2.0-beta.1
 - <c-dddddd>CURRENTLY DOES NOT SUPPORT MACOS AND IOS</c>
+
+## Known Issues
+- <c-dddddd>Pinch to rotate option does not work</c>
+- <c-dddddd>Advanced Grid Controls does not work</c>
+- <c-dddddd>Behavior when DevTools is open may be strange</c>
+- <c-dddddd>Camera centering does not work with editor rotation</c>
+
+## Changes
+
 - <c-dddddd>Update to 2.209</c>
 - <c-dddddd>Too many bug fixes to count, I can't even remember</c>
 - <c-dddddd>Fix a vanilla crash that could happen when a text area lasts longer than the delegate</c>
