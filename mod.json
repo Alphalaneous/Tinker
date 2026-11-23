@@ -1,5 +1,5 @@
 {
-	"geode": "6.0.0-beta.1",
+	"geode": "6.0.0-beta.3",
 	"gd": {
 		"win": "2.2091",
 		"android": "2.2091",
@@ -8,11 +8,11 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.2.0-beta.2",
+	"version": "v1.2.0-beta.3",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
-		"geode.node-ids": "v1.23.3",
+		"geode.node-ids": "v1.24.0-beta.1",
 		"alphalaneous.good_grid": "v2.0.0-beta.1",
 		"alphalaneous.alphas_geode_utils": "v1.3.0-beta.1",
 		"alphalaneous.alphas-ui-pack": "v1.5.0-beta.1",

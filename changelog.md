@@ -1,3 +1,7 @@
+# 1.2.0-beta.3
+- <c-dddddd>Rerelease with geode Beta 3</c>
+- <c-dddddd>Bring back Android support just to test</c>
+
 # 1.2.0-beta.2
 - <c-dddddd>Remove Android support due to broken class members</c>
 
