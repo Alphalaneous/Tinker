@@ -1,3 +1,6 @@
+# 1.2.0-beta.4
+- <c-dddddd>Rebuild against updated bindings to resolve some goofy behavior</c>
+
 # 1.2.0-beta.3
 - <c-dddddd>Rerelease with geode Beta 3</c>
 - <c-dddddd>Bring back Android support just to test</c>
