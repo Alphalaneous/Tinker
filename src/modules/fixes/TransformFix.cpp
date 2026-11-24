@@ -14,8 +14,6 @@ void TFGJTransformControl::updateButtons(bool transform, bool skew) {
     editor->m_shaderLayer->m_state.m_usesShaders = false;
     editor->updateShaderLayer(0.f);
 
-GameObject a;
-
     GJTransformControl::updateButtons(transform, skew);
 
     editor->m_shaderLayer->m_state.m_usesShaders = shaders;

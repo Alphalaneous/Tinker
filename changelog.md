@@ -1,3 +1,6 @@
+# 1.2.0-beta.5
+- <c-dddddd>Fix some crashes</c>
+
 # 1.2.0-beta.4
 - <c-dddddd>Rebuild against updated bindings to resolve some goofy behavior</c>
 
