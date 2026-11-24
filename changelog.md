@@ -1,5 +1,8 @@
 # 1.2.0-beta.6
 - <c-dddddd>Fix modules leaking when exiting the editor, and thus fixing crashes to to leaked modules</c>
+- <c-dddddd>Fix clicking an object in the editor not scrolling to it in the build tabs when scrollable objects is enabled</c>
+- <c-dddddd>Fix clicking an object that hasn't been loaded not highlighting it when Lazy Loaded Object Buttons is enabled</c>
+- <c-dddddd>Fix scrolling while the mouse isn't on top of a scrollable toolbar not scrolling the editor</c>
 
 # 1.2.0-beta.5
 - <c-dddddd>Fix some crashes</c>

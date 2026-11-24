@@ -200,8 +200,12 @@ bool ScrollableObjects::canScroll() {
         return true;
     }
 
-    auto mousePos = getMousePos();
-    if (mousePos.y < tinker::utils::ui::getToolbarHeight()) {
+    auto currentTab = alpha::editor_tabs::getCurrentTab();
+    auto node = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(currentTab->getNode()));
+    auto scrollFields = node->m_fields.self();
+    if (!scrollFields->m_scrollLayer) return true;
+
+    if (alpha::utils::isPointInsideNode(scrollFields->m_scrollLayer, getMousePos())) {
         return false;
     }
 
@@ -235,19 +239,18 @@ void SOEditorUI::updateCreateMenu(bool selectTab) {
 
         if (!cmi) return;
 
-        auto menu = cmi->getParent();
-        if (!menu) return;
+        auto buildMode = alpha::editor_tabs::getMode(alpha::editor_tabs::Build);
+        auto tab = buildMode->getTabByIndex(cmi->m_tabIndex);
+        auto node = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(tab->getNode()));
 
-        auto content = typeinfo_cast<alpha::ui::ScrollContent*>(menu->getParent());
-        if (!content) return;
+        auto scrollFields = node->m_fields.self();
 
-        auto worldPos = menu->convertToWorldSpace(cmi->getPosition());
-        auto nodePos = content->convertToNodeSpace(worldPos);
+        if (!scrollFields->m_objectsMenu || !scrollFields->m_scrollLayer) return;
 
-        auto scrollLayer = content->getScrollLayer();
-        if (!scrollLayer) return;
+        auto worldPos = scrollFields->m_objectsMenu->convertToWorldSpace(cmi->getPosition());
+        auto nodePos = scrollFields->m_scrollLayer->getContentLayer()->convertToNodeSpace(worldPos);
 
-        scrollLayer->setScrollX(nodePos.x - scrollLayer->getContentWidth() / 2, true);
+        scrollFields->m_scrollLayer->setScrollX(nodePos.x - scrollFields->m_scrollLayer->getContentWidth() / 2, true);
     }
 }
 
@@ -263,6 +266,7 @@ void SOEditButtonBar::setupScrollable(alpha::editor_tabs::Tab* tab) {
 
     fields->m_container = CCNode::create();
     fields->m_container->setAnchorPoint({0.5f, 0.5f});
+    fields->m_container->setID("content-container"_spr);
 
     addChild(fields->m_container);
 

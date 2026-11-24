@@ -35,6 +35,24 @@ CreateMenuItem* LLOBEditorUI::menuItemFromObjectString(std::string str, int id) 
     return item;
 }
 
+void LLOBEditorUI::updateCreateMenu(bool selectTab) {
+    if (selectTab) {
+        CreateMenuItem* cmi = nullptr;
+
+        for (auto item : m_createButtonArray->asExt<CreateMenuItem>()) {
+            if (item->getUserFlag("search-item"_spr)) continue;
+            if (item->m_objectID == m_selectedObjectIndex) {
+                cmi = item;
+                break;
+            }
+        }
+
+        static_cast<tinker::ui::LazyCreateMenuItem*>(cmi)->loadObject();
+    }
+    
+    EditorUI::updateCreateMenu(selectTab);
+}
+
 GameObject* LLOBEditorUI::getDummyObject() {
     auto editor = modify_cast<LLOBEditorUI*>(MainEditorUI::get());
     auto fields = editor->m_fields.self();

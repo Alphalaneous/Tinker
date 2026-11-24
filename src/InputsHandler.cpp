@@ -462,27 +462,25 @@ bool InputEditorUI::scrollWheel(float y, float x) {
         return false;
     }
 
-    // TODO cleanup, use Editor Tab API
     if (ScrollableObjects::isEnabled() && !ScrollableObjects::get()->canScroll() && !stillEditorScroll) {
-        for (auto child : getChildrenExt()) {
-            if (!nodeIsVisible(child)) continue;
-
+        auto activeTab = alpha::editor_tabs::getCurrentTab();
+        if (activeTab && nodeIsVisible(activeTab->getNode())) {
+            auto node = activeTab->getNode();
             bool invertScroll = ScrollableObjects::getSetting<bool, "invert-scroll">();
+            float multiplier = fields->m_tabModifierHeld ? ScrollableObjects::getSetting<float, "speed-modifier">() : 1;
 
-            if (auto bar = static_cast<SOEditButtonBar*>(typeinfo_cast<EditButtonBar*>(child))) {
-                auto barFields = bar->m_fields.self();
-                float multiplier = fields->m_tabModifierHeld ? ScrollableObjects::getSetting<float, "speed-modifier">() : 1;
+            auto scrollFields = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(node))->m_fields.self();
 
-                // only allow scroll to propagate through the editor, not itself
-                if (barFields->m_scrollLayer) {
-                    barFields->m_scrollLayer->setVerticalScrollWheel(true);
-                    barFields->m_scrollLayer->scrollWheel(y * multiplier * (invertScroll ? -1 : 1), 0.f);
-                    barFields->m_scrollLayer->setVerticalScrollWheel(false);
-                }
+            // only allow scroll to propagate through the editor, not itself
+            if (scrollFields->m_scrollLayer && isPointInsideNode(scrollFields->m_scrollLayer, getMousePos())) {
+                scrollFields->m_scrollLayer->setVerticalScrollWheel(true);
+                scrollFields->m_scrollLayer->scrollWheel(y * multiplier * (invertScroll ? -1 : 1), 0.f);
+                scrollFields->m_scrollLayer->setVerticalScrollWheel(false);
+
+                fields->m_scrollFromEditor = 0.f;
+                return true;
             }
         }
-        fields->m_scrollFromEditor = 0.f;
-        return true;
     }
     fields->m_scrollFromEditor = y;
     return onScroll();

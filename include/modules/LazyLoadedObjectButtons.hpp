@@ -24,6 +24,7 @@ class $modify(LLOBEditorUI, EditorUI) {
 
     CreateMenuItem* getCreateBtn(int id, int bg);
     CreateMenuItem* menuItemFromObjectString(std::string str, int id);
+    void updateCreateMenu(bool selectTab);
     static GameObject* getDummyObject();
     static cocos2d::CCTexture2D* getBGSprite(int id);
 };
