@@ -5,6 +5,8 @@
 #include <memory>
 
 struct ModuleBase {
+    virtual ~ModuleBase() = default;
+
     template <class Event, class Callback>
     geode::ListenerHandle* addEventListener(std::string_view id, Event const& event, Callback&& callback, int priority = 0) {
         auto handle = event.listen(std::forward<Callback>(callback), priority);

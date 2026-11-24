@@ -1,3 +1,6 @@
+# 1.2.0-beta.6
+- <c-dddddd>Fix modules leaking when exiting the editor, and thus fixing crashes to to leaked modules</c>
+
 # 1.2.0-beta.5
 - <c-dddddd>Fix some crashes</c>
 

@@ -41,6 +41,7 @@ public:
         if (tinker::utils::settings::get<bool, "Debug-module-logs">()) {
             geode::log::debug("Destroyed: {}", Name.data());
         }
+        $instance = nullptr;
     }
 
     static constexpr bool isGlobal() {

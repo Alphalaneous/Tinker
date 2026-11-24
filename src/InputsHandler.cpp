@@ -13,6 +13,7 @@
 #include "utils/Mod.hpp"
 #include "utils/UI.hpp"
 #include "utils/Settings.hpp"
+#include "MainHooks.hpp"
 
 using namespace geode::prelude;
 
@@ -32,7 +33,7 @@ void InputAppDelegate::applicationDidEnterBackground() {
 #endif
 
 InputEditorUI* InputEditorUI::get() {
-    return static_cast<InputEditorUI*>(EditorUI::get());
+    return modify_cast<InputEditorUI*>(MainEditorUI::get());
 }
 
 bool InputEditorUI::init(LevelEditorLayer* editorLayer) {

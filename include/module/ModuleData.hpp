@@ -8,7 +8,7 @@
 class ModuleData {
 public:
     ModuleData();
-    ~ModuleData();
+    virtual ~ModuleData();
 
     std::vector<geode::Hook*>& getHooks();
     void setOnEditorCallback(geode::Function<void()> callback);
