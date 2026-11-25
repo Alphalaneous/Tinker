@@ -84,7 +84,9 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable Advanced Grid Controls",
-			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale."
+			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale.",
+			"enable-if": "saved:wip-features",
+			"enable-if-description": "This feature is not complete yet and is coming in a future update."
 		},
 		"ImprovedFontSelection-enabled": {
 			"type": "bool",
@@ -446,7 +448,9 @@
 			"type": "bool",
 			"default": true,
 			"name": "Lazy Loaded Object Buttons",
-			"description": "Load the object buttons only when they are made visible. Improves editor load times."
+			"description": "Load the object buttons only when they are made visible. Improves editor load times.",
+			"enable-if": "saved:wip-features",
+			"enable-if-description": "This feature is not complete yet and is coming in a future update."
 		},
 		"MusicCameraLock-enabled": {
 			"type": "bool",
@@ -1166,7 +1170,9 @@
 		"StartPosSwitcher-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled"
+			"name": "Enabled",
+			"enable-if": "saved:wip-features",
+			"enable-if-description": "This feature is not complete yet and is coming in a future update."
 		},
 		"StartPosSwitcher-auto-hide-switcher": {
 			"type": "bool",
