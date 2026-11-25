@@ -876,7 +876,7 @@ float AGCEditorUI::getGridMultiplier() {
             }
         }
         if (objectID != -1) {
-            mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(m_selectedObject->m_objectID) / 30.f;
+            mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(objectID) / 30.f;
         }
     }
     return mult;
