@@ -1,3 +1,6 @@
+# 1.2.0-beta.8
+- <c-dddddd>Fix a crash when selecting objects</c>
+
 # 1.2.0-beta.7
 - <c-dddddd>Fix tooltip hover when an Editor Window is open</c>
 - <c-dddddd>Only make CreateMenuItems lazy during EditorUI::setupCreateMenu</c>
