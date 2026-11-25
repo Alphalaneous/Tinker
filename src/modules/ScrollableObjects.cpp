@@ -201,7 +201,11 @@ bool ScrollableObjects::canScroll() {
     }
 
     auto currentTab = alpha::editor_tabs::getCurrentTab();
+    if (!currentTab) return true;
+    
     auto node = static_cast<SOEditButtonBar*>(static_cast<EditButtonBar*>(currentTab->getNode()));
+    if (!node) return true;
+    
     auto scrollFields = node->m_fields.self();
     if (!scrollFields->m_scrollLayer) return true;
 
