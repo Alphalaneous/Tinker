@@ -1,3 +1,6 @@
+# 1.2.0-beta.9
+- <c-dddddd>Maybe fix some crashes</c>
+
 # 1.2.0-beta.8
 - <c-dddddd>Fix a crash when selecting objects</c>
 
