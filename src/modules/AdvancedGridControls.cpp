@@ -801,6 +801,10 @@ cocos2d::CCPoint AGCEditorUI::getLimitedPosition(cocos2d::CCPoint position) {
         return EditorUI::getLimitedPosition(position);
     }
 
+    if (!m_editorLayer->m_drawGridLayer) {
+        return EditorUI::getLimitedPosition(position);
+    }
+
     auto size = m_editorLayer->m_drawGridLayer->m_gridSize;
     auto oldPoint = (position / size - CCPoint{0.5f, 0.5f}) * size;
 
@@ -867,7 +871,7 @@ float AGCEditorUI::getGridMultiplier() {
     else if (m_selectedObject) {
         mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(m_selectedObject->m_objectID) / 30.f;
     }
-    else if (m_selectedObjects->count() > 0) {
+    else if (m_selectedObjects && m_selectedObjects->count() > 0) {
         int objectID = m_selectedObjects->asExt<GameObject>()[0]->m_objectID;
         for (auto obj : m_selectedObjects->asExt<GameObject>()) {
             if (obj->m_objectID != objectID) {
@@ -884,7 +888,11 @@ float AGCEditorUI::getGridMultiplier() {
 
 void AGCEditorUI::updateGridNodeSize() {
     auto dgl = m_editorLayer->m_drawGridLayer;
+    if (!dgl) return;
+    
     auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
+    if (!grid) return;
+    
     auto control = AdvancedGridControls::get();
 
     float mult = getGridMultiplier();
