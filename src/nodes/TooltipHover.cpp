@@ -259,6 +259,10 @@ void TooltipHover::hoverMoved(Hover* touch) {
     updateHoveredItem(touch->getLocation());
 }
 
+void TooltipHover::hoverExited(Hover* touch) {
+    resetTooltip();
+}
+
 #endif
 
 #ifdef GEODE_IS_MOBILE

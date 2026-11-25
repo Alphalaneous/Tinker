@@ -30,6 +30,7 @@ protected:
     #ifdef GEODE_IS_DESKTOP
     bool hoverEntered(Hover* touch) override;
     void hoverMoved(Hover* touch) override;
+    void hoverExited(Hover* touch) override;
     #endif
 
     bool touchBegan(Touch* touch) override;

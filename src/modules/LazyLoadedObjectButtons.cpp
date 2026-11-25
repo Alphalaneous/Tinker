@@ -20,6 +20,11 @@
 using namespace geode::prelude;
 
 CreateMenuItem* LLOBEditorUI::getCreateBtn(int id, int bg) {
+    auto fields = m_fields.self();
+    if (!fields->m_useLazy) {
+        return EditorUI::getCreateBtn(id, bg);
+    }
+
     auto item = tinker::ui::LazyCreateMenuItem::create(id, bg, this, menu_selector(EditorUI::onCreateButton));
 
     m_createButtonArray->addObject(item);
@@ -28,11 +33,23 @@ CreateMenuItem* LLOBEditorUI::getCreateBtn(int id, int bg) {
 }
 
 CreateMenuItem* LLOBEditorUI::menuItemFromObjectString(std::string str, int id) {
+    auto fields = m_fields.self();
+    if (!fields->m_useLazy) {
+        return EditorUI::menuItemFromObjectString(str, id);
+    }
+
     auto item = tinker::ui::LazyCreateMenuItem::createCustom(str, id, 4, this, menu_selector(EditorUI::onCreateButton));
 
     m_customObjectButtonArray->addObject(item);
 
     return item;
+}
+
+void LLOBEditorUI::setupCreateMenu() {
+    auto fields = m_fields.self();
+    fields->m_useLazy = true;
+    EditorUI::setupCreateMenu();
+    fields->m_useLazy = false;
 }
 
 void LLOBEditorUI::updateCreateMenu(bool selectTab) {

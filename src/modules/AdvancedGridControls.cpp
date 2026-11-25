@@ -4,7 +4,7 @@
 
 using namespace geode::prelude;
 
-/*namespace tinker::ui {
+namespace tinker::ui {
 
 SizeContainer* SizeContainer::create(ZStringView label, float value, float min, float max, float hardMin, float hardMax, bool compact, geode::Function<void(float size)> sizeCallback) {
     auto ret = new SizeContainer();
@@ -66,12 +66,6 @@ bool SizeContainer::init(ZStringView label, float value, float min, float max, f
     else {
         m_sizeInput->setFilter("0123456789.");
     }
-
-    auto bgSprite = m_sizeInput->getBGSprite();
-    bgSprite->setContentWidth(140.f);
-    bgSprite->setPositionY(bgSprite->getPositionY() - 0.5f);
-    bgSprite->setScaleMultiplier(0.7);
-    bgSprite->setOpacity(100);
 
     addChild(m_sizeInput);
 
@@ -162,8 +156,8 @@ void SizeContainer::setEnabled(bool enabled) {
     m_sizeSlider->setReadOnly(!enabled);
 }
 
-GridSizePopup* GridSizePopup::create() {
-    auto ret = new GridSizePopup();
+AdvancedGridSettingsLayer* AdvancedGridSettingsLayer::create() {
+    auto ret = new AdvancedGridSettingsLayer();
     if (ret->init()) {
         ret->autorelease();
         return ret;
@@ -172,26 +166,46 @@ GridSizePopup* GridSizePopup::create() {
     return nullptr;
 }
 
-bool GridSizePopup::init() {
-    if (!geode::Popup::init({300.f, 150.f})) return false;
+bool AdvancedGridSettingsLayer::init() {
+    m_allowDraggingAnywhere = true;
+    m_startCentered = true;
+    m_resizeMode = 2;
+    m_minScale = 0.6f;
+    m_maxScale = 1.f;
+
+    auto size = CCSize{300.f, 135.f};
+
+    if (!EditorWindowPopup::initWindow(EditorUI::get(), size.width, size.height, 4, 0)) return false;
+
     auto control = AdvancedGridControls::get();
 
-    m_noElasticity = true;
+    m_contentContainer = CCNode::create();
+    m_contentContainer->setAnchorPoint({0.5f, 0.5f});
+    m_contentContainer->setPosition(m_mainLayer->getContentSize() / 2.f);
+    m_contentContainer->setContentSize(size);
 
-    m_closeBtn->removeFromParent();
+    m_mainLayer->addChild(m_contentContainer);
+
+    m_contentMenu = CCMenu::create();
+    m_contentMenu->setAnchorPoint({0.5f, 0.5f});
+    m_contentMenu->setPosition(m_mainLayer->getContentSize() / 2.f);
+    m_contentMenu->ignoreAnchorPointForPosition(false);
+    m_contentMenu->setContentSize(size);
+
+    m_mainLayer->addChild(m_contentMenu);
 
     m_titleLabel = geode::Label::create("Grid Size", "bigFont.fnt");
     m_titleLabel->setScale(0.5f);
     m_titleLabel->setAnchorPoint({0.5f, 1.f});
-    m_titleLabel->setPosition({m_size.width / 2.f, m_size.height - 6.f});
+    m_titleLabel->setPosition({size.width / 2.f, size.height - 6.f});
 
-    m_mainLayer->addChild(m_titleLabel);
+    m_contentContainer->addChild(m_titleLabel);
 
     m_background = geode::NineSlice::create("square02_001-uhd.png");
     m_background->setAnchorPoint({0.5f, 1.f});
-    m_background->setPosition({m_size.width / 2.f, m_size.height - 35.f});
+    m_background->setPosition({size.width / 2.f, size.height - 35.f});
     m_background->setOpacity(50);
-    m_background->setContentSize({m_size.width - 30.f, 65.f});
+    m_background->setContentSize({size.width - 30.f, 65.f});
     m_background->setScaleMultiplier(0.5f);
 
     auto bgMenu = CCMenu::create();
@@ -202,42 +216,30 @@ bool GridSizePopup::init() {
 
     m_background->addChild(bgMenu);
 
-    m_mainLayer->addChild(m_background);
+    m_contentContainer->addChild(m_background);
 
-    auto okSpr = ButtonSprite::create("OK", 40.f, 40.f, 0.8f, true);
-    okSpr->setID("ok-button-sprite"_spr);
+    auto info = InfoAlertButton::create("Grid Size", "<cg>Enable</c> to override the editor grid with a custom size.\n<cl>Shift+G</c> toggles these controls.\n<cl>Ctrl+G</c> cycles the preset sizes (7.5, 15, 30, 60, 120).\nPress <co>Obj</c> with an object selected to align the grid to it.\n<cb>XY Mode</c> lets you resize each axis of the grid.\n<cb>Scale Objects</c> scales the objects to fit each grid space.", 0.75f);
 
-    auto okBtn = CCMenuItemExt::createSpriteExtra(okSpr, [this] (auto sender) {
-        onClose(sender);
-    });
-    okBtn->setID("ok-button"_spr);
+    info->setPosition(size - info->getScaledContentSize() / 2.f - CCSize{6.f, 2.f});
 
-    okBtn->setPosition({m_size.width / 2.f, 25.f});
-
-    m_buttonMenu->addChild(okBtn);
-
-    auto info = InfoAlertButton::create("Help", "TODO", 1.f);
-
-    info->setPosition(m_size - CCSize{2.f, 2.f});
-
-    m_buttonMenu->addChild(info);
+    m_contentMenu->addChild(info);
 
     m_clearBtn = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_trashBtn_001.png", 0.5f, [this, control] (auto sender) {
         if (m_page == 0) {
             control->m_gridX = 30.f;
             control->m_gridY = 30.f;
 
-            Mod::get()->setSavedValue("grid-size", 30.f);
-            Mod::get()->setSavedValue("grid-size-x", 30.f);
-            Mod::get()->setSavedValue("grid-size-y", 30.f);
+            AdvancedGridControls::setSaved<Save::Level, "size">(30.f);
+            AdvancedGridControls::setSaved<Save::Level, "size-x">(30.f);
+            AdvancedGridControls::setSaved<Save::Level, "size-y">(30.f);
 
             m_sizeContainer->setValue(30.f);
             m_sizeXContainer->setValue(30.f);
             m_sizeYContainer->setValue(30.f);
         }
         else if (m_page == 1) {
-            Mod::get()->setSavedValue("grid-offset-x", 0.f);
-            Mod::get()->setSavedValue("grid-offset-y", 0.f);
+            control->setSaved<Save::Level, "offset-x">(0.f);
+            control->setSaved<Save::Level, "offset-y">(0.f);
 
             m_offsetXContainer->setValue(0.f);
             m_offsetYContainer->setValue(0.f);
@@ -255,11 +257,11 @@ bool GridSizePopup::init() {
     m_background->addChild(m_enabledLabel);
 
     m_enabledCheckbox = CCMenuItemExt::createTogglerWithStandardSprites(0.75f, [control] (CCMenuItemToggler* toggler) {
-        Mod::get()->setSavedValue("grid-size-enabled", !toggler->isOn());
+        AdvancedGridControls::setSaved<Save::Level, "enabled">(!toggler->isOn());
         control->updateGrid();
     });
 
-    auto enabled = Mod::get()->getSavedValue<bool>("grid-size-enabled");
+    auto enabled = AdvancedGridControls::getSaved<Save::Level, bool, "enabled">();
     m_enabledCheckbox->toggle(enabled);
 
     bgMenu->addChild(m_enabledCheckbox);
@@ -267,44 +269,45 @@ bool GridSizePopup::init() {
     setupSizePage();
     setupOffsetPage();
 
-    auto xyModeCheckbox = CCMenuItemExt::createTogglerWithStandardSprites(0.5f, [this, control] (CCMenuItemToggler* toggler) {
-        Mod::get()->setSavedValue("grid-size-separate-xy", !toggler->isOn());
-
+    m_xyModeCheckbox = CCMenuItemExt::createTogglerWithStandardSprites(0.7f, [this, control] (CCMenuItemToggler* toggler) {
+        AdvancedGridControls::setSaved<Save::Level, "separate-xy">(!toggler->isOn());
+        
         updateMode();
         control->updateGrid();
     });
 
-    auto xyModeEnabled = Mod::get()->getSavedValue<bool>("grid-size-separate-xy");
-    xyModeCheckbox->toggle(xyModeEnabled);
-    xyModeCheckbox->setPosition({17.f, 17.f});
+    auto xyModeEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "separate-xy">();
+    m_xyModeCheckbox->toggle(xyModeEnabled);
+    m_xyModeCheckbox->setPosition({26.f, 16.f});
 
-    m_buttonMenu->addChild(xyModeCheckbox);
+    m_contentMenu->addChild(m_xyModeCheckbox);
 
     auto xyModeLabel = geode::Label::create("XY Mode", "bigFont.fnt");
-    xyModeLabel->setScale(0.3f);
+    xyModeLabel->setScale(0.4f);
     xyModeLabel->setAnchorPoint({0.f, 0.5f});
-    xyModeLabel->setPosition({xyModeCheckbox->boundingBox().getMaxX() + 4.f, xyModeCheckbox->boundingBox().getMidY() + 0.5f});
+    xyModeLabel->setPosition({m_xyModeCheckbox->boundingBox().getMaxX() + 5.f, m_xyModeCheckbox->boundingBox().getMidY() + 0.5f});
+    xyModeLabel->validate();
 
-    m_mainLayer->addChild(xyModeLabel);
+    m_contentContainer->addChild(xyModeLabel);
 
-    auto scaleCheckbox = CCMenuItemExt::createTogglerWithStandardSprites(0.5f, [this, control] (CCMenuItemToggler* toggler) {
-        Mod::get()->setSavedValue("grid-size-scale-objects", !toggler->isOn());
+    m_scaleCheckbox = CCMenuItemExt::createTogglerWithStandardSprites(0.7f, [this, control] (CCMenuItemToggler* toggler) {
+        AdvancedGridControls::setSaved<Save::Level, "scale-objects">(!toggler->isOn());
 
         control->updateGrid();
     });
 
-    auto scaleEnabled = Mod::get()->getSavedValue<bool>("grid-size-scale-objects");
-    scaleCheckbox->toggle(scaleEnabled);
-    scaleCheckbox->setPosition({17.f, 36.f});
+    auto scaleEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "scale-objects">();
+    m_scaleCheckbox->toggle(scaleEnabled);
+    m_scaleCheckbox->setPosition({xyModeLabel->boundingBox().getMaxX() + 16.f + m_scaleCheckbox->getScaledContentWidth() / 2.f, 16.f});
 
-    m_buttonMenu->addChild(scaleCheckbox);
+    m_contentMenu->addChild(m_scaleCheckbox);
 
     auto scaleLabel = geode::Label::create("Scale Objects", "bigFont.fnt");
-    scaleLabel->setScale(0.3f);
+    scaleLabel->setScale(0.4f);
     scaleLabel->setAnchorPoint({0.f, 0.5f});
-    scaleLabel->setPosition({scaleCheckbox->boundingBox().getMaxX() + 4.f, scaleCheckbox->boundingBox().getMidY() + 0.5f});
+    scaleLabel->setPosition({m_scaleCheckbox->boundingBox().getMaxX() + 5.f, m_scaleCheckbox->boundingBox().getMidY() + 0.5f});
 
-    m_mainLayer->addChild(scaleLabel);
+    m_contentContainer->addChild(scaleLabel);
 
     auto leftArrow = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_arrow_01_001.png", 0.75f, [this] (auto sender) {
         m_page--;
@@ -313,9 +316,9 @@ bool GridSizePopup::init() {
         }
         updateMode();
     });
-    leftArrow->setPosition({-5.f - leftArrow->getScaledContentWidth() / 2.f, m_buttonMenu->getContentHeight() / 2.f});
+    leftArrow->setPosition({-5.f - leftArrow->getScaledContentWidth() / 2.f, m_contentMenu->getContentHeight() / 2.f});
 
-    m_buttonMenu->addChild(leftArrow);
+    m_contentMenu->addChild(leftArrow);
 
     auto rightArrow = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_arrow_01_001.png", 0.75f, [this] (auto sender) {
         m_page++;
@@ -324,36 +327,72 @@ bool GridSizePopup::init() {
         }
         updateMode();
     });
-    rightArrow->setPosition({m_buttonMenu->getContentWidth() + 5.f + rightArrow->getScaledContentWidth() / 2.f, m_buttonMenu->getContentHeight() / 2.f});
+    rightArrow->setPosition({m_contentMenu->getContentWidth() + 5.f + rightArrow->getScaledContentWidth() / 2.f, m_contentMenu->getContentHeight() / 2.f});
 
     static_cast<CCSprite*>(rightArrow->getNormalImage())->setFlipX(true);
 
-    m_buttonMenu->addChild(rightArrow);
+    m_contentMenu->addChild(rightArrow);
 
     updateMode();
 
     return true;
 }
 
-void GridSizePopup::setupSizePage() {
-    m_sizeContainer = SizeContainer::create("Size:", Mod::get()->getSavedValue<float>("grid-size", 30.f), 7.5f, 120.f, 1.f, 300.f, false, [] (float value) {
-        Mod::get()->setSavedValue("grid-size", value);
+void AdvancedGridSettingsLayer::updateValues() {
+    auto enabled = AdvancedGridControls::getSaved<Save::Level, bool, "enabled">();
+    m_enabledCheckbox->toggle(enabled);
+
+    auto xyModeEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "separate-xy">();
+    m_xyModeCheckbox->toggle(xyModeEnabled);
+
+    auto scaleEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "scale-objects">();
+    m_scaleCheckbox->toggle(scaleEnabled);
+
+    auto size = AdvancedGridControls::getSaved<Save::Level, float, "size">(30.f);
+    m_sizeContainer->setValue(size);
+
+    auto sizeX = AdvancedGridControls::getSaved<Save::Level, float, "size-x">(30.f);
+    m_sizeXContainer->setValue(sizeX);
+
+    auto sizeY = AdvancedGridControls::getSaved<Save::Level, float, "size-y">(30.f);
+    m_sizeYContainer->setValue(sizeY);
+
+    auto offsetX = AdvancedGridControls::getSaved<Save::Level, float, "offset-x">(0.f);
+    m_offsetXContainer->setValue(offsetX);
+
+    auto offsetY = AdvancedGridControls::getSaved<Save::Level, float, "offset-y">(0.f);
+    m_offsetYContainer->setValue(offsetY);
+
+    updateMode();
+}
+
+void AdvancedGridSettingsLayer::onClose(cocos2d::CCObject* sender) {
+    EditorWindowPopup::onClose(sender);
+}
+
+void AdvancedGridSettingsLayer::onBuildWindowContent() {
+    
+}
+
+void AdvancedGridSettingsLayer::setupSizePage() {
+    m_sizeContainer = SizeContainer::create("Size:", AdvancedGridControls::getSaved<Save::Level, float, "size">(30.f), 7.5f, 120.f, 1.f, 300.f, false, [] (float value) {
+        AdvancedGridControls::setSaved<Save::Level, "size">(value);
     });
 
     m_sizeContainer->setPosition(m_background->getContentWidth() / 2.f + 15.f, m_background->getContentHeight() / 2.f);
 
     m_background->addChild(m_sizeContainer);
 
-    m_sizeXContainer = SizeContainer::create("Size X:", Mod::get()->getSavedValue<float>("grid-size-x", 30.f), 7.5f, 120.f, 1.f, 300.f, true, [] (float value) {
-        Mod::get()->setSavedValue("grid-size-x", value);
+    m_sizeXContainer = SizeContainer::create("Size X:", AdvancedGridControls::getSaved<Save::Level, float, "size-x">(30.f), 7.5f, 120.f, 1.f, 300.f, true, [] (float value) {
+        AdvancedGridControls::setSaved<Save::Level, "size-x">(value);
     });
 
     m_sizeXContainer->setPosition(m_background->getContentWidth() / 2.f - m_sizeXContainer->getScaledContentWidth() / 2.f - 5.f, m_background->getContentHeight() / 2.f);
 
     m_background->addChild(m_sizeXContainer);
 
-    m_sizeYContainer = SizeContainer::create("Size Y:", Mod::get()->getSavedValue<float>("grid-size-y", 30.f), 7.5f, 120.f, 1.f, 300.f, true, [] (float value) {
-        Mod::get()->setSavedValue("grid-size-y", value);
+    m_sizeYContainer = SizeContainer::create("Size Y:", AdvancedGridControls::getSaved<Save::Level, float, "size-y">(30.f), 7.5f, 120.f, 1.f, 300.f, true, [] (float value) {
+        AdvancedGridControls::setSaved<Save::Level, "size-y">(value);
     });
 
     m_sizeYContainer->setPosition(m_background->getContentWidth() / 2.f + m_sizeYContainer->getScaledContentWidth() / 2.f + 5.f, m_background->getContentHeight() / 2.f);
@@ -361,27 +400,25 @@ void GridSizePopup::setupSizePage() {
     m_background->addChild(m_sizeYContainer);
 }
 
-void GridSizePopup::setupOffsetPage() {
-    m_offsetXContainer = SizeContainer::create("Offset X:", Mod::get()->getSavedValue<float>("grid-offset-x"), -150.f, 150.f, -150.f, 150.f, true, [] (float value) {
-        Mod::get()->setSavedValue("grid-offset-x", value);
+void AdvancedGridSettingsLayer::setupOffsetPage() {
+    m_offsetXContainer = SizeContainer::create("Offset X:", AdvancedGridControls::getSaved<Save::Level, float, "offset-x">(), -150.f, 150.f, -150.f, 150.f, true, [] (float value) {
+        AdvancedGridControls::setSaved<Save::Level, "offset-x">(value);
     });
 
     m_offsetXContainer->setPosition(m_background->getContentWidth() / 2.f - m_offsetXContainer->getScaledContentWidth() / 2.f - 5.f, m_background->getContentHeight() / 2.f);
 
     m_background->addChild(m_offsetXContainer);
 
-    m_offsetYContainer = SizeContainer::create("Offset Y:", Mod::get()->getSavedValue<float>("grid-offset-y"), -150.f, 150.f, -150.f, 150.f, true, [] (float value) {
-        Mod::get()->setSavedValue("grid-offset-y", value);
+    m_offsetYContainer = SizeContainer::create("Offset Y:", AdvancedGridControls::getSaved<Save::Level, float, "offset-y">(), -150.f, 150.f, -150.f, 150.f, true, [] (float value) {
+        AdvancedGridControls::setSaved<Save::Level, "offset-y">(value);
     });
 
     m_offsetYContainer->setPosition(m_background->getContentWidth() / 2.f + m_offsetYContainer->getScaledContentWidth() / 2.f + 5.f, m_background->getContentHeight() / 2.f);
 
     m_background->addChild(m_offsetYContainer);
 
-    auto spr = ButtonSprite::create("To Object");
+    auto spr = ButtonSprite::create("Obj");
     spr->setScale(0.5f);
-
-    // TODO FIX OFFSETFORKEY
 
     m_alignBtn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
         auto editor = MainEditorUI::get();
@@ -389,12 +426,12 @@ void GridSizePopup::setupOffsetPage() {
 
         auto control = AdvancedGridControls::get();
 
-        Mod::get()->setSavedValue("grid-offset-x", 0.f);
-        Mod::get()->setSavedValue("grid-offset-y", 0.f);
+        AdvancedGridControls::setSaved<Save::Level, "offset-x">(0.f);
+        AdvancedGridControls::setSaved<Save::Level, "offset-y">(0.f);
 
         control->updateGrid();
 
-        auto offsetForKey = editor->offsetForKey(editor->m_selectedObject->m_objectID);
+        auto offsetForKey = ::offsetForKey(editor->m_selectedObject->m_objectID);
 
         int rot = static_cast<int>(std::round(editor->m_selectedObject->getRotation()));
         if (rot % 90 == 0) {
@@ -420,8 +457,8 @@ void GridSizePopup::setupOffsetPage() {
         auto gridSnapped = editor->getGridSnappedPos(editor->m_selectedObject->getPosition() - offsetForKey);
         auto offset = editor->m_selectedObject->getPosition() - offsetForKey - gridSnapped;
 
-        Mod::get()->setSavedValue("grid-offset-x", offset.x);
-        Mod::get()->setSavedValue("grid-offset-y", offset.y);
+        AdvancedGridControls::setSaved<Save::Level, "offset-x">(offset.x);
+        AdvancedGridControls::setSaved<Save::Level, "offset-y">(offset.y);
 
         m_offsetXContainer->setValue(offset.x);
         m_offsetYContainer->setValue(offset.y);
@@ -429,13 +466,13 @@ void GridSizePopup::setupOffsetPage() {
         control->updateGrid();
     });
 
-    m_alignBtn->setPosition({m_buttonMenu->getContentWidth() - m_alignBtn->getScaledContentWidth() / 2.f - 12.f, 12.f + m_alignBtn->getScaledContentHeight() / 2.f});
+    m_alignBtn->setPosition({m_contentMenu->getContentWidth() - m_alignBtn->getScaledContentWidth() / 2.f - 12.f, 8.f + m_alignBtn->getScaledContentHeight() / 2.f});
 
-    m_buttonMenu->addChild(m_alignBtn);
+    m_contentMenu->addChild(m_alignBtn);
 }
 
-void GridSizePopup::updateMode() {
-    bool separateXY = Mod::get()->getSavedValue<bool>("grid-size-separate-xy");
+void AdvancedGridSettingsLayer::updateMode() {
+    bool separateXY = AdvancedGridControls::getSaved<Save::Level, bool, "separate-xy">();
     
     m_sizeContainer->setVisible(false);
     m_sizeXContainer->setVisible(false);
@@ -508,23 +545,92 @@ void GridSizePopup::updateMode() {
 
 };
 
+AdvancedGridControls::AdvancedGridControls() {
+    m_offsetForKeyHook = Mod::get()->hook(
+        reinterpret_cast<void*>(
+            geode::addresser::getNonVirtual(&offsetForKey)
+        ),
+        &offsetForKey_h,
+        "offsetForKey",
+        tulip::hook::TulipConvention::Cdecl
+    ).unwrapOrDefault();
+
+    if (m_offsetForKeyHook) {
+        m_offsetForKeyHook->setAutoEnable(false);
+    }
+}
+
+AdvancedGridControls::~AdvancedGridControls() {
+    if (m_offsetForKeyHook) {
+        (void) Mod::get()->disownHook(m_offsetForKeyHook);
+    }
+}
+
+bool AdvancedGridControls::onToggled(bool state) {
+    auto editor = getEditor();
+
+    auto it = editor->m_unkMap.find(4);
+    if (it != editor->m_unkMap.end() && it->second) {
+        editor->toggleWindow(4);
+    }
+
+    if (state) {
+        if (m_offsetForKeyHook) {
+            (void) m_offsetForKeyHook->enable();
+        }
+
+        AdvancedGridControls::setSaved<Save::Level, "enabled">(editor->m_customGridEnabled);
+        AdvancedGridControls::setSaved<Save::Level, "separate-xy">(false);
+        AdvancedGridControls::setSaved<Save::Level, "size">(editor->m_customGridSize);
+
+        updateGrid();
+    }
+    else {
+        if (m_offsetForKeyHook) {
+            (void) m_offsetForKeyHook->disable();
+        }
+
+        auto dgl = getEditorLayer()->m_drawGridLayer;
+        auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
+
+        grid->overrideGridSize(std::nullopt);
+        grid->offsetGrid(std::nullopt);
+
+        editor->runAction(CallFuncExt::create([this, editor] {
+            float size = getSaved<Save::Level, float, "size">();
+            if (size > 0.f) {
+                size = std::max(5.f, std::min(size, 300.f));
+            }
+
+            editor->m_customGridSize = size;
+            editor->m_customGridEnabled = getSaved<Save::Level, bool, "enabled">();
+
+            GameManager::get()->setIntGameVariable("0193", static_cast<int>(size * 10.f));
+            GameManager::get()->setGameVariable("0194", editor->m_customGridEnabled);
+
+            editor->updateGridNodeSize();
+        }));
+    }
+
+    if (it != editor->m_unkMap.end() && it->second) {
+        editor->runAction(CallFuncExt::create([this, editor] {
+            editor->toggleWindow(4);
+            auto it = editor->m_unkMap.find(4);
+            if (it != editor->m_unkMap.end() && it->second) {
+                // fixing a goofy bug where adding it while another popup is visible takes priority, keyboard and keypad aren't needed anyways
+                CCDirector::get()->m_pKeypadDispatcher->removeDelegate(static_cast<EditorWindowPopup*>(it->second));
+                CCKeyboardDispatcher::get()->removeDelegate(static_cast<EditorWindowPopup*>(it->second));
+            }
+        }));
+    }
+
+    return true;
+}
+
 void AdvancedGridControls::onEditor() {
-    auto editorUI = getEditor();
-
-    auto settingsMenu = editorUI->getChildByID("settings-menu");
-
-    auto base = CircleButtonSprite::createWithSprite("grid-controls.png"_spr, 1.f, CircleBaseColor::Green, CircleBaseSize::Small);
-    base->setScale(0.7f);
-
-    auto btn = CCMenuItemExt::createSpriteExtra(base, [] (auto sender) {
-        tinker::ui::GridSizePopup::create()->show();
-    });
-
-    editorUI->m_uiItems->addObject(btn);
-
-    settingsMenu->addChild(btn);
-    settingsMenu->updateLayout();
-
+    if (m_offsetForKeyHook) {
+        (void) m_offsetForKeyHook->enable();
+    }
     updateGrid();
 }
 
@@ -533,12 +639,12 @@ void AdvancedGridControls::updateGrid() {
 
     auto dgl = getEditorLayer()->m_drawGridLayer;
     auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
+    auto editor = getEditor();
 
-    m_enabled = Mod::get()->getSavedValue<bool>("grid-size-enabled", true);
-    m_separateXY = Mod::get()->getSavedValue<bool>("grid-size-separate-xy");
-    m_gridScale = Mod::get()->getSavedValue<bool>("grid-size-scale-objects");
+    m_separateXY = getSaved<Save::Level, bool, "separate-xy">();
+    m_gridScale = getSaved<Save::Level, bool, "scale-objects">();
 
-    if (!m_enabled) {
+    if (!getSaved<Save::Level, bool, "enabled">()) {
         m_gridX = 30.f;
         m_gridY = 30.f;
         m_offsetX = 0.f;
@@ -546,27 +652,41 @@ void AdvancedGridControls::updateGrid() {
     }
     else {
         if (m_separateXY) {
-            m_gridX = Mod::get()->getSavedValue<float>("grid-size-x", 30.f);
-            m_gridY = Mod::get()->getSavedValue<float>("grid-size-y", 30.f);
+            m_gridX = getSaved<Save::Level, float, "size-x">();
+            m_gridY = getSaved<Save::Level, float, "size-y">();
         }
         else {
-            m_gridX = Mod::get()->getSavedValue<float>("grid-size", 30.f);
+            m_gridX = getSaved<Save::Level, float, "size">();
             m_gridY = m_gridX;
         }
     }
 
-    m_offsetX = Mod::get()->getSavedValue<float>("grid-offset-x");
-    m_offsetY = Mod::get()->getSavedValue<float>("grid-offset-y");
+    m_offsetX = getSaved<Save::Level, float, "offset-x">();
+    m_offsetY = getSaved<Save::Level, float, "offset-y">();
 
     m_updatingGridSize = true;
-    getEditor()->updateGridNodeSize();
+    editor->updateGridNodeSize();
     m_updatingGridSize = false;
 
     grid->offsetGrid(CCPoint{m_offsetX, m_offsetY});
+
+    editor->m_customGridEnabled = false;
+    editor->m_customGridSize = 30.f;
+    editor->m_gridSize = 0.01f;
+}
+
+void AdvancedGridControls::updateWindow() {
+    auto editor = getEditor();
+
+    auto it = editor->m_unkMap.find(4);
+    if (it != editor->m_unkMap.end() && it->second) {
+        static_cast<tinker::ui::AdvancedGridSettingsLayer*>(it->second)->updateValues();
+        return;
+    }
 }
 
 float AdvancedGridControls::getGridMultiplierX() {
-    if (!m_gridScale || !m_enabled) return 1.f;
+    if (!m_gridScale || !getSaved<Save::Level, bool, "enabled">()) return 1.f;
 
     if (m_gridX <= 0.f) {
         return 1.f;
@@ -576,7 +696,7 @@ float AdvancedGridControls::getGridMultiplierX() {
 }
 
 float AdvancedGridControls::getGridMultiplierY() {
-    if (!m_gridScale || !m_enabled) return 1.f;
+    if (!m_gridScale || !getSaved<Save::Level, bool, "enabled">()) return 1.f;
 
     if (m_gridY <= 0.f) {
         return 1.f;
@@ -585,15 +705,91 @@ float AdvancedGridControls::getGridMultiplierY() {
     return m_gridY / 30.f;
 }
 
-GameObject* AGCEditorUI::createObject(int objectID, cocos2d::CCPoint position) {
-    auto ret = EditorUI::createObject(objectID, position);
+cocos2d::CCPoint offsetForKey_h(int id) {
+    auto ret = ::offsetForKey(id);
 
+    auto control = AdvancedGridControls::get();
+    if (control->m_getOrigOffset) return ret;
+
+    auto multX = control->getGridMultiplierX();
+    auto multY = control->getGridMultiplierY();
+
+    ret.x *= multX;
+    ret.y *= multY;
+    return ret;
+}
+
+void AGCEditorUI::toggleWindow(int windowID) {
+    auto it = m_unkMap.find(windowID);
+    if (it != m_unkMap.end() && it->second) {
+        static_cast<EditorWindowPopup*>(it->second)->onClose(nullptr);
+        return;
+    }
+
+    if (windowID == 4) {
+        auto window = tinker::ui::AdvancedGridSettingsLayer::create();
+        m_unkMap[windowID] = window;
+        window->show();
+        return;
+    }
+    EditorUI::toggleWindow(windowID);
+}
+
+void AGCEditorUI::cycleCustomGridPreset(bool p0) {
+    auto control = AdvancedGridControls::get();
+    
+    EditorUI::cycleCustomGridPreset(p0);
+}
+
+bool AGCEditorUI::handleAction(int action, bool down, double timestamp) {
+    m_customGridSize = AdvancedGridControls::getSaved<Save::Level, float, "size">();
+    m_customGridEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "enabled">();
+
+    auto ret = EditorUI::handleAction(action, down, timestamp);
+    if (down && ret) {
+        auto control = AdvancedGridControls::get();
+
+        switch (action) {
+            case 20118: 
+            case 20084:
+            case 20085:
+            case 20145:
+            case 20146: {
+                AdvancedGridControls::setSaved<Save::Level, "enabled">(m_customGridEnabled);
+                AdvancedGridControls::setSaved<Save::Level, "separate-xy">(false);
+                AdvancedGridControls::setSaved<Save::Level, "size">(m_customGridSize);
+                AdvancedGridControls::setSaved<Save::Level, "size-x">(m_customGridSize);
+                AdvancedGridControls::setSaved<Save::Level, "size-y">(m_customGridSize);
+                break;
+            }
+        }
+        control->updateGrid();
+        control->updateWindow();
+    }
+
+    m_customGridSize = 30.f;
+    m_customGridEnabled = false;
+
+    return ret;
+}
+
+GameObject* AGCEditorUI::onCreateObject(int id) {
+    auto ret = EditorUI::onCreateObject(id);
+    
     if (ret) {
         auto multX = AdvancedGridControls::get()->getGridMultiplierX();
         auto multY = AdvancedGridControls::get()->getGridMultiplierY();
 
         ret->updateCustomScaleX(ret->m_pixelScaleX * multX);
         ret->updateCustomScaleY(ret->m_pixelScaleY * multY);
+
+        removeOffset(ret);
+        //applyOffset(ret);
+
+        CCPoint offset = GameToolbox::getRelativeOffset(ret, ::offsetForKey(ret->m_objectID));
+        ret->setPosition(ret->getPosition() + offset);
+        m_editorLayer->removeObjectFromSection(ret);
+        m_editorLayer->addToSection(ret);
     }
 
     return ret;
@@ -610,14 +806,15 @@ cocos2d::CCPoint AGCEditorUI::getLimitedPosition(cocos2d::CCPoint position) {
 
     auto control = AdvancedGridControls::get();
 
-    float mult = m_gridSize / 30.f;
+    float mult = getGridMultiplier();
+    
     float sizeX = control->m_gridX * mult;
     float sizeY = control->m_gridY * mult;
 
     auto xVal = std::floorf((oldPoint.x - control->m_offsetX) / sizeX);
-    auto yVal = std::floorf((oldPoint.y - control->m_offsetY) / sizeY);
+    auto yVal = std::floorf((oldPoint.y - control->m_offsetY - 90.f) / sizeY);
 
-    return EditorUI::getLimitedPosition(CCPoint{(xVal + 0.5f) * sizeX + control->m_offsetX, (yVal + 0.5f) * sizeY + control->m_offsetY});
+    return EditorUI::getLimitedPosition(CCPoint{(xVal + 0.5f) * sizeX + control->m_offsetX, (yVal + 0.5f) * sizeY + control->m_offsetY + 90.f});
 }
 
 void AGCEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
@@ -627,27 +824,74 @@ void AGCEditorUI::moveObject(GameObject* object, cocos2d::CCPoint offset) {
     fields->m_regularLimited = false;
 }
 
-cocos2d::CCPoint AGCEditorUI::offsetForKey(int id) {
-    auto ret = EditorUI::offsetForKey(id);
-    auto multX = AdvancedGridControls::get()->getGridMultiplierX();
-    auto multY = AdvancedGridControls::get()->getGridMultiplierY();
+cocos2d::CCPoint AGCEditorUI::moveForCommand(EditCommand command) {
+    auto control = AdvancedGridControls::get();
 
-    ret.x *= multX;
-    ret.y *= multY;
-    return ret;
+    auto ret = EditorUI::moveForCommand(command);
+
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wswitch"
+    switch (command) {
+        case EditCommand::SmallLeft:
+        case EditCommand::SmallRight:
+        case EditCommand::SmallUp:
+        case EditCommand::SmallDown:
+        case EditCommand::TinyLeft:
+        case EditCommand::TinyRight:
+        case EditCommand::TinyUp:
+        case EditCommand::TinyDown:
+        case static_cast<EditCommand>(33):
+        case static_cast<EditCommand>(34):
+        case static_cast<EditCommand>(35):
+        case static_cast<EditCommand>(36):
+        case static_cast<EditCommand>(25):
+        case static_cast<EditCommand>(26):
+        case static_cast<EditCommand>(27):
+        case static_cast<EditCommand>(28):
+            return ret;
+        default: break;
+    }
+    #pragma GCC diagnostic pop
+
+    ret *= 100;
+    
+    float mult = getGridMultiplier();
+    return CCPoint{control->m_gridX * mult * ret.x, control->m_gridY * mult * ret.y};
+}
+
+float AGCEditorUI::getGridMultiplier() {
+    float mult = 1.f;
+    if (m_selectedMode == 2) {
+        mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(m_selectedObjectIndex) / 30.f;
+    }
+    else if (m_selectedObject) {
+        mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(m_selectedObject->m_objectID) / 30.f;
+    }
+    else if (m_selectedObjects->count() > 0) {
+        int objectID = m_selectedObjects->asExt<GameObject>()[0]->m_objectID;
+        for (auto obj : m_selectedObjects->asExt<GameObject>()) {
+            if (obj->m_objectID != objectID) {
+                objectID = -1;
+                break;
+            }
+        }
+        if (objectID != -1) {
+            mult = ObjectToolbox::sharedState()->gridNodeSizeForKey(m_selectedObject->m_objectID) / 30.f;
+        }
+    }
+    return mult;
 }
 
 void AGCEditorUI::updateGridNodeSize() {
-    EditorUI::updateGridNodeSize();
-
     auto dgl = m_editorLayer->m_drawGridLayer;
     auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
     auto control = AdvancedGridControls::get();
 
-    auto size = dgl->m_gridSize;
-    float mult = size / 30.f;
+    float mult = getGridMultiplier();
 
     grid->overrideGridSize(CCSize{control->m_gridX * mult, control->m_gridY * mult});
-
     dgl->m_gridSize = 0.01f;
-}*/
+
+    if (control->m_updatingGridSize) return; 
+    control->updateWindow();
+}

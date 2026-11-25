@@ -1,3 +1,9 @@
+# 1.2.0-beta.7
+- <c-dddddd>Fix tooltip hover when an Editor Window is open</c>
+- <c-dddddd>Only make CreateMenuItems lazy during EditorUI::setupCreateMenu</c>
+- <c-dddddd>Fix camera to object button not working</c>
+- <c-dddddd>Add Advanced Grid Controls</c>
+
 # 1.2.0-beta.6
 - <c-dddddd>Fix modules leaking when exiting the editor, and thus fixing crashes to to leaked modules</c>
 - <c-dddddd>Fix clicking an object in the editor not scrolling to it in the build tabs when scrollable objects is enabled</c>

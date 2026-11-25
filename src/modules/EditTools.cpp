@@ -234,11 +234,11 @@ void ETEditorUI::onCenterObjects() {
 }
 
 void ETEditorUI::onCenterCamera() {
-    if (m_selectedObjects) {
-        tinker::utils::objects::moveCameraToObjects(m_selectedObjects);
-    }
-    else if (m_selectedObject) {
+    if (m_selectedObject) {
         tinker::utils::objects::moveCameraToObject(m_selectedObject);
+    }
+    else if (m_selectedObjects->count() > 0) {
+        tinker::utils::objects::moveCameraToObjects(m_selectedObjects);
     }
 }
 

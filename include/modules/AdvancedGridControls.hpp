@@ -1,10 +1,11 @@
 #pragma once
 
+#include <Geode/binding/EditorCommandsPopup.hpp>
 #include <Geode/ui/SliderNode.hpp>
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
 
-/*namespace tinker::ui {
+namespace tinker::ui {
 
 class SizeContainer : public cocos2d::CCNode {
 public:
@@ -31,9 +32,13 @@ protected:
     bool m_skipSliderCallback = false;
 };
 
-class GridSizePopup : public geode::Popup {
+class AdvancedGridSettingsLayer : public EditorWindowPopup {
 public:
-    static GridSizePopup* create();
+    static AdvancedGridSettingsLayer* create();
+    void updateValues();
+
+    virtual void onBuildWindowContent();
+    virtual void onClose(cocos2d::CCObject* sender);
 protected:
     bool init();
     void updateMode();
@@ -43,6 +48,9 @@ protected:
 
     int m_page = 0;
 
+    cocos2d::CCNode* m_contentContainer = nullptr;
+    cocos2d::CCMenu* m_contentMenu = nullptr;
+
     geode::Label* m_titleLabel = nullptr;
 
     geode::NineSlice* m_background = nullptr;
@@ -50,6 +58,9 @@ protected:
     CCMenuItemSpriteExtra* m_alignBtn = nullptr;
     geode::Label* m_enabledLabel = nullptr;
     CCMenuItemToggler* m_enabledCheckbox = nullptr;
+    CCMenuItemToggler* m_xyModeCheckbox = nullptr;
+    CCMenuItemToggler* m_scaleCheckbox = nullptr;
+
     SizeContainer* m_sizeContainer = nullptr;
     SizeContainer* m_sizeXContainer = nullptr;
     SizeContainer* m_sizeYContainer = nullptr;
@@ -61,13 +72,17 @@ protected:
 };
 
 class $module(AdvancedGridControls) {
+    AdvancedGridControls();
+    ~AdvancedGridControls();
+
+    bool onToggled(bool state);
 
     void onEditor();
     void updateGrid();
+    void updateWindow();
     float getGridMultiplierX();
     float getGridMultiplierY();
 
-    bool m_enabled = false;
     bool m_gridScale = false;
     bool m_separateXY = false;
 
@@ -79,8 +94,11 @@ class $module(AdvancedGridControls) {
     float m_offsetY = 0.f;
 
     bool m_updatingGridSize = false;
+    bool m_getOrigOffset = false;
+    geode::Hook* m_offsetForKeyHook = nullptr;
 };
 
+cocos2d::CCPoint offsetForKey_h(int id);
 
 class $modify(AGCEditorUI, EditorUI) {
     $registerHooks(AdvancedGridControls)
@@ -89,10 +107,16 @@ class $modify(AGCEditorUI, EditorUI) {
         bool m_regularLimited = false;
     };
 
-    cocos2d::CCPoint offsetForKey(int id);
-    GameObject* createObject(int objectID, cocos2d::CCPoint position);
+    void toggleWindow(int windowID);
+    bool handleAction(int action, bool down, double timestamp);
+    void cycleCustomGridPreset(bool p0);
+    cocos2d::CCPoint moveForCommand(EditCommand command);
+
+    GameObject* onCreateObject(int id);
+
     cocos2d::CCPoint getLimitedPosition(cocos2d::CCPoint position);
     void moveObject(GameObject* object, cocos2d::CCPoint offset);
 
+    float getGridMultiplier();
     void updateGridNodeSize();
-};*/
+};

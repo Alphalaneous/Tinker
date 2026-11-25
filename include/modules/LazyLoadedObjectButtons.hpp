@@ -20,8 +20,10 @@ class $modify(LLOBEditorUI, EditorUI) {
     struct Fields {
         geode::Ref<EffectGameObject> m_dummyObject = nullptr;
         std::unordered_map<int, geode::Ref<cocos2d::CCTexture2D>> m_bgSprites;
+        bool m_useLazy = false;
     };
 
+    void setupCreateMenu();
     CreateMenuItem* getCreateBtn(int id, int bg);
     CreateMenuItem* menuItemFromObjectString(std::string str, int id);
     void updateCreateMenu(bool selectTab);
