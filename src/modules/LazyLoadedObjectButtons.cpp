@@ -64,7 +64,10 @@ void LLOBEditorUI::updateCreateMenu(bool selectTab) {
             }
         }
 
-        static_cast<tinker::ui::LazyCreateMenuItem*>(cmi)->loadObject();
+        auto lcmi = typeinfo_cast<tinker::ui::LazyCreateMenuItem*>(cmi);
+        if (lcmi) {
+            lcmi->loadObject();
+        }
     }
     
     EditorUI::updateCreateMenu(selectTab);
