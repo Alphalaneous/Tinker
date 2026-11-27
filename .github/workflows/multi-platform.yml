@@ -15,12 +15,12 @@ jobs:
         - name: Windows
           os: windows-latest
 
-        #- name: macOS
-        #  os: macos-latest
+        - name: macOS
+          os: macos-latest
 
-        #- name: iOS
-        #  os: macos-latest
-        #  target: iOS
+        - name: iOS
+          os: macos-latest
+          target: iOS
 
         - name: Android32
           os: ubuntu-latest
