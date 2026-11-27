@@ -218,7 +218,7 @@ bool AdvancedGridSettingsLayer::init() {
 
     m_contentContainer->addChild(m_background);
 
-    auto info = InfoAlertButton::create("Grid Size", "<cg>Enable</c> to override the editor grid with a custom size.\n<cl>Shift+G</c> toggles these controls.\n<cl>Ctrl+G</c> cycles the preset sizes (7.5, 15, 30, 60, 120).\nPress <co>Obj</c> with an object selected to align the grid to it.\n<cb>XY Mode</c> lets you resize each axis of the grid.\n<cb>Scale Objects</c> scales the objects to fit each grid space.", 0.75f);
+    auto info = InfoAlertButton::create("Grid Size", "<cg>Enable</c> to override the editor grid with a custom size.\n<cl>Shift+G</c> toggles these controls.\n<cl>Ctrl+G</c> cycles the preset sizes (7.5, 15, 30, 60, 120).\nPress <co>Obj</c> or <cl>Ctrl+O</c>with an object selected to align the grid to it.\n<cb>XY Mode</c> lets you resize each axis of the grid.\n<cb>Scale Objects</c> scales the objects to fit each grid space.", 0.75f);
 
     info->setPosition(size - info->getScaledContentSize() / 2.f - CCSize{6.f, 2.f});
 
@@ -421,49 +421,7 @@ void AdvancedGridSettingsLayer::setupOffsetPage() {
     spr->setScale(0.5f);
 
     m_alignBtn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
-        auto editor = MainEditorUI::get();
-        if (!editor || !editor->m_selectedObject) return;
-
-        auto control = AdvancedGridControls::get();
-
-        AdvancedGridControls::setSaved<Save::Level, "offset-x">(0.f);
-        AdvancedGridControls::setSaved<Save::Level, "offset-y">(0.f);
-
-        control->updateGrid();
-
-        auto offsetForKey = ::offsetForKey(editor->m_selectedObject->m_objectID);
-
-        int rot = static_cast<int>(std::round(editor->m_selectedObject->getRotation()));
-        if (rot % 90 == 0) {
-            switch(rot) {
-                case 90: {
-                    offsetForKey = CCPoint{offsetForKey.y, offsetForKey.x};
-                    break;
-                }
-                case 180: {
-                    offsetForKey = CCPoint{-offsetForKey.x, -offsetForKey.y};
-                    break;
-                }
-                case 270: {
-                    offsetForKey = CCPoint{-offsetForKey.y, -offsetForKey.x};
-                    break;
-                }
-            }
-        }
-        else {
-            offsetForKey = CCPoint{0.f, 0.f};
-        }
-
-        auto gridSnapped = editor->getGridSnappedPos(editor->m_selectedObject->getPosition() - offsetForKey);
-        auto offset = editor->m_selectedObject->getPosition() - offsetForKey - gridSnapped;
-
-        AdvancedGridControls::setSaved<Save::Level, "offset-x">(offset.x);
-        AdvancedGridControls::setSaved<Save::Level, "offset-y">(offset.y);
-
-        m_offsetXContainer->setValue(offset.x);
-        m_offsetYContainer->setValue(offset.y);
-
-        control->updateGrid();
+        AdvancedGridControls::get()->alignGridToObject();
     });
 
     m_alignBtn->setPosition({m_contentMenu->getContentWidth() - m_alignBtn->getScaledContentWidth() / 2.f - 12.f, 8.f + m_alignBtn->getScaledContentHeight() / 2.f});
@@ -580,9 +538,9 @@ bool AdvancedGridControls::onToggled(bool state) {
             (void) m_offsetForKeyHook->enable();
         }
 
-        AdvancedGridControls::setSaved<Save::Level, "enabled">(editor->m_customGridEnabled);
-        AdvancedGridControls::setSaved<Save::Level, "separate-xy">(false);
-        AdvancedGridControls::setSaved<Save::Level, "size">(editor->m_customGridSize);
+        setSaved<Save::Level, "enabled">(editor->m_customGridEnabled);
+        setSaved<Save::Level, "separate-xy">(false);
+        setSaved<Save::Level, "size">(editor->m_customGridSize);
 
         updateGrid();
     }
@@ -632,7 +590,57 @@ void AdvancedGridControls::onEditor() {
     if (m_offsetForKeyHook) {
         (void) m_offsetForKeyHook->enable();
     }
+
+    addEventListener(KeybindSettingPressedEvent(Mod::get(), "AdvancedGridControls-offset-to-object-keybind"), [this] (Keybind const& keybind, bool down, bool repeat, double timestamp) {
+        alignGridToObject();
+    });
+
     updateGrid();
+}
+
+void AdvancedGridControls::alignGridToObject() {
+    auto editor = getEditor();
+    if (!editor->m_selectedObject) return;
+
+    auto control = AdvancedGridControls::get();
+
+    setSaved<Save::Level, "offset-x">(0.f);
+    setSaved<Save::Level, "offset-y">(0.f);
+
+    updateGrid();
+
+    auto offsetForKey = ::offsetForKey(editor->m_selectedObject->m_objectID);
+
+    int rot = static_cast<int>(std::round(editor->m_selectedObject->getRotation()));
+    if (rot % 90 == 0) {
+        switch(rot) {
+            case 90: {
+                offsetForKey = CCPoint{offsetForKey.y, offsetForKey.x};
+                break;
+            }
+            case 180: {
+                offsetForKey = CCPoint{-offsetForKey.x, -offsetForKey.y};
+                break;
+            }
+            case 270: {
+                offsetForKey = CCPoint{-offsetForKey.y, -offsetForKey.x};
+                break;
+            }
+        }
+    }
+    else {
+        offsetForKey = CCPoint{0.f, 0.f};
+    }
+
+    auto gridSnapped = editor->getGridSnappedPos(editor->m_selectedObject->getPosition() - offsetForKey);
+    auto offset = editor->m_selectedObject->getPosition() - offsetForKey - gridSnapped;
+
+    setSaved<Save::Level, "offset-x">(offset.x);
+    setSaved<Save::Level, "offset-y">(offset.y);
+
+    updateGrid();
+
+    updateWindow();
 }
 
 void AdvancedGridControls::updateGrid() {
@@ -916,7 +924,8 @@ cocos2d::CCPoint AGCGJTransformControl::snapToGrid(cocos2d::CCPoint position, bo
     float gridX = control->m_gridX;
     float gridY = control->m_gridY;
 
-    float offsetY = std::fmod(90.f, gridY);
+    float offsetX = std::fmod(control->m_offsetX, gridX);
+    float offsetY = std::fmod(90.f + control->m_offsetY, gridY);
 
     float reachX = std::min(5.f, gridX * 0.1f);
     float reachY = std::min(5.f, gridY * 0.1f);
@@ -930,7 +939,7 @@ cocos2d::CCPoint AGCGJTransformControl::snapToGrid(cocos2d::CCPoint position, bo
         last = m_unk27c;
     }
 
-    float snapX = std::round(local.x / gridX) * gridX;
+    float snapX = std::round((local.x - offsetX) / gridX) * gridX + offsetX;
     float snapY = std::round((local.y - offsetY) / gridY) * gridY + offsetY;
     float distanceX = std::abs(snapX - local.x);
     float stickyX = std::abs(last.x - local.x) / 1.5f;

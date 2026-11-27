@@ -84,6 +84,8 @@ class $module(AdvancedGridControls) {
     float getGridMultiplierX();
     float getGridMultiplierY();
 
+    void alignGridToObject();
+
     bool m_gridScale = false;
     bool m_separateXY = false;
 

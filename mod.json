@@ -80,13 +80,6 @@
 			"enable-if": "!loaded:ninkaz.editor_utils",
 			"enable-if-description": "This feature is not compatible with Ninkaz's Editor Utils."
 		},
-		"AdvancedGridControls-enabled": {
-			"type": "bool",
-			"default": true,
-			"name": "Enable Advanced Grid Controls",
-			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale.",
-			"platforms": ["win", "mac", "ios"]
-		},
 		"ImprovedFontSelection-enabled": {
 			"type": "bool",
 			"default": true,
@@ -483,6 +476,29 @@
 			"default": true,
 			"enable-if": "loaded:undefined0.lasso-select",
 			"enable-if-description": "This feature requires the Lasso Select mod."
+		},
+		"AdvancedGridControls-title": {
+			"type": "title",
+			"name": "Advanced Grid Controls",
+			"platforms": ["win", "mac", "ios"]
+		},
+		"AdvancedGridControls-description": {
+			"type": "info",
+			"description": "Control X and Y sizes of the grid, the offsets, as well as placing objects relative to the grid scale.",
+			"color": "#000000",
+			"platforms": ["win", "mac", "ios"]
+		},
+		"AdvancedGridControls-enabled": {
+			"type": "bool",
+			"default": true,
+			"name": "Enabled",
+			"platforms": ["win", "mac", "ios"]
+		},
+		"AdvancedGridControls-offset-to-object-keybind": {
+			"type": "keybind",
+			"name": "Offset Grid to Object Keybind",
+			"default": ["Ctrl+O"],
+			"category": "editor"
 		},
 		"AutoBuildHelper-title": {
 			"type": "title",
