@@ -1,4 +1,5 @@
 #include "settings/SettingsPopup.hpp"
+#include <Geode/loader/ModSettingsManager.hpp>
 #include "modules/UIScaling.hpp"
 #include "settings/SettingNodeRegistry.hpp"
 #include "settings/SettingNode.hpp"
@@ -9,6 +10,7 @@
 #include "utils/Mod.hpp"
 #include <Geode/modify/SliderTouchLogic.hpp>
 #include <alphalaneous.alphas_geode_utils/ObjectModify.hpp>
+
 
 using namespace geode::prelude;
 
@@ -461,6 +463,11 @@ void SettingsPopup::applyUncommitted() {
 
     if (uiScaleChanged) {
         UIScaling::get()->updateUIScalingMod();
+    }
+
+    auto manager = geode::ModSettingsManager::from(Mod::get());
+    if (manager->shouldSave()) {
+        (void) Mod::get()->saveData();
     }
 }
 

@@ -387,7 +387,7 @@ cocos2d::CCPoint getEndPos(EffectGameObject* object) {
 }
 
 EffectGameObject* getFurthestEndObject(const std::vector<EffectGameObject*>& objects, const cocos2d::CCPoint& unitRefDir) {
-    float maxProj = -FLT_MAX;
+    float maxProj = -std::numeric_limits<float>::max();
     auto furthest = objects[0];
 
     auto refStart = furthest->getPosition();
@@ -472,8 +472,8 @@ geode::Result<std::pair<cocos2d::CCPoint, cocos2d::CCPoint>> getCenter() {
     auto unitRefDir = refDir / refLen;
     auto ortho = cocos2d::CCPoint{-unitRefDir.y, unitRefDir.x};
 
-    float minProj = FLT_MAX;
-    float maxProj = -FLT_MAX;
+    float minProj = std::numeric_limits<float>::max();
+    float maxProj = -std::numeric_limits<float>::max();
     for (auto obj : objects) {
         auto start = obj->getPosition();
         auto end = obj->m_endPosition;

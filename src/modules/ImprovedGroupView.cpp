@@ -70,7 +70,7 @@ void GroupLayout::apply(cocos2d::CCNode* on) {
     float y = totalHeight - m_padding.top;
 
     for (const auto& info : lineInfos) {
-        float x = m_centerAligned ? (m_size.width / 2.f - info.width / 2.f): (m_size.width / 2.f - totalWidth / 2.f);
+        float x = m_centerAligned ? (m_size.width / 2.f - info.width / 2.f): m_padding.left;
         for (auto node : info.nodes) {
             node->setPosition({x + node->getScaledContentWidth() / 2.f, y - info.height / 2.f});
             x += node->getScaledContentWidth() + m_horizontalGap;
@@ -356,7 +356,7 @@ bool IGVSetGroupIDLayer::init(GameObject* obj, cocos2d::CCArray* objs) {
             layout->setHorizontalGap(7.f);
         }
         else if (allGroups.size() > 10) {
-            layout->setPadding({8.f, 11.5f, 8.f, 11.5f});
+            layout->setPadding({12.5f, 11.5f, 12.5f, 11.5f});
             layout->setHorizontalGap(6.f);
 
             scale = 0.9f;
@@ -552,9 +552,15 @@ bool IGVSetupSpawnPopup::init(EffectGameObject* object, cocos2d::CCArray* object
         layout->setHorizontalGap(10.f);
         layout->setVerticalGap(8.f);
 
-        if (remapCounts.size() > 10 || mode == ImprovedGroupView::GroupMode::Names) {
-            layout->setPadding({8.f, 11.f, 8.f, 11.f});
+        if (mode == ImprovedGroupView::GroupMode::Names) {
+            layout->setPadding({11.f, 11.f, 11.f, 11.f});
             layout->setHorizontalGap(5.f);
+
+            buttonWidth = 15.f;
+        }
+        else if (remapCounts.size() > 10) {
+            layout->setPadding({7.f, 11.f, 7.f, 11.f});
+            layout->setHorizontalGap(4.f);
 
             buttonWidth = 15.f;
         }
@@ -947,19 +953,19 @@ bool IGVSetupSequenceTriggerPopup::init(SequenceTriggerGameObject* object) {
         auto mode = fields->m_modeButton->getValue();
 
         auto layout = fields->m_groupView->getGroupLayout();
-        layout->setPadding({15.f, 6.5f, 15.f, 6.5f});
+        layout->setPadding({30.f, 6.5f, 30.f, 6.5f});
         layout->setHorizontalGap(10.f);
         float width = 40.f;
-
-        if (object->m_chanceObjects.size() > 10) {
-            width = 15.f;
-            layout->setPadding({10.f, 6.5f, 10.f, 6.5f});
-            layout->setHorizontalGap(4.f);
-        }
 
         if (mode == ImprovedGroupView::GroupMode::Names) {
             layout->setPadding({6.5f, 6.5f, 6.5f, 6.5f});
             layout->setHorizontalGap(4.f);
+            width = 15.f;
+        }
+        else if (object->m_chanceObjects.size() > 10) {
+            layout->setPadding({18.f, 6.5f, 18.f, 6.5f});
+            layout->setHorizontalGap(4.f);
+            width = 15.f;
         }
 
         auto leftAlign = ImprovedGroupView::getSetting<bool, "left-align">();

@@ -1,3 +1,13 @@
+# 1.2.0-beta.10
+- <c-dddddd>Rerelease Advanced Grid Controls (Android excluded for now)</c>
+- <c-dddddd>Fix transform grid snapping not working with Advanced Grid Controls</c>
+- <c-dddddd>Fix left align groups option not working</c>
+- <c-dddddd>Rerelease Start Position Switcher</c>
+- <c-dddddd>Fix a crash when loading the editor if you had a start position in your custom objects and Start Position Switcher enabled</c>
+- <c-dddddd>Rerelease Lazy Loaded Object Buttons</c>
+- <c-dddddd>Applying Tinker settings now saves to file on apply rather than on game exit</c>
+- <c-dddddd>Update object names list</c>
+
 # 1.2.0-beta.9
 - <c-dddddd>Disable Advanced Grid Controls until I can make them stable</c>
 - <c-dddddd>Disable Start Pos Switcher until I can make them stable</c>

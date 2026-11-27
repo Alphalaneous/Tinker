@@ -30,10 +30,10 @@ cocos2d::CCRect getRealBounds(cocos2d::CCNode* node, const std::vector<cocos2d::
     auto winSize = cocos2d::CCDirector::get()->getWinSize();
     if (!node->isVisible()) return {0, 0, 0, 0};
 
-    float minX = FLT_MAX;
-    float minY = FLT_MAX;
-    float maxX = -FLT_MAX;
-    float maxY = -FLT_MAX;
+    float minX = std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
+    float maxX = -std::numeric_limits<float>::max();
+    float maxY = -std::numeric_limits<float>::max();
 
     bool hasBounds = false;
 
@@ -153,7 +153,7 @@ float getFurthestLeft(cocos2d::CCNode* node, float x) {
     auto nodeMin = parent->convertToNodeSpace(nodeBottomLeft);
     auto nodeMax = parent->convertToNodeSpace(nodeTopRight);
 
-    float furthest = -FLT_MAX;
+    float furthest = -std::numeric_limits<float>::max();
 
     for (auto child : parent->getChildrenExt()) {
         if (child == node) continue;
@@ -176,7 +176,7 @@ float getFurthestLeft(cocos2d::CCNode* node, float x) {
         furthest = std::max(furthest, childMax.x);
     }
 
-    return furthest == -FLT_MAX ? 0 : furthest;
+    return furthest == -std::numeric_limits<float>::max() ? 0 : furthest;
 }
 
 bool nodesIntersect(cocos2d::CCNode* a, cocos2d::CCNode* b) {
@@ -192,10 +192,10 @@ bool nodesIntersect(cocos2d::CCNode* a, cocos2d::CCNode* b) {
             {0, size.height}
         };
 
-        float minX = FLT_MAX;
-        float minY = FLT_MAX;
-        float maxX = -FLT_MAX;
-        float maxY = -FLT_MAX;
+        float minX = std::numeric_limits<float>::max();
+        float minY = std::numeric_limits<float>::max();
+        float maxX = -std::numeric_limits<float>::max();
+        float maxY = -std::numeric_limits<float>::max();
 
         for (const auto& corner : corners) {
             auto world = node->convertToWorldSpace(corner);

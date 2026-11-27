@@ -96,8 +96,8 @@ ObjectAlignment::SnapEdge ObjectAlignment::closestSnapEdge(CCRect bounds) {
     std::optional<float> verticalSource = std::nullopt;
     std::optional<float> verticalTarget = std::nullopt;
 
-    float closestHorizontalDist = FLT_MAX;
-    float closestVerticalDist = FLT_MAX;
+    float closestHorizontalDist = std::numeric_limits<float>::max();
+    float closestVerticalDist = std::numeric_limits<float>::max();
 
     const float boundsX[] = {
         bounds.getMidX(),

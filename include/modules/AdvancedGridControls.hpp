@@ -4,6 +4,7 @@
 #include <Geode/ui/SliderNode.hpp>
 #include "module/Module.hpp"
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/GJTransformControl.hpp>
 
 namespace tinker::ui {
 
@@ -109,7 +110,6 @@ class $modify(AGCEditorUI, EditorUI) {
 
     void toggleWindow(int windowID);
     bool handleAction(int action, bool down, double timestamp);
-    void cycleCustomGridPreset(bool p0);
     cocos2d::CCPoint moveForCommand(EditCommand command);
 
     GameObject* onCreateObject(int id);
@@ -119,4 +119,10 @@ class $modify(AGCEditorUI, EditorUI) {
 
     float getGridMultiplier();
     void updateGridNodeSize();
+};
+
+class $modify(AGCGJTransformControl, GJTransformControl) {
+    $registerHooks(AdvancedGridControls)
+
+    cocos2d::CCPoint snapToGrid(cocos2d::CCPoint position, bool anchor);
 };

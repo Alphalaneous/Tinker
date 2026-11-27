@@ -446,10 +446,10 @@ void XYRotationControl::unfocus() {
 }
 
 float XYRotationControl::getSizeForObjects(cocos2d::CCArray* objects) {
-    float maxX = -FLT_MAX;
-    float minX = FLT_MAX;
-    float maxY = -FLT_MAX;
-    float minY = FLT_MAX;
+    float maxX = -std::numeric_limits<float>::max();
+    float minX = std::numeric_limits<float>::max();
+    float maxY = -std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
 
     for (auto obj : objects->asExt<GameObject>()) {
         obj->updateStartPos();

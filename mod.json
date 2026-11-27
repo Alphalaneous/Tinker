@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.tinker",
 	"name": "Tinker",
-	"version": "v1.2.0-beta.9",
+	"version": "v1.2.0-beta.10",
 	"developer": "Alphalaneous",
 	"description": "Editor Revamped",
 	"dependencies": {
@@ -85,8 +85,7 @@
 			"default": true,
 			"name": "Enable Advanced Grid Controls",
 			"description": "Control X and Y sizes of the grid as well as placing objects relative to the grid scale.",
-			"enable-if": "saved:wip-features",
-			"enable-if-description": "This feature is not complete yet and is coming in a future update."
+			"platforms": ["win", "mac", "ios"]
 		},
 		"ImprovedFontSelection-enabled": {
 			"type": "bool",
@@ -448,9 +447,7 @@
 			"type": "bool",
 			"default": true,
 			"name": "Lazy Loaded Object Buttons",
-			"description": "Load the object buttons only when they are made visible. Improves editor load times.",
-			"enable-if": "saved:wip-features",
-			"enable-if-description": "This feature is not complete yet and is coming in a future update."
+			"description": "Load the object buttons only when they are made visible. Improves editor load times."
 		},
 		"MusicCameraLock-enabled": {
 			"type": "bool",
@@ -1170,9 +1167,7 @@
 		"StartPosSwitcher-enabled": {
 			"type": "bool",
 			"default": true,
-			"name": "Enabled",
-			"enable-if": "saved:wip-features",
-			"enable-if-description": "This feature is not complete yet and is coming in a future update."
+			"name": "Enabled"
 		},
 		"StartPosSwitcher-auto-hide-switcher": {
 			"type": "bool",

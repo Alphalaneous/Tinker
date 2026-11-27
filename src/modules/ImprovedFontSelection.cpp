@@ -57,7 +57,7 @@ bool IFSSelectFontLayer2::init(LevelEditorLayer* layer) {
     if (list) {
         list->setVisible(false);
         // robs scroll bs messes with it even if not visible
-        list->setPosition({FLT_MAX, FLT_MAX});
+        list->setPosition({std::numeric_limits<float>::max(), std::numeric_limits<float>::max()});
     }
 
     auto oldTitle = m_mainLayer->getChildByType<CCLabelBMFont>();

@@ -422,7 +422,7 @@ void AdvancedGridSettingsLayer::setupOffsetPage() {
 
     m_alignBtn = CCMenuItemExt::createSpriteExtra(spr, [this] (auto sender) {
         auto editor = MainEditorUI::get();
-        if (!editor->m_selectedObject) return;
+        if (!editor || !editor->m_selectedObject) return;
 
         auto control = AdvancedGridControls::get();
 
@@ -536,6 +536,7 @@ void AdvancedGridSettingsLayer::updateMode() {
         m_offsetYContainer->setEnabled(true);
 
         auto editor = MainEditorUI::get();
+        if (!editor) return;
 
         if (editor->m_selectedObject) {
             m_alignBtn->setVisible(true);
@@ -638,7 +639,11 @@ void AdvancedGridControls::updateGrid() {
     if (m_updatingGridSize) return;
 
     auto dgl = getEditorLayer()->m_drawGridLayer;
+    if (!dgl) return;
+
     auto grid = static_cast<alpha::grid::Grid*>(dgl->getChildByID("alphalaneous.good_grid/grid"));
+    if (!grid) return;
+
     auto editor = getEditor();
 
     m_separateXY = getSaved<Save::Level, bool, "separate-xy">();
@@ -735,12 +740,6 @@ void AGCEditorUI::toggleWindow(int windowID) {
     EditorUI::toggleWindow(windowID);
 }
 
-void AGCEditorUI::cycleCustomGridPreset(bool p0) {
-    auto control = AdvancedGridControls::get();
-    
-    EditorUI::cycleCustomGridPreset(p0);
-}
-
 bool AGCEditorUI::handleAction(int action, bool down, double timestamp) {
     m_customGridSize = AdvancedGridControls::getSaved<Save::Level, float, "size">();
     m_customGridEnabled = AdvancedGridControls::getSaved<Save::Level, bool, "enabled">();
@@ -784,7 +783,6 @@ GameObject* AGCEditorUI::onCreateObject(int id) {
         ret->updateCustomScaleY(ret->m_pixelScaleY * multY);
 
         removeOffset(ret);
-        //applyOffset(ret);
 
         CCPoint offset = GameToolbox::getRelativeOffset(ret, ::offsetForKey(ret->m_objectID));
         ret->setPosition(ret->getPosition() + offset);
@@ -796,27 +794,30 @@ GameObject* AGCEditorUI::onCreateObject(int id) {
 }
 
 cocos2d::CCPoint AGCEditorUI::getLimitedPosition(cocos2d::CCPoint position) {
-    auto fields = m_fields.self();
+    // `this` is invalid?
+    auto editor = static_cast<AGCEditorUI*>(EditorUI::get());
+
+    auto fields = editor->m_fields.self();
     if (fields->m_regularLimited) {
         return EditorUI::getLimitedPosition(position);
     }
 
-    if (!m_editorLayer->m_drawGridLayer) {
+    if (!editor->m_editorLayer || !editor->m_editorLayer->m_drawGridLayer) {
         return EditorUI::getLimitedPosition(position);
     }
 
-    auto size = m_editorLayer->m_drawGridLayer->m_gridSize;
+    auto size = editor->m_editorLayer->m_drawGridLayer->m_gridSize;
     auto oldPoint = (position / size - CCPoint{0.5f, 0.5f}) * size;
 
     auto control = AdvancedGridControls::get();
 
-    float mult = getGridMultiplier();
+    float mult = editor->getGridMultiplier();
     
     float sizeX = control->m_gridX * mult;
     float sizeY = control->m_gridY * mult;
 
-    auto xVal = std::floorf((oldPoint.x - control->m_offsetX) / sizeX);
-    auto yVal = std::floorf((oldPoint.y - control->m_offsetY - 90.f) / sizeY);
+    auto xVal = std::floor((oldPoint.x - control->m_offsetX) / sizeX);
+    auto yVal = std::floor((oldPoint.y - control->m_offsetY - 90.f) / sizeY);
 
     return EditorUI::getLimitedPosition(CCPoint{(xVal + 0.5f) * sizeX + control->m_offsetX, (yVal + 0.5f) * sizeY + control->m_offsetY + 90.f});
 }
@@ -902,4 +903,62 @@ void AGCEditorUI::updateGridNodeSize() {
 
     if (control->m_updatingGridSize) return; 
     control->updateWindow();
+}
+
+cocos2d::CCPoint AGCGJTransformControl::snapToGrid(cocos2d::CCPoint position, bool anchor) {
+    auto space = anchor ? static_cast<CCNode*>(this) : m_mainNodeParent;
+    auto ui = m_delegate->getUI();
+    auto control = AdvancedGridControls::get();
+
+    auto objectLayer = ui->m_editorLayer->m_objectLayer;
+    auto local = objectLayer->convertToNodeSpace(space->convertToWorldSpace(position));
+
+    float gridX = control->m_gridX;
+    float gridY = control->m_gridY;
+
+    float offsetY = std::fmod(90.f, gridY);
+
+    float reachX = std::min(5.f, gridX * 0.1f);
+    float reachY = std::min(5.f, gridY * 0.1f);
+
+    auto last = CCPoint{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+
+    if (anchor) {
+        reachX = std::min(gridX * 0.35f, 8.f / objectLayer->getScale());
+        reachY = std::min(gridY * 0.35f, 8.f / objectLayer->getScale());
+
+        last = m_unk27c;
+    }
+
+    float snapX = std::round(local.x / gridX) * gridX;
+    float snapY = std::round((local.y - offsetY) / gridY) * gridY + offsetY;
+    float distanceX = std::abs(snapX - local.x);
+    float stickyX = std::abs(last.x - local.x) / 1.5f;
+
+    if (stickyX < distanceX) {
+        distanceX = stickyX;
+        snapX = last.x;
+    }
+
+    float lastX = snapX;
+    if (reachX <= distanceX) {
+        lastX = std::numeric_limits<float>::max();
+        snapX = local.x;
+    }
+
+    float distanceY = std::abs(snapY - local.y);
+    float stickyY = std::abs(last.y - local.y) / 1.5f;
+    if (stickyY < distanceY) {
+        distanceY = stickyY;
+        snapY = last.y;
+    }
+
+    float lastY = snapY;
+    if (reachY <= distanceY) {
+        lastY = std::numeric_limits<float>::max();
+        snapY = local.y;
+    }
+
+    if (anchor) m_unk27c = CCPoint{lastX, lastY};
+    return space->convertToNodeSpace(objectLayer->convertToWorldSpace({snapX, snapY}));
 }

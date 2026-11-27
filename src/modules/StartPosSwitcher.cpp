@@ -224,6 +224,8 @@ bool StartPosContainer::init(bool live) {
         updateUI();
     });
 
+    updateUI();
+
     return true;
 }
 
@@ -668,7 +670,7 @@ void StartPosSwitcher::addStartPos(StartPosObject* object) {
 }
 
 void StartPosSwitcher::removeStartPos(StartPosObject* object) {
-    if (m_startPosContainer->getStartPos() == object) {
+    if (m_startPosContainer && m_startPosContainer->getStartPos() == object) {
         m_startPosContainer->setStartPos(nullptr);
     }
 
@@ -796,7 +798,7 @@ void StartPosSwitcher::updateOverlay() {
         m_overlay->setStartPos(nullptr);
         return;
     }
-    if (editor->m_selectedObject->m_objectID == tinker::constants::objects::StartPosition) {
+    if (editor->m_selectedObject && editor->m_selectedObject->m_objectID == tinker::constants::objects::StartPosition) {
         auto startPos = static_cast<StartPosObject*>(editor->m_selectedObject);
         m_overlay->setStartPos(startPos);
     }
