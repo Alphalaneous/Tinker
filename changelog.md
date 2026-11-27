@@ -7,6 +7,7 @@
 - <c-dddddd>Rerelease Lazy Loaded Object Buttons</c>
 - <c-dddddd>Applying Tinker settings now saves to file on apply rather than on game exit</c>
 - <c-dddddd>Update object names list</c>
+- <c-dddddd>Add experimental mac and iOS support (probably will break)</c>
 
 # 1.2.0-beta.9
 - <c-dddddd>Disable Advanced Grid Controls until I can make them stable</c>
