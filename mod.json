@@ -284,6 +284,12 @@
 			"name": "Enable Old Color Trigger Textures",
 			"description": "See the old color trigger textures when looking at old levels."
 		},
+		"HideModifierBlocks-enabled": {
+			"type": "bool",
+			"default": false,
+			"name": "Hide Modifier Blocks in Playtest",
+			"description": "Hides modifier blocks (D, H, J, S and F) while playtesting in the editor."
+		},
 		"fixes-title": {
 			"type": "title",
 			"name": "Fixes"
