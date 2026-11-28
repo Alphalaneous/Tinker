@@ -437,7 +437,7 @@
             },
             "HideModifierBlocks": {
                 "name": "Hide Modifier Blocks in Playtest",
-                "description": "Hides modifier blocks (D, H, J, S and F) while playtesting in the editor.",
+                "description": "Hides modifier blocks (D, H, J, S and F) while playtesting in the editor. (Implementation + OG Mod by MalikHw47)",
                 "default": false,
                 "default-category": "objects"
             },
